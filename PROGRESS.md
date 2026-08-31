@@ -21,15 +21,19 @@
 | 氨基酸 | AminoAcids.tsx | 含增肌模块 |
 | 维生素速查 | Vitamins.tsx | |
 | PubChem 查询 | PubChem.tsx | 走 /api/pubchem 代理 |
+| 教学实验室 | Teaching.tsx | `/teaching` 展示门户；3D 实验室静态页在 `public/teaching/` |
 
 ## 最近完成
 
 - 2026-08-31 修复同步：首页浅色化 + 氨基酸增肌模块 + 维生素速查（commit efd2173）
 - 2026-08-31 双设备基础设施：删除项目内重复的 .ssh 私钥副本（真钥在 `~/.ssh/`）、`.gitignore` 加入 `.ssh/`、仓库转为私有
+- 2026-08-31 教学模块 v1：新增 `/teaching` 展示门户页（Teaching.tsx）；两个 3D 实验室作为静态页放入 `public/teaching/`（chem_lab1.1.html=VSEPR 分子构型，chem_lab1.2.html=晶体结构），返回按钮指向 `/teaching`
 
 ## 下一步（待办）
 
-- [ ] （暂无，由会话更新）
+- [ ] **按 tk-chem.cc/nav.html 的风格重做 VSEPR 与晶体结构两个实验室**（用户反馈豆包版太粗糙）
+- [ ] 门户页排版细化（目前是第一版粗排）
+- [ ] 教学模块其余板块（复习、有机、反应原理、游戏）陆续接入
 
 ## 双设备工作流约定
 
@@ -40,4 +44,5 @@
 
 ## 环境备注
 
-- 设备 A（风逝台式机）：GitHub 直连偶发超时（2026-08-31 git fetch 失败、curl 正常），如遇 push/pull 失败先重试或检查代理
+- 设备 A（风逝台式机）：GitHub 直连偶发超时，push 失败多重试几次即可；npm/node 不在 PATH，构建用 `%APPDATA%\kimi-desktop\daimon-share\daimon\command-process-owner\bin\npm.cmd`
+- 教学实验室依赖 Three.js CDN（jsdelivr / unpkg），离线环境会加载失败

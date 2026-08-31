@@ -8,6 +8,7 @@ const nav = [
   { to: '/kitchen', label: '厨房化学' },
   { to: '/vitamins', label: '维生素与化学' },
   { to: '/amino-acids', label: '氨基酸与健康' },
+  { to: '/teaching', label: '教学实验室' },
 ]
 
 export default function SiteHeader() {

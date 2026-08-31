@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>VSEPR分子构型可视化 | 化学世界可视化调研中心·早晨老师</title>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+body{background:#0a0e17;color:#e5e7eb;overflow:hidden;}
+.top-bar{height:60px;background:rgba(15,23,42,0.85);backdrop-filter:blur(10px);border-bottom:1px solid rgba(59,130,246,0.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
+.top-bar .back-btn{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;padding:8px 16px;cursor:pointer;border-radius:6px;}
+.top-bar h1{font-size:18px;font-weight:normal;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.top-bar .top-right{display:flex;gap:10px;}
+.top-bar .top-right button{background:rgba(30,41,59,0.8);border:1px solid rgba(100,116,139,0.3);color:#cbd5e1;padding:8px 14px;cursor:pointer;border-radius:6px;}
+.main-wrap{display:flex;height:calc(100vh - 60px);}
+.left-nav{width:220px;background:rgba(15,23,42,0.65);backdrop-filter:blur(10px);border-right:1px solid rgba(59,130,246,0.15);padding:16px 0;overflow-y:auto;}
+.nav-chapter{margin-bottom:4px;}
+.chapter-title{padding:12px 20px;cursor:pointer;font-size:14px;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;border-left:3px solid transparent;}
+.chapter-title .arrow{font-size:12px;transition:0.3s;}
+.chapter-title.open{color:#60a5fa;border-left-color:#3b82f6;background:rgba(59,130,246,0.08);}
+.chapter-title.open .arrow{transform:rotate(90deg);}
+.mol-list{display:none;padding:4px 0;}
+.mol-list.show{display:block;}
+.mol-item{padding:10px 20px 10px 36px;cursor:pointer;font-size:13px;color:#94a3b8;}
+.mol-item:hover{background:rgba(59,130,246,0.05);color:#cbd5e1;}
+.mol-item.active{background:rgba(59,130,246,0.1);color:#60a5fa;}
+.center-canvas{flex:1;position:relative;}
+#molCanvas{width:100%;height:100%;display:block;}
+.info-card{position:absolute;bottom:24px;left:24px;background:rgba(15,23,42,0.75);backdrop-filter:blur(12px);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:18px 22px;max-width:340px;}
+.info-card h2{font-size:22px;margin-bottom:10px;color:#f1f5f9;}
+.info-card .tag-box{margin-bottom:10px;}
+.info-card .tag{display:inline-block;background:rgba(59,130,246,0.15);color:#93c5fd;padding:3px 10px;border-radius:4px;font-size:12px;margin-right:6px;border:1px solid rgba(59,130,246,0.2);}
+.info-card .tag.lone{background:rgba(167,139,250,0.15);color:#c4b5fd;border-color:rgba(167,139,250,0.2);}
+.info-card .tag.pi{background:rgba(248,113,113,0.15);color:#fca5a5;border-color:rgba(248,113,113,0.2);}
+.info-card p{font-size:13px;color:#94a3b8;line-height:1.6;}
+.right-panel{width:280px;background:rgba(15,23,42,0.65);backdrop-filter:blur(10px);border-left:1px solid rgba(59,130,246,0.15);padding:20px;overflow-y:auto;}
+.panel-section{margin-bottom:28px;}
+.panel-section h3{font-size:13px;color:#64748b;margin-bottom:14px;font-weight:normal;text-transform:uppercase;letter-spacing:1px;}
+.switch-row{display:flex;align-items:center;justify-content:space-between;}
+.switch-label{font-size:14px;color:#cbd5e1;}
+.switch{width:48px;height:26px;background:rgba(71,85,105,0.5);border-radius:13px;position:relative;cursor:pointer;transition:0.3s;}
+.switch::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:0.3s;box-shadow:0 2px 4px rgba(0,0,0,0.2);}
+.switch.active{background:linear-gradient(90deg,#3b82f6,#8b5cf6);}
+.switch.active::after{left:25px;}
+.view-btns{display:flex;gap:8px;}
+.view-btn{flex:1;padding:10px 8px;border:1px solid rgba(100,116,139,0.3);background:rgba(30,41,59,0.5);color:#94a3b8;cursor:pointer;border-radius:6px;font-size:13px;transition:0.3s;}
+.view-btn.active{background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(139,92,246,0.2));color:#93c5fd;border-color:rgba(59,130,246,0.5);}
+.slider-wrap{width:100%;}
+.slider-wrap input[type="range"]{width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);outline:none;-webkit-appearance:none;}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(59,130,246,0.5);}
+.slider-value{text-align:center;font-size:12px;color:#64748b;margin-top:8px;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:999;justify-content:center;align-items:center;}
+.modal-content{background:rgba(15,23,42,0.9);backdrop-filter:blur(16px);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:28px;max-width:90%;max-height:85%;overflow:auto;position:relative;min-width:780px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.modal-close{position:absolute;top:16px;right:20px;font-size:22px;cursor:pointer;color:#64748b;background:none;border:none;}
+.modal-title{font-size:18px;margin-bottom:20px;color:#f1f5f9;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.vsepr-table{width:100%;border-collapse:collapse;font-size:13px;}
+.vsepr-table th,.vsepr-table td{border:1px solid rgba(100,116,139,0.2);padding:10px 14px;text-align:center;}
+.vsepr-table th{background:rgba(59,130,246,0.08);font-weight:normal;color:#93c5fd;}
+.vsepr-table td{color:#cbd5e1;}
+.vsepr-table tr:hover td{background:rgba(59,130,246,0.05);}
+.feedback-form textarea{width:100%;height:120px;padding:12px;border:1px solid rgba(100,116,139,0.3);border-radius:8px;background:rgba(30,41,59,0.5);color:#e5e7eb;resize:none;font-size:14px;margin-bottom:14px;font-family:inherit;}
+.feedback-form input{width:100%;padding:10px 12px;border:1px solid rgba(100,116,139,0.3);border-radius:8px;background:rgba(30,41,59,0.5);color:#e5e7eb;font-size:14px;margin-bottom:14px;}
+.feedback-form button{width:100%;padding:12px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="back-btn" id="backHome">← 返回首页</button>
+  <h1>VSEPR 分子构型可视化实验室</h1>
+  <div class="top-right">
+    <button id="openVseprTable">VSEPR数据表</button>
+    <button id="openFeedback">反馈</button>
+  </div>
+</div>
+
+<div class="main-wrap">
+  <div class="left-nav">
+    <div class="nav-chapter">
+      <div class="chapter-title open">
+        <span>第二章 分子结构</span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="mol-list show">
+        <div class="mol-item active" data-mol="ch4">CH₄ 甲烷</div>
+        <div class="mol-item" data-mol="nh3">NH₃ 氨气</div>
+        <div class="mol-item" data-mol="h2o">H₂O 水</div>
+        <div class="mol-item" data-mol="co2">CO₂ 二氧化碳</div>
+        <div class="mol-item" data-mol="bf3">BF₃ 三氟化硼</div>
+      </div>
+    </div>
+    <div class="nav-chapter">
+      <div class="chapter-title">
+        <span>有机化学基础</span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="mol-list">
+        <div class="mol-item" data-mol="c2h6">C₂H₆ 乙烷</div>
+        <div class="mol-item" data-mol="c2h4">C₂H₄ 乙烯</div>
+        <div class="mol-item">乙炔（建设中）</div>
+        <div class="mol-item">苯（建设中）</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="center-canvas" id="canvasBox">
+    <canvas id="molCanvas"></canvas>
+    <div class="info-card">
+      <h2>CH₄ 甲烷</h2>
+      <div class="tag-box">
+        <span class="tag">正四面体</span>
+        <span class="tag">sp³杂化</span>
+      </div>
+      <p>中心C原子sp³杂化，4个σ键，0对孤电子对，键角109°28'。</p>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="panel-section">
+      <h3>模型控制</h3>
+      <div class="switch-row">
+        <span class="switch-label">自动旋转</span>
+        <div class="switch" id="rotateSwitch"></div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <h3>视角模式</h3>
+      <div class="view-btns">
+        <button class="view-btn active">杂化轨道</button>
+        <button class="view-btn">成键状态</button>
+      </div>
+    </div>
+    <div class="panel-section">
+      <h3>成键演化</h3>
+      <div class="slider-wrap">
+        <input type="range" id="evolveSlider" min="0" max="100" value="100">
+        <div class="slider-value" id="sliderValue">阶段四：稳定成键</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="tableModal">
+  <div class="modal-content">
+    <button class="modal-close" data-modal="tableModal">×</button>
+    <h3 class="modal-title">VSEPR 模型数据总表</h3>
+    <table class="vsepr-table">
+      <thead>
+        <tr><th>通式</th><th>价层电子对数</th><th>成键对数</th><th>孤电子对</th><th>空间构型</th><th>杂化类型</th><th>键角</th><th>实例</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>AX₂</td><td>2</td><td>2</td><td>0</td><td>直线形</td><td>sp</td><td>180°</td><td>CO₂、BeCl₂、C₂H₂</td></tr>
+        <tr><td>AX₃</td><td>3</td><td>3</td><td>0</td><td>平面三角形</td><td>sp²</td><td>120°</td><td>BF₃、SO₃、C₂H₄</td></tr>
+        <tr><td>AX₂E</td><td>3</td><td>2</td><td>1</td><td>V形（角形）</td><td>sp²</td><td>≈117°</td><td>SO₂、O₃、NO₂⁻</td></tr>
+        <tr><td>AX₄</td><td>4</td><td>4</td><td>0</td><td>正四面体形</td><td>sp³</td><td>109°28'</td><td>CH₄、CCl₄、NH₄⁺</td></tr>
+        <tr><td>AX₃E</td><td>4</td><td>3</td><td>1</td><td>三角锥形</td><td>sp³</td><td>≈107°</td><td>NH₃、PCl₃、H₃O⁺</td></tr>
+        <tr><td>AX₂E₂</td><td>4</td><td>2</td><td>2</td><td>V形（角形）</td><td>sp³</td><td>≈104.5°</td><td>H₂O、H₂S、OF₂</td></tr>
+        <tr><td>AX₅</td><td>5</td><td>5</td><td>0</td><td>三角双锥形</td><td>sp³d</td><td>90°/120°/180°</td><td>PCl₅、PF₅</td></tr>
+        <tr><td>AX₄E</td><td>5</td><td>4</td><td>1</td><td>变形四面体（跷跷板形）</td><td>sp³d</td><td><90°/<120°</td><td>SF₄、TeCl₄</td></tr>
+        <tr><td>AX₃E₂</td><td>5</td><td>3</td><td>2</td><td>T形</td><td>sp³d</td><td><90°</td><td>ClF₃、BrF₃</td></tr>
+        <tr><td>AX₂E₃</td><td>5</td><td>2</td><td>3</td><td>直线形</td><td>sp³d</td><td>180°</td><td>XeF₂、I₃⁻</td></tr>
+        <tr><td>AX₆</td><td>6</td><td>6</td><td>0</td><td>正八面体形</td><td>sp³d²</td><td>90°/180°</td><td>SF₆、SiF₆²⁻</td></tr>
+        <tr><td>AX₅E</td><td>6</td><td>5</td><td>1</td><td>四方锥形</td><td>sp³d²</td><td><90°</td><td>BrF₅、IF₅</td></tr>
+        <tr><td>AX₄E₂</td><td>6</td><td>4</td><td>2</td><td>平面正方形</td><td>sp³d²</td><td>90°</td><td>XeF₄、ICl₄⁻</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal" id="feedbackModal">
+  <div class="modal-content" style="min-width:420px;">
+    <button class="modal-close" data-modal="feedbackModal">×</button>
+    <h3 class="modal-title">意见反馈</h3>
+    <div class="feedback-form">
+      <textarea id="feedbackContent" placeholder="请描述您遇到的问题或建议..."></textarea>
+      <input type="text" id="feedbackContact" placeholder="联系方式（选填）">
+      <button id="sendFeedbackBtn">提交反馈</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 3D场景初始化
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0e17);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+camera.position.z = 12;
+
+const canvas = document.getElementById('molCanvas');
+const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
+const box = document.getElementById('canvasBox');
+renderer.setSize(box.clientWidth, box.clientHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+camera.aspect = box.clientWidth / box.clientHeight;
+camera.updateProjectionMatrix();
+
+window.addEventListener('resize', function(){
+  renderer.setSize(box.clientWidth, box.clientHeight);
+  camera.aspect = box.clientWidth / box.clientHeight;
+  camera.updateProjectionMatrix();
+});
+
+// 灯光
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+const keyLight = new THREE.DirectionalLight(0xffffff, 0.65);
+keyLight.position.set(5, 5, 5);
+scene.add(keyLight);
+const fillLight = new THREE.DirectionalLight(0xa7c8ff, 0.3);
+fillLight.position.set(-4, -2, -5);
+scene.add(fillLight);
+
+const molGroup = new THREE.Group();
+scene.add(molGroup);
+
+// 鼠标拖拽
+let isDragging = false;
+let prevMouse = {x:0, y:0};
+canvas.addEventListener('mousedown', function(e){
+  isDragging = true;
+  prevMouse = {x:e.clientX, y:e.clientY};
+});
+canvas.addEventListener('mousemove', function(e){
+  if(!isDragging) return;
+  molGroup.rotation.y += (e.clientX - prevMouse.x) * 0.01;
+  molGroup.rotation.x += (e.clientY - prevMouse.y) * 0.01;
+  prevMouse = {x:e.clientX, y:e.clientY};
+});
+canvas.addEventListener('mouseup', function(){isDragging=false;});
+canvas.addEventListener('mouseleave', function(){isDragging=false;});
+
+// 滚轮缩放
+canvas.addEventListener('wheel', function(e){
+  e.preventDefault();
+  camera.position.z += e.deltaY * 0.01;
+  camera.position.z = Math.max(5, Math.min(25, camera.position.z));
+});
+
+// 自动旋转
+let autoRotate = false;
+document.getElementById('rotateSwitch').onclick = function(){
+  autoRotate = !autoRotate;
+  this.classList.toggle('active');
+};
+
+// 视角切换
+let currentView = 'orbital';
+document.querySelectorAll('.view-btn').forEach(function(btn, i){
+  btn.onclick = function(){
+    document.querySelectorAll('.view-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    currentView = i===0 ? 'orbital' : 'bond';
+    drawMolecule();
+  };
+});
+
+// 左侧手风琴
+document.querySelectorAll('.chapter-title').forEach(function(title){
+  title.onclick = function(){
+    title.classList.toggle('open');
+    title.nextElementSibling.classList.toggle('show');
+  };
+});
+
+// 颜色定义
+const COLOR_BOND = 0x4da6ff;   // 成键轨道蓝色
+const COLOR_LONE = 0xa78bfa;   // 孤对轨道紫色
+const COLOR_PI = 0xf87171;     // π键红色
+const COLOR_C = 0x6b7280;      // 碳原子灰色
+const COLOR_H = 0xffffff;      // 氢原子白色
+const COLOR_O = 0xef4444;      // 氧原子红色
+const COLOR_F = 0x10b981;      // 氟原子绿色
+const COLOR_CL = 0x10b981;     // 氯原子绿色
+
+// 工具函数：归一化方向向量
+function normDir(x,y,z){
+  const len = Math.hypot(x,y,z);
+  return [x/len, y/len, z/len];
+}
+
+// ====================== 所有分子数据 ======================
+const molData = {
+  // CH4 甲烷 sp3杂化 正四面体
+  ch4: {
+    name: 'CH₄ 甲烷',
+    tags: ['正四面体','sp³杂化'],
+    desc: '中心C原子sp³杂化，4个σ键，0对孤电子对，键角109°28\'。',
+    centers: [
+      {
+        pos:[0,0,0], r:1.3, color:COLOR_C,
+        orbitals: [
+          {dir:normDir(1,1,1), isBond:true},
+          {dir:normDir(-1,-1,1), isBond:true},
+          {dir:normDir(-1,1,-1), isBond:true},
+          {dir:normDir(1,-1,-1), isBond:true}
+        ]
+      }
+    ],
+    atoms: [
+      {pos:normDir(1,1,1), r:0.45, color:COLOR_H, centerIdx:0},
+      {pos:normDir(-1,-1,1), r:0.45, color:COLOR_H, centerIdx:0},
+      {pos:normDir(-1,1,-1), r:0.45, color:COLOR_H, centerIdx:0},
+      {pos:normDir(1,-1,-1), r:0.45, color:COLOR_H, centerIdx:0}
+    ],
+    scale: 1.4,
+    bondOverlap: 1.08 // 轻微重叠，和参考图一致
+  },
+  // NH3 氨气 sp3杂化 三角锥
+  nh3: {
+    name: 'NH₃ 氨气',
+    tags: ['三角锥形','sp³杂化','1对孤对'],
+    desc: '中心N原子sp³杂化，3个σ键，1对孤电子对，键角约107°。',
+    centers: [
+      {
+        pos:[0,0,0], r:1.2, color:COLOR_BOND,
+        orbitals: [
+          {dir:normDir(1,0.6,1), isBond:true},
+          {dir:normDir(-1,0.6,1), isBond:true},
+          {dir:normDir(0,0.6,-1.2), isBond:true},
+          {dir:normDir(0,-1.2,0), isBond:false}
+        ]
+      }
+    ],
+    atoms: [
+      {pos:normDir(1,0.6,1), r:0.4, color:COLOR_H, centerIdx:0},
+      {pos:normDir(-1,0.6,1), r:0.4, color:COLOR_H, centerIdx:0},
+      {pos:normDir(0,0.6,-1.2), r:0.4, color:COLOR_H, centerIdx:0}
+    ],
+    scale: 1.3,
+    bondOverlap: 1.08
+  },
+  // H2O 水 sp3杂化 V形
+  h2o: {
+    name: 'H₂O 水',
+    tags: ['V形','sp³杂化','2对孤对'],
+    desc: '中心O原子sp³杂化，2个σ键，2对孤电子对，键角约104.5°。',
+    centers: [
+      {
+        pos:[0,0,0], r:1.1, color:COLOR_O,
+        orbitals: [
+          {dir:normDir(0.9,0.7,0), isBond:true},
+          {dir:normDir(-0.9,0.7,0), isBond:true},
+          {dir:normDir(0,-0.8,0.8), isBond:false},
+          {dir:normDir(0,-0.8,-0.8), isBond:false}
+        ]
+      }
+    ],
+    atoms: [
+      {pos:normDir(0.9,0.7,0), r:0.38, color:COLOR_H, centerIdx:0},
+      {pos:normDir(-0.9,0.7,0), r:0.38, color:COLOR_H, centerIdx:0}
+    ],
+    scale: 1.2,
+    bondOverlap: 1.02
+  },
+  // CO2 二氧化碳 sp杂化 直线形
+  co2: {
+    name: 'CO₂ 二氧化碳',
+    tags: ['直线形','sp杂化'],
+    desc: '中心C原子sp杂化，2个σ键+2个π键，键角180°。',
+    centers: [
+      {
+        pos:[0,0,0], r:1.0, color:COLOR_C,
+        orbitals: [
+          {dir:[1,0,0], isBond:true},
+          {dir:[-1,0,0], isBond:true}
+        ]
+      }
+    ],
+    atoms: [
+      {pos:[1,0,0], r:0.55, color:COLOR_O, centerIdx:0},
+      {pos:[-1,0,0], r:0.55, color:COLOR_O, centerIdx:0}
+    ],
+    scale: 1.5,
+    bondOverlap: 1.05
+  },
+  // BF3 三氟化硼 sp2杂化 平面三角形
+  bf3: {
+    name: 'BF₃ 三氟化硼',
+    tags: ['平面三角形','sp²杂化'],
+    desc: '中心B原子sp²杂化，3个σ键，0对孤电子对，键角120°。',
+    centers: [
+      {
+        pos:[0,0,0], r:1.1, color:COLOR_BOND,
+        orbitals: [
+          {dir:[1,0,0], isBond:true},
+          {dir:[-0.5,0.866,0], isBond:true},
+          {dir:[-0.5,-0.866,0], isBond:true}
+        ]
+      }
+    ],
+    atoms: [
+      {pos:[1,0,0], r:0.5, color:COLOR_F, centerIdx:0},
+      {pos:[-0.5,0.866,0], r:0.5, color:COLOR_F, centerIdx:0},
+      {pos:[-0.5,-0.866,0], r:0.5, color:COLOR_F, centerIdx:0}
+    ],
+    scale: 1.3,
+    bondOverlap: 1.08
+  },
+  // 乙烷 C2H6 sp3杂化 两个碳
+  c2h6: {
+    name: 'C₂H₆ 乙烷',
+    tags: ['碳碳单键','sp³杂化','交错式构象'],
+    desc: '两个C原子均为sp³杂化，C-C σ键头碰头重叠，每个C连3个H，键角约109.5°。',
+    centers: [
+      {
+        pos:[-0.75,0,0], r:1.1, color:COLOR_C,
+        orbitals: [
+          {dir:[1,0,0], isBond:true}, // C-C键向右
+          {dir:normDir(-1,1,1), isBond:true},
+          {dir:normDir(-1,-1,1), isBond:true},
+          {dir:normDir(-1,0,-1.4), isBond:true}
+        ]
+      },
+      {
+        pos:[0.75,0,0], r:1.1, color:COLOR_C,
+        orbitals: [
+          {dir:[-1,0,0], isBond:true}, // C-C键向左
+          {dir:normDir(1,-1,1), isBond:true},
+          {dir:normDir(1,1,1), isBond:true},
+          {dir:normDir(1,0,-1.4), isBond:true}
+        ]
+      }
+    ],
+    atoms: [
+      {pos:normDir(-1,1,1), r:0.4, color:COLOR_H, centerIdx:0},
+      {pos:normDir(-1,-1,1), r:0.4, color:COLOR_H, centerIdx:0},
+      {pos:normDir(-1,0,-1.4), r:0.4, color:COLOR_H, centerIdx:0},
+      {pos:normDir(1,-1,1), r:0.4, color:COLOR_H, centerIdx:1},
+      {pos:normDir(1,1,1), r:0.4, color:COLOR_H, centerIdx:1},
+      {pos:normDir(1,0,-1.4), r:0.4, color:COLOR_H, centerIdx:1}
+    ],
+    scale: 1.2,
+    bondOverlap: 1.08,
+    ccBond: 1.5 // C-C键距离
+  },
+  // 乙烯 C2H4 sp2杂化 平面结构
+  c2h4: {
+    name: 'C₂H₄ 乙烯',
+    tags: ['碳碳双键','sp²杂化','平面结构','含π键'],
+    desc: '两个C原子均为sp²杂化，C-C之间1个σ键+1个π键肩并肩重叠，每个C连2个H，键角约120°。',
+    centers: [
+      {
+        pos:[-0.65,0,0], r:1.0, color:COLOR_C,
+        orbitals: [
+          {dir:[1,0,0], isBond:true}, // C-C σ键向右
+          {dir:normDir(-1,1,0), isBond:true},
+          {dir:normDir(-1,-1,0), isBond:true}
+        ]
+      },
+      {
+        pos:[0.65,0,0], r:1.0, color:COLOR_C,
+        orbitals: [
+          {dir:[-1,0,0], isBond:true}, // C-C σ键向左
+          {dir:normDir(1,1,0), isBond:true},
+          {dir:normDir(1,-1,0), isBond:true}
+        ]
+      }
+    ],
+    atoms: [
+      {pos:normDir(-1,1,0), r:0.4, color:COLOR_H, centerIdx:0},
+      {pos:normDir(-1,-1,0), r:0.4, color:COLOR_H, centerIdx:0},
+      {pos:normDir(1,1,0), r:0.4, color:COLOR_H, centerIdx:1},
+      {pos:normDir(1,-1,0), r:0.4, color:COLOR_H, centerIdx:1}
+    ],
+    scale: 1.2,
+    bondOverlap: 1.08,
+    ccBond: 1.3, // C=C键距离更短
+    hasPi: true // 有π键
+  }
+};
+
+let currentMol = 'ch4';
+let progress = 100;
+
+// 分子切换
+document.querySelectorAll('.mol-item[data-mol]').forEach(function(item){
+  item.onclick = function(){
+    document.querySelectorAll('.mol-item').forEach(function(i){i.classList.remove('active');});
+    item.classList.add('active');
+    currentMol = item.dataset.mol;
+    if(molData[currentMol]) drawMolecule();
+  };
+});
+
+// ====================== 内部星光粒子 ======================
+function createStarDust(baseR, starColor, starCount, scaleY=1){
+  const positions = new Float32Array(starCount * 3);
+  for(let i = 0; i < starCount; i++){
+    const randRad = baseR * 0.85 * Math.cbrt(Math.random());
+    const theta = 2 * Math.PI * Math.random();
+    const phi = Math.acos(2 * Math.random() - 1);
+    positions[i*3] = randRad * Math.sin(phi) * Math.cos(theta);
+    positions[i*3+1] = randRad * Math.sin(phi) * Math.sin(theta) * scaleY;
+    positions[i*3+2] = randRad * Math.cos(phi);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const mat = new THREE.PointsMaterial({
+    color: starColor, size:0.018, transparent:true, opacity:0.9,
+    sizeAttenuation:true, blending:THREE.AdditiveBlending, depthWrite:false
+  });
+  return new THREE.Points(geo, mat);
+}
+
+// ====================== 单个纺锤形轨道 ======================
+function createOrbital(baseR, color, dir){
+  const dx = dir[0], dy = dir[1], dz = dir[2];
+  const orbGeo = new THREE.SphereGeometry(baseR * 0.32, 36, 36);
+  orbGeo.scale(1, 2.8, 1);
+  const orbMat = new THREE.MeshPhysicalMaterial({
+    color: color, transparent:true, opacity:0.35, roughness:0.08, metalness:0.2,
+    transmission:0.3, thickness:0.5, emissive:color, emissiveIntensity:0.55
+  });
+  const orb = new THREE.Mesh(orbGeo, orbMat);
+  orb.position.set(dx * baseR * 0.5, dy * baseR * 0.5, dz * baseR * 0.5);
+  orb.lookAt(dx*5, dy*5, dz*5);
+  orb.rotateX(Math.PI/2);
+  orb.add(createStarDust(baseR * 0.32 * 2.8, color, 25, 1/2.8));
+  return orb;
+}
+
+// ====================== π键（红色弯曲管道） ======================
+function createPiBond(start, end){
+  const group = new THREE.Group();
+  const mid = [(start[0]+end[0])/2, (start[1]+end[1])/2, (start[2]+end[2])/2];
+  const dist = Math.hypot(end[0]-start[0], end[1]-start[1], end[2]-start[2]);
+  
+  // 上下两个弧形电子云
+  for(let side = -1; side <= 1; side += 2){
+    const tubeGeo = new THREE.TorusGeometry(dist/2, 0.18, 16, 32, Math.PI);
+    const tubeMat = new THREE.MeshPhysicalMaterial({
+      color: COLOR_PI, transparent:true, opacity:0.4, roughness:0.1,
+      transmission:0.2, emissive:COLOR_PI, emissiveIntensity:0.5
+    });
+    const tube = new THREE.Mesh(tubeGeo, tubeMat);
+    tube.position.set(mid[0], mid[1] + side*0.2, mid[2]);
+    tube.rotateY(Math.PI/2);
+    tube.rotateZ(side * Math.PI/2);
+    group.add(tube);
+    tube.add(createStarDust(dist/2, COLOR_PI, 30));
+  }
+  return group;
+}
+
+// ====================== 中心原子（带杂化轨道） ======================
+function createCenter(centerCfg){
+  const group = new THREE.Group();
+  group.position.set(centerCfg.pos[0], centerCfg.pos[1], centerCfg.pos[2]);
+  
+  // 生成所有轨道
+  centerCfg.orbitals.forEach(function(orb){
+    const color = orb.isBond ? COLOR_BOND : COLOR_LONE;
+    group.add(createOrbital(centerCfg.r, color, orb.dir));
+  });
+  
+  // 中心核
+  const coreGeo = new THREE.SphereGeometry(centerCfg.r * 0.25, 32, 32);
+  const coreMat = new THREE.MeshBasicMaterial({
+    color: 0x6366f1, transparent:true, opacity:0.5
+  });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  core.add(createStarDust(centerCfg.r * 0.25, 0x6366f1, 20));
+  group.add(core);
+  group.add(createStarDust(centerCfg.r * 0.9, 0x60a5fa, 80));
+  
+  return group;
+}
+
+// ====================== 原子模型 ======================
+function createAtom(r, color){
+  const group = new THREE.Group();
+  const geo = new THREE.SphereGeometry(r, 36, 36);
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: color, transparent:true, opacity:0.45, roughness:0.08, metalness:0.3,
+    transmission:0.25, thickness:0.4, emissive:color, emissiveIntensity:0.42
+  });
+  const atom = new THREE.Mesh(geo, mat);
+  atom.add(createStarDust(r * 0.8, color, 20));
+  group.add(atom);
+  return group;
+}
+
+// ====================== 主绘制函数 ======================
+function drawMolecule(){
+  while(molGroup.children.length > 0){
+    molGroup.remove(molGroup.children[0]);
+  }
+  const molCfg = molData[currentMol];
+  const t = progress / 100;
+
+  // 画所有中心原子的杂化轨道
+  const centers = [];
+  molCfg.centers.forEach(function(cfg){
+    const c = createCenter(cfg);
+    centers.push(c);
+    molGroup.add(c);
+  });
+
+  // 多中心分子调整位置（乙烷、乙烯）
+  if(molCfg.ccBond){
+    const ccDist = molCfg.ccBond * t;
+    centers[0].position.x = -ccDist/2;
+    centers[1].position.x = ccDist/2;
+  }
+
+  // π键（乙烯）
+  if(currentView === 'bond' && molCfg.hasPi && t > 0.7){
+    const pi = createPiBond(
+      [-molCfg.ccBond/2, 0, 0],
+      [molCfg.ccBond/2, 0, 0]
+    );
+    pi.scale.setScalar(t);
+    molGroup.add(pi);
+  }
+
+  // 成键状态：周围原子
+  if(currentView === 'bond'){
+    const startDist = molCfg.scale * 2.8;
+    const endDist = molCfg.scale * molCfg.bondOverlap;
+    const currentDist = startDist - (startDist - endDist) * t;
+
+    molCfg.atoms.forEach(function(atomCfg){
+      const center = molCfg.centers[atomCfg.centerIdx];
+      const dir = atomCfg.pos;
+      const cx = center.pos[0], cy = center.pos[1], cz = center.pos[2];
+      const x = cx + dir[0] * currentDist;
+      const y = cy + dir[1] * currentDist;
+      const z = cz + dir[2] * currentDist;
+      const atom = createAtom(atomCfg.r, atomCfg.color);
+      atom.position.set(x, y, z);
+      molGroup.add(atom);
+    });
+  }
+
+  // 更新信息卡
+  document.querySelector('.info-card h2').textContent = molCfg.name;
+  let tagHtml = '';
+  molCfg.tags.forEach(function(tag){
+    let cls = 'tag';
+    if(tag.includes('孤对')) cls += ' lone';
+    if(tag.includes('π')) cls += ' pi';
+    tagHtml += `<span class="${cls}">${tag}</span>`;
+  });
+  document.querySelector('.info-card .tag-box').innerHTML = tagHtml;
+  document.querySelector('.info-card p').textContent = molCfg.desc;
+}
+
+// 滑动条
+const slider = document.getElementById('evolveSlider');
+const sliderText = document.getElementById('sliderValue');
+slider.oninput = function(e){
+  progress = parseInt(e.target.value);
+  if(currentView === 'orbital'){
+    sliderText.textContent = '中心原子VSEPR杂化轨道模型';
+  }else{
+    if(progress < 25) sliderText.textContent = '阶段一：原子远离';
+    else if(progress < 55) sliderText.textContent = '阶段二：轨道靠近';
+    else if(progress < 80) sliderText.textContent = '阶段三：电子云重叠';
+    else sliderText.textContent = '阶段四：稳定成键';
+  }
+  drawMolecule();
+};
+
+// 弹窗
+document.getElementById('backHome').onclick = function(){window.location.href="/teaching";};
+document.querySelectorAll('.modal-close').forEach(function(btn){
+  btn.onclick = function(){document.getElementById(btn.dataset.modal).style.display="none";};
+});
+document.getElementById('openVseprTable').onclick = function(){
+  document.getElementById('tableModal').style.display="flex";
+};
+document.getElementById('openFeedback').onclick = function(){
+  document.getElementById('feedbackModal').style.display="flex";
+};
+document.querySelectorAll('.modal').forEach(function(modal){
+  modal.onclick = function(e){if(e.target === modal) modal.style.display="none";};
+});
+
+// 反馈
+document.getElementById('sendFeedbackBtn').onclick = function(){
+  const content = document.getElementById('feedbackContent').value.trim();
+  const contact = document.getElementById('feedbackContact').value.trim();
+  if(!content){alert('请填写反馈内容');return;}
+  let list = JSON.parse(localStorage.getItem('chemFeedback') || '[]');
+  list.push({time:new Date().toLocaleString(), content, contact});
+  localStorage.setItem('chemFeedback', JSON.stringify(list));
+  alert('反馈提交成功！');
+  document.getElementById('feedbackContent').value = '';
+  document.getElementById('feedbackContact').value = '';
+  document.getElementById('feedbackModal').style.display = 'none';
+};
+
+// 动画循环
+function animate(){
+  requestAnimationFrame(animate);
+  if(autoRotate) molGroup.rotation.y += 0.005;
+  renderer.render(scene, camera);
+}
+animate();
+
+// 初始化
+drawMolecule();
+</script>
+
+</body>
+</html>
