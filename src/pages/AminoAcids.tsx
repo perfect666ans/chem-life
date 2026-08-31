@@ -8,8 +8,31 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { AMINO_ACIDS, PROTEIN_PRINCIPLES, GOAL_MODES, PROTEIN_TAGS, PROTEIN_RECIPES, WEEKLY_PLAN, MONTHLY_PLAN } from '@/data/aminoAcids'
 
-function ModeCard({ mode }: { mode: 'health' | 'muscle' }) {
-  const goal = GOAL_MODES.find((g) => g.key === mode) || GOAL_MODES[0]
+// 键线式（2D 骨架结构）图片：优先走本站 PubChem 代理，失败回退直连，再失败显示占位
+function SkeletalImg({ en, name }: { en: string; name: string }) {
+  const [stage, setStage] = useState(0)
+  if (stage >= 2) {
+    return (
+      <div className="flex h-full min-h-24 w-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-2 text-center text-xs text-slate-400">
+        键线式加载失败
+      </div>
+    )
+  }
+  const src = stage === 0
+    ? `/api/pubchem/compound/name/${encodeURIComponent(en)}/PNG`
+    : `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(en)}/PNG`
+  return (
+    <img
+      src={src}
+      alt={`${name} 键线式（2D 骨架结构）`}
+      loading="lazy"
+      onError={() => setStage((s) => s + 1)}
+      className="w-full rounded-lg border border-slate-200 bg-white p-1"
+    />
+  )
+}
+
+function ModeCard({ mode }: { mode: 'health' | 'muscle' }) {  const goal = GOAL_MODES.find((g) => g.key === mode) || GOAL_MODES[0]
   const Icon = mode === 'muscle' ? Dumbbell : HeartPulse
   return (
     <Card className="border-slate-200 bg-white">
@@ -87,16 +110,24 @@ function PrincipleTab({ mode }: { mode: 'health' | 'muscle' }) {
         </CardHeader>
         <CardContent className="grid gap-3">
           {list.map((a) => (
-            <div key={a.id} className="grid gap-2 rounded-xl border bg-white p-4 text-sm leading-relaxed lg:grid-cols-[190px_1fr_1fr_1.2fr] lg:gap-4">
+            <div key={a.id} className="grid gap-2 rounded-xl border bg-white p-4 text-sm leading-relaxed lg:grid-cols-[230px_1fr_1fr_1.2fr_150px] lg:gap-4">
               <div>
                 <p className="font-medium text-slate-900">{a.name} <span className="font-mono text-xs text-slate-400">{a.abbr3}/{a.abbr1}</span></p>
                 <div className="mt-1 flex flex-wrap gap-1">
                   <Badge className={a.group === '必需氨基酸' ? 'bg-indigo-600' : a.group === '条件性必需' ? 'bg-amber-500' : 'bg-slate-400'}>{a.group}</Badge>
                 </div>
+                <div className="mt-2 space-y-1 border-t border-dashed border-slate-200 pt-2 text-xs">
+                  <p className="text-slate-600"><b className="text-slate-800">分子式：</b><span className="font-mono">{a.formula}</span></p>
+                  <p className="break-all text-slate-600"><b className="text-slate-800">结构简式：</b><span className="font-mono text-[11px] leading-snug">{a.structure}</span></p>
+                </div>
               </div>
               <p className="text-slate-600"><b className="text-slate-800">能否合成：</b>{a.canSynthesize}<br /><b className="text-slate-800">原料/路径：</b>{a.rawMaterials}</p>
               <p className="text-slate-600"><b className="text-slate-800">功能：</b>{a.role}<br /><b className="text-slate-800">食物来源：</b>{a.food}</p>
               <p className="rounded-lg bg-indigo-50/60 p-2 text-xs leading-relaxed text-indigo-800">{a.classPoint}</p>
+              <div>
+                <SkeletalImg en={a.en} name={a.name} />
+                <p className="mt-1 text-center text-[10px] text-slate-400">键线式 · PubChem</p>
+              </div>
             </div>
           ))}
         </CardContent>
