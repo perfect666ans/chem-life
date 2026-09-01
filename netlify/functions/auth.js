@@ -18,7 +18,15 @@ import crypto from 'node:crypto'
 const ADMIN_NAME = '18573854599'
 const ADMIN_INIT_PASSWORD = 'perfect2017' // 管理员初始密码（首次部署用，登录后请立即修改）
 
-const store = () => getStore({ name: 'chem-auth', consistency: 'strong' })
+const store = () => {
+  // 部分部署环境不自动注入 NETLIFY_BLOBS_CONTEXT，此时用 SITE_ID + FUNCTIONS_TOKEN 显式连接
+  const opts = { name: 'chem-auth', consistency: 'strong' }
+  if (!process.env.NETLIFY_BLOBS_CONTEXT && process.env.SITE_ID && process.env.NETLIFY_FUNCTIONS_TOKEN) {
+    opts.siteID = process.env.SITE_ID
+    opts.token = process.env.NETLIFY_FUNCTIONS_TOKEN
+  }
+  return getStore(opts)
+}
 
 const now = () => Date.now()
 const sha = (s) => crypto.createHash('sha256').update(s).digest('hex')
