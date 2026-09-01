@@ -123,8 +123,8 @@ const sections: Section[] = [
       {
         no: '03',
         name: '水溶液中的离子平衡',
-        desc: '电离与水解动态平衡、pH 对数标尺、中和滴定突跃曲线、沉淀溶解平衡。',
-        note: '建设中',
+        desc: 'pH 对数标尺联动浓度、三类滴定突跃曲线（含指示剂变色域与体积游标）、盐类水解速查表。',
+        href: '/teaching/chem_lab4.3.html',
       },
       {
         no: '04',
