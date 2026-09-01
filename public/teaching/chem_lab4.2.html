@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>化学反应速率与平衡 · 化学生活教学中心</title>
+<style>
+
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+
+
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+
+
+
+
+
+
+/* ===== 速率与平衡实验室专用 ===== */
+.kb-tag{display:inline-block;font-size:11px;border-radius:10px;padding:1px 10px;margin:2px 4px 2px 0;
+ border:1px solid var(--line-strong);color:var(--ink-dim)}
+.kb-eq{font-family:var(--serif-cn);font-size:14.5px;line-height:1.8;margin:6px 0}
+.shift-big{font-size:15px;font-weight:700;color:var(--accent);margin:6px 0;min-height:22px}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+#simCanvas{width:100%;height:62%;display:block}
+#chartCanvas{width:100%;height:38%;display:block;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">衡</span>
+    <h1 style="white-space:nowrap">化学反应速率与平衡</h1>
+    <span class="lecture-tag">PRINCIPLES · LAB 02</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-btn" href="chem_lab4.1.html">热效应 <span class="arr">→</span></a>
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <div class="theme-switch" role="group" aria-label="主题切换">
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="info-card">
+      <h2 id="presetName">平衡沙盘</h2>
+      <div class="kb-eq" id="kbEq"></div>
+      <p class="info-desc" id="kbNote"></p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">反应体系</div>
+      <select class="select-box" id="presetSel"></select>
+      <button class="func-btn" id="btnReset" style="margin-top:8px">重置模拟</button>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">平衡移动判断</div>
+      <div class="shift-big" id="shiftTxt">当前无扰动，体系处于平衡状态</div>
+      <p class="info-desc">勒夏特列原理：平衡总是向「减弱」扰动的方向移动，但不能完全抵消。催化剂同等加快正逆速率，不移动平衡，只缩短到达平衡的时间。</p>
+    </div>
+  </div>
+
+  <div class="canvas-box" style="background:var(--bg-deep)">
+    <canvas id="simCanvas"></canvas>
+    <canvas id="chartCanvas"></canvas>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">浓度（粒子数）</div>
+      <div class="slider-wrap">
+        <input type="range" id="concSlider" min="20" max="160" step="10" value="60">
+        <div class="slider-tip" id="concTip">60 个粒子</div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">温度扰动</div>
+      <div class="slider-wrap">
+        <input type="range" id="tempSlider" min="0.5" max="1.5" step="0.05" value="1">
+        <div class="slider-tip">1.00 = 原温度</div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">压强扰动（气体体系）</div>
+      <div class="slider-wrap">
+        <input type="range" id="presSlider" min="0.5" max="1.5" step="0.05" value="1">
+        <div class="slider-tip">1.00 = 原压强</div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">观察要点</div>
+      <p class="info-desc">① 曲线进入平台 = 宏观平衡；粒子仍在闪烁互变 = 动态平衡（v正=v逆≠0）。<br>
+      ② 温度升高所有粒子运动加快——升温同时加快正逆速率。<br>
+      ③ 扰动后曲线重新进入新平台 = 平衡移动。</p>
+    </div>
+  </div>
+</div>
+
+<script>window.__KIN__ = {"presets": [{"name": "2NO₂ ⇌ N₂O₄", "eq": "2NO₂(红棕) ⇌ N₂O₄(无色)　ΔH<0", "aName": "NO₂", "bName": "N₂O₄", "aColor": "#a5502e", "bColor": "#c8ccd4", "exo": true, "gasMoles": [2, 1], "note": "升温：平衡左移，红棕色加深；加压：平衡右移，颜色先深后浅（体积缩小 vs 平衡移动）。"}, {"name": "N₂+3H₂ ⇌ 2NH₃", "eq": "N₂ + 3H₂ ⇌ 2NH₃　ΔH<0", "aName": "N₂+3H₂", "bName": "2NH₃", "aColor": "#2a5d9f", "bColor": "#6b8e4e", "exo": true, "gasMoles": [4, 2], "note": "合成氨：低温高压有利平衡，但低温速率太慢——工业选 500 ℃ 是速率与产率的折中，催化剂不改平衡。"}, {"name": "CH₃COOH ⇌ H⁺+CH₃COO⁻", "eq": "CH₃COOH ⇌ H⁺ + CH₃COO⁻　ΔH>0", "aName": "CH₃COOH", "bName": "H⁺+CH₃COO⁻", "aColor": "#7a4fb0", "bColor": "#c8102e", "exo": false, "gasMoles": null, "note": "弱酸电离吸热：升温电离度增大；加水稀释：平衡右移但 c(H⁺) 反而减小。"}]};</script>
+<script>
+/* ===== 速率与平衡沙盘 ===== */
+const D = window.__KIN__;
+const $ = (id) => document.getElementById(id);
+let cur = 0;
+let particles = [];       // {s:0(A)|1(B), x,y,vx,vy}
+let N = 60, tempK = 1.0, pf = 0.004, pb = 0.002;
+let history = [], t = 0, running = true;
+
+function P(){ return D.presets[cur]; }
+
+function spawn(){
+  particles = [];
+  for (let i = 0; i < N; i++)
+    particles.push({s: Math.random() < 0.8 ? 0 : 1,
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random()-.5)*0.004, vy: (Math.random()-.5)*0.004});
+  history = [];
+}
+
+function step(){
+  if (!running) return;
+  t += 1;
+  for (const p of particles){
+    p.x += p.vx*tempK; p.y += p.vy*tempK;
+    if (p.x < 0.02 || p.x > 0.98) p.vx *= -1;
+    if (p.y < 0.02 || p.y > 0.98) p.vy *= -1;
+    p.x = Math.min(.98, Math.max(.02, p.x));
+    p.y = Math.min(.98, Math.max(.02, p.y));
+    // 相互转化
+    if (p.s === 0 && Math.random() < pf) p.s = 1;
+    else if (p.s === 1 && Math.random() < pb) p.s = 0;
+  }
+  if (t % 6 === 0){
+    const na = particles.filter(p=>p.s===0).length;
+    history.push([na, N-na]);
+    if (history.length > 400) history.shift();
+  }
+}
+
+function drawSim(){
+  const c = $("simCanvas"); const box = c.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1;
+  const W = box.width, H = box.height*0.62;
+  c.width = W*dpr; c.height = H*dpr;
+  const ctx = c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  const p = P();
+  // 容器
+  ctx.strokeStyle = "rgba(128,128,128,.5)"; ctx.lineWidth = 2;
+  ctx.strokeRect(W*0.02, H*0.02, W*0.96, H*0.96);
+  ctx.lineWidth = 1;
+  for (const pt of particles){
+    ctx.fillStyle = pt.s===0 ? p.aColor : p.bColor;
+    ctx.beginPath(); ctx.arc(pt.x*W, pt.y*H, pt.s===0?4:6, 0, 7); ctx.fill();
+  }
+  const na = particles.filter(x=>x.s===0).length;
+  ctx.font = "12px sans-serif"; ctx.textAlign = "left";
+  ctx.fillStyle = p.aColor; ctx.fillText(`${p.aName}：${na}`, W*0.05, H*0.09);
+  ctx.fillStyle = p.bColor === "#c8ccd4" ? "#7a7f8a" : p.bColor;
+  ctx.fillText(`${p.bName}：${N-na}`, W*0.05, H*0.09 + 18);
+}
+
+function drawChart(){
+  const c = $("chartCanvas"); const box = c.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1;
+  const W = box.width, H = box.height*0.38;
+  c.width = W*dpr; c.height = H*dpr;
+  const ctx = c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  const ink = "rgba(128,128,128,.6)";
+  ctx.strokeStyle = ink;
+  ctx.strokeRect(W*0.06, H*0.08, W*0.9, H*0.78);
+  ctx.font = "10px sans-serif"; ctx.fillStyle = ink; ctx.textAlign = "center";
+  ctx.fillText("粒子数-时间曲线（→ 平衡时宏观不变、微观仍动）", W/2, H*0.97);
+  if (history.length < 2) return;
+  const p = P();
+  const plot = (idx, color) => {
+    ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.beginPath();
+    history.forEach((h,i) => {
+      const x = W*0.06 + i/400 * W*0.9;
+      const y = H*0.08 + (1 - h[idx]/N) * H*0.78;
+      i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+    });
+    ctx.stroke();
+  };
+  plot(0, p.aColor); plot(1, p.bColor==="#c8ccd4" ? "#7a7f8a" : p.bColor);
+}
+
+function leChatelierText(){
+  const p = P();
+  const T = +$("tempSlider").value, Pr = +$("presSlider").value;
+  const msgs = [];
+  if (T > 1.02) msgs.push(p.exo ? "升温 → 平衡向吸热方向（逆向）移动，K 减小" : "升温 → 平衡向吸热方向（正向）移动，K 增大");
+  else if (T < 0.98) msgs.push(p.exo ? "降温 → 平衡向放热方向（正向）移动，K 增大" : "降温 → 平衡向放热方向（逆向）移动，K 减小");
+  if (p.gasMoles){
+    if (Pr > 1.02) msgs.push(`加压 → 向气体分子数减少方向移动（${p.gasMoles[0]}→${p.gasMoles[1]}，正向）`);
+    else if (Pr < 0.98) msgs.push(`减压 → 向气体分子数增多方向移动（逆向）`);
+  }
+  $("shiftTxt").textContent = msgs.length ? msgs.join("；") : "当前无扰动，体系处于平衡状态";
+  // 调整转化概率体现平衡移动
+  const kf = 0.004, kb = 0.002;
+  let m = 1;
+  if (p.exo) m = T > 1 ? 1/T : 2 - T;   // 放热正向：升温不利
+  else m = T;
+  if (p.gasMoles) m *= Pr > 1 ? Pr : Pr;  // 加压促正向
+  pf = kf * m; pb = kb * (p.exo ? T : 2 - T);
+  tempK = T;
+}
+
+$("presetSel").innerHTML = D.presets.map((p,i)=>`<option value="${i}">${p.name}</option>`).join("");
+$("presetSel").onchange = e => { cur = +e.target.value;
+  $("kbEq").textContent = P().eq; $("kbNote").textContent = P().note; spawn(); };
+$("concSlider").oninput = e => { N = +e.target.value; $("concTip").textContent = N + " 个粒子";
+  // 保比例增减
+  const curN = particles.length;
+  if (N > curN){ for (let i=curN;i<N;i++) particles.push({s:Math.random()<.8?0:1,x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.004,vy:(Math.random()-.5)*.004}); }
+  else particles = particles.slice(0, N);
+};
+$("tempSlider").oninput = leChatelierText;
+$("presSlider").oninput = leChatelierText;
+$("btnReset").onclick = spawn;
+
+$("presetSel").value = "0"; $("presetSel").onchange({target:{value:"0"}});
+(function frame(){ step(); drawSim(); drawChart(); requestAnimationFrame(frame); })();
+</script>
+<script>/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();</script>
+</body>
+</html>
