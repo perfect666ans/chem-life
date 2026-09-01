@@ -103,8 +103,7 @@ export const handler = async (event) => {
         SITE_ID: (process.env.SITE_ID || '').length,
         FUNCTIONS_TOKEN: (process.env.NETLIFY_FUNCTIONS_TOKEN || '').length,
         BLOBS_CONTEXT: (process.env.NETLIFY_BLOBS_CONTEXT || '').length,
-      },
-      blobsPkg: require('@netlify/blobs/package.json').version,
+      }
     })
   }
 
