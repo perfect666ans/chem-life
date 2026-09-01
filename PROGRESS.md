@@ -34,12 +34,14 @@
 - 2026-09-01 VSEPR 实验室重写完成（commit ed329e2）：184 种分子 = 无机 77 + 离子团 50（阳 14/阴 36）+ 有机 57；Python 几何引擎（VSEPR 模板 + 多中心递归布局：交错扭转、sp2 共轭对齐；苯/萘/环丙烷/环氧乙烷/环己烷椅式精确几何）；σ 云蓝 #6aa6dd / π 云红 #e06b6b / 孤对云紫 #b89ae8，云内悬浮光点严格采样在椭球内（×0.72）；双键 π 透镜、三键圆柱壳；窄屏右栏变抽屉。生成脚本：工作区 `build_vsepr_lab.py`（外壳 CSS/主题 JS 提取自 chem_lab1.2.html）
 - 2026-09-01 门户重排（commit f82bb15）：Teaching.tsx 改为 tk-chem.cc/nav.html 讲座目录式——罗马数字六大分区、衬线标题、朱红 accent、编号卡片「进入 →」；未做模块标「建设中」
 - 2026-09-01 登录系统（commit 5eb4c72）：`netlify/functions/auth.js` + Netlify Blobs（store `chem-auth`）；管理员 18573854599 惰性初始化（初始密码见对话记录，**首次登录后应立即在 /profile 修改**）；邀请窗口 = 数字验证码 + 开放密码 + 起效时长 + 最大人数；他人注册须用开放密码，首次登录后改密即自由登录；/login、/profile（100 预设标签+自定义、头像、时长公开开关）；顶栏按角色显示「登录权限」/「个人信息」
+- 2026-09-01 登录系统**后端全链路实测通过**（BLOBS_TOKEN 方案落地）：Netlify CLI 已登录本机（`netlify login` 授权完成，token 在 `%APPDATA%\netlify\Config\config.json`）；`netlify env:set BLOBS_TOKEN=<CLI token> --context production` 已设置；本地直接调用打包函数实测 10 步全过（inviteStatus/管理员登录/setInvite/注册/改资料/改密/新密码重登/me/closeInvite）。**注意**：实测向生产 Blobs 写入了管理员账号和一个测试号 testuser01（密码 mynewpass123，可忽略）
 
 ## 下一步（待办）
 
 - [ ] 复习板块（知识球/闪卡/挑战树）、有机三大模块、反应原理四大模块、游戏板块：目前均为门户占位
 - [ ] 交流论坛、排行榜/统计（依赖登录系统统计接口，当前仅有 showUsage/showGameTime 开关字段）
-- [ ] 登录系统线上激活（**需要一次手动操作**）：本站点 Netlify 运行时未自动注入 `NETLIFY_BLOBS_CONTEXT`（官方论坛已知问题），已实测 `NETLIFY_FUNCTIONS_TOKEN` 直连 Blobs API 返回 401。解决：Netlify 网页端 → User settings → Applications → 创建 Personal Access Token → 站点 Site settings → Environment variables → 添加 `BLOBS_TOKEN`=<该 token> → 触发重新部署。auth.js 已内置该回退（见 `store()`）。激活后用 curl 测 `POST /api/auth {action:'inviteStatus'}`；管理员首登后立即改密
+- [ ] 登录系统线上激活（**额度恢复后自动完成，无需手动操作**）：BLOBS_TOKEN 已配置好且实测有效，但 2026-09-01 账户免费构建额度耗尽（"Account credit usage exceeded"），生产部署被阻断；额度按账单月重置，恢复后任意 push 或 `netlify api createSiteBuild` 触发一次部署即全线生效。届时用 curl 测 `POST /api/auth {action:'inviteStatus'}`
+- [ ] 部署积压：commit 610700b（移除 debugEnv 调试代码）本地已提交，因 GitHub 直连超时+额度阻断**尚未上线**；恢复后 push 即可
 - [ ] 论坛/排行需要新增 Blobs 表（帖子、积分）
 
 ## 双设备工作流约定
