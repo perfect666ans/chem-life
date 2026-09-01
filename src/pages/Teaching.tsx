@@ -155,8 +155,8 @@ const sections: Section[] = [
       {
         no: '03',
         name: 'CBTI 化学人格鉴定',
-        desc: '你是 H₂S 还是 NaOH？16 道选择题对应物质类型，结果配角色卡。',
-        note: '建设中',
+        desc: '16 道题 × 4 维度测出你的物质人格：16 种结果卡（从钠到氦），可复制的分享文案。',
+        href: '/teaching/chem_lab5.3.html',
       },
     ],
   },

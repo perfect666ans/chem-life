@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBTI 化学人格鉴定 · 化学生活教学中心</title>
+<style>
+
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+
+
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+
+
+
+
+
+
+/* ===== CBTI 专用 ===== */
+.cbti-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;overflow:auto}
+.q-card{width:min(560px,94%);border:1px solid var(--line);border-radius:14px;padding:36px 40px;
+ background:var(--paper);box-shadow:0 8px 30px rgba(0,0,0,.10)}
+.q-num{font-size:12px;color:var(--ink-mute);letter-spacing:2px}
+.q-text{font-size:19px;font-family:var(--serif-cn);margin:14px 0 24px;line-height:1.7}
+.q-opt{display:block;width:100%;text-align:left;border:1px solid var(--line-strong);background:transparent;
+ color:var(--ink);border-radius:10px;padding:14px 18px;font-size:14.5px;margin:10px 0;cursor:pointer;
+ font-family:inherit;line-height:1.6;transition:all .18s}
+.q-opt:hover{border-color:var(--accent);color:var(--accent);transform:translateX(4px)}
+.q-bar{width:100%;height:3px;background:var(--inset);border-radius:2px;margin-top:22px}
+.q-bar i{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+.dim-row{margin:12px 0}
+.dim-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.dim-track{height:8px;border-radius:4px;background:var(--inset);position:relative}
+.dim-fill{position:absolute;top:0;bottom:0;border-radius:4px;background:var(--accent)}
+.dim-mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line-strong)}
+.result-emoji{font-size:52px;text-align:center}
+.result-sub{font-size:26px;font-family:var(--serif-cn);color:var(--accent);text-align:center;margin:6px 0}
+.result-title{font-size:15px;text-align:center;color:var(--ink-dim);margin-bottom:14px}
+.result-desc{font-size:13.5px;line-height:2;color:var(--ink);text-align:justify}
+.result-tags{display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.type-cell{border:1px solid var(--line);border-radius:6px;padding:6px 4px;text-align:center;font-size:11px;
+ cursor:pointer;color:var(--ink-dim)}
+.type-cell:hover{border-color:var(--accent);color:var(--accent)}
+.type-cell .em{font-size:18px;display:block}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">鉴</span>
+    <h1 style="white-space:nowrap">CBTI 化学人格鉴定</h1>
+    <span class="lecture-tag">GAMES · LAB 03</span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <div class="theme-switch" role="group" aria-label="主题切换">
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="info-card">
+      <h2>你是哪种物质？</h2>
+      <p class="info-desc">16 道选择题 × 4 个维度：能量取向、联结方式、行为风格、生活状态。没有对错，只有价态。</p>
+      <p class="info-desc">完成测试后生成你的专属物质人格卡，可以复制分享给同学。</p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">四个维度</div>
+      <div class="rule-list" style="font-size:12px;line-height:2;color:var(--ink-dim)">
+        <b>E</b> 能量：放热型 ↔ 吸热型<br>
+        <b>B</b> 联结：离子型 ↔ 共价型<br>
+        <b>R</b> 行为：氧化型 ↔ 还原型<br>
+        <b>F</b> 状态：自由型 ↔ 沉稳型
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-box" style="background:var(--bg-deep)">
+    <div class="cbti-stage" id="stage"></div>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">16 型物质图鉴</div>
+      <div class="type-grid" id="typeGrid"></div>
+      <p class="info-desc">点开可查看每种人格的描述。</p>
+    </div>
+  </div>
+</div>
+
+<script>window.__CBTI__ = {"dims": [{"k": "E", "name": "能量取向", "a": "放热型", "b": "吸热型", "note": "向外释放热情 vs 向内汲取能量"}, {"k": "B", "name": "联结方式", "a": "离子型", "b": "共价型", "note": "直来直去 vs 深度绑定"}, {"k": "R", "name": "行为风格", "a": "氧化型", "b": "还原型", "note": "主动出击夺取 vs 默默给予付出"}, {"k": "F", "name": "生活状态", "a": "自由型", "b": "沉稳型", "note": "气体般自由 vs 晶体般有序"}], "questions": [{"dim": 0, "q": "小组实验时，你通常是——", "a": "率先点燃酒精灯，带动全场节奏", "b": "默默把数据记录到小数点后两位"}, {"dim": 0, "q": "考完试的晚上，你更想——", "a": "约朋友大吃一顿庆祝", "b": "一个人安静地看剧回血"}, {"dim": 0, "q": "遇到难题时你的第一反应——", "a": "马上找人讨论，越说越兴奋", "b": "先自己闷头想，想通才说"}, {"dim": 0, "q": "你的情绪像——", "a": "镁条燃烧，耀眼但短暂", "b": "碳还原氧化铜，缓慢但持久"}, {"dim": 1, "q": "交朋友你更看重——", "a": "一拍即合的痛快", "b": "日久生情的默契"}, {"dim": 1, "q": "和好朋友的关系更像——", "a": "Na⁺ 与 Cl⁻，彼此独立又相互吸引", "b": "两个碳原子，共享彼此的世界"}, {"dim": 1, "q": "吵架后你倾向于——", "a": "当场说清楚，电离式直球", "b": "写在日记里，共价式消化"}, {"dim": 1, "q": "你喜欢的团队合作是——", "a": "分工明确、各司其职", "b": "深度共创、不分彼此"}, {"dim": 2, "q": "面对不公，你会——", "a": "当场指出，哪怕气氛凝固", "b": "私下帮助受影响的人"}, {"dim": 2, "q": "在集体里你更像——", "a": "KMnO₄，一来就改变颜色", "b": "维生素 C，悄悄保护大家"}, {"dim": 2, "q": "你的竞争方式是——", "a": "正面超过对手", "b": "把自己变得更强"}, {"dim": 2, "q": "别人请你帮忙时——", "a": "先评估值不值得", "b": "先答应再说"}, {"dim": 3, "q": "理想的周末是——", "a": "说走就走的短途旅行", "b": "按计划表完成的舒适宅家"}, {"dim": 3, "q": "你的书桌通常是——", "a": "灵感来了随手放", "b": "每样东西都有固定位置"}, {"dim": 3, "q": "面对deadline——", "a": "最后 48 小时爆发式冲刺", "b": "提前一周就开始匀速推进"}, {"dim": 3, "q": "你羡慕的生活状态是——", "a": "像稀有气体，谁都不绑", "b": "像金刚石，结构即信仰"}], "types": {"0000": {"sub": "钠 Na", "title": "烈火侠客", "emoji": "🔥", "desc": "遇水就炸的社交达人，热情写在表面。你的能量不需要预热，第一个举手、第一个冲锋。小心别在煤油里待太久——偶尔也需要保护自己。", "tags": ["行动派", "气氛组", "反应迅速"]}, "0001": {"sub": "金刚石 C", "title": "秩序之王", "emoji": "💎", "desc": "放热、直接、主动、沉稳——你是晶体结构的忠实信徒。认定的目标会以最硬的姿态推进，你的可靠让所有人安心。", "tags": ["坚定", "可靠", "硬核"]}, "0010": {"sub": "氯气 Cl₂", "title": "锋芒先锋", "emoji": "⚡", "desc": "强烈的存在感让周围的「电子」不自觉向你靠拢。你是规则的改写者，但要注意浓度——太强势会让别人窒息。", "tags": ["领导力", "果断", "高能"]}, "0011": {"sub": "高锰酸钾 KMnO₄", "title": "紫袍谋士", "emoji": "🟣", "desc": "一出场就改变全局颜色。你有改变环境的强大能力，却选择在最合适的时机释放。深紫是你的保护色。", "tags": ["深谋远虑", "掌控力", "气场"]}, "0100": {"sub": "水 H₂O", "title": "万物之源", "emoji": "💧", "desc": "放热而包容，你用共价键般的深度联结滋养身边每个人。可静可动、可柔可刚，是所有体系的溶剂。", "tags": ["包容", "温和", "治愈"]}, "0101": {"sub": "二氧化硅 SiO₂", "title": "大地建筑师", "emoji": "🏔️", "desc": "踏实是你的人格基底。像硅氧骨架一样，你用稳定的共价网络搭建起值得信赖的世界，慢，但从不出错。", "tags": ["踏实", "耐心", "工匠"]}, "0110": {"sub": "氧气 O₂", "title": "生命发动机", "emoji": "🌬️", "desc": "没有你，世界的反应都无法进行。你习惯了被需要，也擅长点燃别人。记得给自己留一点「惰性气体时间」。", "tags": ["支撑者", "热情", "不可或缺"]}, "0111": {"sub": "臭氧 O₃", "title": "高空守卫", "emoji": "🛡️", "desc": "站在高处默默吸收紫外线的人。你的保护不动声色，你的存在直到缺席才被发现。", "tags": ["守护", "低调", "远见"]}, "1000": {"sub": "铵盐 NH₄⁺", "title": "温和缓冲", "emoji": "🌿", "desc": "吸收热量也不喧哗的倾听者。你在酸碱之间寻找平衡，是朋友崩溃时第一个想到的缓冲溶液。", "tags": ["倾听者", "平和", "细腻"]}, "1001": {"sub": "氯化钠 NaCl", "title": "日常之光", "emoji": "🧂", "desc": "不耀眼但每餐都需要。你用离子键般的坦率维持着生活最基本的秩序与滋味，平凡是你的超能力。", "tags": ["坦率", "稳定", "生活家"]}, "1010": {"sub": "铁 Fe", "title": "锈蚀诗人", "emoji": "⚙️", "desc": "可氧化可还原、可坚硬可延展。你在不同场合呈现不同价态，每一次「腐蚀」都让你长出新的层次。", "tags": ["多面", "坚韧", "成长型"]}, "1011": {"sub": "氧化钙 CaO", "title": "生石灰实干家", "emoji": "🧱", "desc": "遇水沸腾是你的隐藏剧情。平时沉默搬砖，一旦被点燃就全力放热。慢热但靠谱，是团队的地基。", "tags": ["实干", "慢热", "可靠"]}, "1100": {"sub": "氨气 NH₃", "title": "喷泉之心", "emoji": "⛲", "desc": "极易溶于水的你天生懂得融入。你的共情像喷泉实验一样——一旦建立联结，就能创造令人惊叹的景象。", "tags": ["共情", "亲和", "感染力"]}, "1101": {"sub": "甲烷 CH₄", "title": "蓝色火焰", "emoji": "🔵", "desc": "结构最简单的有机物，却安静地放出大量热。你不喜欢复杂的人际关系，小圈子里你是恒温的蓝色火焰。", "tags": ["纯粹", "安静", "温暖"]}, "1110": {"sub": "氢气 H₂", "title": "自由还原者", "emoji": "🎈", "desc": "最轻的元素，最大的自由。你用自己的方式「还原」这个世界的复杂，未来能源般的人——现在小众，迟早主流。", "tags": ["自由", "理想主义", "轻盈"]}, "1111": {"sub": "氦 He", "title": "惰性观察者", "emoji": "🎈", "desc": "稳定到几乎不反应。你站在反应体系的边缘观察一切，不参与是你的生活美学——但谁都知道，飞艇没你不行。", "tags": ["独立", "清醒", "观察者"]}}};</script>
+<script>
+/* ===== CBTI 化学人格鉴定 ===== */
+const D = window.__CBTI__;
+const $ = (id) => document.getElementById(id);
+let qi = 0, score = [0,0,0,0];  // 每维 0~4，>=3 取 b 极
+
+function renderQ(){
+  if (qi >= D.questions.length) return renderResult();
+  const q = D.questions[qi];
+  $("stage").innerHTML = `
+    <div class="q-card">
+      <div class="q-num">QUESTION ${qi+1} / ${D.questions.length} · ${D.dims[q.dim].name}</div>
+      <div class="q-text">${q.q}</div>
+      <button class="q-opt" id="optA">${q.a}</button>
+      <button class="q-opt" id="optB">${q.b}</button>
+      <div class="q-bar"><i style="width:${qi/D.questions.length*100}%"></i></div>
+    </div>`;
+  $("optA").onclick = () => { qi++; renderQ(); };
+  $("optB").onclick = () => { score[q.dim]++; qi++; renderQ(); };
+}
+
+function renderResult(){
+  const key = score.map(s => s >= 3 ? "1" : "0").join("");
+  const t = D.types[key];
+  const dims = D.dims.map((d,i) => {
+    const pct = score[i]/4*100;
+    const pole = score[i] >= 3 ? d.b : d.a;
+    return `<div class="dim-row">
+      <div class="dim-head"><span>${d.a}</span><span style="color:var(--accent);font-weight:700">${d.name}：${pole}</span><span>${d.b}</span></div>
+      <div class="dim-track"><div class="dim-mid"></div><div class="dim-fill" style="left:0;width:${100-pct}%"></div></div>
+    </div>`;
+  }).join("");
+  $("stage").innerHTML = `
+    <div class="q-card">
+      <div class="result-emoji">${t.emoji}</div>
+      <div class="result-sub">${t.sub}</div>
+      <div class="result-title">「${t.title}」 · 化学人格代码 ${key}</div>
+      <div class="result-desc">${t.desc}</div>
+      <div class="result-tags">${t.tags.map(x=>`<span class="tag">${x}</span>`).join("")}</div>
+      <div style="margin-top:18px">${dims}</div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="fc-btn" style="flex:1;border:1px solid var(--line-strong);border-radius:8px;padding:9px 0;background:none;color:var(--ink);cursor:pointer;font-family:inherit" id="btnAgain">再测一次</button>
+        <button class="fc-btn" style="flex:1;border:1px solid var(--accent);border-radius:8px;padding:9px 0;background:var(--accent);color:#fff;cursor:pointer;font-family:inherit" id="btnCopy">复制结果</button>
+      </div>
+    </div>`;
+  $("btnAgain").onclick = () => { qi=0; score=[0,0,0,0]; renderQ(); };
+  $("btnCopy").onclick = () => {
+    const txt = `我的化学人格是「${t.sub} · ${t.title}」${t.emoji}\n${t.desc}\n—— 来自化学生活教学中心 CBTI 鉴定`;
+    navigator.clipboard?.writeText(txt); $("btnCopy").textContent = "已复制 ✓";
+  };
+  renderTypeGrid(key);
+}
+
+function renderTypeGrid(cur){
+  $("typeGrid").innerHTML = Object.entries(D.types).map(([k,v]) =>
+    `<div class="type-cell" data-k="${k}" style="${k===cur?"border-color:var(--accent);color:var(--accent)":""}">
+      <span class="em">${v.emoji}</span>${v.sub.split(" ")[0]}<br>${v.title}</div>`).join("");
+  $("typeGrid").querySelectorAll(".type-cell").forEach(c =>
+    c.onclick = () => {
+      const v = D.types[c.dataset.k];
+      alert(`${v.emoji} ${v.sub}「${v.title}」\n\n${v.desc}`);
+    });
+}
+
+renderQ();
+renderTypeGrid("");
+</script>
+<script>/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();</script>
+</body>
+</html>
