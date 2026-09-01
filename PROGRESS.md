@@ -39,7 +39,7 @@
 
 - [ ] 复习板块（知识球/闪卡/挑战树）、有机三大模块、反应原理四大模块、游戏板块：目前均为门户占位
 - [ ] 交流论坛、排行榜/统计（依赖登录系统统计接口，当前仅有 showUsage/showGameTime 开关字段）
-- [ ] 登录系统线上联调：部署后用 curl 测 `POST /api/auth {action:'inviteStatus'}`；管理员首登后改密
+- [ ] 登录系统线上激活（**需要一次手动操作**）：本站点 Netlify 运行时未自动注入 `NETLIFY_BLOBS_CONTEXT`（官方论坛已知问题），已实测 `NETLIFY_FUNCTIONS_TOKEN` 直连 Blobs API 返回 401。解决：Netlify 网页端 → User settings → Applications → 创建 Personal Access Token → 站点 Site settings → Environment variables → 添加 `BLOBS_TOKEN`=<该 token> → 触发重新部署。auth.js 已内置该回退（见 `store()`）。激活后用 curl 测 `POST /api/auth {action:'inviteStatus'}`；管理员首登后立即改密
 - [ ] 论坛/排行需要新增 Blobs 表（帖子、积分）
 
 ## 双设备工作流约定

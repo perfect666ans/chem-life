@@ -31,7 +31,8 @@ export default function LoginPage() {
         : await register(username.trim(), password, code.trim())
     setBusy(false)
     if (!r.ok) {
-      setMsg(r.error || '操作失败')
+      const e = r.error || '操作失败'
+      setMsg(e.includes('Blobs') ? '账号系统尚未激活：需要管理员在 Netlify 站点环境变量中配置 BLOBS_TOKEN' : e)
     } else {
       nav('/', { replace: true })
     }
