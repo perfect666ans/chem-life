@@ -472,6 +472,7 @@ function capture(){
 }
 function gameOver(){
   over = true; save();
+  reportScore('rpg', P.best);
   $("rpgQ").innerHTML = `
     <div class="rpg-q" style="font-size:16px">💀 你被元素精灵击倒了……</div>
     <div class="rpg-eq">战绩：第 ${P.wave} 波 · 胜场 ${P.wins} · 图鉴 ${Object.keys(P.dex).length}/20 · 最佳波次 ${P.best}</div>
@@ -598,8 +599,17 @@ function label(x, y, t, color){
   ctx.textAlign = "center"; ctx.fillText(t, x, y);
 }
 
-$("rpgCap").onclick = capture;
-$("rpgNew").onclick = () => {
+/* 成绩上报（登录状态下自动上传排行榜，离线/未登录静默跳过） */
+function reportScore(game, score){
+  try {
+    const t = localStorage.getItem('chem-token');
+    if (!t) return;
+    fetch('/api/forum', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'report', token: t, game, score})}).catch(() => {});
+  } catch(e){}
+}
+
+$("rpgCap").onclick = capture;$("rpgNew").onclick = () => {
   if (!confirm("重新开始？等级、图鉴、战绩将全部清空！")) return;
   P = {lv:1, xp:0, hp:100, maxhp:100, atk:12, wave:0, wins:0, dex:{}, best:0};
   over = false; save(); renderStats(); renderDex(); nextWave();

@@ -15,6 +15,12 @@
   to = "/.netlify/functions/auth"
   status = 200
 
+# 论坛 + 排行榜
+[[redirects]]
+  from = "/api/forum"
+  to = "/.netlify/functions/forum"
+  status = 200
+
 # SPA 路由回退
 [[redirects]]
   from = "/*"

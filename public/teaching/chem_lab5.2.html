@@ -465,11 +465,22 @@ function step(dt){
 function gameOver(){
   over = true;
   log(`💥 核心被攻破！最终成绩：第 ${wave} 波。`);
+  reportScore('td', wave);
   $("tdStart").disabled = true;
 }
 function win(){
   log("🏆 全部 15 波防守成功！粗盐巨怪已被制服，烧杯核心安然无恙！");
+  reportScore('td', wave);
   $("tdStart").disabled = true;
+}
+/* 成绩上报（登录状态下自动上传排行榜，离线/未登录静默跳过） */
+function reportScore(game, score){
+  try {
+    const t = localStorage.getItem('chem-token');
+    if (!t) return;
+    fetch('/api/forum', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'report', token: t, game, score})}).catch(() => {});
+  } catch(e){}
 }
 
 /* 绘制 */

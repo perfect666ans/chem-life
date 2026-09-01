@@ -463,6 +463,7 @@ function grade(ok){
   const n = quiz.node;
   if (pass && !quiz.review && !isMaster(n.id)){
     S.mastered.push(n.id); S.xp += 25;
+    reportScore('tree', S.mastered.length);
   }
   save(); renderStats(); drawTree();
   const acc = quiz.got.filter(Boolean).length;
@@ -484,6 +485,16 @@ function renderWelcome(){
     <div class="kt-q" style="font-size:15px">点击发光的节点开始挑战</div>
     <div class="kt-a">每条枝干 3 层：筑基 → 试炼 → 问鼎。每次挑战随机抽 3 题，自评对错，≥2 题答对即点亮节点并解锁下一层。金色节点可反复复习（XP 减半）。</div>`;
   $("ktMsg").textContent = "";
+}
+
+/* 成绩上报（登录状态下自动上传排行榜，离线/未登录静默跳过） */
+function reportScore(game, score){
+  try {
+    const t = localStorage.getItem('chem-token');
+    if (!t) return;
+    fetch('/api/forum', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'report', token: t, game, score})}).catch(() => {});
+  } catch(e){}
 }
 
 $("ktReset").onclick = () => {

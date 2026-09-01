@@ -10,6 +10,8 @@ const nav = [
   { to: '/vitamins', label: '维生素与化学' },
   { to: '/amino-acids', label: '氨基酸与健康' },
   { to: '/teaching', label: '教学实验室' },
+  { to: '/forum', label: '交流论坛' },
+  { to: '/leaderboard', label: '排行榜' },
 ]
 
 export default function SiteHeader() {
