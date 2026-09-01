@@ -98,18 +98,6 @@ export const handler = async (event) => {
   try { body = JSON.parse(event.body || '{}') } catch { return fail('请求格式错误') }
   const { action } = body
 
-  if (action === 'debugEnv') {
-    // 仅返回环境变量名（不含值），用于诊断 Blobs 自动配置
-    return ok({
-      keys: Object.keys(process.env).filter((k) => /NETLIFY|BLOB|AWS|SITE/i.test(k)).sort(),
-      lens: {
-        SITE_ID: (process.env.SITE_ID || '').length,
-        FUNCTIONS_TOKEN: (process.env.NETLIFY_FUNCTIONS_TOKEN || '').length,
-        BLOBS_CONTEXT: (process.env.NETLIFY_BLOBS_CONTEXT || '').length,
-      }
-    })
-  }
-
   try {
     await bootstrap()
 
