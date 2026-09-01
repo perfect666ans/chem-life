@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>化学反应的热效应 · 化学生活教学中心</title>
+<style>
+
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+
+
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+
+
+
+
+
+
+/* ===== 热效应实验室专用 ===== */
+.dh-big{font-family:Georgia,serif;font-size:40px;color:var(--accent);line-height:1.1}
+.dh-sub{font-size:12px;color:var(--ink-dim);margin-top:4px}
+.dh-tag{display:inline-block;font-size:11px;border:1px solid var(--accent);color:var(--accent);
+ border-radius:10px;padding:1px 10px;margin-top:8px}
+.bond-row{display:flex;align-items:center;gap:6px;margin:5px 0}
+.bond-row select{flex:1;padding:5px 8px;background:var(--surface-2);border:1px solid var(--line);
+ color:var(--ink);border-radius:6px;font-size:12px;font-family:inherit}
+.bond-row input[type=number]{width:52px;padding:5px 6px;background:var(--surface-2);border:1px solid var(--line);
+ color:var(--ink);border-radius:6px;font-size:12px;font-family:inherit;text-align:center}
+.bond-row input[type=text]{width:74px;padding:5px 6px;background:var(--surface-2);border:1px solid var(--line);
+ color:var(--ink-dim);border-radius:6px;font-size:11px;font-family:inherit;text-align:center}
+.bond-row .del{border:none;background:none;color:var(--ink-mute);cursor:pointer;font-size:14px}
+.bond-row .del:hover{color:var(--accent)}
+.bond-add{width:100%;margin-top:4px;padding:5px 0;border:1px dashed var(--line-strong);background:none;
+ color:var(--ink-dim);border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+.bond-add:hover{color:var(--accent);border-color:var(--accent)}
+.hess-slider{width:100%}
+.hess-val{font-family:var(--mono);font-size:12px;color:var(--accent);text-align:center}
+.preset-eq{font-family:var(--serif-cn);font-size:15px;margin:6px 0}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">热</span>
+    <h1 style="white-space:nowrap">化学反应的热效应</h1>
+    <span class="lecture-tag">PRINCIPLES · LAB 01</span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <div class="theme-switch" role="group" aria-label="主题切换">
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="info-card">
+      <h2 style="white-space:nowrap">ΔH 计算器</h2>
+      <div class="preset-eq" id="presetEq"></div>
+      <div class="dh-big" id="dhBig">—</div>
+      <div class="dh-sub" id="dhSub"></div>
+      <span class="dh-tag" id="dhTag"></span>
+      <p class="info-desc" id="presetNote" style="margin-top:10px"></p>
+      <p class="info-desc">ΔH = 断裂化学键吸收的总能量 − 形成化学键释放的总能量。键能为 25 ℃ 平均值，可点击数值修改。</p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">预设反应</div>
+      <select class="select-box" id="presetSel"></select>
+    </div>
+  </div>
+
+  <div class="canvas-box" style="background:var(--bg-deep)">
+    <canvas id="eCanvas" style="width:100%;height:52%;display:block"></canvas>
+    <canvas id="hessCanvas" style="width:100%;height:48%;display:block;border-top:1px solid var(--line)"></canvas>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">断裂的键（吸热）</div>
+      <div id="brkList"></div>
+      <button class="bond-add" id="addBrk">+ 添加一种键</button>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">形成的键（放热）</div>
+      <div id="frmList"></div>
+      <button class="bond-add" id="addFrm">+ 添加一种键</button>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">盖斯定律 · 碳燃烧的两条路径</div>
+      <input type="range" class="hess-slider" id="hessSlider" min="-394" max="0" step="1" value="-110">
+      <div class="hess-val" id="hessVal"></div>
+      <p class="info-desc" id="hessSum" style="margin-top:6px"></p>
+      <p class="info-desc">拖动滑块改变中间态能量：两段 ΔH 各自改变，但总和恒等于直接路径——反应热只取决于始态与终态。</p>
+    </div>
+  </div>
+</div>
+
+<script>window.__THERMO__ = {"bonds": {"H-H": 436, "F-F": 159, "Cl-Cl": 243, "Br-Br": 193, "I-I": 151, "H-F": 565, "H-Cl": 431, "H-Br": 366, "H-I": 299, "O-H": 463, "N-H": 391, "C-H": 413, "S-H": 339, "O=O": 498, "N≡N": 946, "N=N": 418, "C-C": 348, "C=C": 614, "C≡C": 839, "C-O": 358, "C=O(CO₂)": 799, "C=O": 745, "O-O": 142, "C-N": 293, "C=N": 615, "C≡N": 891, "N-N": 163}, "presets": [{"name": "氢气在氯气中燃烧", "eq": "H₂ + Cl₂ = 2HCl", "brk": {"H-H": 1, "Cl-Cl": 1}, "frm": {"H-Cl": 2}, "note": "苍白色火焰，瓶口有白雾。放热反应的典型代表。"}, {"name": "氢气与溴蒸气化合", "eq": "H₂ + Br₂ = 2HBr", "brk": {"H-H": 1, "Br-Br": 1}, "frm": {"H-Br": 2}, "note": "卤素越不活泼，与氢气化合越难、放热越少（对比 Cl₂、I₂）。"}, {"name": "氢气与碘化合", "eq": "H₂ + I₂ ⇌ 2HI", "brk": {"H-H": 1, "I-I": 1}, "frm": {"H-I": 2}, "note": "几乎热中性：ΔH 仅约 −11 kJ/mol，且反应可逆。"}, {"name": "氢气在氧气中燃烧", "eq": "2H₂ + O₂ = 2H₂O(g)", "brk": {"H-H": 2, "O=O": 1}, "frm": {"O-H": 4}, "note": "生成水蒸气时 −482 kJ；若生成液态水还要加上汽化潜热（更放热）。"}, {"name": "甲烷完全燃烧", "eq": "CH₄ + 2O₂ = CO₂ + 2H₂O(g)", "brk": {"C-H": 4, "O=O": 2}, "frm": {"C=O(CO₂)": 2, "O-H": 4}, "note": "天然气主要成分。注意 CO₂ 中 C=O 键能按 799 kJ/mol 计。"}, {"name": "合成氨反应", "eq": "N₂ + 3H₂ ⇌ 2NH₃", "brk": {"N≡N": 1, "H-H": 3}, "frm": {"N-H": 6}, "note": "放热但 N≡N 键能极大（946），故需高温高压+催化剂（工业合成氨）。"}, {"name": "过氧化氢分解", "eq": "2H₂O₂ = 2H₂O + O₂", "brk": {"O-O": 2, "O-H": 4}, "frm": {"O-H": 4, "O=O": 1}, "note": "净效果 = 断 2 个 O-O 键、成 1 个 O=O 键，O-H 键打平。MnO₂ 催化。"}, {"name": "氢气与氟气化合", "eq": "H₂ + F₂ = 2HF", "brk": {"H-H": 1, "F-F": 1}, "frm": {"H-F": 2}, "note": "H-F 是最强的氢卤键，暗处即可爆炸化合，放热巨大。"}]};</script>
+<script>
+/* ===== 化学反应的热效应 ===== */
+const D = window.__THERMO__;
+const $ = (id) => document.getElementById(id);
+let brk = {}, frm = {};           // 键 -> 数目
+let hessMid = -110;               // 盖斯演示中间态能量（相对反应物 0）
+
+/* ---- ΔH 计算 ---- */
+function calcDH(){
+  let s1 = 0, s2 = 0;
+  for (const k in brk) s1 += D.bonds[k] * brk[k];
+  for (const k in frm) s2 += D.bonds[k] * frm[k];
+  return {s1, s2, dh: s1 - s2};
+}
+function fmtDH(x){ return (x>0?"+":"") + x.toFixed(0); }
+
+/* ---- 键清单编辑 ---- */
+function bondOptions(sel){
+  return Object.keys(D.bonds).map(k =>
+    `<option value="${k}" ${k===sel?"selected":""}>${k}（${D.bonds[k]} kJ/mol）</option>`).join("");
+}
+function renderBondEditor(wrapId, store, other){
+  const w = $(wrapId); w.innerHTML = "";
+  Object.keys(store).forEach(k => {
+    const row = document.createElement("div"); row.className = "bond-row";
+    row.innerHTML = `<select>${bondOptions(k)}</select>
+      <span style="font-size:11px;color:var(--ink-mute)">×</span>
+      <input type="number" min="1" max="12" value="${store[k]}">
+      <input type="text" value="${D.bonds[k]} kJ" title="键能（可改）">
+      <button class="del">×</button>`;
+    const [sel, cnt, en] = [row.children[0], row.children[1], row.children[2]];
+    sel.onchange = () => { delete store[k]; store[sel.value] = +cnt.value || 1; renderAll(); };
+    cnt.onchange = () => { store[k] = Math.max(1, +cnt.value || 1); renderAll(); };
+    en.onchange = () => { const v = parseFloat(en.value); if (v > 0) { D.bonds[k] = v; renderAll(); } };
+    row.querySelector(".del").onclick = () => { delete store[k]; renderAll(); };
+    w.appendChild(row);
+  });
+}
+$("addBrk").onclick = () => { brk["H-H"] = brk["H-H"] || 1; renderAll(); };
+$("addFrm").onclick = () => { frm["H-Cl"] = frm["H-Cl"] || 1; renderAll(); };
+
+/* ---- 预设反应 ---- */
+function renderPresets(){
+  const sel = $("presetSel");
+  sel.innerHTML = `<option value="-1">— 自定义反应 —</option>` +
+    D.presets.map((p,i) => `<option value="${i}">${p.name}</option>`).join("");
+  sel.onchange = () => {
+    const i = +sel.value;
+    if (i < 0){ brk = {"H-H":1}; frm = {"H-H":1}; }
+    else { const p = D.presets[i]; brk = {...p.brk}; frm = {...p.frm}; }
+    renderAll();
+  };
+}
+
+/* ---- 能量-进程图 ---- */
+function drawEnergy(){
+  const c = $("eCanvas"); const box = c.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  c.width = box.width * dpr; c.height = box.height * dpr;
+  const ctx = c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W = box.width, H = box.height; ctx.clearRect(0,0,W,H);
+  const ink = getComputedStyle(document.body).getPropertyValue("--ink").trim() || "#999";
+  const acc = getComputedStyle(document.body).getPropertyValue("--accent").trim() || "#c8102e";
+  const {s1, s2, dh} = calcDH();
+  // 能量布局：反应物 0，生成物 -dh（放热在下）。能量越高越靠上。
+  const Ea = Math.max(s1 * 0.35, Math.abs(dh) * 0.3, 60);   // 示意活化能垒高度
+  const eR = 0, eP = -dh, eT = Ea;                          // 反应物/产物/过渡态
+  const all = [eR, eP, eT];
+  const eMin = Math.min(...all) - 40, eMax = Math.max(...all) + 60;
+  const Y = (e) => H*0.12 + (eMax - e) / (eMax - eMin) * H*0.72;
+  const X = (t) => W*0.14 + t * W*0.72;
+  // 网格线
+  ctx.strokeStyle = ink; ctx.globalAlpha = .12;
+  for (let i = 0; i < 5; i++){ const y = H*0.12 + i*H*0.18;
+    ctx.beginPath(); ctx.moveTo(W*0.08, y); ctx.lineTo(W*0.92, y); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+  // 反应进程曲线（双驼峰简化：单驼峰）
+  ctx.beginPath();
+  for (let i = 0; i <= 100; i++){
+    const t = i/100;
+    // 三段：R 平台 → 高斯峰 → P 平台
+    const hump = Math.exp(-((t-0.5)**2)/0.055);
+    const eBase = eR + (eP - eR) * smooth(t);
+    const eCurve = eBase + (eT - eBase) * hump;
+    const x = X(t), y = Y(eCurve);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.strokeStyle = acc; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineWidth = 1;
+  function smooth(t){ return t<0.08 ? 0 : t>0.92 ? 1 : (Math.cos((t-0.08)/0.84*Math.PI - Math.PI)+1)/2; }
+  // 平台线
+  ctx.strokeStyle = ink; ctx.globalAlpha = .5;
+  ctx.beginPath(); ctx.moveTo(X(0), Y(eR)); ctx.lineTo(X(0.08), Y(eR)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(0.92), Y(eP)); ctx.lineTo(X(1), Y(eP)); ctx.stroke();
+  ctx.globalAlpha = 1;
+  // ΔH 箭头（反应物平台右端到产物水平）
+  const ax = X(0.86);
+  ctx.strokeStyle = acc; ctx.fillStyle = acc;
+  ctx.beginPath(); ctx.moveTo(ax, Y(eR)); ctx.lineTo(ax, Y(eP)); ctx.stroke();
+  ctx.beginPath();
+  const dir = eP > eR ? -1 : 1;
+  ctx.moveTo(ax, Y(eP)); ctx.lineTo(ax-5, Y(eP)+8*dir); ctx.lineTo(ax+5, Y(eP)+8*dir); ctx.fill();
+  ctx.font = "bold 13px Georgia"; ctx.textAlign = "left";
+  ctx.fillText(`ΔH = ${fmtDH(dh)} kJ/mol`, ax + 10, (Y(eR)+Y(eP))/2);
+  // 活化能标注
+  ctx.fillStyle = ink; ctx.font = "11px sans-serif"; ctx.globalAlpha = .7;
+  ctx.fillText(`Eₐ(正) ≈ ${(eT-eR).toFixed(0)} kJ/mol（示意）`, X(0.42), Y(eT) - 8);
+  ctx.fillText("反应物", X(0.0)-2, Y(eR) - 8);
+  ctx.fillText("生成物", X(0.9)-2, Y(eP) - 8);
+  ctx.globalAlpha = 1;
+  // 吸热/放热底色提示
+  ctx.fillStyle = acc; ctx.globalAlpha = .06;
+  if (dh < 0) ctx.fillRect(X(0.1), Y(eR), X(0.9)-X(0.1), Y(eP)-Y(eR));
+  else ctx.fillRect(X(0.1), Y(eP), X(0.9)-X(0.1), Y(eR)-Y(eP));
+  ctx.globalAlpha = 1;
+}
+
+/* ---- 盖斯定律演示 ---- */
+function drawHess(){
+  const c = $("hessCanvas"); const box = c.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  c.width = box.width * dpr; c.height = box.height * dpr;
+  const ctx = c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W = box.width, H = box.height; ctx.clearRect(0,0,W,H);
+  const ink = getComputedStyle(document.body).getPropertyValue("--ink").trim() || "#999";
+  const acc = getComputedStyle(document.body).getPropertyValue("--accent").trim() || "#c8102e";
+  // 例：C + O₂ → CO₂（−394）；路径2：C→CO（hessMid）→CO₂
+  const E_A = 0, E_C = -394, E_B = hessMid;
+  const all = [E_A, E_B, E_C];
+  const eMin = Math.min(...all) - 60, eMax = Math.max(...all) + 80;
+  const Y = (e) => H*0.15 + (eMax - e)/(eMax - eMin) * H*0.7;
+  const lanes = [W*0.16, W*0.5, W*0.84];
+  const labels = ["C + O₂", "CO + ½O₂", "CO₂"];
+  const vals = [E_A, E_B, E_C];
+  // 能级横线
+  lanes.forEach((x,i) => {
+    ctx.strokeStyle = i===1 ? "#b8860b" : acc; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(x-46, Y(vals[i])); ctx.lineTo(x+46, Y(vals[i])); ctx.stroke();
+    ctx.fillStyle = ink; ctx.font = "12px var(--sans-cn)"; ctx.textAlign = "center";
+    ctx.fillText(labels[i], x, Y(vals[i]) - 10);
+    ctx.font = "11px Georgia"; ctx.fillStyle = "#b8860b";
+    ctx.fillText(vals[i] + " kJ/mol", x, Y(vals[i]) + 18);
+  });
+  // 箭头 A→C 直接、A→B、B→C
+  const arrow = (x1,y1,x2,y2,color) => {
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    const ang = Math.atan2(y2-y1, x2-x1);
+    ctx.beginPath(); ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-8*Math.cos(ang-0.4), y2-8*Math.sin(ang-0.4));
+    ctx.lineTo(x2-8*Math.cos(ang+0.4), y2-8*Math.sin(ang+0.4)); ctx.fill();
+  };
+  arrow(lanes[0], Y(E_A), lanes[2], Y(E_C), acc);
+  arrow(lanes[0]+6, Y(E_A)+6, lanes[1]-6, Y(E_B), "#b8860b");
+  arrow(lanes[1]+6, Y(E_B), lanes[2]-6, Y(E_C)+4, "#b8860b");
+  ctx.lineWidth = 1;
+}
+
+function renderAll(){
+  const {s1, s2, dh} = calcDH();
+  $("dhBig").textContent = fmtDH(dh) + " kJ/mol";
+  $("dhSub").textContent = `断键吸热 ${s1.toFixed(0)} − 成键放热 ${s2.toFixed(0)}`;
+  $("dhTag").textContent = dh < 0 ? "放热反应 ΔH<0" : dh > 0 ? "吸热反应 ΔH>0" : "近似热中性";
+  const pi = +$("presetSel").value;
+  $("presetEq").textContent = pi >= 0 ? D.presets[pi].eq : "自定义反应";
+  $("presetNote").textContent = pi >= 0 ? D.presets[pi].note : "自由组合断键与成键清单，观察 ΔH 变化。";
+  renderBondEditor("brkList", brk); renderBondEditor("frmList", frm);
+  // 盖斯
+  const step1 = hessMid, step2 = -394 - hessMid;
+  $("hessVal").textContent = `中间态 CO+½O₂ 能量：${hessMid} kJ/mol`;
+  $("hessSum").textContent = `路径① 直接：−394 kJ/mol ＝ 路径② 两段之和：(${fmtDH(step1)}) + (${fmtDH(step2)}) = ${fmtDH(step1+step2)} kJ/mol —— 与途径无关`;
+  drawEnergy(); drawHess();
+}
+
+$("hessSlider").oninput = (e) => { hessMid = +e.target.value; renderAll(); };
+window.addEventListener("resize", renderAll);
+renderPresets();
+$("presetSel").value = "4"; // 默认甲烷燃烧
+$("presetSel").onchange();
+</script>
+<script>/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();</script>
+</body>
+</html>
