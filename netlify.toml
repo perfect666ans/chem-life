@@ -9,6 +9,12 @@
   to = "/.netlify/functions/pubchem/:splat"
   status = 200
 
+# 账号系统
+[[redirects]]
+  from = "/api/auth"
+  to = "/.netlify/functions/auth"
+  status = 200
+
 # SPA 路由回退
 [[redirects]]
   from = "/*"

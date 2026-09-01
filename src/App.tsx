@@ -7,6 +7,8 @@ import KitchenPage from './pages/Kitchen'
 import VitaminsPage from './pages/Vitamins'
 import AminoAcidsPage from './pages/AminoAcids'
 import TeachingPage from './pages/Teaching'
+import LoginPage from './pages/Login'
+import ProfilePage from './pages/Profile'
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
         <Route path="/vitamins" element={<VitaminsPage />} />
         <Route path="/amino-acids" element={<AminoAcidsPage />} />
         <Route path="/teaching" element={<TeachingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
       <footer className="border-t bg-white">
         <div className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-slate-400">
