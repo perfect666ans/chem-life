@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>化学闪卡复习 · 化学生活教学中心</title>
+<style>
+
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+
+
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+
+
+
+
+
+
+/* ===== 闪卡模块专用 ===== */
+.fc-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:auto}
+.fc-card{width:min(620px,92%);min-height:300px;perspective:1200px;cursor:pointer}
+.fc-inner{position:relative;width:100%;min-height:300px;transform-style:preserve-3d;transition:transform .5s}
+.fc-card.flip .fc-inner{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--line,#ccc);
+ border-radius:12px;padding:40px 36px 32px;display:flex;flex-direction:column;justify-content:center;
+ background:color-mix(in srgb,var(--surface) 92%,transparent);box-shadow:0 8px 28px rgba(0,0,0,.12)}
+.fc-face.back{transform:rotateY(180deg);border-color:var(--accent)}
+.fc-q{font-size:17px;line-height:1.9;font-weight:600}
+.fc-a{font-size:15px;line-height:2}
+.fc-hint{margin-top:18px;font-size:11px;opacity:.45;text-align:center}
+.fc-meta{position:absolute;top:12px;left:16px;font-size:11px;opacity:.55}
+.fc-diff{position:absolute;top:12px;right:16px;font-size:11px;color:var(--accent)}
+.fc-ctrl{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;justify-content:center}
+.fc-btn{border:1px solid var(--line,#ccc);background:transparent;color:var(--ink);border-radius:6px;
+ padding:8px 18px;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s}
+.fc-btn:hover{border-color:var(--accent);color:var(--accent)}
+.fc-btn.bad{border-color:#c0392b;color:#c0392b}
+.fc-btn.mid{border-color:#b8860b;color:#b8860b}
+.fc-btn.good{border-color:#2e7d4f;color:#2e7d4f}
+.fc-btn.bad:hover,.fc-btn.mid:hover,.fc-btn.good:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.fc-progress{width:min(620px,92%);margin-top:16px;font-size:12px;opacity:.7;display:flex;justify-content:space-between}
+.fc-bar{width:100%;height:3px;background:color-mix(in srgb,var(--ink) 15%,transparent);border-radius:2px;margin-top:6px}
+.fc-bar i{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+.ch-item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:4px;
+ cursor:pointer;font-size:12.5px;border:1px solid transparent}
+.ch-item:hover{border-color:var(--line,#ccc)}
+.ch-item.cur{border-color:var(--accent);color:var(--accent)}
+.ch-item .cnt{opacity:.5;font-size:11px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-cell{border:1px solid var(--line,#ccc);border-radius:6px;padding:8px;text-align:center}
+.stat-cell b{display:block;font-size:20px;color:var(--accent);font-family:Georgia,serif}
+.stat-cell span{font-size:11px;opacity:.6}
+.mode-row{display:flex;gap:6px}
+.mode-btn{flex:1;border:1px solid var(--line,#ccc);background:transparent;color:var(--ink);border-radius:4px;
+ padding:5px 0;font-size:12px;cursor:pointer;font-family:inherit}
+.mode-btn.cur{background:var(--accent);color:#fff;border-color:var(--accent)}
+.fc-search{width:100%;padding:6px 10px;border:1px solid var(--line,#ccc);border-radius:4px;
+ background:transparent;color:var(--ink);font-size:12.5px;font-family:inherit}
+.fc-list{max-height:260px;overflow:auto;margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.fc-li{font-size:12px;padding:5px 8px;border-radius:4px;cursor:pointer;border-left:2px solid transparent;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc-li:hover{border-left-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.fc-li .st{float:right;opacity:.5}
+@media (max-width:1200px){.fc-face{padding:36px 18px 24px}.fc-q{font-size:15px}.fc-a{font-size:13.5px}}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">卡</span>
+    <h1 style="white-space:nowrap">化学闪卡复习</h1>
+    <span class="lecture-tag">REVIEW · LAB 02</span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <div class="theme-switch" role="group" aria-label="主题切换">
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="panel-section">
+      <div class="panel-title">章节筛选</div>
+      <div id="chList"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">记忆统计</div>
+      <div class="stat-grid">
+        <div class="stat-cell"><b id="stTotal">0</b><span>卡片总数</span></div>
+        <div class="stat-cell"><b id="stSeen">0</b><span>已见过</span></div>
+        <div class="stat-cell"><b id="stMaster">0</b><span>已掌握</span></div>
+        <div class="stat-cell"><b id="stWeak">0</b><span>薄弱</span></div>
+      </div>
+      <p class="info-desc" style="margin-top:8px">记忆盒算法：认识→升盒（1/2/4/7/15 天后到期），不认识→归零重学。进度保存在本机。</p>
+      <button class="func-btn" id="btnReset" style="margin-top:4px">清空记忆进度</button>
+    </div>
+  </div>
+
+  <div class="canvas-box">
+    <div class="fc-stage">
+      <div class="fc-card" id="fcCard">
+        <div class="fc-inner">
+          <div class="fc-face">
+            <span class="fc-meta" id="fcMeta"></span>
+            <span class="fc-diff" id="fcDiff"></span>
+            <div class="fc-q" id="fcQ"></div>
+            <div class="fc-hint">点击卡片翻面 · 空格键也可</div>
+          </div>
+          <div class="fc-face back">
+            <div class="fc-a" id="fcA"></div>
+            <div class="fc-hint">再次点击返回题目</div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-ctrl">
+        <button class="fc-btn" id="btnPrev">← 上一张</button>
+        <button class="fc-btn bad" id="btnBad">不认识 (1)</button>
+        <button class="fc-btn mid" id="btnMid">模糊 (2)</button>
+        <button class="fc-btn good" id="btnGood">认识 (3)</button>
+        <button class="fc-btn" id="btnNext">下一张 →</button>
+      </div>
+      <div class="fc-progress"><span id="fcPos">0 / 0</span><span id="fcStreak">连胜 0</span></div>
+      <div class="fc-progress"><div class="fc-bar"><i id="fcBar"></i></div></div>
+    </div>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">复习模式</div>
+      <div class="mode-row">
+        <button class="mode-btn cur" data-m="smart">智能复习</button>
+        <button class="mode-btn" data-m="seq">顺序</button>
+        <button class="mode-btn" data-m="random">随机</button>
+      </div>
+      <p class="info-desc">智能复习：到期卡与新卡优先，遵循遗忘曲线。</p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">查找卡片</div>
+      <input class="fc-search" id="fcSearch" placeholder="输入关键词，如：焰色 / 水解 / Ksp">
+      <div class="fc-list" id="fcList"></div>
+    </div>
+  </div>
+</div>
+
+<script>window.__FC__ = {"chapters": ["物质的分类与计量", "离子反应", "氧化还原反应", "金属及其化合物", "非金属及其化合物", "物质结构·元素周期律", "化学反应与能量·电化学", "速率·平衡·水溶液", "原子分子结构与晶体", "有机化学基础"], "books": ["必修一", "必修一", "必修一", "必修一", "必修一", "必修二", "必修二·选必1", "选必1", "选必2", "选必3"], "cards": [{"ch": 0, "f": "胶体区别于溶液和浊液的本质特征？如何简便鉴别胶体？", "b": "本质：分散质粒子直径 1~100 nm。鉴别：丁达尔效应（用激光笔照射，胶体出现光亮的通路）。", "d": 2}, {"ch": 0, "f": "下列哪些是电解质：盐酸、NaCl 固体、CO₂、NH₃、Cu、熔融 KNO₃？", "b": "NaCl 固体、熔融 KNO₃ 是电解质。盐酸是混合物（不是）、CO₂/NH₃ 是非电解质（自身不电离）、Cu 是单质（既不是电解质也不是非电解质）。", "d": 2}, {"ch": 0, "f": "阿伏伽德罗常数 Nᴀ 的数值与单位？使用注意事项？", "b": "约 6.02×10²³ mol⁻¹。注意：说「1 mol 氧」指代不明，必须指明微粒种类（如 1 mol O₂ 或 1 mol O）。", "d": 1}, {"ch": 0, "f": "标准状况下气体摩尔体积是多少？适用条件？", "b": "22.4 L/mol。条件：标准状况（0 ℃、101 kPa）且对象为气体（H₂O、SO₃、CCl₄ 等在标况下非气体，不能用）。", "d": 2}, {"ch": 0, "f": "写出物质的量的四个核心换算公式", "b": "n = m/M = N/Nᴀ = V(g)/V_m = c·V(aq)", "d": 1}, {"ch": 0, "f": "配制 100 mL 1.00 mol/L NaCl 溶液的主要步骤？", "b": "计算→称量（5.85 g，托盘天平称 5.9 g）→溶解（烧杯中）→冷却后转移（玻璃棒引流至 100 mL 容量瓶）→洗涤烧杯和玻璃棒 2~3 次并转移→定容（距刻度线 1~2 cm 改用胶头滴管）→摇匀。", "d": 3}, {"ch": 0, "f": "定容时仰视刻度线，所配溶液浓度偏大还是偏小？", "b": "偏小。仰视使实际液面高于刻度线，溶液体积偏大，由 c=n/V 知浓度偏小。", "d": 2}, {"ch": 0, "f": "溶液稀释/浓缩的守恒关系？", "b": "溶质物质的量不变：c₁V₁ = c₂V₂", "d": 1}, {"ch": 0, "f": "同素异形体的定义？举例两组。", "b": "同种元素组成的不同单质。如 O₂ 与 O₃；金刚石、石墨与 C₆₀；红磷与白磷。", "d": 1}, {"ch": 0, "f": "酸性氧化物的定义？CO₂ 与 CaO 反应的方程式？", "b": "能与碱反应只生成盐和水的氧化物。CO₂ + CaO = CaCO₃", "d": 1}, {"ch": 0, "f": "分散系按分散质粒子直径如何分类？", "b": "<1 nm：溶液；1~100 nm：胶体；>100 nm：浊液（悬浊液、乳浊液）。", "d": 1}, {"ch": 0, "f": "容量瓶使用时的三个「不能」？", "b": "不能溶解固体/稀释浓溶液；不能加热；不能长期储存溶液。且需检漏、定容用胶头滴管。", "d": 2}, {"ch": 0, "f": "阿伏伽德罗定律内容？", "b": "同温同压下，相同体积的任何气体含有相同数目的分子。推论：同温同压气体体积比=物质的量之比；密度比=摩尔质量之比。", "d": 2}, {"ch": 0, "f": "1 mol Na₂O₂ 中含阴阳离子各多少？", "b": "Na⁺ 2 mol，O₂²⁻（过氧根）1 mol。阴离子是整体 O₂²⁻，不是 2 mol O⁻。", "d": 2}, {"ch": 0, "f": "标况下 11.2 L CO₂ 的物质的量、质量、含氧原子数？", "b": "0.5 mol；44 g；氧原子 1 mol 即 Nᴀ 个。", "d": 1}, {"ch": 1, "f": "书写离子方程式时，哪些物质必须「拆」成离子？", "b": "易溶于水的强电解质：强酸（HCl、H₂SO₄、HNO₃）、强碱（NaOH、KOH、Ba(OH)₂）、可溶性盐。不拆：单质、氧化物、气体、沉淀、弱酸弱碱和水。", "d": 2}, {"ch": 1, "f": "Ba(OH)₂ 与稀硫酸反应的离子方程式？", "b": "Ba²⁺ + 2OH⁻ + 2H⁺ + SO₄²⁻ = BaSO₄↓ + 2H₂O（沉淀和中和同时发生，系数不能约分）。", "d": 2}, {"ch": 1, "f": "离子共存的四大不能共存原因？", "b": "①生成沉淀 ②生成气体 ③生成弱电解质（水、弱酸弱碱）④发生氧化还原反应（如 Fe³⁺ 与 I⁻、H⁺+NO₃⁻ 与 Fe²⁺）。", "d": 2}, {"ch": 1, "f": "检验 Cl⁻ 的实验操作与现象？", "b": "先加稀硝酸酸化，再滴加 AgNO₃ 溶液，产生不溶于稀硝酸的白色沉淀 AgCl。酸化是为排除 CO₃²⁻ 等干扰。", "d": 2}, {"ch": 1, "f": "检验 SO₄²⁻ 的规范操作？为什么先加盐酸？", "b": "先加稀盐酸酸化（无现象，排除 Ag⁺、CO₃²⁻、SO₃²⁻ 干扰），再加 BaCl₂ 溶液，产生白色沉淀 BaSO₄。不能加硝酸（会把 SO₃²⁻ 氧化成 SO₄²⁻）。", "d": 3}, {"ch": 1, "f": "检验 NH₄⁺ 的操作与方程式？", "b": "加浓 NaOH 溶液并加热，产生使湿润红色石蕊试纸变蓝的气体。NH₄⁺ + OH⁻ =△= NH₃↑ + H₂O", "d": 2}, {"ch": 1, "f": "CO₂ 少量 vs 过量通入 NaOH，离子方程式有何不同？", "b": "少量：CO₂ + 2OH⁻ = CO₃²⁻ + H₂O；过量：CO₂ + OH⁻ = HCO₃⁻。反应物比例决定产物。", "d": 2}, {"ch": 1, "f": "FeCl₃ 溶液中加入 Cu 粉的离子方程式？", "b": "2Fe³⁺ + Cu = 2Fe²⁺ + Cu²⁺（氧化还原，不是置换）。", "d": 2}, {"ch": 1, "f": "Ca(HCO₃)₂ 与足量 NaOH 反应的离子方程式？", "b": "Ca²⁺ + 2HCO₃⁻ + 2OH⁻ = CaCO₃↓ + CO₃²⁻ + 2H₂O（少量定一：把少量物质系数定为 1）。", "d": 3}, {"ch": 1, "f": "常见微溶物在离子方程式中如何处理？", "b": "作反应物且为澄清溶液时拆（如澄清石灰水 Ca(OH)₂ 拆）；作生成物或悬浊液时不拆，写化学式并视情况标↓。", "d": 3}, {"ch": 1, "f": "NaHCO₃ 溶液与盐酸反应的离子方程式？", "b": "HCO₃⁻ + H⁺ = CO₂↑ + H₂O（HCO₃⁻ 是弱酸酸式根，不拆成 H⁺ 和 CO₃²⁻）。", "d": 1}, {"ch": 1, "f": "判断离子方程式正误的三查？", "b": "一查是否符合事实；二查拆分是否恰当；三查电荷、原子、电子是否守恒（氧还反应）。", "d": 2}, {"ch": 1, "f": "Al³⁺ 与 OH⁻ 少量/过量反应的差别？", "b": "少量 OH⁻：Al³⁺ + 3OH⁻ = Al(OH)₃↓；过量 OH⁻：Al³⁺ + 4OH⁻ = AlO₂⁻ + 2H₂O（沉淀溶解）。", "d": 2}, {"ch": 1, "f": "漂白液（Cl₂ 通入 NaOH）的离子方程式？", "b": "Cl₂ + 2OH⁻ = Cl⁻ + ClO⁻ + H₂O（歧化反应）。", "d": 1}, {"ch": 1, "f": "酸性条件下不能大量共存的常见组合（举三组）？", "b": "H⁺ 与 CO₃²⁻/HCO₃⁻/SO₃²⁻/S²⁻/ClO⁻/CH₃COO⁻；H⁺+NO₃⁻ 与 Fe²⁺/I⁻/S²⁻（氧化还原）；H⁺ 与 OH⁻。", "d": 2}, {"ch": 2, "f": "氧化还原反应的本质与特征分别是什么？", "b": "本质：电子转移（得失或偏移）；特征：元素化合价升降。口诀：升、失、氧化、还原剂；降、得、还原、氧化剂。", "d": 1}, {"ch": 2, "f": "常见强氧化剂（举五例）？", "b": "KMnO₄(H⁺)、Cl₂、浓 H₂SO₄、HNO₃、H₂O₂、Fe³⁺、O₂、K₂Cr₂O₇。", "d": 1}, {"ch": 2, "f": "常见还原剂（举五例）？", "b": "活泼金属（Na、Al、Zn、Fe）、H₂、C、CO、Fe²⁺、I⁻、S²⁻、SO₂。", "d": 1}, {"ch": 2, "f": "Cl₂ + H₂O ⇌ HCl + HClO 属于什么反应类型？氧化剂还原剂？", "b": "歧化反应（同种元素既升又降）；Cl₂ 既是氧化剂又是还原剂。", "d": 2}, {"ch": 2, "f": "用双线桥分析：MnO₂ + 4HCl(浓) =△= MnCl₂ + Cl₂↑ + 2H₂O", "b": "Mn：+4→+2 得 2e⁻ 被还原；Cl：−1→0 失 2×e⁻ 被氧化。注意 4 mol HCl 中只有 2 mol 作还原剂，另 2 mol 起酸的作用。", "d": 3}, {"ch": 2, "f": "氧化性强弱比较的两条依据？", "b": "①氧化剂 > 氧化产物（由反应方向判断）；②金属活动性越弱，其阳离子氧化性越强（Fe³⁺>Cu²⁺>H⁺>Fe²⁺）。", "d": 2}, {"ch": 2, "f": "配平氧还方程式的核心守恒？", "b": "得失电子守恒（化合价升降总数相等），再配平电荷与原子。缺项配平常用 H⁺/OH⁻/H₂O 补平。", "d": 2}, {"ch": 2, "f": "Fe²⁺ 与 Fe³⁺ 相互转化的常用试剂？", "b": "Fe²⁺→Fe³⁺：加氧化剂（Cl₂、H₂O₂、HNO₃）；Fe³⁺→Fe²⁺：加还原剂（Fe、Cu、I⁻）。", "d": 1}, {"ch": 2, "f": "实验室保存 FeSO₄ 溶液为何要加铁粉和稀硫酸？", "b": "铁粉防止 Fe²⁺ 被氧化（2Fe³⁺+Fe=3Fe²⁺）；稀硫酸抑制 Fe²⁺ 水解。", "d": 2}, {"ch": 2, "f": "归中反应举例（一个）并说明。", "b": "2H₂S + SO₂ = 3S↓ + 2H₂O：−2 价和 +4 价硫都变为 0 价。高价+低价→中间价。", "d": 2}, {"ch": 2, "f": "原电池中负极发生什么反应？电子流向？", "b": "负极失电子发生氧化反应；电子经外电路由负极流向正极（电流方向相反）；溶液中阳离子移向正极。", "d": 2}, {"ch": 2, "f": "H₂O₂ 中氧为 −1 价，它体现什么性质特点？", "b": "既有氧化性又有还原性（中间价态）；遇强氧化剂（KMnO₄）显还原性，遇还原剂显氧化性；可自身歧化分解：2H₂O₂=2H₂O+O₂↑。", "d": 2}, {"ch": 2, "f": "金属活动性顺序表（前 15 个）？", "b": "K Ca Na Mg Al Zn Fe Sn Pb (H) Cu Hg Ag Pt Au。H 前金属置换酸中氢；K Ca Na 太活泼先与水反应。", "d": 1}, {"ch": 2, "f": "为什么浓硝酸与 Cu 反应生成 NO₂ 而稀硝酸生成 NO？", "b": "浓硝酸还原产物为 NO₂（N +5→+4），稀硝酸为 NO（+5→+2）。均体现强氧化性，且硝酸越稀，氮降价越多但氧化性越弱（氧化性看难易不看多少）。", "d": 3}, {"ch": 2, "f": "KMnO₄(H⁺) 滴定 Fe²⁺ 的离子方程式？", "b": "MnO₄⁻ + 5Fe²⁺ + 8H⁺ = Mn²⁺ + 5Fe³⁺ + 4H₂O。终点：最后一滴使溶液变浅紫色且半分钟不褪。", "d": 3}, {"ch": 3, "f": "Na 投入水中的五个现象（浮熔游响红）及对应性质？", "b": "浮（密度小于水）、熔（熔点低、反应放热）、游（生成气体推动）、响（反应剧烈）、红（生成 NaOH 使酚酞变红）。2Na+2H₂O=2NaOH+H₂↑", "d": 2}, {"ch": 3, "f": "Na₂O₂ 的两个重要反应？它作什么剂？", "b": "2Na₂O₂+2H₂O=4NaOH+O₂↑；2Na₂O₂+2CO₂=2Na₂CO₃+O₂。Na₂O₂ 既是氧化剂又是还原剂（歧化），用作供氧剂、漂白剂。", "d": 2}, {"ch": 3, "f": "Na₂CO₃ 与 NaHCO₃ 对比（热稳定性/与酸反应/互鉴）？", "b": "稳定性：Na₂CO₃>NaHCO₃（2NaHCO₃=△=Na₂CO₃+CO₂↑+H₂O）；与同浓度盐酸反应 NaHCO₃ 更快更剧烈；鉴别：加热（产生使石灰水变浑浊气体的是 NaHCO₃）或逐滴加酸观察。", "d": 2}, {"ch": 3, "f": "焰色试验：Na、K 各呈什么颜色？观察 K 要注意什么？", "b": "Na 黄色，K 紫色（透过蓝色钴玻璃观察，滤去 Na 的黄色干扰）。焰色试验是物理变化。", "d": 1}, {"ch": 3, "f": "Al₂O₃、Al(OH)₃ 为什么叫两性？写出 Al(OH)₃ 与酸碱反应的离子方程式。", "b": "既能与酸又能与强碱反应生成盐和水。Al(OH)₃+3H⁺=Al³⁺+3H₂O；Al(OH)₃+OH⁻=AlO₂⁻+2H₂O", "d": 2}, {"ch": 3, "f": "铝热反应的方程式与用途？", "b": "2Al + Fe₂O₃ =高温= Al₂O₃ + 2Fe。放出大量热，用于焊接钢轨、冶炼难熔金属。", "d": 2}, {"ch": 3, "f": "检验 Fe³⁺ 与 Fe²⁺ 的方法？", "b": "Fe³⁺：加 KSCN 溶液变血红色。Fe²⁺：先加 KSCN 无现象，再加氯水变红；或加 K₃[Fe(CN)₆] 生成蓝色沉淀。", "d": 2}, {"ch": 3, "f": "Fe(OH)₂ 被氧化的现象与方程式？", "b": "白色沉淀迅速变灰绿色，最终变红褐色。4Fe(OH)₂+O₂+2H₂O=4Fe(OH)₃。制备时要隔绝空气（煮沸蒸馏水、液面封油、胶头滴管伸入液面下）。", "d": 2}, {"ch": 3, "f": "铁与水蒸气反应的方程式？", "b": "3Fe + 4H₂O(g) =高温= Fe₃O₄ + 4H₂（注意产物是 Fe₃O₄ 不是 Fe₂O₃）。", "d": 2}, {"ch": 3, "f": "Cu 与浓硫酸反应的方程式？体现浓硫酸什么性质？", "b": "Cu + 2H₂SO₄(浓) =△= CuSO₄ + SO₂↑ + 2H₂O。体现强氧化性和酸性（各半）。", "d": 2}, {"ch": 3, "f": "合金的定义与性能特点？举例常见合金。", "b": "金属与金属（或非金属）熔合而成有金属特性的物质。特点：硬度比成分金属大、熔点比成分金属低。如生铁/钢（铁碳合金）、铝合金、黄铜。", "d": 1}, {"ch": 3, "f": "Na₂O 与 Na₂O₂ 的对比（颜色/氧价态/与水反应）？", "b": "Na₂O 白色，氧 −2 价，与水只生成 NaOH；Na₂O₂ 淡黄色，氧 −1 价，与水生成 NaOH 和 O₂。", "d": 1}, {"ch": 3, "f": "明矾净水的原理（方程式）？", "b": "Al³⁺ 水解生成 Al(OH)₃ 胶体吸附悬浮杂质：Al³⁺ + 3H₂O ⇌ Al(OH)₃(胶体) + 3H⁺", "d": 2}, {"ch": 3, "f": "铁的三种氧化物及其与盐酸反应？", "b": "FeO（黑）、Fe₂O₃（红棕，铁红）、Fe₃O₄（黑，磁性）。Fe₃O₄+8HCl=FeCl₂+2FeCl₃+4H₂O（含 +2、+3 两种价态铁）。", "d": 2}, {"ch": 3, "f": "金属钠着火了能用水或 CO₂ 灭火器吗？", "b": "不能。Na 与水剧烈反应放 H₂；Na 燃烧生成 Na₂O₂ 与 CO₂ 反应放 O₂ 助燃。应用干沙土盖灭。", "d": 1}, {"ch": 4, "f": "实验室制取 Cl₂ 的方程式、除杂与收集？", "b": "MnO₂+4HCl(浓)=△=MnCl₂+Cl₂↑+2H₂O。饱和食盐水除 HCl、浓硫酸除水蒸气；向上排空气法或排饱和食盐水法收集；NaOH 溶液吸收尾气。", "d": 2}, {"ch": 4, "f": "氯水的成分（三分四离）与漂白原理？", "b": "分子：Cl₂、HClO、H₂O；离子：H⁺、Cl⁻、ClO⁻、OH⁻。漂白靠 HClO 强氧化性（永久性漂白）；久置氯水因 2HClO=光=2HCl+O₂↑ 变成稀盐酸，酸性增强漂白性消失。", "d": 3}, {"ch": 4, "f": "SO₂ 与 HClO/氯水漂白原理的区别？", "b": "SO₂ 与有色物质化合生成不稳定无色物质，可逆（加热复原）；HClO、O₃、Na₂O₂ 靠强氧化性漂白，不可逆。", "d": 2}, {"ch": 4, "f": "SO₂ 使溴水/酸性 KMnO₄ 褪色体现什么性质？方程式（溴水）？", "b": "还原性（不是漂白性）。SO₂+Br₂+2H₂O=H₂SO₄+2HBr", "d": 2}, {"ch": 4, "f": "浓硫酸的三大特性及对应实例？", "b": "吸水性（干燥剂，物理/化学）、脱水性（蔗糖炭化，按 H:O=2:1 脱水）、强氧化性（与 Cu 反应、使 Fe/Al 常温钝化）。", "d": 2}, {"ch": 4, "f": "NH₃ 的实验室制法、干燥与验满？", "b": "2NH₄Cl+Ca(OH)₂=△=CaCl₂+2NH₃↑+2H₂O。用碱石灰干燥（不能用浓硫酸/CaCl₂/P₂O₅）；湿润红色石蕊试纸变蓝或蘸浓盐酸冒白烟验满。", "d": 2}, {"ch": 4, "f": "氨的喷泉实验能形成喷泉的本质？", "b": "NH₃ 极易溶于水（1:700），烧瓶内压强骤降，外界大气压把水压入。关键：装置气密性好、烧瓶干燥、气体充满。", "d": 2}, {"ch": 4, "f": "稀硝酸与 Cu 反应的方程式？硝酸体现什么性质？", "b": "3Cu+8HNO₃(稀)=3Cu(NO₃)₂+2NO↑+4H₂O。强氧化性与酸性。", "d": 2}, {"ch": 4, "f": "SiO₂ 的特殊反应（两个）？", "b": "SiO₂+4HF=SiF₄↑+2H₂O（刻蚀玻璃，氢氟酸用塑料瓶保存）；SiO₂+2NaOH=Na₂SiO₃+H₂O（盛碱液试剂瓶用橡胶塞）。SiO₂ 是酸性氧化物但不与水反应。", "d": 2}, {"ch": 4, "f": "卤素单质氧化性递变与置换反应实例？", "b": "F₂>Cl₂>Br₂>I₂。Cl₂+2Br⁻=2Cl⁻+Br₂；Cl₂+2I⁻=2Cl⁻+I₂；Br₂+2I⁻=2Br⁻+I₂（CCl₄ 萃取：Br₂ 橙红、I₂ 紫红）。", "d": 1}, {"ch": 4, "f": "NO 与 NO₂ 的性质对比？", "b": "NO 无色难溶于水，遇 O₂ 立即变红棕：2NO+O₂=2NO₂；NO₂ 红棕刺激性，3NO₂+H₂O=2HNO₃+NO。均为大气污染物（光化学烟雾、酸雨）。", "d": 2}, {"ch": 4, "f": "工业制玻璃的原料与两个主要反应？", "b": "纯碱、石灰石、石英。Na₂CO₃+SiO₂=高温=Na₂SiO₃+CO₂↑；CaCO₃+SiO₂=高温=CaSiO₃+CO₂↑", "d": 1}, {"ch": 4, "f": "铵盐的性质（两条）与 NH₄⁺ 检验？", "b": "①易分解（NH₄Cl=△=NH₃↑+HCl↑）；②与碱共热放 NH₃（用于检验和制取）。", "d": 1}, {"ch": 4, "f": "SO₂ 与 CO₂ 的鉴别方法（两种）？", "b": "①品红溶液：SO₂ 使其褪色且加热复原；②酸性 KMnO₄ 或溴水：SO₂ 使其褪色（还原性）。不能用澄清石灰水（都产生白色沉淀）。", "d": 2}, {"ch": 4, "f": "硅酸如何制备？方程式？", "b": "Na₂SiO₃+2HCl=2NaCl+H₂SiO₃↓（强酸制弱酸，说明 HCl 酸性强于硅酸）。硅酸是难溶于水的白色胶状沉淀。", "d": 1}, {"ch": 5, "f": "ᴬzX 中 A、Z 的含义？质量数与什么相等？", "b": "A=质量数=质子数+中子数；Z=质子数=核电荷数=核外电子数（原子）=原子序数。", "d": 1}, {"ch": 5, "f": "同位素的定义？举例。", "b": "质子数相同而中子数不同的同一元素的不同原子互称同位素。如 ¹H ²H ³H（氕氘氚）、¹²C 与 ¹⁴C（测文物年代）。", "d": 1}, {"ch": 5, "f": "核外电子排布的三条基本规律？", "b": "①每层最多 2n² 个；②最外层≤8 个（K 层≤2），次外层≤18；③能量最低原理，先排满内层再排外层（相互制约）。", "d": 2}, {"ch": 5, "f": "同周期、同主族元素性质递变规律？", "b": "同周期左→右：半径减小，金属性减弱非金属性增强；同主族上→下：半径增大，金属性增强非金属性减弱。", "d": 1}, {"ch": 5, "f": "判断金属性强弱的三个依据？", "b": "①与水/酸置换氢的难易；②最高价氧化物对应水化物（碱）的碱性；③单质间的置换反应。", "d": 2}, {"ch": 5, "f": "判断非金属性强弱的三个依据？", "b": "①与 H₂ 化合的难易及气态氢化物稳定性；②最高价含氧酸的酸性；③单质间的置换反应。", "d": 2}, {"ch": 5, "f": "离子键与共价键的判断规律？", "b": "活泼金属与活泼非金属（或含 NH₄⁺、含氧酸根的盐、强碱）→离子键；非金属原子之间→共价键。特殊：AlCl₃、BeCl₂ 是共价化合物。", "d": 2}, {"ch": 5, "f": "离子化合物与共价化合物的根本区别？", "b": "看是否含离子键：含离子键一定是离子化合物（可含共价键如 NaOH、Na₂O₂、NH₄Cl）；只含共价键的是共价化合物。", "d": 2}, {"ch": 5, "f": "氢键对物质性质的影响？举例。", "b": "使熔沸点反常升高：HF>HCl、H₂O>H₂S、NH₃>PH₃（因含氢键）；氢键是分子间作用力，不是化学键。", "d": 2}, {"ch": 5, "f": "写出 Na₂O₂、NH₄Cl、CO₂ 的电子式要点。", "b": "Na₂O₂：两个 Na⁺ 与 [O—O]²⁻（过氧根内含共价键）；NH₄Cl：NH₄⁺ 内含共价键、与 Cl⁻ 间是离子键；CO₂：O=C=O 双键，各达 8 电子。", "d": 2}, {"ch": 5, "f": "10 电子、18 电子微粒各举四例。", "b": "10 电子：Ne、HF、H₂O、NH₃、CH₄、Na⁺、Mg²⁺、Al³⁺、O²⁻、F⁻、NH₄⁺、OH⁻；18 电子：Ar、HCl、H₂S、PH₃、SiH₄、K⁺、Ca²⁺、Cl⁻、S²⁻。", "d": 2}, {"ch": 5, "f": "元素周期表的结构（周期与族）？", "b": "7 个周期（3 短 3 长 1 不完全）；16 个族（7 主 7 副 1 个第Ⅷ族 1 个 0 族）；18 个纵列。", "d": 1}, {"ch": 5, "f": "微粒半径大小比较的三条规律？", "b": "①电子层数越多半径越大；②层数相同，核电荷数越大半径越小；③同元素：阴离子>原子>阳离子（Cl⁻>Cl；Na>Na⁺）。", "d": 2}, {"ch": 5, "f": "化学键断裂与形成中的能量关系？", "b": "断键吸热、成键放热；反应放热⇔成键放热>断键吸热。化学反应必然伴随能量变化，但有能量变化的不一定是化学反应（如三态变化）。", "d": 2}, {"ch": 5, "f": "元素推断常用「题眼」（举四个）？", "b": "地壳含量最高 O、Si；最轻气体 H₂；空气中最多 N₂；黄绿色气体 Cl₂；红棕色气体 NO₂/Br₂；使品红褪色 SO₂；遇 KSCN 显红 Fe³⁺。", "d": 2}, {"ch": 6, "f": "放热反应与吸热反应的常见例子各举三个？", "b": "放热：燃烧、中和、金属与酸、大多数化合反应、铝热反应；吸热：Ba(OH)₂·8H₂O+NH₄Cl、C+CO₂、大多数分解反应。", "d": 1}, {"ch": 6, "f": "ΔH 的计算（键能法）公式与符号规定？", "b": "ΔH = 反应物总键能 − 生成物总键能（断键吸热−成键放热）；放热 ΔH<0，吸热 ΔH>0。另：ΔH = 生成物总能量 − 反应物总能量。", "d": 2}, {"ch": 6, "f": "热化学方程式书写的四个要点？", "b": "①注明物质聚集状态（s/l/g/aq）；②ΔH 数值与系数成正比、带符号和单位 kJ/mol；③系数可为分数；④注明温度压强（25 ℃ 101 kPa 可略）。", "d": 2}, {"ch": 6, "f": "燃烧热与中和热的定义要点？", "b": "燃烧热：25 ℃ 101 kPa 下 1 mol 纯物质完全燃烧生成稳定氧化物（C→CO₂、H→H₂O(l)）放出的热；中和热：稀溶液中强酸强碱生成 1 mol H₂O 放出的热（57.3 kJ/mol）。", "d": 2}, {"ch": 6, "f": "盖斯定律内容与应用？", "b": "反应热只与始态、终态有关，与途径无关。用于间接计算难以直接测定的反应热（方程加减对应 ΔH 加减）。", "d": 1}, {"ch": 6, "f": "原电池（Zn-Cu 稀硫酸）两极反应与现象？", "b": "负极 Zn：Zn−2e⁻=Zn²⁺（锌溶解变细）；正极 Cu：2H⁺+2e⁻=H₂↑（冒气泡）；电子 Zn→导线→Cu，电流相反。", "d": 2}, {"ch": 6, "f": "构成原电池的三个条件？", "b": "①两种活泼性不同的电极（或金属与惰性电极）；②电解质溶液；③形成闭合回路（且能自发进行氧还反应）。", "d": 1}, {"ch": 6, "f": "电解池阴阳极判断与放电顺序？", "b": "阳极（接正极，失电子）：活性电极本身>S²⁻>I⁻>Br⁻>Cl⁻>OH⁻>含氧酸根；阴极（接负极，得电子）：Ag⁺>Fe³⁺>Cu²⁺>H⁺(酸)>Fe²⁺>Zn²⁺>H⁺(水)>Al³⁺…", "d": 3}, {"ch": 6, "f": "电解饱和食盐水的两极方程式与总反应？", "b": "阳极：2Cl⁻−2e⁻=Cl₂↑；阴极：2H₂O+2e⁻=H₂↑+2OH⁻。总：2NaCl+2H₂O=通电=2NaOH+H₂↑+Cl₂↑（氯碱工业）。", "d": 2}, {"ch": 6, "f": "钢铁的析氢腐蚀与吸氧腐蚀条件与负极反应？", "b": "酸性较强→析氢（正极 2H⁺+2e⁻=H₂↑）；弱酸/中性→吸氧（正极 O₂+2H₂O+4e⁻=4OH⁻）。负极都是 Fe−2e⁻=Fe²⁺。吸氧更普遍。", "d": 2}, {"ch": 6, "f": "防止金属腐蚀的电化学方法（两种）？", "b": "牺牲阳极法（接更活泼金属如 Zn 保护船体，被保护者作正极）；外加电流法（接电源负极作阴极被保护）。", "d": 2}, {"ch": 6, "f": "电镀的原理（以铁件镀铜为例）？", "b": "待镀铁件作阴极（Cu²⁺+2e⁻=Cu），铜片作阳极（Cu−2e⁻=Cu²⁺），含 Cu²⁺ 溶液作电镀液，其浓度基本不变。", "d": 2}, {"ch": 6, "f": "铅蓄电池放电时的两极反应？", "b": "负极：Pb+SO₄²⁻−2e⁻=PbSO₄；正极：PbO₂+4H⁺+SO₄²⁻+2e⁻=PbSO₄+2H₂O。放电消耗硫酸、两极都增重。", "d": 3}, {"ch": 6, "f": "反应进行方向判据（焓变熵变）？", "b": "ΔG=ΔH−TΔS<0 自发。放热且熵增（ΔH<0,ΔS>0）一定自发；吸热且熵减一定非自发；其余看温度。", "d": 2}, {"ch": 6, "f": "氢氧燃料电池（碱性介质）两极反应？", "b": "负极：2H₂+4OH⁻−4e⁻=4H₂O；正极：O₂+2H₂O+4e⁻=4OH⁻；总：2H₂+O₂=2H₂O。", "d": 3}, {"ch": 7, "f": "化学反应速率公式与注意事项？", "b": "v=Δc/Δt（平均速率，取正值）。注意：固体和纯液体浓度视为常数，不用其表示速率；同一反应各物质速率之比=系数之比。", "d": 2}, {"ch": 7, "f": "影响反应速率的四个外因及效果？", "b": "浓度增大→加快（对固体纯液体无效）；温度升高→加快；催化剂→大幅加快（同等改变正逆速率）；压强（有气体，实质是改变浓度）→增大加快；还有接触面积等。", "d": 1}, {"ch": 7, "f": "可逆反应达到平衡状态的判断标志（两类）？", "b": "①v正=v逆（同种物质生成速率=消耗速率；不同物质方向相反且符合系数比）；②变量不变（各组分浓度、气体总压/总物质的量/密度/平均摩尔质量等在反应有气体体积变化时不再改变）。", "d": 3}, {"ch": 7, "f": "勒夏特列原理内容？", "b": "改变影响平衡的一个条件（浓度、压强、温度），平衡向减弱这种改变的方向移动。注意：催化剂不影响平衡。", "d": 1}, {"ch": 7, "f": "化学平衡常数 K 的书写规则？", "b": "生成物浓度幂之积/反应物浓度幂之积，指数为系数；固体、纯液体、水（稀溶液中）不写入；K 只随温度变化。", "d": 2}, {"ch": 7, "f": "用 K 与 Q 判断反应方向？", "b": "Q<K 正向进行；Q=K 平衡；Q>K 逆向进行。", "d": 1}, {"ch": 7, "f": "弱电解质的电离特点与实例？", "b": "部分电离、可逆、存在电离平衡。弱酸：CH₃COOH、H₂CO₃、H₂S、HClO；弱碱：NH₃·H₂O；水是极弱电解质。多元弱酸分步电离（第一步为主）。", "d": 1}, {"ch": 7, "f": "Kw 的表达式与数值？升温如何变化？", "b": "Kw=c(H⁺)·c(OH⁻)，25 ℃ 时 1×10⁻¹⁴；水电离吸热，升温 Kw 增大（100 ℃ 约 10⁻¹²），但纯水仍呈中性。", "d": 2}, {"ch": 7, "f": "pH 计算：0.01 mol/L HCl 与 0.01 mol/L NaOH 等体积混合后 pH？", "b": "恰好中和，pH=7（25 ℃）。若是强酸弱碱混合则按过量者计算：先求剩余 H⁺ 或 OH⁻ 浓度，注意体积加倍。", "d": 2}, {"ch": 7, "f": "盐类水解的规律（口诀）？", "b": "有弱才水解，无弱不水解；谁弱谁水解，谁强显谁性；越弱越水解。如 CH₃COONa 显碱性、NH₄Cl 显酸性、NaCl 中性。", "d": 2}, {"ch": 7, "f": "电荷守恒写法（以 Na₂CO₃ 溶液为例）？", "b": "c(Na⁺)+c(H⁺)=2c(CO₃²⁻)+c(HCO₃⁻)+c(OH⁻)。阴阳离子所带电荷总数相等，注意多电荷离子浓度要乘电荷数。", "d": 3}, {"ch": 7, "f": "物料守恒写法（Na₂CO₃ 溶液）？", "b": "c(Na⁺)=2[c(CO₃²⁻)+c(HCO₃⁻)+c(H₂CO₃)]。某元素投入前后的总量不变。", "d": 3}, {"ch": 7, "f": "影响盐类水解的因素与泡沫灭火器原理？", "b": "升温、稀释促进水解（水解吸热）。泡沫灭火器：Al³⁺+3HCO₃⁻=Al(OH)₃↓+3CO₂↑（双水解进行到底）。", "d": 2}, {"ch": 7, "f": "沉淀溶解平衡与 Ksp 应用？", "b": "AmBn⇌mAⁿ⁺+nBᵐ⁻，Ksp=cᵐ(Aⁿ⁺)·cⁿ(Bᵐ⁻)；Q>Ksp 生成沉淀；沉淀转化方向：向 Ksp 更小（溶解度更小）的方向（如 AgCl→AgI→Ag₂S）。", "d": 2}, {"ch": 7, "f": "酸碱中和滴定的关键操作与指示剂选择？", "b": "检漏→润洗（锥形瓶不能润洗）→装液调零→滴定（先快后慢）→终点读数。强酸强碱用酚酞或甲基橙；终点：最后一滴变色且半分钟不恢复原色。误差分析依据 c(待)=c(标)V(标)/V(待)。", "d": 3}, {"ch": 8, "f": "构造原理的能级填充顺序（到 4p）？", "b": "1s→2s→2p→3s→3p→4s→3d→4p（(n+0.7l) 能量由低到高）。", "d": 1}, {"ch": 8, "f": "泡利不相容原理与洪特规则内容？", "b": "泡利：一个原子轨道最多容纳 2 个自旋相反的电子；洪特：电子优先单独占据简并轨道且自旋平行（半满 p³/d⁵、全满 d¹⁰、全空较稳定）。", "d": 2}, {"ch": 8, "f": "Cr 和 Cu 的价电子排布为什么是特例？", "b": "Cr：3d⁵4s¹（3d 半满稳定）；Cu：3d¹⁰4s¹（3d 全满稳定）。不能写成 3d⁴4s²、3d⁹4s²。", "d": 2}, {"ch": 8, "f": "第一电离能的递变规律与两个反常？", "b": "同周期总体增大，同主族减小。反常：ⅡA>ⅢA（s 全满稳定，如 Be>B、Mg>Al）；ⅤA>ⅥA（p 半满稳定，如 N>O、P>S）。", "d": 3}, {"ch": 8, "f": "电负性的递变与 1.8 判据？", "b": "同周期增大、同主族减小，F 最大（4.0）。两元素电负性差>1.7（教材常取 1.8）多形成离子键，<1.7 形成共价键。", "d": 2}, {"ch": 8, "f": "VSEPR 判断分子构型的步骤？", "b": "价层电子对数=σ 键数+孤电子对数，孤电子对=(中心原子价电子数−成键数×对方达稳定所缺电子数)/2。4 对：sp³ 正四面体（无孤对）/三角锥（1 对）/V 形（2 对）；3 对 sp² 平面三角；2 对 sp 直线。", "d": 3}, {"ch": 8, "f": "常见分子构型速查：H₂O、NH₃、CH₄、CO₂、BF₃、SO₂？", "b": "H₂O V 形（2 孤对）、NH₃ 三角锥（1 孤对）、CH₄ 正四面体、CO₂ 直线、BF₃ 平面正三角、SO₂ V 形（1 孤对）。", "d": 2}, {"ch": 8, "f": "σ 键与 π 键的区别？", "b": "σ 键：头碰头，轴对称，可旋转，单键全是 σ；π 键：肩并肩，镜面对称，不能旋转。双键=1σ+1π，三键=1σ+2π。σ 比 π 牢固。", "d": 2}, {"ch": 8, "f": "等电子体定义与实例？", "b": "原子总数相同、价电子总数相同的微粒结构相似。如 CO₂ 与 N₂O；CO 与 N₂；CO₃²⁻ 与 NO₃⁻ 与 BF₃。", "d": 2}, {"ch": 8, "f": "配位键的形成条件与实例？", "b": "一方提供孤电子对、一方提供空轨道。实例：NH₄⁺（N 提供孤对给 H⁺）、H₃O⁺、[Cu(NH₃)₄]²⁺、[Ag(NH₃)₂]⁺。", "d": 2}, {"ch": 8, "f": "四类晶体的判断与熔沸点一般规律？", "b": "共价晶体（金刚石、SiO₂、SiC）> 离子晶体 > 分子晶体；金属晶体差异大。同类分子晶体：组成结构相似时相对分子质量越大熔沸点越高，含氢键反常高。", "d": 2}, {"ch": 8, "f": "晶胞计算（均摊法）：顶点/棱/面/体内各算多少？", "b": "立方晶胞：顶点 1/8、棱上 1/4、面上 1/2、体内 1。NaCl 晶胞含 4 个 Na⁺ 和 4 个 Cl⁻；金刚石晶胞含 8 个 C。", "d": 2}, {"ch": 8, "f": "金刚石与石墨的结构与性质对比？", "b": "金刚石：sp³ 正四面体骨架，共价晶体，最硬；石墨：层内 sp² 共价键+大 π 键（导电）、层间范德华力（软、滑腻），混合型晶体；二者互为同素异形体。", "d": 2}, {"ch": 8, "f": "配位数的含义？NaCl、CsCl 晶胞中正负离子配位数各是多少？", "b": "晶体内某微粒周围最近的异号微粒数。NaCl 中 Na⁺、Cl⁻ 配位数均为 6；CsCl 中均为 8；CaF₂ 中 Ca²⁺ 为 8、F⁻ 为 4。", "d": 3}, {"ch": 8, "f": "分子极性判断的快速方法？", "b": "正电中心与负电中心是否重合：对称结构（CO₂、BF₃、CH₄）非极性；不对称（H₂O、NH₃、SO₂）极性。相似相溶：极性溶质易溶于极性溶剂。", "d": 2}, {"ch": 9, "f": "有机物种类繁多的三个原因？", "b": "①碳成 4 键、结合方式多；②碳链可长可短、可直可支可环（碳链异构）；③普遍存在同分异构现象。", "d": 1}, {"ch": 9, "f": "同分异构体的类型（三类）？", "b": "碳链异构、位置异构（官能团位置）、官能团异构（类别异构，如乙醇与二甲醚）。分子式相同结构不同。", "d": 2}, {"ch": 9, "f": "甲烷取代反应的条件与产物特点？", "b": "光照（与 Cl₂ 蒸气），逐步取代生成 CH₃Cl、CH₂Cl₂、CHCl₃、CCl₄ 混合物和 HCl；现象：黄绿变浅、液面上升、油状液滴、白雾。不能用于制纯净一氯甲烷。", "d": 2}, {"ch": 9, "f": "乙烯的加成反应（写三个）？", "b": "CH₂=CH₂+Br₂→CH₂BrCH₂Br（溴水褪色，检验不饱和键）；+H₂=催化剂=CH₃CH₃；+HCl→CH₃CH₂Cl；+H₂O=催化剂=CH₃CH₂OH（工业制乙醇）。", "d": 1}, {"ch": 9, "f": "苯的结构特点与能说明其不含单双键交替的两个事实？", "b": "6 个碳 sp²、大 π 键（介于单双键之间的特殊键）。事实：邻二甲苯只有一种结构；苯不能使溴水/酸性 KMnO₄ 褪色；碳碳键长全相等。", "d": 2}, {"ch": 9, "f": "苯的两个取代反应（方程式要点）？", "b": "卤代：苯+Br₂=FeBr₃=溴苯+HBr（用液溴不用溴水）；硝化：苯+浓HNO₃=浓H₂SO₄、50~60 ℃=硝基苯+H₂O。", "d": 2}, {"ch": 9, "f": "乙醇的四个重要反应？", "b": "①2Na→H₂（置换，说明羟基氢活性：水>乙醇）；②催化氧化：2CH₃CH₂OH+O₂=Cu/△=2CH₃CHO+2H₂O；③消去：浓硫酸 170 ℃→乙烯；④与乙酸酯化。", "d": 2}, {"ch": 9, "f": "酯化反应的机理与实验要点？", "b": "羧酸脱羟基、醇脱氢（同位素 ¹⁸O 示踪证明）；浓硫酸作催化剂和吸水剂；饱和 Na₂CO₃ 溶液作用：吸收乙醇、中和乙酸、降低乙酸乙酯溶解度（分层便于分液）；导管不能伸入液面下防倒吸。", "d": 3}, {"ch": 9, "f": "检验醛基的两种方法与现象？", "b": "银镜反应：银氨溶液水浴加热，试管壁出现光亮银镜；新制 Cu(OH)₂ 悬浊液（斐林试剂）加热至沸，生成砖红色 Cu₂O 沉淀。均需碱性环境。", "d": 2}, {"ch": 9, "f": "卤代烃水解与消去的条件区别？", "b": "水解（取代）：NaOH 水溶液加热→醇；消去：NaOH 醇溶液加热→烯（β-碳上须有氢）。", "d": 2}, {"ch": 9, "f": "苯酚的特性（三条）？", "b": "①弱酸性（石炭酸，酸性 H₂CO₃>苯酚>HCO₃⁻，与 Na₂CO₃ 生成 NaHCO₃）；②遇 FeCl₃ 显紫色（检验）；③与浓溴水生成白色 2,4,6-三溴苯酚沉淀。", "d": 2}, {"ch": 9, "f": "加聚与缩聚的区别？各举一例。", "b": "加聚：不饱和键相互加成，无小分子生成（nCH₂=CH₂→聚乙烯）；缩聚：官能团间缩合并脱去小分子（H₂O 等），如乳酸→聚乳酸、对苯二甲酸+乙二醇→PET。", "d": 2}, {"ch": 9, "f": "糖类的水解与检验：如何证明淀粉水解完全/部分水解？", "b": "取水解液：加碘水不变蓝→水解完全；另取水解液先加 NaOH 中和至碱性，再加新制 Cu(OH)₂ 加热有砖红色沉淀→已水解（有葡萄糖）。先变蓝后无砖红→未水解。", "d": 3}, {"ch": 9, "f": "油脂与蛋白质的特性？", "b": "油脂：酸性/碱性水解（皂化反应：制肥皂）；蛋白质：盐析（可逆，物理变化）、变性（加热、强酸、强碱、重金属盐、酒精，不可逆）、灼烧有烧焦羽毛气味（鉴别羊毛/化纤）、遇浓硝酸变黄。", "d": 2}, {"ch": 9, "f": "有机物分子式确定（燃烧法）要点？", "b": "1 mol 有机物燃烧：耗氧量、生成 CO₂ 与 H₂O 的量反推 C/H 原子数，再判断是否含氧（质量差法）。最简式×n=分子式，n=相对分子质量/最简式量。", "d": 3}]};</script>
+<script>
+/* ===== 化学闪卡复习 ===== */
+const D = window.__FC__;
+const $ = (id) => document.getElementById(id);
+const LS_KEY = "chem-fc-progress-v1";
+let prog = {};           // id -> {box, seen, last}
+try { prog = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch(e){ prog = {}; }
+const save = () => localStorage.setItem(LS_KEY, JSON.stringify(prog));
+const BOX_INTERVAL = [0, 1, 2, 4, 7, 15]; // 天
+
+let pool = [], idx = 0, flipped = false, streak = 0;
+let fCh = -1, fMode = "smart"; // all / smart / random / seq
+
+function cardState(i){
+  const p = prog[i];
+  if (!p) return {box:0, label:"新"};
+  return {box:p.box, label: p.box>=4?"掌握": p.box>=2?"熟练": p.box>=1?"见过":"薄弱"};
+}
+function dueScore(i, now){
+  const p = prog[i];
+  if (!p) return -1e15;                 // 新卡最优先
+  const due = p.last + BOX_INTERVAL[Math.min(p.box,5)]*864e5;
+  return due - now;                      // 越小越到期
+}
+function buildPool(){
+  let ids = D.cards.map((_,i)=>i).filter(i => fCh<0 || D.cards[i].ch===fCh);
+  if (fMode === "random"){ for (let i=ids.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [ids[i],ids[j]]=[ids[j],ids[i]]; } }
+  else if (fMode === "smart"){ const now=Date.now(); ids.sort((a,b)=>dueScore(a,now)-dueScore(b,now)); }
+  pool = ids; idx = 0; flipped = false; render();
+}
+function render(){
+  if (!pool.length){ $("fcQ").textContent = "该筛选下没有卡片"; $("fcA").textContent=""; return; }
+  const i = pool[idx], c = D.cards[i];
+  $("fcQ").textContent = c.f;
+  $("fcA").textContent = c.b;
+  $("fcMeta").textContent = `${D.chapters[c.ch]} · ${D.books[c.ch]} · #${i+1}`;
+  $("fcDiff").textContent = "难度 " + "★".repeat(c.d);
+  $("fcCard").classList.toggle("flip", flipped);
+  $("fcPos").textContent = `${idx+1} / ${pool.length}`;
+  $("fcStreak").textContent = `连胜 ${streak}`;
+  $("fcBar").style.width = ((idx)/pool.length*100)+"%";
+  renderStats(); renderList();
+}
+function flip(){ flipped = !flipped; render(); }
+function grade(g){ // 0 不认识 1 模糊 2 认识
+  const i = pool[idx]; const p = prog[i] || {box:0, seen:0, last:0};
+  p.box = g===0 ? 0 : g===1 ? Math.max(p.box,1) : Math.min(p.box+1,5);
+  p.seen++; p.last = Date.now(); prog[i] = p; save();
+  streak = g===2 ? streak+1 : 0;
+  if (idx < pool.length-1){ idx++; flipped=false; } else { flipped=false; idx=0; }
+  render();
+}
+function nav(d){ idx = (idx + d + pool.length) % pool.length; flipped = false; render(); }
+
+function renderStats(){
+  const total = D.cards.length;
+  let seen=0, mastered=0, weak=0;
+  for (const i in prog){ seen++; if (prog[i].box>=4) mastered++; if (prog[i].box===0&&prog[i].seen>0) weak++; }
+  $("stTotal").textContent = total;
+  $("stSeen").textContent = seen;
+  $("stMaster").textContent = mastered;
+  $("stWeak").textContent = weak;
+}
+function renderChapters(){
+  const cnt = {};
+  D.cards.forEach(c => cnt[c.ch]=(cnt[c.ch]||0)+1);
+  const w = $("chList"); w.innerHTML = "";
+  const mk = (v, name, n) => {
+    const d = document.createElement("div");
+    d.className = "ch-item" + (fCh===v?" cur":"");
+    d.innerHTML = `<span>${name}</span><span class="cnt">${n}</span>`;
+    d.onclick = () => { fCh = v; buildPool(); };
+    w.appendChild(d);
+  };
+  mk(-1, "全部章节", D.cards.length);
+  D.chapters.forEach((n,i) => mk(i, n, cnt[i]||0));
+}
+function renderList(){
+  const q = ($("fcSearch").value||"").trim();
+  const w = $("fcList"); w.innerHTML = "";
+  const items = pool.filter(i => !q || D.cards[i].f.includes(q) || D.cards[i].b.includes(q)).slice(0, 60);
+  for (const i of items){
+    const d = document.createElement("div");
+    d.className = "fc-li";
+    d.innerHTML = `${i+1}. ${D.cards[i].f}<span class="st">${cardState(i).label}</span>`;
+    d.onclick = () => { idx = pool.indexOf(i); flipped=false; render(); };
+    w.appendChild(d);
+  }
+}
+
+$("fcCard").onclick = flip;
+$("btnBad").onclick = () => grade(0);
+$("btnMid").onclick = () => grade(1);
+$("btnGood").onclick = () => grade(2);
+$("btnPrev").onclick = () => nav(-1);
+$("btnNext").onclick = () => nav(1);
+$("fcSearch").oninput = renderList;
+document.querySelectorAll(".mode-btn").forEach(b =>
+  b.onclick = () => { fMode = b.dataset.m;
+    document.querySelectorAll(".mode-btn").forEach(x=>x.classList.toggle("cur", x===b)); buildPool(); });
+$("btnReset").onclick = () => { if (confirm("确定清空全部记忆进度？此操作不可恢复。")){ prog={}; streak=0; save(); buildPool(); } };
+document.addEventListener("keydown", e => {
+  if (e.target.tagName==="INPUT") return;
+  if (e.code==="Space"){ e.preventDefault(); flip(); }
+  if (e.key==="1") grade(0); if (e.key==="2") grade(1); if (e.key==="3") grade(2);
+  if (e.key==="ArrowLeft") nav(-1); if (e.key==="ArrowRight") nav(1);
+});
+
+renderChapters(); buildPool();
+</script>
+<script>/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();</script>
+</body>
+</html>
