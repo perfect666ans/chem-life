@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>有机反应机理库 · 化学生活教学中心</title>
+<style>
+
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+
+
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+
+
+
+
+
+
+/* ===== 机理库专用 ===== */
+.mch-scene{width:100%;height:100%;position:relative}
+.mch-atom{position:absolute;transform:translate(-50%,-50%);font-family:Georgia,serif;font-size:15px;
+ color:var(--ink);white-space:nowrap;transition:color .3s}
+.mch-atom.hot{color:var(--accent);font-weight:700}
+.mch-atom.ok{color:#2e7d4f;font-weight:700}
+.mch-atom.dbl{color:var(--ink-dim)}
+@keyframes brk{0%,100%{opacity:1}50%{opacity:.15}}
+.mch-bond.br{stroke:var(--accent);stroke-width:2.5;animation:brk .8s infinite}
+.mch-bond.fm{stroke:#2e7d4f;stroke-width:2.5;animation:brk 1.2s infinite}
+.mch-bond{stroke:var(--ink);stroke-width:1.8}
+.mch-arrow{stroke:var(--accent);stroke-width:1.8;fill:none;stroke-dasharray:6 4;animation:arrmove 1s linear infinite}
+@keyframes arrmove{to{stroke-dashoffset:-20}}
+.mch-text{position:absolute;left:0;right:0;bottom:0;padding:10px 16px;font-size:13px;line-height:1.9;
+ color:var(--ink);background:color-mix(in srgb,var(--surface) 88%,transparent);border-top:1px solid var(--line)}
+.mch-ctrl{display:flex;gap:8px;justify-content:center;padding:10px 0;border-top:1px solid var(--line);
+ background:var(--surface)}
+.mch-btn{border:1px solid var(--line-strong);background:transparent;color:var(--ink);border-radius:6px;
+ padding:6px 18px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.mch-btn:hover{border-color:var(--accent);color:var(--accent)}
+.mch-step{font-size:12px;color:var(--ink-mute);align-self:center}
+.mch-item{display:block;width:100%;text-align:left;padding:8px 10px;border:1px solid transparent;border-radius:6px;
+ background:none;color:var(--ink);font-size:13px;cursor:pointer;font-family:inherit}
+.mch-item:hover{border-color:var(--line)}
+.mch-item.cur{border-color:var(--accent);color:var(--accent)}
+.mch-item small{display:block;font-size:11px;color:var(--ink-mute)}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">机</span>
+    <h1 style="white-space:nowrap">有机反应机理库</h1>
+    <span class="lecture-tag">ORGANIC · LAB 01</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-btn" href="chem_lab3.2.html">命名中心 <span class="arr">→</span></a>
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <div class="theme-switch" role="group" aria-label="主题切换">
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="info-card">
+      <h2 id="mechName">—</h2>
+      <div class="tag-wrap"><span class="tag" id="mechTag"></span></div>
+      <p class="info-desc" id="mechEq" style="font-family:Georgia,serif"></p>
+      <p class="info-desc" id="mechCond"></p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">六大核心机理</div>
+      <div id="mechList"></div>
+    </div>
+  </div>
+
+  <div class="canvas-box" style="background:var(--bg-deep);display:flex;flex-direction:column">
+    <div class="mch-scene" id="scene" style="flex:1"></div>
+    <div class="mch-ctrl">
+      <button class="mch-btn" id="btnPrev">← 上一相</button>
+      <span class="mch-step" id="stepInfo"></span>
+      <button class="mch-btn" id="btnPlay">播放</button>
+      <button class="mch-btn" id="btnNext">下一相 →</button>
+    </div>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">图例</div>
+      <p class="info-desc"><span style="color:var(--accent);font-weight:700">红色闪烁</span> = 即将断裂的键 / 活泼位点<br>
+      <span style="color:#2e7d4f;font-weight:700">绿色</span> = 新形成的键 / 产物<br>
+      <span style="color:var(--accent)">弯箭头</span> = 电子对的移动方向</p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">学习建议</div>
+      <p class="info-desc">机理题的核心是「谁断键、谁成键、电子去哪」。每相先遮住文字自己预测，再对照；酯化和银镜是推断题高频突破口。</p>
+    </div>
+  </div>
+</div>
+
+<script>window.__MECH__ = {"mechs": [{"name": "酯化反应", "tag": "羧酸脱羟基 · 醇脱氢", "eq": "CH₃COOH + C₂H₅¹⁸OH ⇌ CH₃CO¹⁸OC₂H₅ + H₂O", "cond": "浓 H₂SO₄ 催化、加热；¹⁸O 示踪证明机理", "phases": [{"atoms": [["CH₃", 20, 60], ["C", 75, 60], ["O", 105, 25, "dbl"], ["O", 120, 60], ["H", 150, 60, "hot"], ["H", 205, 60, "hot"], ["¹⁸O", 235, 60], ["C₂H₅", 280, 60]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "n"], [3, 4, 1, "br"], [5, 6, 1, "br"], [6, 7, 1, "n"]], "arrows": [], "text": "反应物就位：乙酸的 —OH（红）与乙醇羟基上的 H（红）即将结合成水。乙醇的氧用同位素 ¹⁸O 标记。"}, {"atoms": [["CH₃", 20, 60], ["C", 75, 60], ["O", 105, 25, "dbl"], ["O", 120, 60], ["H", 150, 60, "hot"], ["H", 205, 60, "hot"], ["¹⁸O", 235, 60], ["C₂H₅", 280, 60]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "br"], [3, 4, 1, "br"], [5, 6, 1, "br"], [6, 7, 1, "n"]], "arrows": [[150, 72, 185, 95, 215, 72], [120, 50, 170, 20, 230, 50]], "text": "酸脱羟基、醇脱氢：C—O 键与 O—H 键同时断裂（弯箭头示意电子转移方向）。"}, {"atoms": [["CH₃", 20, 60], ["C", 75, 60], ["O", 105, 25, "dbl"], ["¹⁸O", 125, 60, "ok"], ["C₂H₅", 175, 60], ["H₂O", 250, 60, "ok"]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "fm"], [3, 4, 1, "n"]], "arrows": [], "text": "产物：乙酸乙酯中的氧是 ¹⁸O（来自乙醇），水中没有 ¹⁸O——同位素示踪证明「酸脱羟基醇脱氢」。"}]}, {"name": "乙烯与溴加成", "tag": "π 键断裂 · 双位加成", "eq": "CH₂=CH₂ + Br₂ → CH₂Br—CH₂Br", "cond": "溴水或溴的四氯化碳溶液褪色——检验不饱和键", "phases": [{"atoms": [["CH₂", 60, 60], ["CH₂", 130, 60], ["Br", 215, 60], ["Br", 265, 60]], "bonds": [[0, 1, 2, "n"], [2, 3, 1, "n"]], "arrows": [], "text": "乙烯的碳碳双键（1 个 σ + 1 个 π）与溴分子接近。π 键较弱，是反应的突破口。"}, {"atoms": [["CH₂", 60, 60], ["CH₂", 130, 60], ["Br", 215, 60], ["Br", 265, 60]], "bonds": [[0, 1, 1, "br"], [2, 3, 1, "br"]], "arrows": [[95, 45, 150, 20, 205, 50], [95, 75, 150, 100, 205, 72]], "text": "π 键断裂、Br—Br 键断裂（红闪），形成两个 C—Br 新键的过渡状态。"}, {"atoms": [["CH₂Br", 45, 60], ["CH₂Br", 145, 60]], "bonds": [[0, 1, 1, "n"]], "arrows": [], "text": "生成 1,2-二溴乙烷：每个碳各连一个 Br（绿=新键加成完成），溴水褪色。"}]}, {"name": "乙醇消去制乙烯", "tag": "脱 —OH 与 β-H", "eq": "CH₃CH₂OH → CH₂=CH₂↑ + H₂O", "cond": "浓 H₂SO₄、170 ℃（140 ℃ 时生成乙醚！）", "phases": [{"atoms": [["CH₃", 40, 60], ["C", 110, 60], ["OH", 160, 60, "hot"], ["H(β)", 40, 100, "hot"]], "bonds": [[0, 1, 1, "n"], [1, 2, 1, "n"], [0, 3, 1, "n"]], "arrows": [], "text": "乙醇分子：红标的是羟基（α 位）和 β 碳上的氢——消去反应要脱的就是这一对。"}, {"atoms": [["CH₃", 40, 60], ["C", 110, 60], ["OH", 160, 60, "hot"], ["H(β)", 40, 100, "hot"]], "bonds": [[0, 1, 1, "fm"], [1, 2, 1, "br"], [0, 3, 1, "br"]], "arrows": [[55, 90, 95, 110, 120, 72], [150, 50, 180, 20, 200, 50]], "text": "C—O 键与 C—H 键断裂，β-H 与 —OH 结合成水；两个碳之间补出 π 键。"}, {"atoms": [["CH₂", 55, 60, "ok"], ["CH₂", 125, 60, "ok"], ["H₂O", 215, 60, "ok"]], "bonds": [[0, 1, 2, "fm"]], "arrows": [], "text": "产物：乙烯（碳碳双键，绿）+ 水。温度必须快速升到 170 ℃，否则 140 ℃ 副产乙醚。"}]}, {"name": "甲烷氯代（自由基链式）", "tag": "链引发 · 链传递 · 链终止", "eq": "CH₄ + Cl₂ → CH₃Cl + HCl（光照）", "cond": "光照；产物是 CH₃Cl~CCl₄ 混合物", "phases": [{"atoms": [["Cl—Cl", 60, 60], ["光 hν", 170, 60, "ok"], ["Cl·", 250, 45, "hot"], ["Cl·", 250, 80, "hot"]], "bonds": [], "arrows": [[120, 60, 160, 60, 195, 60]], "text": "链引发：光照下 Cl—Cl 均裂成两个氯自由基（Cl·，带单电子，极活泼）。"}, {"atoms": [["Cl·", 40, 60, "hot"], ["CH₄", 105, 60], ["H—Cl", 185, 45, "ok"], ["·CH₃", 185, 85, "hot"], ["Cl—Cl", 280, 60]], "bonds": [], "arrows": [[70, 55, 90, 30, 120, 45], [215, 85, 245, 75, 262, 65]], "text": "链传递：Cl· 夺走 CH₄ 的 H 生成 HCl 和 ·CH₃；·CH₃ 再夺 Cl₂ 的 Cl 生成 CH₃Cl，同时再生 Cl·——链式循环。"}, {"atoms": [["·CH₃", 60, 45, "hot"], ["·CH₃", 120, 45, "hot"], ["→", 165, 45], ["C₂H₆", 215, 45, "ok"], ["Cl·", 60, 100, "hot"], ["Cl·", 120, 100, "hot"], ["→", 165, 100], ["Cl₂", 215, 100, "ok"]], "bonds": [], "arrows": [], "text": "链终止：自由基相互结合（·CH₃+·CH₃→乙烷、2Cl·→Cl₂ 等）反应停止。产物必然多种共存。"}]}, {"name": "银镜反应", "tag": "醛基被氧化 · Ag⁺ 被还原", "eq": "CH₃CHO + 2[Ag(NH₃)₂]OH → CH₃COONH₄ + 2Ag↓ + 3NH₃ + H₂O", "cond": "水浴加热；试管必须洁净；检验醛基", "phases": [{"atoms": [["CH₃", 40, 60], ["C", 90, 60], ["O", 90, 28, "dbl"], ["H", 125, 60], ["Ag(NH₃)₂⁺", 215, 60]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "n"]], "arrows": [], "text": "醛基 —CHO（C=O 双键连一个 H）遇上银氨溶液：Ag⁺ 等着得电子。"}, {"atoms": [["CH₃", 40, 60], ["C", 90, 60], ["O", 90, 28, "dbl"], ["H", 125, 60], ["Ag⁺", 215, 50], ["e⁻", 190, 80, "hot"]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "br"]], "arrows": [[125, 72, 165, 100, 205, 65]], "text": "醛基被氧化（插入一个 O 变成羧基），放出的电子把 Ag⁺ 还原成 Ag 原子。"}, {"atoms": [["CH₃COONH₄", 60, 60, "ok"], ["Ag↓", 195, 60, "ok"], ["（附着在试管壁形成银镜）", 185, 95]], "bonds": [], "arrows": [], "text": "结果：内壁析出光亮的银镜。醛→羧酸铵。凡含 —CHO 的物质（葡萄糖、甲酸酯）都能发生。"}]}, {"name": "卤代烃的两条出路", "tag": "水解 vs 消去 · 条件决定产物", "eq": "CH₃CH₂Br + NaOH →（水溶液）乙醇 或（醇溶液）乙烯", "cond": "NaOH 水溶液加热 → 水解；NaOH 醇溶液加热 → 消去", "phases": [{"atoms": [["CH₃", 50, 60], ["CH₂", 115, 60], ["Br", 165, 60, "hot"], ["H(β)", 50, 100, "hot"]], "bonds": [[0, 1, 1, "n"], [1, 2, 1, "n"], [0, 3, 1, "n"]], "arrows": [], "text": "溴乙烷：C—Br 键极性大易断。Br 要走，β-H 也可能跟着走——往哪走看溶剂。"}, {"atoms": [["OH⁻", 90, 40, "ok"], ["CH₃CH₂OH", 90, 100, "ok"], ["NaBr", 220, 100]], "bonds": [], "arrows": [[90, 55, 105, 80, 110, 92]], "text": "路径一（NaOH 水溶液）：OH⁻ 进攻 α 碳，顶走 Br⁻——取代（水解）生成乙醇。亲核取代。"}, {"atoms": [["CH₂=CH₂", 70, 60, "ok"], ["H₂O", 190, 40, "ok"], ["NaBr", 190, 90]], "bonds": [], "arrows": [], "text": "路径二（NaOH 醇溶液）：OH⁻ 夺走 β-H，Br⁻ 离去，α、β 碳之间成双键——消去生成乙烯。"}]}]};</script>
+<script>
+/* ===== 有机反应机理库 ===== */
+const D = window.__MECH__;
+const $ = (id) => document.getElementById(id);
+let cur = 0, phase = 0, playing = false, timer = null;
+
+function M(){ return D.mechs[cur]; }
+
+function renderList(){
+  $("mechList").innerHTML = "";
+  D.mechs.forEach((m,i) => {
+    const b = document.createElement("button");
+    b.className = "mch-item" + (i===cur?" cur":"");
+    b.innerHTML = `${i+1}. ${m.name}<small>${m.tag}</small>`;
+    b.onclick = () => { cur = i; phase = 0; renderAll(); };
+    $("mechList").appendChild(b);
+  });
+}
+
+function renderScene(){
+  const ph = M().phases[phase];
+  const atoms = ph.atoms;
+  // 计算键端点：两个 atom 中心连线，缩短避免压字
+  const stageW = 100, stageH = 100; // viewBox 逻辑坐标（atoms 用 0~320/0~160 像素）
+  const svgW = 320, svgH = 160;
+  let bondsSvg = "";
+  for (const [ai,bi,order,st] of ph.bonds){
+    const A = atoms[ai], B = atoms[bi];
+    const x1=A[1], y1=A[2], x2=B[1], y2=B[2];
+    const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||1;
+    const s1=14, s2=14;
+    const X1=x1+dx/len*s1, Y1=y1+dy/len*s1, X2=x2-dx/len*s2, Y2=y2-dy/len*s2;
+    const cls = st==="br"?"br":st==="fm"?"fm":"";
+    if (order===2){
+      const nx=-dy/len*3.2, ny=dx/len*3.2;
+      bondsSvg += `<line class="mch-bond ${cls}" x1="${X1+nx}" y1="${Y1+ny}" x2="${X2+nx}" y2="${Y2+ny}"/>`;
+      bondsSvg += `<line class="mch-bond ${cls}" x1="${X1-nx}" y1="${Y1-ny}" x2="${X2-nx}" y2="${Y2-ny}"/>`;
+    } else {
+      bondsSvg += `<line class="mch-bond ${cls}" x1="${X1}" y1="${Y1}" x2="${X2}" y2="${Y2}"/>`;
+    }
+  }
+  let arrSvg = "";
+  for (const [x1,y1,cx,cy,x2,y2] of ph.arrows){
+    const t = 0.92;
+    const ex = (1-t)**2*x1 + 2*(1-t)*t*cx + t*t*x2;
+    const ey = (1-t)**2*y1 + 2*(1-t)*t*cy + t*t*y2;
+    const ang = Math.atan2(y2-cy, x2-cx);
+    arrSvg += `<path class="mch-arrow" d="M${x1},${y1} Q${cx},${cy} ${ex},${ey}"/>`;
+    arrSvg += `<path d="M${ex},${ey} l-7,-3 l1.5,4 l-4,1 z" fill="var(--accent)"
+      transform="rotate(${ang*180/Math.PI} ${ex} ${ey})"/>`;
+  }
+  const atomSpans = atoms.map(([t,x,y,st]) =>
+    `<span class="mch-atom ${st||""}" style="left:${x/svgW*100}%;top:${y/svgH*100}%">${t}</span>`).join("");
+  $("scene").innerHTML = `
+    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
+      ${bondsSvg}${arrSvg}
+    </svg>${atomSpans}
+    <div class="mch-text">${phase+1}/${M().phases.length}　${ph.text}</div>`;
+  $("stepInfo").textContent = `第 ${phase+1} / ${M().phases.length} 相`;
+}
+
+function renderAll(){
+  renderList(); renderScene();
+  $("mechName").textContent = M().name;
+  $("mechEq").textContent = M().eq;
+  $("mechCond").textContent = M().cond;
+  $("mechTag").textContent = M().tag;
+}
+
+$("btnPrev").onclick = () => { phase = (phase-1+M().phases.length)%M().phases.length; renderScene(); };
+$("btnNext").onclick = () => { phase = (phase+1)%M().phases.length; renderScene(); };
+$("btnPlay").onclick = () => {
+  playing = !playing;
+  $("btnPlay").textContent = playing ? "暂停" : "播放";
+  if (playing){ timer = setInterval(() => { phase = (phase+1)%M().phases.length; renderScene(); }, 2400); }
+  else clearInterval(timer);
+};
+renderAll();
+</script>
+<script>/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();</script>
+</body>
+</html>
