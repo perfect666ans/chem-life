@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>核外电子排布实验室 · 化学生活教学中心</title>
+<style>
+
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+
+
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+
+
+
+
+
+
+/* ===== 电子排布实验室专用 ===== */
+.pt-grid{display:grid;grid-template-columns:repeat(18,1fr);gap:2px;margin-top:6px}
+.pt-cell{aspect-ratio:1;border:1px solid var(--line,#ccc);border-radius:2px;font-size:9px;
+ display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fg);
+ background:transparent;transition:all .15s;line-height:1;font-family:inherit}
+.pt-cell:hover{border-color:var(--accent);transform:scale(1.25);z-index:2;position:relative}
+.pt-cell.cur{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pt-cell.blk-s{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.pt-cell.blk-d{background:color-mix(in srgb,#b8860b 16%,transparent)}
+.pt-cell.blk-f{background:color-mix(in srgb,#7b5ea7 16%,transparent)}
+.pt-spacer{grid-row:8;height:4px}
+.cfg-line{font-family:"Courier New",monospace;font-size:14px;margin:4px 0;line-height:1.7}
+.cfg-line sup{font-size:9px}
+.cfg-label{font-size:11px;opacity:.65;margin-top:8px}
+.shell-chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.shell-chip{border:1px solid var(--line,#ccc);border-radius:10px;padding:1px 8px;font-size:11px}
+.aufbau-chain{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.ab-chip{font-size:10px;padding:1px 6px;border-radius:8px;border:1px solid var(--line,#ccc);opacity:.35}
+.ab-chip.filled{opacity:1;border-color:var(--accent);color:var(--accent)}
+.ab-chip.last{background:var(--accent);color:#fff;opacity:1}
+.orb-rows{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.orb-row{display:flex;align-items:center;gap:8px}
+.orb-tag{width:52px;font-size:12px;font-family:"Courier New",monospace;text-align:right;flex:none}
+.orb-boxes{display:flex;gap:3px}
+.orb-box{width:26px;height:26px;border:1px solid var(--line,#999);border-radius:3px;
+ display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent);letter-spacing:1px}
+.orb-box .up{color:var(--accent)} .orb-box .dn{color:#b89ae8}
+.ion-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.ion-btn{border:1px solid var(--line,#ccc);background:transparent;color:var(--fg);border-radius:4px;
+ padding:2px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.ion-btn.cur{background:var(--accent);color:#fff;border-color:var(--accent)}
+.rad-bar-row{display:flex;align-items:center;gap:6px;font-size:11px;margin:3px 0}
+.rad-bar-row .nm{width:34px;flex:none}
+.rad-bar{height:8px;border-radius:4px;background:var(--accent);opacity:.8}
+.rad-bar.dim{opacity:.3}
+.rad-val{width:56px;flex:none;opacity:.7}
+.bohr-wrap{position:relative;width:100%;height:100%}
+#bohrCanvas{width:100%;height:100%;display:block}
+.btm-scroll{position:absolute;left:0;right:0;bottom:0;max-height:46%;overflow:auto;
+ background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(6px);
+ border-top:1px solid var(--line,#ccc);padding:10px 14px}
+@media (max-width:900px){.btm-scroll{position:static;max-height:none}}
+.elem-big{display:flex;align-items:baseline;gap:10px}
+.brand h1{white-space:nowrap}
+.elem-big .sym{font-size:34px;font-family:Georgia,serif;color:var(--accent)}
+.elem-big .znum{font-size:13px;opacity:.7}
+.kv{font-size:12px;line-height:1.9}
+.kv b{color:var(--accent)}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">电</span>
+    <h1>核外电子排布实验室</h1>
+    <span class="lecture-tag">STRUCTURE · LAB 04</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-btn" href="chem_lab1.1.html">VSEPR 分子构型 <span class="arr">→</span></a>
+    <a class="nav-btn" href="chem_lab1.2.html">晶体结构 <span class="arr">→</span></a>
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <div class="theme-switch" role="group" aria-label="主题切换">
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="info-card">
+      <div class="elem-big" id="elemBig"></div>
+      <div class="tag-wrap" id="tagWrap"></div>
+      <p class="info-desc" id="crysDesc"></p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">核外电子排布式</div>
+      <div class="cfg-label">完整排布式</div>
+      <div class="cfg-line" id="cfgFull"></div>
+      <div class="cfg-label">简化排布式（稀有气体核心）</div>
+      <div class="cfg-line" id="cfgShort"></div>
+      <div class="cfg-label">价电子层排布</div>
+      <div class="cfg-line" id="cfgVal"></div>
+      <div class="cfg-label">各电子层容纳电子数</div>
+      <div class="shell-chips" id="shellChips"></div>
+    </div>
+    <div class="panel-section" id="ionSection">
+      <div class="panel-title">原子 / 常见离子</div>
+      <div class="ion-btns" id="ionBtns"></div>
+    </div>
+  </div>
+
+  <div class="canvas-box">
+    <div class="bohr-wrap">
+      <canvas id="bohrCanvas"></canvas>
+      <div class="btm-scroll">
+        <div class="panel-title">电子排布图 · 轨道方框（泡利不相容 · 洪特规则）</div>
+        <div class="orb-rows" id="orbRows"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">元素周期表 · 点击选择</div>
+      <div class="pt-grid" id="ptGrid"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">构造原理 · 能级填充顺序</div>
+      <div class="aufbau-chain" id="aufbauChain"></div>
+      <p class="info-desc">高亮 = 已填入；实心 = 最后填入的能级。例外元素（Cr/Cu 等）按半满·全满稳定处理。</p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">微粒半径对比（约值）</div>
+      <div id="radBars"></div>
+      <p class="info-desc">同周期左→右渐小，同主族上→下渐大；阳离子 &lt; 原子 &lt; 阴离子。</p>
+    </div>
+  </div>
+</div>
+
+<script>window.__ELAB__ = {"elems": [{"z": 1, "sym": "H", "zh": "氢", "cfg": {"1,0": 1}, "period": 1, "block": "s", "gcol": "1", "glabel": "ⅠA", "full": "1s1", "short": null, "shells": {"1": 1, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 37, "ions": [[1, "H⁺"]]}, {"z": 2, "sym": "He", "zh": "氦", "cfg": {"1,0": 2}, "period": 1, "block": "s", "gcol": "18", "glabel": "0 族", "full": "1s2", "short": null, "shells": {"1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 31, "ions": []}, {"z": 3, "sym": "Li", "zh": "锂", "cfg": {"1,0": 2, "2,0": 1}, "period": 2, "block": "s", "gcol": "1", "glabel": "ⅠA", "full": "1s22s1", "short": "[He] 2s1", "shells": {"1": 2, "2": 1, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 152, "ions": [[1, "Li⁺"]]}, {"z": 4, "sym": "Be", "zh": "铍", "cfg": {"1,0": 2, "2,0": 2}, "period": 2, "block": "s", "gcol": "2", "glabel": "ⅡA", "full": "1s22s2", "short": "[He] 2s2", "shells": {"1": 2, "2": 2, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 111, "ions": []}, {"z": 5, "sym": "B", "zh": "硼", "cfg": {"1,0": 2, "2,0": 2, "2,1": 1}, "period": 2, "block": "p", "gcol": "13", "glabel": "ⅢA", "full": "1s22s22p1", "short": "[He] 2s22p1", "shells": {"1": 2, "2": 3, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 88, "ions": []}, {"z": 6, "sym": "C", "zh": "碳", "cfg": {"1,0": 2, "2,0": 2, "2,1": 2}, "period": 2, "block": "p", "gcol": "14", "glabel": "ⅣA", "full": "1s22s22p2", "short": "[He] 2s22p2", "shells": {"1": 2, "2": 4, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 77, "ions": []}, {"z": 7, "sym": "N", "zh": "氮", "cfg": {"1,0": 2, "2,0": 2, "2,1": 3}, "period": 2, "block": "p", "gcol": "15", "glabel": "ⅤA", "full": "1s22s22p3", "short": "[He] 2s22p3", "shells": {"1": 2, "2": 5, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 70, "ions": []}, {"z": 8, "sym": "O", "zh": "氧", "cfg": {"1,0": 2, "2,0": 2, "2,1": 4}, "period": 2, "block": "p", "gcol": "16", "glabel": "ⅥA", "full": "1s22s22p4", "short": "[He] 2s22p4", "shells": {"1": 2, "2": 6, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 66, "ions": [[-2, "O²⁻"]]}, {"z": 9, "sym": "F", "zh": "氟", "cfg": {"1,0": 2, "2,0": 2, "2,1": 5}, "period": 2, "block": "p", "gcol": "17", "glabel": "ⅦA", "full": "1s22s22p5", "short": "[He] 2s22p5", "shells": {"1": 2, "2": 7, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 64, "ions": [[-1, "F⁻"]]}, {"z": 10, "sym": "Ne", "zh": "氖", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6}, "period": 2, "block": "p", "gcol": "18", "glabel": "0 族", "full": "1s22s22p6", "short": "[He] 2s22p6", "shells": {"1": 2, "2": 8, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 38, "ions": []}, {"z": 11, "sym": "Na", "zh": "钠", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 1}, "period": 3, "block": "s", "gcol": "1", "glabel": "ⅠA", "full": "1s22s22p63s1", "short": "[Ne] 3s1", "shells": {"1": 2, "2": 8, "3": 1, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 186, "ions": [[1, "Na⁺"]]}, {"z": 12, "sym": "Mg", "zh": "镁", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2}, "period": 3, "block": "s", "gcol": "2", "glabel": "ⅡA", "full": "1s22s22p63s2", "short": "[Ne] 3s2", "shells": {"1": 2, "2": 8, "3": 2, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 160, "ions": [[2, "Mg²⁺"]]}, {"z": 13, "sym": "Al", "zh": "铝", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 1}, "period": 3, "block": "p", "gcol": "13", "glabel": "ⅢA", "full": "1s22s22p63s23p1", "short": "[Ne] 3s23p1", "shells": {"1": 2, "2": 8, "3": 3, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 143, "ions": [[3, "Al³⁺"]]}, {"z": 14, "sym": "Si", "zh": "硅", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 2}, "period": 3, "block": "p", "gcol": "14", "glabel": "ⅣA", "full": "1s22s22p63s23p2", "short": "[Ne] 3s23p2", "shells": {"1": 2, "2": 8, "3": 4, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 117, "ions": []}, {"z": 15, "sym": "P", "zh": "磷", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 3}, "period": 3, "block": "p", "gcol": "15", "glabel": "ⅤA", "full": "1s22s22p63s23p3", "short": "[Ne] 3s23p3", "shells": {"1": 2, "2": 8, "3": 5, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 110, "ions": [[-3, "P³⁻"]]}, {"z": 16, "sym": "S", "zh": "硫", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 4}, "period": 3, "block": "p", "gcol": "16", "glabel": "ⅥA", "full": "1s22s22p63s23p4", "short": "[Ne] 3s23p4", "shells": {"1": 2, "2": 8, "3": 6, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 104, "ions": [[-2, "S²⁻"]]}, {"z": 17, "sym": "Cl", "zh": "氯", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 5}, "period": 3, "block": "p", "gcol": "17", "glabel": "ⅦA", "full": "1s22s22p63s23p5", "short": "[Ne] 3s23p5", "shells": {"1": 2, "2": 8, "3": 7, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 99, "ions": [[-1, "Cl⁻"]]}, {"z": 18, "sym": "Ar", "zh": "氩", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6}, "period": 3, "block": "p", "gcol": "18", "glabel": "0 族", "full": "1s22s22p63s23p6", "short": "[Ne] 3s23p6", "shells": {"1": 2, "2": 8, "3": 8, "4": 0, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 71, "ions": []}, {"z": 19, "sym": "K", "zh": "钾", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "4,0": 1}, "period": 4, "block": "s", "gcol": "1", "glabel": "ⅠA", "full": "1s22s22p63s23p64s1", "short": "[Ar] 4s1", "shells": {"1": 2, "2": 8, "3": 8, "4": 1, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 227, "ions": [[1, "K⁺"]]}, {"z": 20, "sym": "Ca", "zh": "钙", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "4,0": 2}, "period": 4, "block": "s", "gcol": "2", "glabel": "ⅡA", "full": "1s22s22p63s23p64s2", "short": "[Ar] 4s2", "shells": {"1": 2, "2": 8, "3": 8, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 197, "ions": [[2, "Ca²⁺"]]}, {"z": 21, "sym": "Sc", "zh": "钪", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 1, "4,0": 2}, "period": 4, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d14s2", "short": "[Ar] 3d14s2", "shells": {"1": 2, "2": 8, "3": 9, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 162, "ions": []}, {"z": 22, "sym": "Ti", "zh": "钛", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 2, "4,0": 2}, "period": 4, "block": "d", "gcol": "4", "glabel": "ⅣB", "full": "1s22s22p63s23p63d24s2", "short": "[Ar] 3d24s2", "shells": {"1": 2, "2": 8, "3": 10, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 147, "ions": []}, {"z": 23, "sym": "V", "zh": "钒", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 3, "4,0": 2}, "period": 4, "block": "d", "gcol": "5", "glabel": "ⅤB", "full": "1s22s22p63s23p63d34s2", "short": "[Ar] 3d34s2", "shells": {"1": 2, "2": 8, "3": 11, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 134, "ions": []}, {"z": 24, "sym": "Cr", "zh": "铬", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 5, "4,0": 1}, "period": 4, "block": "d", "gcol": "6", "glabel": "ⅥB", "full": "1s22s22p63s23p63d54s1", "short": "[Ar] 3d54s1", "shells": {"1": 2, "2": 8, "3": 13, "4": 1, "5": 0, "6": 0, "7": 0}, "exc": "3d⁵ 半满稳定（洪特规则特例）", "rad": 128, "ions": [[3, "Cr³⁺"]]}, {"z": 25, "sym": "Mn", "zh": "锰", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 5, "4,0": 2}, "period": 4, "block": "d", "gcol": "7", "glabel": "ⅦB", "full": "1s22s22p63s23p63d54s2", "short": "[Ar] 3d54s2", "shells": {"1": 2, "2": 8, "3": 13, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 127, "ions": [[2, "Mn²⁺"]]}, {"z": 26, "sym": "Fe", "zh": "铁", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 6, "4,0": 2}, "period": 4, "block": "d", "gcol": "8", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d64s2", "short": "[Ar] 3d64s2", "shells": {"1": 2, "2": 8, "3": 14, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 126, "ions": [[2, "Fe²⁺"], [3, "Fe³⁺"]]}, {"z": 27, "sym": "Co", "zh": "钴", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 7, "4,0": 2}, "period": 4, "block": "d", "gcol": "9", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d74s2", "short": "[Ar] 3d74s2", "shells": {"1": 2, "2": 8, "3": 15, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 125, "ions": [[2, "Co²⁺"]]}, {"z": 28, "sym": "Ni", "zh": "镍", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 8, "4,0": 2}, "period": 4, "block": "d", "gcol": "10", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d84s2", "short": "[Ar] 3d84s2", "shells": {"1": 2, "2": 8, "3": 16, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 124, "ions": [[2, "Ni²⁺"]]}, {"z": 29, "sym": "Cu", "zh": "铜", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 1}, "period": 4, "block": "d", "gcol": "11", "glabel": "ⅠB", "full": "1s22s22p63s23p63d104s1", "short": "[Ar] 3d104s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 1, "5": 0, "6": 0, "7": 0}, "exc": "3d¹⁰ 全满稳定（洪特规则特例）", "rad": 128, "ions": [[1, "Cu⁺"], [2, "Cu²⁺"]]}, {"z": 30, "sym": "Zn", "zh": "锌", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2}, "period": 4, "block": "d", "gcol": "12", "glabel": "ⅡB", "full": "1s22s22p63s23p63d104s2", "short": "[Ar] 3d104s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 2, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 134, "ions": [[2, "Zn²⁺"]]}, {"z": 31, "sym": "Ga", "zh": "镓", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 1}, "period": 4, "block": "p", "gcol": "13", "glabel": "ⅢA", "full": "1s22s22p63s23p63d104s24p1", "short": "[Ar] 3d104s24p1", "shells": {"1": 2, "2": 8, "3": 18, "4": 3, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 135, "ions": []}, {"z": 32, "sym": "Ge", "zh": "锗", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 2}, "period": 4, "block": "p", "gcol": "14", "glabel": "ⅣA", "full": "1s22s22p63s23p63d104s24p2", "short": "[Ar] 3d104s24p2", "shells": {"1": 2, "2": 8, "3": 18, "4": 4, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 122, "ions": []}, {"z": 33, "sym": "As", "zh": "砷", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 3}, "period": 4, "block": "p", "gcol": "15", "glabel": "ⅤA", "full": "1s22s22p63s23p63d104s24p3", "short": "[Ar] 3d104s24p3", "shells": {"1": 2, "2": 8, "3": 18, "4": 5, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 120, "ions": []}, {"z": 34, "sym": "Se", "zh": "硒", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 4}, "period": 4, "block": "p", "gcol": "16", "glabel": "ⅥA", "full": "1s22s22p63s23p63d104s24p4", "short": "[Ar] 3d104s24p4", "shells": {"1": 2, "2": 8, "3": 18, "4": 6, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 119, "ions": []}, {"z": 35, "sym": "Br", "zh": "溴", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 5}, "period": 4, "block": "p", "gcol": "17", "glabel": "ⅦA", "full": "1s22s22p63s23p63d104s24p5", "short": "[Ar] 3d104s24p5", "shells": {"1": 2, "2": 8, "3": 18, "4": 7, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 114, "ions": [[-1, "Br⁻"]]}, {"z": 36, "sym": "Kr", "zh": "氪", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6}, "period": 4, "block": "p", "gcol": "18", "glabel": "0 族", "full": "1s22s22p63s23p63d104s24p6", "short": "[Ar] 3d104s24p6", "shells": {"1": 2, "2": 8, "3": 18, "4": 8, "5": 0, "6": 0, "7": 0}, "exc": null, "rad": 88, "ions": []}, {"z": 37, "sym": "Rb", "zh": "铷", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "5,0": 1}, "period": 5, "block": "s", "gcol": "1", "glabel": "ⅠA", "full": "1s22s22p63s23p63d104s24p65s1", "short": "[Kr] 5s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 8, "5": 1, "6": 0, "7": 0}, "exc": null, "rad": 248, "ions": []}, {"z": 38, "sym": "Sr", "zh": "锶", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "5,0": 2}, "period": 5, "block": "s", "gcol": "2", "glabel": "ⅡA", "full": "1s22s22p63s23p63d104s24p65s2", "short": "[Kr] 5s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 8, "5": 2, "6": 0, "7": 0}, "exc": null, "rad": 215, "ions": []}, {"z": 39, "sym": "Y", "zh": "钇", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 1, "5,0": 2}, "period": 5, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d15s2", "short": "[Kr] 4d15s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 9, "5": 2, "6": 0, "7": 0}, "exc": null, "rad": 180, "ions": []}, {"z": 40, "sym": "Zr", "zh": "锆", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 2, "5,0": 2}, "period": 5, "block": "d", "gcol": "4", "glabel": "ⅣB", "full": "1s22s22p63s23p63d104s24p64d25s2", "short": "[Kr] 4d25s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 10, "5": 2, "6": 0, "7": 0}, "exc": null, "rad": 160, "ions": []}, {"z": 41, "sym": "Nb", "zh": "铌", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 4, "5,0": 1}, "period": 5, "block": "d", "gcol": "5", "glabel": "ⅤB", "full": "1s22s22p63s23p63d104s24p64d45s1", "short": "[Kr] 4d45s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 12, "5": 1, "6": 0, "7": 0}, "exc": null, "rad": 146, "ions": []}, {"z": 42, "sym": "Mo", "zh": "钼", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 5, "5,0": 1}, "period": 5, "block": "d", "gcol": "6", "glabel": "ⅥB", "full": "1s22s22p63s23p63d104s24p64d55s1", "short": "[Kr] 4d55s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 13, "5": 1, "6": 0, "7": 0}, "exc": "4d⁵ 半满稳定", "rad": 139, "ions": []}, {"z": 43, "sym": "Tc", "zh": "锝", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 5, "5,0": 2}, "period": 5, "block": "d", "gcol": "7", "glabel": "ⅦB", "full": "1s22s22p63s23p63d104s24p64d55s2", "short": "[Kr] 4d55s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 13, "5": 2, "6": 0, "7": 0}, "exc": null, "rad": 136, "ions": []}, {"z": 44, "sym": "Ru", "zh": "钌", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 7, "5,0": 1}, "period": 5, "block": "d", "gcol": "8", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d104s24p64d75s1", "short": "[Kr] 4d75s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 15, "5": 1, "6": 0, "7": 0}, "exc": null, "rad": 134, "ions": []}, {"z": 45, "sym": "Rh", "zh": "铑", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 8, "5,0": 1}, "period": 5, "block": "d", "gcol": "9", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d104s24p64d85s1", "short": "[Kr] 4d85s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 16, "5": 1, "6": 0, "7": 0}, "exc": null, "rad": 134, "ions": []}, {"z": 46, "sym": "Pd", "zh": "钯", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10}, "period": 4, "block": "d", "gcol": "12", "glabel": "ⅡB", "full": "1s22s22p63s23p63d104s24p64d10", "short": "[Kr] 4d10", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 0, "6": 0, "7": 0}, "exc": "4d¹⁰ 全满稳定（5s 全空）", "rad": 137, "ions": []}, {"z": 47, "sym": "Ag", "zh": "银", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 1}, "period": 5, "block": "d", "gcol": "11", "glabel": "ⅠB", "full": "1s22s22p63s23p63d104s24p64d105s1", "short": "[Kr] 4d105s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 1, "6": 0, "7": 0}, "exc": "4d¹⁰ 全满稳定", "rad": 144, "ions": [[1, "Ag⁺"]]}, {"z": 48, "sym": "Cd", "zh": "镉", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2}, "period": 5, "block": "d", "gcol": "12", "glabel": "ⅡB", "full": "1s22s22p63s23p63d104s24p64d105s2", "short": "[Kr] 4d105s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 2, "6": 0, "7": 0}, "exc": null, "rad": 151, "ions": []}, {"z": 49, "sym": "In", "zh": "铟", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 1}, "period": 5, "block": "p", "gcol": "13", "glabel": "ⅢA", "full": "1s22s22p63s23p63d104s24p64d105s25p1", "short": "[Kr] 4d105s25p1", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 3, "6": 0, "7": 0}, "exc": null, "rad": 167, "ions": []}, {"z": 50, "sym": "Sn", "zh": "锡", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 2}, "period": 5, "block": "p", "gcol": "14", "glabel": "ⅣA", "full": "1s22s22p63s23p63d104s24p64d105s25p2", "short": "[Kr] 4d105s25p2", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 4, "6": 0, "7": 0}, "exc": null, "rad": 140, "ions": [[2, "Sn²⁺"]]}, {"z": 51, "sym": "Sb", "zh": "锑", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 3}, "period": 5, "block": "p", "gcol": "15", "glabel": "ⅤA", "full": "1s22s22p63s23p63d104s24p64d105s25p3", "short": "[Kr] 4d105s25p3", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 5, "6": 0, "7": 0}, "exc": null, "rad": 140, "ions": []}, {"z": 52, "sym": "Te", "zh": "碲", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 4}, "period": 5, "block": "p", "gcol": "16", "glabel": "ⅥA", "full": "1s22s22p63s23p63d104s24p64d105s25p4", "short": "[Kr] 4d105s25p4", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 6, "6": 0, "7": 0}, "exc": null, "rad": 142, "ions": []}, {"z": 53, "sym": "I", "zh": "碘", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 5}, "period": 5, "block": "p", "gcol": "17", "glabel": "ⅦA", "full": "1s22s22p63s23p63d104s24p64d105s25p5", "short": "[Kr] 4d105s25p5", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 7, "6": 0, "7": 0}, "exc": null, "rad": 133, "ions": [[-1, "I⁻"]]}, {"z": 54, "sym": "Xe", "zh": "氙", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 6}, "period": 5, "block": "p", "gcol": "18", "glabel": "0 族", "full": "1s22s22p63s23p63d104s24p64d105s25p6", "short": "[Kr] 4d105s25p6", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 8, "6": 0, "7": 0}, "exc": null, "rad": 108, "ions": []}, {"z": 55, "sym": "Cs", "zh": "铯", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 6, "6,0": 1}, "period": 6, "block": "s", "gcol": "1", "glabel": "ⅠA", "full": "1s22s22p63s23p63d104s24p64d105s25p66s1", "short": "[Xe] 6s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 8, "6": 1, "7": 0}, "exc": null, "rad": 265, "ions": []}, {"z": 56, "sym": "Ba", "zh": "钡", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "s", "gcol": "2", "glabel": "ⅡA", "full": "1s22s22p63s23p63d104s24p64d105s25p66s2", "short": "[Xe] 6s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": 217, "ions": [[2, "Ba²⁺"]]}, {"z": 57, "sym": "La", "zh": "镧", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "5,0": 2, "5,1": 6, "5,2": 1, "6,0": 2}, "period": 6, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d105s25p65d16s2", "short": "[Xe] 5d16s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 18, "5": 9, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 58, "sym": "Ce", "zh": "铈", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 1, "5,0": 2, "5,1": 6, "5,2": 1, "6,0": 2}, "period": 6, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f15s25p65d16s2", "short": "[Xe] 4f15d16s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 19, "5": 9, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 59, "sym": "Pr", "zh": "镨", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 3, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f35s25p66s2", "short": "[Xe] 4f36s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 21, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 60, "sym": "Nd", "zh": "钕", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 4, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f45s25p66s2", "short": "[Xe] 4f46s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 22, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 61, "sym": "Pm", "zh": "钷", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 5, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f55s25p66s2", "short": "[Xe] 4f56s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 23, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 62, "sym": "Sm", "zh": "钐", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 6, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f65s25p66s2", "short": "[Xe] 4f66s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 24, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 63, "sym": "Eu", "zh": "铕", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 7, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f75s25p66s2", "short": "[Xe] 4f76s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 25, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 64, "sym": "Gd", "zh": "钆", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 7, "5,0": 2, "5,1": 6, "5,2": 1, "6,0": 2}, "period": 6, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f75s25p65d16s2", "short": "[Xe] 4f75d16s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 25, "5": 9, "6": 2, "7": 0}, "exc": "4f⁷ 半满稳定", "rad": null, "ions": []}, {"z": 65, "sym": "Tb", "zh": "铽", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 9, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f95s25p66s2", "short": "[Xe] 4f96s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 27, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 66, "sym": "Dy", "zh": "镝", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 10, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f105s25p66s2", "short": "[Xe] 4f106s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 28, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 67, "sym": "Ho", "zh": "钬", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 11, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f115s25p66s2", "short": "[Xe] 4f116s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 29, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 68, "sym": "Er", "zh": "铒", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 12, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f125s25p66s2", "short": "[Xe] 4f126s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 30, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 69, "sym": "Tm", "zh": "铥", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 13, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f135s25p66s2", "short": "[Xe] 4f136s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 31, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 70, "sym": "Yb", "zh": "镱", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "6,0": 2}, "period": 6, "block": "f", "gcol": "—", "glabel": "镧系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p66s2", "short": "[Xe] 4f146s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 8, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 71, "sym": "Lu", "zh": "镥", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 1, "6,0": 2}, "period": 6, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d16s2", "short": "[Xe] 4f145d16s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 9, "6": 2, "7": 0}, "exc": null, "rad": null, "ions": []}, {"z": 72, "sym": "Hf", "zh": "铪", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 2, "6,0": 2}, "period": 6, "block": "d", "gcol": "4", "glabel": "ⅣB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d26s2", "short": "[Xe] 4f145d26s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 10, "6": 2, "7": 0}, "exc": null, "rad": 159, "ions": []}, {"z": 73, "sym": "Ta", "zh": "钽", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 3, "6,0": 2}, "period": 6, "block": "d", "gcol": "5", "glabel": "ⅤB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d36s2", "short": "[Xe] 4f145d36s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 11, "6": 2, "7": 0}, "exc": null, "rad": 146, "ions": []}, {"z": 74, "sym": "W", "zh": "钨", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 4, "6,0": 2}, "period": 6, "block": "d", "gcol": "6", "glabel": "ⅥB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d46s2", "short": "[Xe] 4f145d46s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 12, "6": 2, "7": 0}, "exc": null, "rad": 139, "ions": []}, {"z": 75, "sym": "Re", "zh": "铼", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 5, "6,0": 2}, "period": 6, "block": "d", "gcol": "7", "glabel": "ⅦB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d56s2", "short": "[Xe] 4f145d56s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 13, "6": 2, "7": 0}, "exc": null, "rad": 137, "ions": []}, {"z": 76, "sym": "Os", "zh": "锇", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 6, "6,0": 2}, "period": 6, "block": "d", "gcol": "8", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d66s2", "short": "[Xe] 4f145d66s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 14, "6": 2, "7": 0}, "exc": null, "rad": 135, "ions": []}, {"z": 77, "sym": "Ir", "zh": "铱", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 7, "6,0": 2}, "period": 6, "block": "d", "gcol": "9", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d76s2", "short": "[Xe] 4f145d76s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 15, "6": 2, "7": 0}, "exc": null, "rad": 136, "ions": []}, {"z": 78, "sym": "Pt", "zh": "铂", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 9, "6,0": 1}, "period": 6, "block": "d", "gcol": "10", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d96s1", "short": "[Xe] 4f145d96s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 17, "6": 1, "7": 0}, "exc": "5d⁹6s¹ 近似全满", "rad": 139, "ions": []}, {"z": 79, "sym": "Au", "zh": "金", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 1}, "period": 6, "block": "d", "gcol": "11", "glabel": "ⅠB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s1", "short": "[Xe] 4f145d106s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 1, "7": 0}, "exc": "5d¹⁰ 全满稳定", "rad": 144, "ions": []}, {"z": 80, "sym": "Hg", "zh": "汞", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2}, "period": 6, "block": "d", "gcol": "12", "glabel": "ⅡB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s2", "short": "[Xe] 4f145d106s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 2, "7": 0}, "exc": null, "rad": 151, "ions": [[2, "Hg²⁺"]]}, {"z": 81, "sym": "Tl", "zh": "铊", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 1}, "period": 6, "block": "p", "gcol": "13", "glabel": "ⅢA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p1", "short": "[Xe] 4f145d106s26p1", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 3, "7": 0}, "exc": null, "rad": 170, "ions": []}, {"z": 82, "sym": "Pb", "zh": "铅", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 2}, "period": 6, "block": "p", "gcol": "14", "glabel": "ⅣA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p2", "short": "[Xe] 4f145d106s26p2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 4, "7": 0}, "exc": null, "rad": 146, "ions": [[2, "Pb²⁺"]]}, {"z": 83, "sym": "Bi", "zh": "铋", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 3}, "period": 6, "block": "p", "gcol": "15", "glabel": "ⅤA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p3", "short": "[Xe] 4f145d106s26p3", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 5, "7": 0}, "exc": null, "rad": 148, "ions": []}, {"z": 84, "sym": "Po", "zh": "钋", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 4}, "period": 6, "block": "p", "gcol": "16", "glabel": "ⅥA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p4", "short": "[Xe] 4f145d106s26p4", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 6, "7": 0}, "exc": null, "rad": 168, "ions": []}, {"z": 85, "sym": "At", "zh": "砹", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 5}, "period": 6, "block": "p", "gcol": "17", "glabel": "ⅦA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p5", "short": "[Xe] 4f145d106s26p5", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 7, "7": 0}, "exc": null, "rad": 150, "ions": []}, {"z": 86, "sym": "Rn", "zh": "氡", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 6}, "period": 6, "block": "p", "gcol": "18", "glabel": "0 族", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p6", "short": "[Xe] 4f145d106s26p6", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 8, "7": 0}, "exc": null, "rad": 120, "ions": []}, {"z": 87, "sym": "Fr", "zh": "钫", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 6, "7,0": 1}, "period": 7, "block": "s", "gcol": "1", "glabel": "ⅠA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p67s1", "short": "[Rn] 7s1", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 8, "7": 1}, "exc": null, "rad": 270, "ions": []}, {"z": 88, "sym": "Ra", "zh": "镭", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "s", "gcol": "2", "glabel": "ⅡA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p67s2", "short": "[Rn] 7s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 8, "7": 2}, "exc": null, "rad": 220, "ions": []}, {"z": 89, "sym": "Ac", "zh": "锕", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 6, "6,2": 1, "7,0": 2}, "period": 7, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p66d17s2", "short": "[Rn] 6d17s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 9, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 90, "sym": "Th", "zh": "钍", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "6,0": 2, "6,1": 6, "6,2": 2, "7,0": 2}, "period": 7, "block": "d", "gcol": "4", "glabel": "ⅣB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d106s26p66d27s2", "short": "[Rn] 6d27s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 18, "6": 10, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 91, "sym": "Pa", "zh": "镤", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 2, "6,0": 2, "6,1": 6, "6,2": 1, "7,0": 2}, "period": 7, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f26s26p66d17s2", "short": "[Rn] 5f26d17s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 20, "6": 9, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 92, "sym": "U", "zh": "铀", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 3, "6,0": 2, "6,1": 6, "6,2": 1, "7,0": 2}, "period": 7, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f36s26p66d17s2", "short": "[Rn] 5f36d17s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 21, "6": 9, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 93, "sym": "Np", "zh": "镎", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 4, "6,0": 2, "6,1": 6, "6,2": 1, "7,0": 2}, "period": 7, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f46s26p66d17s2", "short": "[Rn] 5f46d17s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 22, "6": 9, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 94, "sym": "Pu", "zh": "钚", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 6, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "f", "gcol": "—", "glabel": "锕系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f66s26p67s2", "short": "[Rn] 5f67s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 24, "6": 8, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 95, "sym": "Am", "zh": "镅", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 7, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "f", "gcol": "—", "glabel": "锕系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f76s26p67s2", "short": "[Rn] 5f77s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 25, "6": 8, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 96, "sym": "Cm", "zh": "锔", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 7, "6,0": 2, "6,1": 6, "6,2": 1, "7,0": 2}, "period": 7, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f76s26p66d17s2", "short": "[Rn] 5f76d17s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 25, "6": 9, "7": 2}, "exc": "5f⁷ 半满稳定", "rad": null, "ions": []}, {"z": 97, "sym": "Bk", "zh": "锫", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 9, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "f", "gcol": "—", "glabel": "锕系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f96s26p67s2", "short": "[Rn] 5f97s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 27, "6": 8, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 98, "sym": "Cf", "zh": "锎", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 10, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "f", "gcol": "—", "glabel": "锕系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f106s26p67s2", "short": "[Rn] 5f107s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 28, "6": 8, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 99, "sym": "Es", "zh": "锿", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 11, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "f", "gcol": "—", "glabel": "锕系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f116s26p67s2", "short": "[Rn] 5f117s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 29, "6": 8, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 100, "sym": "Fm", "zh": "镄", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 12, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "f", "gcol": "—", "glabel": "锕系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f126s26p67s2", "short": "[Rn] 5f127s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 30, "6": 8, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 101, "sym": "Md", "zh": "钔", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 13, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "f", "gcol": "—", "glabel": "锕系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f136s26p67s2", "short": "[Rn] 5f137s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 31, "6": 8, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 102, "sym": "No", "zh": "锘", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "7,0": 2}, "period": 7, "block": "f", "gcol": "—", "glabel": "锕系", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p67s2", "short": "[Rn] 5f147s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 8, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 103, "sym": "Lr", "zh": "铹", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 1, "7,0": 2}, "period": 7, "block": "d", "gcol": "3", "glabel": "ⅢB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d17s2", "short": "[Rn] 5f146d17s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 9, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 104, "sym": "Rf", "zh": "Rf", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 2, "7,0": 2}, "period": 7, "block": "d", "gcol": "4", "glabel": "ⅣB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d27s2", "short": "[Rn] 5f146d27s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 10, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 105, "sym": "Db", "zh": "Db", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 3, "7,0": 2}, "period": 7, "block": "d", "gcol": "5", "glabel": "ⅤB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d37s2", "short": "[Rn] 5f146d37s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 11, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 106, "sym": "Sg", "zh": "Sg", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 4, "7,0": 2}, "period": 7, "block": "d", "gcol": "6", "glabel": "ⅥB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d47s2", "short": "[Rn] 5f146d47s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 12, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 107, "sym": "Bh", "zh": "Bh", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 5, "7,0": 2}, "period": 7, "block": "d", "gcol": "7", "glabel": "ⅦB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d57s2", "short": "[Rn] 5f146d57s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 13, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 108, "sym": "Hs", "zh": "Hs", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 6, "7,0": 2}, "period": 7, "block": "d", "gcol": "8", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d67s2", "short": "[Rn] 5f146d67s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 14, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 109, "sym": "Mt", "zh": "Mt", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 7, "7,0": 2}, "period": 7, "block": "d", "gcol": "9", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d77s2", "short": "[Rn] 5f146d77s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 15, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 110, "sym": "Ds", "zh": "Ds", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 8, "7,0": 2}, "period": 7, "block": "d", "gcol": "10", "glabel": "Ⅷ", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d87s2", "short": "[Rn] 5f146d87s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 16, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 111, "sym": "Rg", "zh": "Rg", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 9, "7,0": 2}, "period": 7, "block": "d", "gcol": "11", "glabel": "ⅠB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d97s2", "short": "[Rn] 5f146d97s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 17, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 112, "sym": "Cn", "zh": "Cn", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 10, "7,0": 2}, "period": 7, "block": "d", "gcol": "12", "glabel": "ⅡB", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d107s2", "short": "[Rn] 5f146d107s2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 18, "7": 2}, "exc": null, "rad": null, "ions": []}, {"z": 113, "sym": "Nh", "zh": "Nh", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 10, "7,0": 2, "7,1": 1}, "period": 7, "block": "p", "gcol": "13", "glabel": "ⅢA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d107s27p1", "short": "[Rn] 5f146d107s27p1", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 18, "7": 3}, "exc": null, "rad": null, "ions": []}, {"z": 114, "sym": "Fl", "zh": "Fl", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 10, "7,0": 2, "7,1": 2}, "period": 7, "block": "p", "gcol": "14", "glabel": "ⅣA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d107s27p2", "short": "[Rn] 5f146d107s27p2", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 18, "7": 4}, "exc": null, "rad": null, "ions": []}, {"z": 115, "sym": "Mc", "zh": "Mc", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 10, "7,0": 2, "7,1": 3}, "period": 7, "block": "p", "gcol": "15", "glabel": "ⅤA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d107s27p3", "short": "[Rn] 5f146d107s27p3", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 18, "7": 5}, "exc": null, "rad": null, "ions": []}, {"z": 116, "sym": "Lv", "zh": "Lv", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 10, "7,0": 2, "7,1": 4}, "period": 7, "block": "p", "gcol": "16", "glabel": "ⅥA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d107s27p4", "short": "[Rn] 5f146d107s27p4", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 18, "7": 6}, "exc": null, "rad": null, "ions": []}, {"z": 117, "sym": "Ts", "zh": "Ts", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 10, "7,0": 2, "7,1": 5}, "period": 7, "block": "p", "gcol": "17", "glabel": "ⅦA", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d107s27p5", "short": "[Rn] 5f146d107s27p5", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 18, "7": 7}, "exc": null, "rad": null, "ions": []}, {"z": 118, "sym": "Og", "zh": "Og", "cfg": {"1,0": 2, "2,0": 2, "2,1": 6, "3,0": 2, "3,1": 6, "3,2": 10, "4,0": 2, "4,1": 6, "4,2": 10, "4,3": 14, "5,0": 2, "5,1": 6, "5,2": 10, "5,3": 14, "6,0": 2, "6,1": 6, "6,2": 10, "7,0": 2, "7,1": 6}, "period": 7, "block": "p", "gcol": "18", "glabel": "0 族", "full": "1s22s22p63s23p63d104s24p64d104f145s25p65d105f146s26p66d107s27p6", "short": "[Rn] 5f146d107s27p6", "shells": {"1": 2, "2": 8, "3": 18, "4": 32, "5": 32, "6": 18, "7": 8}, "exc": null, "rad": null, "ions": []}], "pos": {"1": [1, 1], "2": [1, 18], "3": [2, 1], "4": [2, 2], "5": [2, 13], "6": [2, 14], "7": [2, 15], "8": [2, 16], "9": [2, 17], "10": [2, 18], "11": [3, 1], "12": [3, 2], "13": [3, 13], "14": [3, 14], "15": [3, 15], "16": [3, 16], "17": [3, 17], "18": [3, 18], "19": [4, 1], "20": [4, 2], "21": [4, 3], "22": [4, 4], "23": [4, 5], "24": [4, 6], "25": [4, 7], "26": [4, 8], "27": [4, 9], "28": [4, 10], "29": [4, 11], "30": [4, 12], "31": [4, 13], "32": [4, 14], "33": [4, 15], "34": [4, 16], "35": [4, 17], "36": [4, 18], "37": [5, 1], "38": [5, 2], "39": [5, 3], "40": [5, 4], "41": [5, 5], "42": [5, 6], "43": [5, 7], "44": [5, 8], "45": [5, 9], "46": [4, 12], "47": [5, 11], "48": [5, 12], "49": [5, 13], "50": [5, 14], "51": [5, 15], "52": [5, 16], "53": [5, 17], "54": [5, 18], "55": [6, 1], "56": [6, 2], "57": [6, 3], "58": [6, 3], "59": [9, 5], "60": [9, 6], "61": [9, 7], "62": [9, 8], "63": [9, 9], "64": [6, 3], "65": [9, 11], "66": [9, 12], "67": [9, 13], "68": [9, 14], "69": [9, 15], "70": [9, 16], "71": [6, 3], "72": [6, 4], "73": [6, 5], "74": [6, 6], "75": [6, 7], "76": [6, 8], "77": [6, 9], "78": [6, 10], "79": [6, 11], "80": [6, 12], "81": [6, 13], "82": [6, 14], "83": [6, 15], "84": [6, 16], "85": [6, 17], "86": [6, 18], "87": [7, 1], "88": [7, 2], "89": [7, 3], "90": [7, 4], "91": [7, 3], "92": [7, 3], "93": [7, 3], "94": [10, 8], "95": [10, 9], "96": [7, 3], "97": [10, 11], "98": [10, 12], "99": [10, 13], "100": [10, 14], "101": [10, 15], "102": [10, 16], "103": [7, 3], "104": [7, 4], "105": [7, 5], "106": [7, 6], "107": [7, 7], "108": [7, 8], "109": [7, 9], "110": [7, 10], "111": [7, 11], "112": [7, 12], "113": [7, 13], "114": [7, 14], "115": [7, 15], "116": [7, 16], "117": [7, 17], "118": [7, 18]}, "aufbau": ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s", "4d", "5p", "6s", "4f", "5d", "6p", "7s", "5f", "6d", "7p"], "cap": {"0": 2, "1": 6, "2": 10, "3": 14}};</script>
+<script>
+/* ===== 核外电子排布实验室 ===== */
+const D = window.__ELAB__;
+const CAP = {s:2,p:6,d:10,f:14};
+let curZ = 26, curQ = 0;   // 默认 Fe
+
+const $ = (id) => document.getElementById(id);
+const sup = (n) => String(n).replace(/\d/g, d => "⁰¹²³⁴⁵⁶⁷⁸⁹"[+d]).replace(/-/g,"⁻");
+
+/* ---- 周期表选择器 ---- */
+function buildPicker(){
+  const g = $("ptGrid"); g.innerHTML = "";
+  const spacer = document.createElement("div");
+  spacer.className = "pt-spacer"; spacer.style.gridColumn = "1 / span 18";
+  const cells = [];
+  for (const e of D.elems){
+    const [r,c] = D.pos[String(e.z)];
+    const b = document.createElement("button");
+    b.className = "pt-cell blk-" + e.block;
+    b.style.gridRow = r; b.style.gridColumn = c;
+    b.textContent = e.sym; b.title = `${e.z} ${e.zh} ${e.sym}`;
+    b.onclick = () => { curZ = e.z; curQ = 0; render(); };
+    b.dataset.z = e.z;
+    cells.push(b); g.appendChild(b);
+  }
+  g.appendChild(spacer);
+}
+
+/* ---- 离子排布计算 ---- */
+function parseCfg(e){ return Object.entries(e.cfg).map(([k,occ]) => { const [n,l]=k.split(",").map(Number); return {n,l,occ}; }); }
+function ionConfig(e, q){
+  let subs = parseCfg(e).map(s => ({...s}));
+  if (q > 0){
+    let k = q;
+    // 失电子：n 大者优先；同 n，l 大者优先（先 np 再 ns；过渡金属先失 ns 再失 (n-1)d）
+    const order = [...subs].sort((a,b) => b.n - a.n || b.l - a.l);
+    for (const s of order){
+      if (k <= 0) break;
+      const take = Math.min(s.occ, k);
+      subs.find(x => x.n===s.n && x.l===s.l).occ -= take; k -= take;
+    }
+  } else if (q < 0){
+    let k = -q;
+    // 得电子：沿构造序继续填
+    const order = D.aufbau.map(t => ({n:+t[0], l:"spdf".indexOf(t[1])}));
+    for (const s of order){
+      if (k <= 0) break;
+      const cur = subs.find(x => x.n===s.n && x.l===s.l);
+      const cap = CAP["spdf"[s.l]];
+      const have = cur ? cur.occ : 0;
+      const add = Math.min(cap - have, k);
+      if (add > 0){ if (cur) cur.occ += add; else subs.push({n:s.n,l:s.l,occ:add}); k -= add; }
+    }
+  }
+  return subs.filter(s => s.occ > 0).sort((a,b) => a.n - b.n || a.l - b.l);
+}
+function fmtCfg(subs){ return subs.map(s => `${s.n}${"spdf"[s.l]}${sup(s.occ)}`).join(" "); }
+
+/* ---- 轨道方框图（泡利 + 洪特） ---- */
+function orbitalBoxes(subs){
+  return subs.map(s => {
+    const boxes = 2*s.l + 1;
+    let up = Math.min(s.occ, boxes), dn = s.occ - up;
+    const arr = Array.from({length: boxes}, (_, i) =>
+      (i < up ? "↑" : "") + (i >= up - dn && dn > 0 && i < up ? "" : ""));
+    // 规范：先每盒一个 ↑，再从头补 ↓
+    const cells = [];
+    let rem = s.occ;
+    for (let i = 0; i < boxes && rem > 0; i++){ cells.push(["up"]); rem--; }
+    for (let i = 0; i < boxes && rem > 0; i++){ cells[i].push("dn"); rem--; }
+    return {label:`${s.n}${"spdf"[s.l]}`, occ:s.occ, cap:CAP["spdf"[s.l]], cells};
+  });
+}
+
+/* ---- 渲染 ---- */
+function render(){
+  const e = D.elems[curZ - 1];
+  document.querySelectorAll(".pt-cell.cur").forEach(x => x.classList.remove("cur"));
+  const cell = document.querySelector(`.pt-cell[data-z="${curZ}"]`);
+  if (cell) cell.classList.add("cur");
+
+  const subs = curQ === 0 ? parseCfg(e).sort((a,b)=>a.n-b.n||a.l-b.l) : ionConfig(e, curQ);
+  const ionTxt = curQ === 0 ? e.sym : e.sym + (curQ>0 ? (curQ>1?sup(curQ):"")+"⁺" : (curQ<-1?sup(-curQ):"")+"⁻");
+
+  /* 左：信息卡 */
+  $("elemBig").innerHTML = `<span class="sym">${ionTxt}</span><span class="znum">${e.z} 号 · ${e.zh}</span>`;
+  $("tagWrap").innerHTML = [
+    `第 ${e.period} 周期`, e.glabel + (e.block==="f"?"":" 族"),
+    {s:"s 区",p:"p 区",d:"d 区",f:"f 区"}[e.block],
+    e.exc ? "排布例外" : null,
+  ].filter(Boolean).map(t => `<span class="tag">${t}</span>`).join("");
+  let desc = "";
+  if (curQ !== 0) desc = `${e.zh}原子${curQ>0?"失去":"得到"} ${Math.abs(curQ)} 个电子形成 ${ionTxt}。${curQ>0&&e.block==="d"?"过渡金属失电子顺序：先失最外层 ns 电子，再失 (n−1)d 电子。":""}`;
+  else if (e.exc) desc = `基态排布不服从构造原理的顺序推断：${e.exc}。`;
+  else desc = `基态原子，核外共 ${e.z} 个电子，按构造原理依次填入各能级。`;
+  $("crysDesc").textContent = desc;
+
+  /* 排布式 */
+  const fullTxt = fmtCfg(subs);
+  $("cfgFull").innerHTML = fullTxt;
+  // 简化排布式：找小于总电子数的最大稀有气体核心
+  const total = subs.reduce((a,s)=>a+s.occ, 0);
+  const NOB = [[2,"He"],[10,"Ne"],[18,"Ar"],[36,"Kr"],[54,"Xe"],[86,"Rn"]];
+  const core = [...NOB].reverse().find(([n]) => n < total);
+  if (core){
+    const coreSubs = ionConfig(D.elems[core[0]-1], 0);
+    const rest = subs.map(s => ({...s}));
+    for (const cs of coreSubs){
+      const r = rest.find(x => x.n===cs.n && x.l===cs.l);
+      if (r) r.occ -= cs.occ;
+    }
+    const restList = rest.filter(s => s.occ>0).sort((a,b)=>a.n-b.n||a.l-b.l);
+    $("cfgShort").innerHTML = `[${core[1]}] ` + fmtCfg(restList);
+  } else $("cfgShort").textContent = "—（无更小的稀有气体核心）";
+  // 价电子层
+  const nmax = Math.max(...subs.map(s=>s.n));
+  const val = subs.filter(s => s.n===nmax || (e.block==="d"&&s.n===nmax-1&&s.l===2));
+  $("cfgVal").innerHTML = fmtCfg(val);
+  // 每层电子数
+  const shells = {};
+  subs.forEach(s => shells[s.n]=(shells[s.n]||0)+s.occ);
+  $("shellChips").innerHTML = Object.keys(shells).sort().map(n =>
+    `<span class="shell-chip">${"KLMNOPQ"[n-1]} 层 ${shells[n]}</span>`).join("");
+
+  /* 构造原理链：最后填入 = 构造序中最后一个已填能级 */
+  let lastKey = null;
+  for (const t of D.aufbau){
+    if (subs.some(s => `${s.n}${"spdf"[s.l]}`===t)) lastKey = t;
+  }
+  $("aufbauChain").innerHTML = D.aufbau.map(t => {
+    const filled = subs.some(s => `${s.n}${"spdf"[s.l]}`===t);
+    return `<span class="ab-chip ${filled?"filled":""} ${t===lastKey?"last":""}">${t}</span>`;
+  }).join("");
+
+  /* 轨道方框图 */
+  const rows = orbitalBoxes(subs);
+  $("orbRows").innerHTML = rows.map(r => `
+    <div class="orb-row">
+      <div class="orb-tag">${r.label} ${r.occ}/${r.cap}</div>
+      <div class="orb-boxes">${r.cells.map(c =>
+        `<div class="orb-box">${c.map(x=>`<span class="${x}">${x==="up"?"↑":"↓"}</span>`).join("")}</div>`).join("")}</div>
+    </div>`).join("");
+
+  /* 离子按钮 */
+  $("ionBtns").innerHTML = [`<button class="ion-btn ${curQ===0?"cur":""}" data-q="0">${e.sym} 原子</button>`]
+    .concat(e.ions.map(([q,lab]) =>
+      `<button class="ion-btn ${curQ===q?"cur":""}" data-q="${q}">${lab}</button>`)).join("");
+  $("ionBtns").querySelectorAll(".ion-btn").forEach(b =>
+    b.onclick = () => { curQ = +b.dataset.q; render(); });
+  $("ionSection").style.display = "block";
+
+  /* 半径对比 */
+  renderRadius(e);
+
+  drawBohr(subs, ionTxt);
+}
+
+function renderRadius(e){
+  const wrap = $("radBars");
+  if (!e.rad){ wrap.innerHTML = `<p class="info-desc">该元素暂无教学半径数据。</p>`; return; }
+  const rows = [];
+  const push = (z2, tag) => {
+    const o = D.elems[z2-1];
+    if (o && o.rad && o.z!==e.z) rows.push({nm:o.sym, val:o.rad, me:false, tag});
+  };
+  // 同周期相邻
+  for (const o of D.elems) if (o.period===e.period && Math.abs(o.z-e.z)===1) push(o.z,"期");
+  // 同族（同列）相邻
+  for (const o of D.elems) if (o.gcol===e.gcol && o.block===e.block && o.z!==e.z && Math.abs(o.period-e.period)===1) push(o.z,"族");
+  rows.push({nm:e.sym, val:e.rad, me:true, tag:""});
+  const max = Math.max(...rows.map(r=>r.val), 1);
+  wrap.innerHTML = rows.map(r => `
+    <div class="rad-bar-row"><span class="nm">${r.nm}</span>
+      <div class="rad-bar ${r.me?"":"dim"}" style="width:${(r.val/max*100).toFixed(0)}%"></div>
+      <span class="rad-val">${r.val} pm${r.tag?` ·同${r.tag}`:""}</span></div>`).join("");
+}
+
+/* ---- 玻尔壳层动画 ---- */
+let bohrSubs = [], bohrLabel = "", animT = 0;
+function drawBohr(subs, label){
+  const shells = {};
+  subs.forEach(s => shells[s.n]=(shells[s.n]||0)+s.occ);
+  bohrSubs = Object.keys(shells).map(n => ({n:+n, cnt:shells[n]}));
+  bohrLabel = label;
+}
+const cv = () => $("bohrCanvas");
+function cssVar(name){ return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+function frame(){
+  const c = cv(); if (!c) return;
+  const box = c.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  if (c.width !== box.width*dpr){ c.width = box.width*dpr; c.height = box.height*dpr; }
+  const ctx = c.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W = box.width, H = box.height, cx = W/2, cy = H/2;
+  ctx.clearRect(0,0,W,H);
+  const ink = cssVar("--fg") || "#333", acc = cssVar("--accent") || "#c8102e";
+  const nshell = bohrSubs.length;
+  const R0 = 34, Rstep = Math.min(34, (Math.min(W,H)/2 - 60) / Math.max(nshell-1,1) || 34);
+  animT += 0.008;
+  // 核
+  ctx.beginPath(); ctx.arc(cx,cy,20,0,7); ctx.fillStyle = acc; ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.font = "bold 11px Georgia"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillText(bohrLabel.slice(0,4), cx, cy);
+  // 壳层
+  bohrSubs.forEach((sh, i) => {
+    const r = R0 + i*Rstep;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,7);
+    ctx.strokeStyle = ink; ctx.globalAlpha = .25; ctx.stroke(); ctx.globalAlpha = 1;
+    // 电子点
+    const dots = Math.min(sh.cnt, 40);
+    const speed = 0.5 / (0.6 + i*0.35);
+    for (let k = 0; k < dots; k++){
+      const a = animT*speed + k/dots*Math.PI*2;
+      const x = cx + r*Math.cos(a), y = cy + r*Math.sin(a);
+      ctx.beginPath(); ctx.arc(x,y,4,0,7); ctx.fillStyle = acc; ctx.fill();
+      ctx.beginPath(); ctx.arc(x-1.2,y-1.2,1.4,0,7); ctx.fillStyle="rgba(255,255,255,.75)"; ctx.fill();
+    }
+    // 层标注
+    ctx.fillStyle = ink; ctx.globalAlpha = .55; ctx.font = "10px sans-serif"; ctx.textAlign="left";
+    ctx.fillText(`${"KLMNOPQ"[sh.n-1]}·${sh.cnt}`, cx + r*Math.SQRT1_2 + 6, cy - r*Math.SQRT1_2);
+    ctx.globalAlpha = 1;
+  });
+  requestAnimationFrame(frame);
+}
+
+buildPicker();
+render();
+requestAnimationFrame(frame);
+</script>
+<script>/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();</script>
+</body>
+</html>

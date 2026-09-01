@@ -35,6 +35,7 @@
 - 2026-09-01 门户重排（commit f82bb15）：Teaching.tsx 改为 tk-chem.cc/nav.html 讲座目录式——罗马数字六大分区、衬线标题、朱红 accent、编号卡片「进入 →」；未做模块标「建设中」
 - 2026-09-01 登录系统（commit 5eb4c72）：`netlify/functions/auth.js` + Netlify Blobs（store `chem-auth`）；管理员 18573854599 惰性初始化（初始密码见对话记录，**首次登录后应立即在 /profile 修改**）；邀请窗口 = 数字验证码 + 开放密码 + 起效时长 + 最大人数；他人注册须用开放密码，首次登录后改密即自由登录；/login、/profile（100 预设标签+自定义、头像、时长公开开关）；顶栏按角色显示「登录权限」/「个人信息」
 - 2026-09-01 登录系统**后端全链路实测通过**（BLOBS_TOKEN 方案落地）：Netlify CLI 已登录本机（`netlify login` 授权完成，token 在 `%APPDATA%\netlify\Config\config.json`）；`netlify env:set BLOBS_TOKEN=<CLI token> --context production` 已设置；本地直接调用打包函数实测 10 步全过（inviteStatus/管理员登录/setInvite/注册/改资料/改密/新密码重登/me/closeInvite）。**注意**：实测向生产 Blobs 写入了管理员账号和一个测试号 testuser01（密码 mynewpass123，可忽略）
+- 2026-09-01 核外电子排布实验室完成（chem_lab1.3.html，门户 Ⅰ-04 已点亮）：118 元素周期表点选；玻尔壳层动画（Canvas 2D）；轨道方框图（泡利+洪特，Fe 3d⁶/4s² 实测正确）；排布式三形态（完整/简化[Ar] 式/价电子层）；构造原理填充链高亮（最后填入能级实心）；Cr/Cu/Pd 等 21 个排布例外内置；常见离子切换（Fe²⁺/Fe³⁺ 先失 4s 实测正确、Cl⁻ 得电子正确）；同周期/同族半径对比条。生成脚本：工作区 `build_electron_lab.py`（外壳同样提取自 chem_lab1.2.html）。已本地浏览器截图验证
 
 ## 下一步（待办）
 
