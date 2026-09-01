@@ -1,293 +1,311 @@
-import { Atom, FlaskConical, Gamepad2, GraduationCap, Layers, MessagesSquare, Sparkles, Trophy } from 'lucide-react'
+// 教学中心门户 —— 模仿 tk-chem.cc/nav.html 的讲座目录式设计
+// 罗马数字分区 · 衬线标题 · 编号卡片 · 「进入 →」
 
 type Card = {
-  tag: string
+  no: string
   name: string
   desc: string
   href?: string
-  accent: string // tailwind classes for left border + tag text
+  note?: string // 「建设中」等角标
 }
 
 type Section = {
+  roman: string
   label: string
   title: string
-  icon: typeof Atom
-  tags: string[]
+  range: string
   cards: Card[]
-  cols: 2 | 3 | 4
 }
 
 const sections: Section[] = [
   {
-    label: 'STRUCTURE TOPICS',
+    roman: 'Ⅰ',
+    label: 'STRUCTURE · LAB 01–04',
     title: '结构专题',
-    icon: Atom,
-    tags: ['e⁻', 'sp³', 'NaCl'],
-    cols: 4,
+    range: '微观结构可视化',
     cards: [
       {
-        tag: 'VSEPR',
-        name: 'VSEPR 分子构型',
-        desc: '3D 实时渲染。包含杂化轨道理论、孤电子对斥力演示，支持 CH₄、NH₃、H₂O、CO₂、BF₃、乙烷、乙烯模型。',
+        no: '01',
+        name: 'VSEPR 分子构型实验室',
+        desc: '184 种分子 3D 电子云：无机 / 离子团（正·负）/ 有机三大类，σ·π·孤对分色渲染。',
         href: '/teaching/chem_lab1.1.html',
-        accent: 'border-l-blue-500 text-blue-600',
       },
       {
-        tag: 'CELL',
-        name: '晶体结构深度分析',
-        desc: '全品类晶胞模型。支持金属、离子、共价晶体，可进行晶胞切割、配位数分析及空间利用率计算。',
+        no: '02',
+        name: '晶体结构深度实验室',
+        desc: '31 种晶体：晶胞延展、立方体切割、比例模型、微粒显隐、四视角二维投影点阵。',
         href: '/teaching/chem_lab1.2.html',
-        accent: 'border-l-violet-500 text-violet-600',
       },
       {
-        tag: 'NaCl',
+        no: '03',
         name: '离子晶体晶胞专题',
-        desc: '聚焦 NaCl、CsCl、ZnS、CaF₂ 等典型离子晶体，按专题切换晶胞模型，适合课堂演示与对比学习。',
-        accent: 'border-l-sky-400 text-sky-500',
+        desc: 'NaCl、CsCl、ZnS、CaF₂、TiO₂ 等典型离子晶体晶胞对比（入口同晶体实验室·离子晶体）。',
+        href: '/teaching/chem_lab1.2.html',
       },
       {
-        tag: 'e⁻',
+        no: '04',
         name: '核外电子排布',
-        desc: '动态探索核外电子排布规律，联动原子半径、价层轨道与电子得失变化，适合课堂演示与自主学习。',
-        accent: 'border-l-amber-400 text-amber-500',
+        desc: '电子层 · 轨道 · 排布式动态书写，联动周期表位置与微粒半径比较。',
+        note: '建设中',
       },
     ],
   },
   {
+    roman: 'Ⅱ',
     label: 'REVIEW',
     title: '复习板块',
-    icon: GraduationCap,
-    tags: ['记忆', '连胜', '复盘'],
-    cols: 3,
+    range: '记忆 · 连胜 · 复盘',
     cards: [
       {
-        tag: 'MAP',
+        no: '01',
         name: '知识球 · 知识地图',
         desc: '必修 + 选必的 3D 知识网络：概念点串成「前置→后续」学习路径，每点配预习卡与真题母题。',
-        accent: 'border-l-sky-500 text-sky-600',
+        note: '建设中',
       },
       {
-        tag: 'CARD',
+        no: '02',
         name: '化学闪卡复习',
-        desc: '高中化学 10 章 440+ 闪卡：必修一二 + 选择性必修 1-3，追踪进度、识别薄弱环节、智能推荐复习。',
-        accent: 'border-l-orange-500 text-orange-600',
+        desc: '高中化学 10 章 440+ 闪卡：必修一二 + 选择性必修 1-3，追踪进度、识别薄弱、智能推荐。',
+        note: '建设中',
       },
       {
-        tag: 'TREE',
+        no: '03',
         name: '知识挑战树',
-        desc: '549 个知识点组成技能树，答题解锁节点，XP 等级系统、连胜奖励与成就等你挑战。',
-        accent: 'border-l-emerald-500 text-emerald-600',
+        desc: '549 个知识点组成技能树，答题解锁节点，XP 等级、连胜奖励与成就系统。',
+        note: '建设中',
       },
     ],
   },
   {
+    roman: 'Ⅲ',
     label: 'ORGANIC CHEMISTRY',
     title: '有机化学',
-    icon: FlaskConical,
-    tags: ['≡键', 'R-OH', '醚化'],
-    cols: 3,
+    range: '≡键 · R-OH · 酯化',
     cards: [
       {
-        tag: 'ORG',
+        no: '01',
         name: '有机反应机理库',
-        desc: '动态反应过程。可视化展示断键成键位置，涵盖取代、加成、消去、酯化等核心考点。',
-        accent: 'border-l-green-500 text-green-600',
+        desc: '动态反应过程：可视化断键成键位置，涵盖取代、加成、消去、酯化等核心考点。',
+        note: '建设中',
       },
       {
-        tag: 'IUPAC',
+        no: '02',
         name: '有机系统命名中心',
-        desc: '烷、烯、炔、卤代烃、醇醛酸、酯、芳香族命名闯关和生成器工具收进同一界面。',
-        accent: 'border-l-green-500 text-green-600',
+        desc: '烷、烯、炔、卤代烃、醇醛酸、酯、芳香族的命名闯关与生成器工具。',
+        note: '建设中',
       },
       {
-        tag: 'ISO',
+        no: '03',
         name: '同分异构体闯关挑战',
         desc: '按烷烃、烯烃、芳香烃、卤代烃、醇醛酸酯分章闯关，自动同步章节进度。',
-        accent: 'border-l-green-500 text-green-600',
+        note: '建设中',
       },
     ],
   },
   {
+    roman: 'Ⅳ',
     label: 'REACTION PRINCIPLES',
     title: '化学反应原理',
-    icon: Layers,
-    tags: ['ΔH', 'K', 'e⁻'],
-    cols: 4,
+    range: 'ΔH · K · e⁻',
     cards: [
       {
-        tag: 'ΔH',
+        no: '01',
         name: '化学反应的热效应',
-        desc: '断键吸能、成键放能与盖斯定律。拖动键能看 ΔH 即时重算，把能量变化变成能上手的阶梯图。',
-        accent: 'border-l-purple-500 text-purple-600',
+        desc: '断键吸能、成键放能与盖斯定律：拖动键能看 ΔH 即时重算的能量阶梯图。',
+        note: '建设中',
       },
       {
-        tag: 'v/K',
+        no: '02',
         name: '化学反应速率与平衡',
-        desc: '有效碰撞与能垒、动态平衡沙盘，以及勒夏特列原理「减弱而非抵消」的可视化演示。',
-        accent: 'border-l-purple-400 text-purple-500',
+        desc: '有效碰撞与能垒、动态平衡沙盘、勒夏特列原理「减弱而非抵消」可视化。',
+        note: '建设中',
       },
       {
-        tag: 'pH',
+        no: '03',
         name: '水溶液中的离子平衡',
-        desc: '电离与水解的动态平衡、pH 对数标尺、中和滴定突跃曲线与沉淀溶解平衡。',
-        accent: 'border-l-purple-400 text-purple-500',
+        desc: '电离与水解动态平衡、pH 对数标尺、中和滴定突跃曲线、沉淀溶解平衡。',
+        note: '建设中',
       },
       {
-        tag: '⚡',
+        no: '04',
         name: '化学反应与电能',
-        desc: '原电池双向、电解池阴阳极判断、盐桥与离子迁移，以及金属腐蚀微电池。',
-        accent: 'border-l-purple-400 text-purple-500',
+        desc: '原电池双向、电解池阴阳极判断、盐桥与离子迁移、金属腐蚀微电池。',
+        note: '建设中',
       },
     ],
   },
   {
+    roman: 'Ⅴ',
     label: 'GAMES',
     title: '游戏板块',
-    icon: Gamepad2,
-    tags: ['XP', 'Boss', 'Combo'],
-    cols: 3,
+    range: 'XP · Boss · Combo',
     cards: [
       {
-        tag: 'RPG',
+        no: '01',
         name: '元素纪元 RPG',
-        desc: '沉浸式化学对战。捕捉元素精灵，利用氧化还原反应战斗，含知识问答。',
-        accent: 'border-l-red-500 text-red-600',
+        desc: '沉浸式化学对战：捕捉元素精灵，用氧化还原反应战斗，含知识问答。',
+        note: '建设中',
       },
       {
-        tag: 'TD',
+        no: '02',
         name: '元素防线：化学塔防',
-        desc: '利用离子沉淀、酸碱中和与氧化还原反应布置防线，在攻防节奏中判断反应类型。',
-        accent: 'border-l-cyan-500 text-cyan-600',
+        desc: '用离子沉淀、酸碱中和与氧化还原布置防线，在攻防节奏中判断反应类型。',
+        note: '建设中',
       },
       {
-        tag: 'CBTI',
+        no: '03',
         name: 'CBTI 化学人格鉴定',
         desc: '你是 H₂S 还是 NaOH？16 道选择题对应物质类型，结果配角色卡。',
-        accent: 'border-l-rose-500 text-rose-600',
+        note: '建设中',
+      },
+    ],
+  },
+  {
+    roman: 'Ⅵ',
+    label: 'COMMUNITY',
+    title: '社区与排行',
+    range: '登录系统上线后开放',
+    cards: [
+      {
+        no: '01',
+        name: '交流论坛',
+        desc: '开贴讨论化学问题、反馈页面问题、分享学习心得。',
+        note: '建设中',
+      },
+      {
+        no: '02',
+        name: '排行榜 / 统计',
+        desc: '总排行与各模块积分榜，软件使用时长与游戏时长（可选公开）。',
+        note: '建设中',
       },
     ],
   },
 ]
 
-const colsClass: Record<Section['cols'], string> = {
-  2: 'sm:grid-cols-2',
-  3: 'sm:grid-cols-2 lg:grid-cols-3',
-  4: 'sm:grid-cols-2 lg:grid-cols-4',
+const TK_STYLE = `
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;800&family=Noto+Serif+SC:wght@400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+.tk-portal{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC",sans-serif;
+  --mono:"JetBrains Mono",monospace;
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --paper:#f7f4ec; --card:#fffdf8;
+  --line:rgba(26,24,23,.14); --line-strong:rgba(26,24,23,.30);
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.08);
+  background:
+    radial-gradient(1200px 500px at 15% -5%, rgba(200,16,46,.05), transparent 60%),
+    var(--paper);
+  color:var(--ink); font-family:var(--sans-cn);
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line);
 }
+.tk-hero{padding:clamp(36px,6vw,72px) 0 clamp(28px,4vw,48px);}
+.tk-hero .kicker{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--accent);}
+.tk-hero h1{
+  font-family:var(--serif-cn);font-weight:900;letter-spacing:2px;
+  font-size:clamp(30px,5vw,52px);line-height:1.25;margin-top:12px;
+}
+.tk-hero h1 em{font-style:normal;color:var(--accent);}
+.tk-hero p{margin-top:14px;color:var(--ink-dim);font-size:14.5px;max-width:560px;line-height:1.9;}
+.tk-hero .meta{
+  margin-top:20px;display:flex;flex-wrap:wrap;gap:8px 22px;
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+}
+.tk-sec{padding:clamp(22px,3.5vw,36px) 0;border-top:1px solid var(--line);}
+.tk-sec-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+.tk-roman{
+  font-family:var(--serif-cn);font-weight:800;font-size:clamp(26px,3.5vw,38px);
+  color:var(--accent);line-height:1;
+}
+.tk-sec-head h2{font-family:var(--serif-cn);font-weight:800;font-size:clamp(19px,2.4vw,26px);letter-spacing:2px;}
+.tk-sec-head .range{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;color:var(--ink-mute);margin-left:auto;}
+.tk-cards{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);}
+.tk-cards.c2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+.tk-card{
+  background:var(--card);padding:18px 20px 16px;display:block;text-decoration:none;color:inherit;
+  transition:background .25s;position:relative;
+}
+a.tk-card:hover{background:var(--accent-soft);}
+.tk-card .row1{display:flex;align-items:baseline;gap:12px;}
+.tk-card .no{font-family:var(--mono);font-size:12px;color:var(--ink-mute);}
+.tk-card .enter{
+  font-family:var(--serif-cn);font-weight:700;font-size:15px;color:var(--accent);
+  letter-spacing:1px;white-space:nowrap;
+}
+.tk-card .enter.off{color:var(--ink-mute);}
+.tk-card h3{font-family:var(--serif-cn);font-weight:700;font-size:16.5px;letter-spacing:1px;margin-top:8px;}
+.tk-card p{font-size:12.5px;color:var(--ink-dim);line-height:1.8;margin-top:6px;}
+.tk-card .wip{
+  position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:10px;
+  letter-spacing:2px;color:var(--ink-mute);border:1px solid var(--line);padding:2px 8px;border-radius:999px;
+}
+.tk-foot{padding:26px 0 40px;font-family:var(--mono);font-size:10.5px;letter-spacing:2px;color:var(--ink-mute);}
+`
 
 export default function TeachingPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
-      {/* 头部 */}
-      <section className="rounded-xl border border-slate-200 border-t-2 border-t-red-500 bg-white p-6 sm:p-8">
-        <h1 className="text-3xl font-light leading-tight text-slate-900 sm:text-5xl">
-          化学世界可视化教学中心
-        </h1>
-        <p className="mt-3 text-slate-500">高中化学可视化教学综合平台 · 教学展示模块</p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          {['可视化实验', '互动闯关', '课堂投屏友好', '化学人格测试'].map((t) => (
-            <span
-              key={t}
-              className="rounded-md border border-slate-300 bg-slate-100 px-3 py-1.5 text-sm text-slate-700"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* 各板块 */}
-      {sections.map((sec) => (
-        <section
-          key={sec.title}
-          className="mt-10 rounded-xl border border-slate-200 bg-white p-6 sm:p-8"
-        >
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 text-xs tracking-widest text-slate-400">
-                <sec.icon className="h-3.5 w-3.5" />
-                {sec.label}
-              </div>
-              <h2 className="mt-1 text-3xl font-normal text-slate-900">{sec.title}</h2>
-            </div>
-            <div className="flex gap-1.5">
-              {sec.tags.map((t) => (
-                <span
-                  key={t}
-                  className="rounded border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs text-slate-600"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className={`grid gap-3 ${colsClass[sec.cols]}`}>
-            {sec.cards.map((card) => {
-              const [borderCls, textCls] = card.accent.split(' ')
-              const inner = (
-                <>
-                  <div className={`text-2xl font-bold ${textCls}`}>{card.tag}</div>
-                  <div className="mt-2 text-lg text-slate-900">
-                    {card.name}
-                    {!card.href && (
-                      <span className="ml-2 rounded bg-slate-200 px-1.5 py-0.5 text-xs text-slate-500">
-                        建设中
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-2 min-h-16 text-sm leading-relaxed text-slate-500">
-                    {card.desc}
-                  </p>
-                  <div className={`mt-3 text-sm ${card.href ? textCls : 'text-slate-400'}`}>
-                    {card.href ? '进入实验室 →' : '敬请期待'}
-                  </div>
-                </>
-              )
-              const cls = `block rounded-lg border border-slate-200 border-l-4 ${borderCls} bg-slate-50 p-5 ${
-                card.href ? 'transition-shadow hover:shadow-md' : 'opacity-80'
-              }`
-              return card.href ? (
-                <a key={card.name} href={card.href} className={cls}>
-                  {inner}
-                </a>
-              ) : (
-                <div key={card.name} className={cls}>
-                  {inner}
-                </div>
-              )
-            })}
+    <div className="tk-portal">
+      <style>{TK_STYLE}</style>
+      <main className="mx-auto max-w-6xl px-4">
+        {/* 头部 */}
+        <section className="tk-hero">
+          <div className="kicker">TEACHING CENTER · 教学展示模块</div>
+          <h1>
+            化学世界<em>可视化</em>教学中心
+          </h1>
+          <p>
+            模仿 tk-chem 的讲座式目录：按专题分区、编号进入。两个 3D 实验室已完整可用，
+            其余板块陆续接入。
+          </p>
+          <div className="meta">
+            <span>LAB ×2 已上线</span>
+            <span>MODULE ×17 规划中</span>
+            <span>和紙 · 墨朱 · 藍 三主题（实验室内切换）</span>
           </div>
         </section>
-      ))}
 
-      {/* 交流 + 排行榜占位 */}
-      <section className="mt-10 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-slate-200 border-l-4 border-l-red-500 bg-white p-5">
-          <div className="flex items-center gap-2 text-lg text-slate-900">
-            <MessagesSquare className="h-4 w-4 text-red-500" />
-            交流论坛
-            <span className="rounded bg-slate-200 px-1.5 py-0.5 text-xs text-slate-500">建设中</span>
-          </div>
-          <p className="mt-2 text-sm text-slate-500">
-            开贴讨论化学问题、反馈页面问题、分享学习心得。
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-200 border-l-4 border-l-amber-500 bg-white p-5">
-          <div className="flex items-center gap-2 text-lg text-slate-900">
-            <Trophy className="h-4 w-4 text-amber-500" />
-            排行榜 / 统计
-            <span className="rounded bg-slate-200 px-1.5 py-0.5 text-xs text-slate-500">建设中</span>
-          </div>
-          <p className="mt-2 text-sm text-slate-500">
-            总排行与各模块积分榜，登录系统上线后开放。
-          </p>
-        </div>
-      </section>
+        {/* 各板块 */}
+        {sections.map((sec) => (
+          <section key={sec.title} className="tk-sec">
+            <div className="tk-sec-head">
+              <span className="tk-roman">{sec.roman}</span>
+              <h2>{sec.title}</h2>
+              <span className="range">
+                {sec.label} · {sec.range}
+              </span>
+            </div>
+            <div className="tk-cards c2">
+              {sec.cards.map((card) => {
+                const inner = (
+                  <>
+                    {card.note && <span className="wip">{card.note}</span>}
+                    <div className="row1">
+                      <span className="no">{card.no}</span>
+                      <span className={`enter${card.href ? '' : ' off'}`}>
+                        {card.href ? '进入 →' : '敬请期待'}
+                      </span>
+                    </div>
+                    <h3>{card.name}</h3>
+                    <p>{card.desc}</p>
+                  </>
+                )
+                return card.href ? (
+                  <a key={card.name} href={card.href} className="tk-card">
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={card.name} className="tk-card">
+                    {inner}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        ))}
 
-      <p className="mt-8 flex items-center gap-1.5 text-xs text-slate-400">
-        <Sparkles className="h-3 w-3" />
-        展示模块第一版：两个 3D 实验室已可用，其余板块将陆续接入。
-      </p>
-    </main>
+        <div className="tk-foot">
+          CHEM-LIFE TEACHING PORTAL · 目录式设计灵感：tk-chem.cc/nav.html
+        </div>
+      </main>
+    </div>
   )
 }
