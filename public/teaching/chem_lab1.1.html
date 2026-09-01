@@ -7,8 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;800&family=Noto+Serif+SC:wght@400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <style>
+
 
 /* =========================================================
    tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
@@ -179,225 +180,159 @@ body::after{
 .func-btn:hover{background:var(--accent);color:#fff;}
 
 
-/* ---- VSEPR 布局 ---- */
-.left-nav{width:230px;border-right:1px solid var(--line);padding:14px 0;}
-.chapter-title{
-  padding:11px 18px;cursor:pointer;font-family:var(--serif-cn);font-weight:700;
-  font-size:14px;letter-spacing:1px;color:var(--ink-dim);
-  display:flex;justify-content:space-between;align-items:center;
-  border-left:3px solid transparent;user-select:none;
-}
-.chapter-title .arrow{font-family:var(--mono);font-size:10px;transition:.3s;color:var(--ink-mute);}
-.chapter-title.open{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);}
-.chapter-title.open .arrow{transform:rotate(90deg);}
-.mol-list{display:none;padding:4px 0 8px;}
-.mol-list.show{display:block;}
-.mol-item{
-  padding:9px 18px 9px 34px;cursor:pointer;font-size:13px;color:var(--ink-dim);
-  border-left:3px solid transparent;transition:.2s;
-}
-.mol-item:hover{background:var(--inset);color:var(--ink);}
-.mol-item.active{background:var(--accent-soft);color:var(--accent);border-left-color:var(--accent);}
-.center-canvas{flex:1;position:relative;background:var(--canvas-bg);}
-#molCanvas{width:100%;height:100%;display:block;}
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
 .info-card{
-  position:absolute;bottom:22px;left:22px;
-  background:var(--topnav-bg);backdrop-filter:blur(16px);
-  border:1px solid var(--line);border-radius:12px;
-  padding:18px 22px;max-width:340px;
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
 }
-.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:22px;letter-spacing:1px;margin-bottom:10px;}
-.info-card .tag-box{margin-bottom:10px;}
-.info-card .tag{
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
   display:inline-block;background:var(--accent-soft);color:var(--accent);
-  border:1px solid var(--accent);padding:2px 10px;border-radius:999px;
-  font-size:12px;margin:0 6px 6px 0;
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
 }
-.info-card .tag.lone{background:var(--lone-soft);color:var(--lone);border-color:var(--lone);}
-.info-card .tag.pi{background:var(--accent-soft);color:var(--cat-1);border-color:var(--cat-1);}
-.info-card p{font-size:13px;color:var(--ink-dim);line-height:1.7;}
-.right-panel{width:260px;border-left:1px solid var(--line);padding:20px;}
-.view-btns{display:flex;gap:8px;}
-.view-btn{
-  flex:1;padding:9px 6px;border:1px solid var(--line);background:var(--surface-2);
-  color:var(--ink-dim);cursor:pointer;border-radius:8px;font-size:13px;
-  font-family:var(--sans-cn);transition:.25s;
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
 }
-.view-btn.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
-/* 弹窗 */
-.modal{
-  display:none;position:fixed;inset:0;background:rgba(10,10,12,.55);
-  backdrop-filter:blur(6px);z-index:300;justify-content:center;align-items:center;
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
 }
-.modal-content{
-  background:var(--paper);border:1px solid var(--line);border-radius:14px;
-  padding:28px;max-width:92%;max-height:86%;overflow:auto;position:relative;
-  min-width:min(780px,92vw);box-shadow:0 24px 70px rgba(0,0,0,.35);
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
 }
-.modal-close{
-  position:absolute;top:14px;right:18px;font-size:22px;cursor:pointer;
-  color:var(--ink-mute);background:none;border:none;transition:.2s;
+
+
+
+
+
+
+/* ---- VSEPR 页专用 ---- */
+#molCanvas{width:100%;height:100%;display:block;}
+.mol-formula{font-family:var(--mono);font-size:13px;letter-spacing:2px;color:var(--accent);margin:-4px 0 10px;}
+.search-input{
+  width:100%;padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;font-size:12.5px;color:var(--ink);font-family:var(--sans-cn);outline:none;
 }
-.modal-close:hover{color:var(--accent);}
-.modal-title{
-  font-family:var(--serif-cn);font-weight:800;font-size:20px;letter-spacing:1px;
-  margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--accent);
-  display:inline-block;
+.search-input:focus{border-color:var(--accent);}
+.acc{margin-bottom:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.acc-head{
+  display:flex;justify-content:space-between;align-items:center;cursor:pointer;
+  padding:10px 12px;background:var(--paper);user-select:none;
 }
-.vsepr-table{width:100%;border-collapse:collapse;font-size:13px;}
-.vsepr-table th,.vsepr-table td{border:1px solid var(--line);padding:9px 12px;text-align:center;}
-.vsepr-table th{
-  background:var(--surface-2);font-family:var(--serif-cn);font-weight:700;
-  color:var(--ink);letter-spacing:1px;
+.acc-head .t{font-family:var(--serif-cn);font-weight:700;font-size:13.5px;letter-spacing:1px;}
+.acc-head .n{font-family:var(--mono);font-size:10px;color:var(--ink-mute);}
+.acc-head .chev{transition:transform .25s;color:var(--ink-mute);font-size:12px;}
+.acc.open .acc-head .chev{transform:rotate(90deg);}
+.acc-body{display:none;padding:6px 8px 10px;background:var(--surface);}
+.acc.open .acc-body{display:block;}
+.sub-label{
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);
+  margin:8px 4px 4px;text-transform:uppercase;
 }
-.vsepr-table td{color:var(--ink-dim);}
-.vsepr-table tr:hover td{background:var(--inset);}
-.feedback-form textarea{
-  width:100%;height:120px;padding:12px;border:1px solid var(--line);border-radius:8px;
-  background:var(--surface-2);color:var(--ink);resize:none;font-size:14px;
-  margin-bottom:14px;font-family:var(--sans-cn);
+.mol-item{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding:6px 10px;border-radius:7px;cursor:pointer;font-size:12.5px;color:var(--ink-dim);
+  transition:background .2s,color .2s;
 }
-.feedback-form input{
-  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
-  background:var(--surface-2);color:var(--ink);font-size:14px;margin-bottom:14px;
+.mol-item:hover{background:var(--accent-soft);color:var(--accent);}
+.mol-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+.mol-item .f{font-family:var(--mono);font-size:11px;color:var(--ink-mute);flex:none;}
+.mol-item.active .f{color:var(--accent);}
+#navToggle{
+  display:none;position:absolute;right:14px;top:14px;z-index:40;
+  padding:7px 14px;border-radius:999px;border:1px solid var(--accent);
+  background:var(--accent-soft);color:var(--accent);font-size:12.5px;cursor:pointer;
   font-family:var(--sans-cn);
 }
-.feedback-form button{
-  width:100%;padding:12px;background:var(--accent);color:#fff;border:none;
-  border-radius:8px;cursor:pointer;font-size:14px;font-family:var(--sans-cn);
-  letter-spacing:2px;transition:.25s;
+.main-wrap{position:relative;}
+@media (max-width:1100px){
+  #navToggle{display:inline-flex;}
+  .right-panel{
+    position:absolute;top:0;right:0;height:100%;z-index:35;
+    transform:translateX(102%);transition:transform .3s;
+    box-shadow:-12px 0 30px rgba(0,0,0,.3);
+  }
+  .right-panel.open{transform:none;}
 }
-.feedback-form button:hover{opacity:.88;}
-
+.canvas-hint{
+  position:absolute;left:14px;bottom:12px;font-family:var(--mono);font-size:10px;
+  letter-spacing:1.5px;color:rgba(230,235,242,.45);pointer-events:none;
+}
 </style>
 </head>
 <body>
-
 <nav class="topnav">
   <div class="brand">
-    <span class="badge">分</span>
+    <span class="badge">形</span>
     <h1>VSEPR 分子构型实验室</h1>
     <span class="lecture-tag">STRUCTURE · LAB 01</span>
   </div>
   <div class="nav-right">
-    <button class="nav-btn" id="openVseprTable">VSEPR 数据表</button>
-    <button class="nav-btn" id="openFeedback">反馈</button>
-    <button class="nav-btn back-btn" id="backHome"><span class="arr">←</span> 返回门户</button>
+    <a class="nav-btn" href="chem_lab1.2.html">切换 晶体结构实验室 <span class="arr">→</span></a>
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
     <div class="theme-switch" role="group" aria-label="主题切换">
-  <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
-  <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
-  <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
-</div>
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
   </div>
 </nav>
 
 <div class="main-wrap">
-  <div class="side left-nav">
-    <div class="nav-chapter">
-      <div class="chapter-title open">
-        <span>第二章 · 分子结构</span>
-        <span class="arrow">▶</span>
-      </div>
-      <div class="mol-list show">
-        <div class="mol-item active" data-mol="ch4">CH₄ 甲烷</div>
-        <div class="mol-item" data-mol="nh3">NH₃ 氨气</div>
-        <div class="mol-item" data-mol="h2o">H₂O 水</div>
-        <div class="mol-item" data-mol="co2">CO₂ 二氧化碳</div>
-        <div class="mol-item" data-mol="bf3">BF₃ 三氟化硼</div>
-      </div>
-    </div>
-    <div class="nav-chapter">
-      <div class="chapter-title">
-        <span>有机化学基础</span>
-        <span class="arrow">▶</span>
-      </div>
-      <div class="mol-list">
-        <div class="mol-item" data-mol="c2h6">C₂H₆ 乙烷</div>
-        <div class="mol-item" data-mol="c2h4">C₂H₄ 乙烯</div>
-        <div class="mol-item">乙炔（建设中）</div>
-        <div class="mol-item">苯（建设中）</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="center-canvas" id="canvasBox">
-    <canvas id="molCanvas"></canvas>
+  <div class="side left-panel" style="width:280px">
     <div class="info-card">
-      <h2>CH₄ 甲烷</h2>
-      <div class="tag-box">
-        <span class="tag">正四面体</span>
-        <span class="tag">sp³杂化</span>
-      </div>
-      <p>中心C原子sp³杂化，4个σ键，0对孤电子对，键角109°28'。</p>
-    </div>
-  </div>
-
-  <div class="side right-panel">
-    <div class="panel-section">
-      <div class="panel-title">模型控制</div>
-      <div class="switch-row">
-        <span class="switch-label">自动旋转</span>
-        <div class="switch" id="rotateSwitch"></div>
-      </div>
+      <h2 id="molName">—</h2>
+      <div class="mol-formula" id="molFormula"></div>
+      <div class="tag-wrap" id="tagWrap"></div>
+      <p class="info-desc" id="molDesc"></p>
     </div>
     <div class="panel-section">
-      <div class="panel-title">视角模式</div>
-      <div class="view-btns">
-        <button class="view-btn active">杂化轨道</button>
-        <button class="view-btn">成键状态</button>
-      </div>
+      <div class="panel-title">显示控制</div>
+      <div class="switch-row"><span class="switch-label"><span class="legend-ball" style="background:#6aa6dd;margin-right:5px"></span>σ 键电子云</span><div class="switch active" id="tgSigma"></div></div>
+      <div class="switch-row"><span class="switch-label"><span class="legend-ball" style="background:#e06b6b;margin-right:5px"></span>π 键电子云</span><div class="switch active" id="tgPi"></div></div>
+      <div class="switch-row"><span class="switch-label"><span class="legend-ball" style="background:#b89ae8;margin-right:5px"></span>孤对电子云</span><div class="switch active" id="tgLone"></div></div>
+      <div class="switch-row"><span class="switch-label">云内悬浮光点</span><div class="switch active" id="tgDots"></div></div>
+      <div class="switch-row"><span class="switch-label">自动旋转</span><div class="switch active" id="tgSpin"></div></div>
     </div>
     <div class="panel-section">
-      <div class="panel-title">成键演化</div>
+      <div class="panel-title">电子云浓度</div>
       <div class="slider-wrap">
-        <input type="range" id="evolveSlider" min="0" max="100" value="100">
-        <div class="slider-value" id="sliderValue">阶段四：稳定成键</div>
+        <input type="range" id="cloudSlider" min="0.3" max="1.3" step="0.01" value="0.85">
+        <div class="slider-tip" id="cloudTip">浓度 0.85</div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="modal" id="tableModal">
-  <div class="modal-content">
-    <button class="modal-close" data-modal="tableModal">×</button>
-    <h3 class="modal-title">VSEPR 模型数据总表</h3>
-    <table class="vsepr-table">
-      <thead>
-        <tr><th>通式</th><th>价层电子对数</th><th>成键对数</th><th>孤电子对</th><th>空间构型</th><th>杂化类型</th><th>键角</th><th>实例</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>AX₂</td><td>2</td><td>2</td><td>0</td><td>直线形</td><td>sp</td><td>180°</td><td>CO₂、BeCl₂、C₂H₂</td></tr>
-        <tr><td>AX₃</td><td>3</td><td>3</td><td>0</td><td>平面三角形</td><td>sp²</td><td>120°</td><td>BF₃、SO₃、C₂H₄</td></tr>
-        <tr><td>AX₂E</td><td>3</td><td>2</td><td>1</td><td>V形（角形）</td><td>sp²</td><td>≈117°</td><td>SO₂、O₃、NO₂⁻</td></tr>
-        <tr><td>AX₄</td><td>4</td><td>4</td><td>0</td><td>正四面体形</td><td>sp³</td><td>109°28'</td><td>CH₄、CCl₄、NH₄⁺</td></tr>
-        <tr><td>AX₃E</td><td>4</td><td>3</td><td>1</td><td>三角锥形</td><td>sp³</td><td>≈107°</td><td>NH₃、PCl₃、H₃O⁺</td></tr>
-        <tr><td>AX₂E₂</td><td>4</td><td>2</td><td>2</td><td>V形（角形）</td><td>sp³</td><td>≈104.5°</td><td>H₂O、H₂S、OF₂</td></tr>
-        <tr><td>AX₅</td><td>5</td><td>5</td><td>0</td><td>三角双锥形</td><td>sp³d</td><td>90°/120°/180°</td><td>PCl₅、PF₅</td></tr>
-        <tr><td>AX₄E</td><td>5</td><td>4</td><td>1</td><td>变形四面体（跷跷板形）</td><td>sp³d</td><td>&lt;90°/&lt;120°</td><td>SF₄、TeCl₄</td></tr>
-        <tr><td>AX₃E₂</td><td>5</td><td>3</td><td>2</td><td>T形</td><td>sp³d</td><td>&lt;90°</td><td>ClF₃、BrF₃</td></tr>
-        <tr><td>AX₂E₃</td><td>5</td><td>2</td><td>3</td><td>直线形</td><td>sp³d</td><td>180°</td><td>XeF₂、I₃⁻</td></tr>
-        <tr><td>AX₆</td><td>6</td><td>6</td><td>0</td><td>正八面体形</td><td>sp³d²</td><td>90°/180°</td><td>SF₆、SiF₆²⁻</td></tr>
-        <tr><td>AX₅E</td><td>6</td><td>5</td><td>1</td><td>四方锥形</td><td>sp³d²</td><td>&lt;90°</td><td>BrF₅、IF₅</td></tr>
-        <tr><td>AX₄E₂</td><td>6</td><td>4</td><td>2</td><td>平面正方形</td><td>sp³d²</td><td>90°</td><td>XeF₄、ICl₄⁻</td></tr>
-      </tbody>
-    </table>
+  <div class="canvas-box">
+    <canvas id="molCanvas"></canvas>
+    <button id="navToggle">分子库 ☰</button>
+    <div class="canvas-hint">拖动旋转 · 滚轮缩放 · 右栏切换分子</div>
   </div>
-</div>
-
-<div class="modal" id="feedbackModal">
-  <div class="modal-content" style="min-width:min(420px,92vw);">
-    <button class="modal-close" data-modal="feedbackModal">×</button>
-    <h3 class="modal-title">意见反馈</h3>
-    <div class="feedback-form">
-      <textarea id="feedbackContent" placeholder="请描述您遇到的问题或建议..."></textarea>
-      <input type="text" id="feedbackContact" placeholder="联系方式（选填）">
-      <button id="sendFeedbackBtn">提交反馈</button>
+  <div class="side right-panel" style="width:300px">
+    <div class="panel-section">
+      <div class="panel-title">搜索分子</div>
+      <input class="search-input" id="searchInput" placeholder="输入名称 / 分子式…">
     </div>
+    <div id="navBox"></div>
   </div>
 </div>
 
 <script>
-
 /* ========= 主题切换 washi / sumi / ai ========= */
 (function(){
   const root=document.documentElement, KEY='ch-theme-lab';
@@ -410,526 +345,375 @@ body::after{
   sync();
 })();
 
-// 3D场景初始化
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0e17);
-const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-camera.position.z = 12;
+/* ================= 数据 ================= */
+const ELEM = {"H": [15921904, 0.26], "C": [5989488, 0.4], "N": [3900150, 0.38], "O": [15680580, 0.38], "F": [3462041, 0.36], "Cl": [2278750, 0.5], "Br": [11817737, 0.55], "I": [9133302, 0.62], "S": [15381256, 0.5], "P": [16347926, 0.52], "B": [16033721, 0.42], "Si": [12759680, 0.55], "Xe": [8246268, 0.6], "Be": [8702998, 0.45], "Hg": [10265519, 0.62], "Sn": [9741240, 0.6], "Ge": [11051678, 0.56], "Al": [13358561, 0.58], "As": [14066852, 0.55], "Sb": [12616855, 0.6], "Se": [16498468, 0.52], "Te": [14251782, 0.58], "Mn": [12616956, 0.58], "Cr": [9279918, 0.58], "Cu": [13666160, 0.6], "Ag": [15067115, 0.62], "Zn": [12240849, 0.6], "Na": [10980346, 0.62], "K": [9133302, 0.66]};
+const MOLS = {"h2": {"name": "H₂ 氢气", "formula": "H₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1", "shape": "直线形", "hyb": "sp", "angle": "—", "desc": "中心 H 原子 sp 杂化，1 个成键电子对、0 对孤电子对，直线形，键角 —。非极性共价键，s-s σ 键。", "atoms": [["H", 0.0, 0.0, 0.0], ["H", 0.74, 0.0, 0.0], ["Lp", -1.05, 0.0, 0.0]], "bonds": [[0, 1, 1]], "lp": [[2]]}, "n2": {"name": "N₂ 氮气", "formula": "N₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E1", "shape": "直线形", "hyb": "sp", "angle": "—", "desc": "中心 N 原子 sp 杂化，1 个成键电子对、1 对孤电子对，直线形，键角 —。1 个 σ 键 + 2 个 π 键，叁键很稳定。", "atoms": [["N", 0.0, 0.0, 0.0], ["N", 1.1, 0.0, 0.0], ["Lp", -1.05, 0.0, 0.0]], "bonds": [[0, 1, 3]], "lp": [[2]]}, "o2": {"name": "O₂ 氧气", "formula": "O₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E2", "shape": "直线形", "hyb": "sp²", "angle": "—", "desc": "中心 O 原子 sp² 杂化，1 个成键电子对、2 对孤电子对，直线形，键角 —。1 个 σ 键 + 1 个 π 键。", "atoms": [["O", 0.0, 0.0, 0.0], ["O", 1.21, 0.0, 0.0], ["Lp", -0.525, 0.9093, 0.0], ["Lp", -0.525, -0.9093, 0.0]], "bonds": [[0, 1, 2]], "lp": [[2], [3]]}, "f2": {"name": "F₂ 氟气", "formula": "F₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 F 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["F", 0.0, 0.0, 0.0], ["F", 0.8198, 0.8198, 0.8198], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "cl2": {"name": "Cl₂ 氯气", "formula": "Cl₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 Cl 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["Cl", 0.0, 0.0, 0.0], ["Cl", 1.1489, 1.1489, 1.1489], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "br2": {"name": "Br₂ 溴", "formula": "Br₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 Br 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["Br", 0.0, 0.0, 0.0], ["Br", 1.3164, 1.3164, 1.3164], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "i2": {"name": "I₂ 碘", "formula": "I₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 I 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["I", 0.0, 0.0, 0.0], ["I", 1.5358, 1.5358, 1.5358], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "hf": {"name": "HF 氟化氢", "formula": "HF", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 F 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["F", 0.0, 0.0, 0.0], ["H", 0.5312, 0.5312, 0.5312], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "hcl": {"name": "HCl 氯化氢", "formula": "HCl", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 Cl 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["Cl", 0.0, 0.0, 0.0], ["H", 0.7332, 0.7332, 0.7332], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "hbr": {"name": "HBr 溴化氢", "formula": "HBr", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 Br 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["Br", 0.0, 0.0, 0.0], ["H", 0.8141, 0.8141, 0.8141], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "hi": {"name": "HI 碘化氢", "formula": "HI", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 I 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["I", 0.0, 0.0, 0.0], ["H", 0.9295, 0.9295, 0.9295], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "co": {"name": "CO 一氧化碳", "formula": "CO", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E1", "shape": "直线形", "hyb": "sp", "angle": "—", "desc": "中心 C 原子 sp 杂化，1 个成键电子对、1 对孤电子对，直线形，键角 —。C≡O 配位键，结构与 N₂ 相似（等电子体）。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.13, 0.0, 0.0], ["Lp", -1.05, 0.0, 0.0]], "bonds": [[0, 1, 3]], "lp": [[2]]}, "no": {"name": "NO 一氧化氮", "formula": "NO", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX1E1", "shape": "直线形", "hyb": "sp²", "angle": "—", "desc": "中心 N 原子 sp² 杂化，1 个成键电子对、1 对孤电子对，直线形，键角 —。含 1 个未成对电子的顺磁性分子。", "atoms": [["N", 0.0, 0.0, 0.0], ["O", 1.2, 0.0, 0.0], ["Lp", -0.525, 0.9093, 0.0], ["Lp", -0.525, -0.9093, 0.0]], "bonds": [[0, 1, 2]], "lp": [[2], [3]]}, "co2": {"name": "CO₂ 二氧化碳", "formula": "CO₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2", "shape": "直线形", "hyb": "sp", "angle": "180°", "desc": "中心 C 原子 sp 杂化，2 个成键电子对、0 对孤电子对，直线形，键角 180°。2 个 σ 键 + 2 个 π 键，直线形非极性分子。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["O", -1.23, 0.0, 0.0]], "bonds": [[0, 1, 2], [0, 2, 2]], "lp": []}, "cs2": {"name": "CS₂ 二硫化碳", "formula": "CS₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2", "shape": "直线形", "hyb": "sp", "angle": "180°", "desc": "中心 C 原子 sp 杂化，2 个成键电子对、0 对孤电子对，直线形，键角 180°。", "atoms": [["C", 0.0, 0.0, 0.0], ["S", 1.56, 0.0, 0.0], ["S", -1.56, 0.0, 0.0]], "bonds": [[0, 1, 2], [0, 2, 2]], "lp": []}, "cos": {"name": "COS 羰基硫", "formula": "COS", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2", "shape": "直线形", "hyb": "sp", "angle": "180°", "desc": "中心 C 原子 sp 杂化，2 个成键电子对、0 对孤电子对，直线形，键角 180°。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["S", -1.56, 0.0, 0.0]], "bonds": [[0, 1, 2], [0, 2, 2]], "lp": []}, "hcn": {"name": "HCN 氰化氢", "formula": "HCN", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2", "shape": "直线形", "hyb": "sp", "angle": "180°", "desc": "中心 C 原子 sp 杂化，2 个成键电子对、0 对孤电子对，直线形，键角 180°。含 C≡N 叁键，直线形，剧毒。", "atoms": [["C", 0.0, 0.0, 0.0], ["H", 1.09, 0.0, 0.0], ["N", -1.16, 0.0, 0.0]], "bonds": [[0, 1, 1], [0, 2, 3]], "lp": []}, "becl2": {"name": "BeCl₂ 氯化铍", "formula": "BeCl₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2", "shape": "直线形", "hyb": "sp", "angle": "180°", "desc": "中心 Be 原子 sp 杂化，2 个成键电子对、0 对孤电子对，直线形，键角 180°。Be 最外层仅 4 电子，缺电子分子。", "atoms": [["Be", 0.0, 0.0, 0.0], ["Cl", 1.75, 0.0, 0.0], ["Cl", -1.75, 0.0, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": []}, "beh2": {"name": "BeH₂ 氢化铍", "formula": "BeH₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2", "shape": "直线形", "hyb": "sp", "angle": "180°", "desc": "中心 Be 原子 sp 杂化，2 个成键电子对、0 对孤电子对，直线形，键角 180°。", "atoms": [["Be", 0.0, 0.0, 0.0], ["H", 1.33, 0.0, 0.0], ["H", -1.33, 0.0, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": []}, "hgcl2": {"name": "HgCl₂ 氯化汞", "formula": "HgCl₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2", "shape": "直线形", "hyb": "sp", "angle": "180°", "desc": "中心 Hg 原子 sp 杂化，2 个成键电子对、0 对孤电子对，直线形，键角 180°。", "atoms": [["Hg", 0.0, 0.0, 0.0], ["Cl", 2.3, 0.0, 0.0], ["Cl", -2.3, 0.0, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": []}, "n2o": {"name": "N₂O 一氧化二氮（笑气）", "formula": "N₂O", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp 杂化·AX2·直线形。直线形 N-N-O，共振结构 N≡N⁺-O⁻ ↔ N⁻=N⁺=O。", "atoms": [["N", 0.0, 0.0, 0.0], ["N", 1.25, 0.0, 0.0], ["O", -1.2, 0.0, 0.0]], "bonds": [[0, 1, 2], [0, 2, 2]], "lp": []}, "bf3": {"name": "BF₃ 三氟化硼", "formula": "BF₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 B 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。B 最外层 6 电子，缺电子，是路易斯酸。", "atoms": [["B", 0.0, 0.0, 0.0], ["F", 1.3, 0.0, 0.0], ["F", -0.65, 1.1258, 0.0], ["F", -0.65, -1.1258, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": []}, "bcl3": {"name": "BCl₃ 三氯化硼", "formula": "BCl₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 B 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。", "atoms": [["B", 0.0, 0.0, 0.0], ["Cl", 1.74, 0.0, 0.0], ["Cl", -0.87, 1.5069, 0.0], ["Cl", -0.87, -1.5069, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": []}, "bbr3": {"name": "BBr₃ 三溴化硼", "formula": "BBr₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 B 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。", "atoms": [["B", 0.0, 0.0, 0.0], ["Br", 1.87, 0.0, 0.0], ["Br", -0.935, 1.6195, 0.0], ["Br", -0.935, -1.6195, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": []}, "alcl3": {"name": "AlCl₃ 三氯化铝", "formula": "AlCl₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 Al 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。气态单体为平面三角形；实际上常以 Al₂Cl₆ 二聚体存在。", "atoms": [["Al", 0.0, 0.0, 0.0], ["Cl", 2.13, 0.0, 0.0], ["Cl", -1.065, 1.8446, 0.0], ["Cl", -1.065, -1.8446, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": []}, "so3": {"name": "SO₃ 三氧化硫", "formula": "SO₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 S 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。S=O 键高度共振，3 个 S-O 键完全等同。", "atoms": [["S", 0.0, 0.0, 0.0], ["O", 1.49, 0.0, 0.0], ["O", -0.745, 1.2904, 0.0], ["O", -0.745, -1.2904, 0.0]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5]], "lp": []}, "cocl2": {"name": "COCl₂ 光气", "formula": "COCl₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 C 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。平面三角形，剧毒。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["Cl", -0.885, 1.5329, 0.0], ["Cl", -0.885, -1.5329, 0.0]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1]], "lp": []}, "cof2": {"name": "COF₂ 碳酰氟", "formula": "COF₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 C 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["F", -0.675, 1.1691, 0.0], ["F", -0.675, -1.1691, 0.0]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1]], "lp": []}, "nh3": {"name": "NH₃ 氨气", "formula": "NH₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 N 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。1 对孤对电子压缩键角至约 107°，三角锥形，极性分子。", "atoms": [["N", 0.0, 0.0, 0.0], ["H", 0.5831, 0.5831, 0.5831], ["H", 0.5831, -0.5831, -0.5831], ["H", -0.5831, 0.5831, -0.5831], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "ph3": {"name": "PH₃ 磷化氢", "formula": "PH₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 P 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["P", 0.0, 0.0, 0.0], ["H", 0.8198, 0.8198, 0.8198], ["H", 0.8198, -0.8198, -0.8198], ["H", -0.8198, 0.8198, -0.8198], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "ash3": {"name": "AsH₃ 砷化氢", "formula": "AsH₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 As 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["As", 0.0, 0.0, 0.0], ["H", 0.8776, 0.8776, 0.8776], ["H", 0.8776, -0.8776, -0.8776], ["H", -0.8776, 0.8776, -0.8776], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "pcl3": {"name": "PCl₃ 三氯化磷", "formula": "PCl₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 P 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["P", 0.0, 0.0, 0.0], ["Cl", 1.1778, 1.1778, 1.1778], ["Cl", 1.1778, -1.1778, -1.1778], ["Cl", -1.1778, 1.1778, -1.1778], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "pbr3": {"name": "PBr₃ 三溴化磷", "formula": "PBr₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 P 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["P", 0.0, 0.0, 0.0], ["Br", 1.2702, 1.2702, 1.2702], ["Br", 1.2702, -1.2702, -1.2702], ["Br", -1.2702, 1.2702, -1.2702], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "pf3": {"name": "PF₃ 三氟化磷", "formula": "PF₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 P 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["P", 0.0, 0.0, 0.0], ["F", 0.8891, 0.8891, 0.8891], ["F", 0.8891, -0.8891, -0.8891], ["F", -0.8891, 0.8891, -0.8891], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "ncl3": {"name": "NCl₃ 三氯化氮", "formula": "NCl₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 N 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["N", 0.0, 0.0, 0.0], ["Cl", 1.0104, 1.0104, 1.0104], ["Cl", 1.0104, -1.0104, -1.0104], ["Cl", -1.0104, 1.0104, -1.0104], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "nf3": {"name": "NF₃ 三氟化氮", "formula": "NF₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 N 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["N", 0.0, 0.0, 0.0], ["F", 0.791, 0.791, 0.791], ["F", 0.791, -0.791, -0.791], ["F", -0.791, 0.791, -0.791], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "ascl3": {"name": "AsCl₃ 三氯化砷", "formula": "AsCl₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 As 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["As", 0.0, 0.0, 0.0], ["Cl", 1.2759, 1.2759, 1.2759], ["Cl", 1.2759, -1.2759, -1.2759], ["Cl", -1.2759, 1.2759, -1.2759], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "socl2": {"name": "SOCl₂ 氯化亚砜", "formula": "SOCl₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 S 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。三角锥形，常用氯化剂。", "atoms": [["S", 0.0, 0.0, 0.0], ["O", 0.9238, 0.9238, 0.9238], ["Cl", 1.1547, -1.1547, -1.1547], ["Cl", -1.1547, 1.1547, -1.1547], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "h2o": {"name": "H₂O 水", "formula": "H₂O", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E2", "shape": "V 形", "hyb": "sp³", "angle": "≈104.5°", "desc": "中心 O 原子 sp³ 杂化，2 个成键电子对、2 对孤电子对，V 形，键角 ≈104.5°。2 对孤对电子使键角压缩至 104.5°，V 形强极性分子。", "atoms": [["O", 0.0, 0.0, 0.0], ["H", 0.5543, 0.5543, 0.5543], ["H", 0.5543, -0.5543, -0.5543], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4]]}, "h2s": {"name": "H₂S 硫化氢", "formula": "H₂S", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E2", "shape": "V 形", "hyb": "sp³", "angle": "≈104.5°", "desc": "中心 S 原子 sp³ 杂化，2 个成键电子对、2 对孤电子对，V 形，键角 ≈104.5°。", "atoms": [["S", 0.0, 0.0, 0.0], ["H", 0.7736, 0.7736, 0.7736], ["H", 0.7736, -0.7736, -0.7736], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4]]}, "h2se": {"name": "H₂Se 硒化氢", "formula": "H₂Se", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E2", "shape": "V 形", "hyb": "sp³", "angle": "≈104.5°", "desc": "中心 Se 原子 sp³ 杂化，2 个成键电子对、2 对孤电子对，V 形，键角 ≈104.5°。", "atoms": [["Se", 0.0, 0.0, 0.0], ["H", 0.8429, 0.8429, 0.8429], ["H", 0.8429, -0.8429, -0.8429], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4]]}, "of2": {"name": "OF₂ 二氟化氧", "formula": "OF₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E2", "shape": "V 形", "hyb": "sp³", "angle": "≈104.5°", "desc": "中心 O 原子 sp³ 杂化，2 个成键电子对、2 对孤电子对，V 形，键角 ≈104.5°。", "atoms": [["O", 0.0, 0.0, 0.0], ["F", 0.8198, 0.8198, 0.8198], ["F", 0.8198, -0.8198, -0.8198], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4]]}, "ocl2": {"name": "Cl₂O 一氧化二氯", "formula": "Cl₂O", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E2", "shape": "V 形", "hyb": "sp³", "angle": "≈104.5°", "desc": "中心 O 原子 sp³ 杂化，2 个成键电子对、2 对孤电子对，V 形，键角 ≈104.5°。", "atoms": [["O", 0.0, 0.0, 0.0], ["Cl", 0.9815, 0.9815, 0.9815], ["Cl", 0.9815, -0.9815, -0.9815], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4]]}, "scl2": {"name": "SCl₂ 二氯化硫", "formula": "SCl₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E2", "shape": "V 形", "hyb": "sp³", "angle": "≈104.5°", "desc": "中心 S 原子 sp³ 杂化，2 个成键电子对、2 对孤电子对，V 形，键角 ≈104.5°。", "atoms": [["S", 0.0, 0.0, 0.0], ["Cl", 1.1547, 1.1547, 1.1547], ["Cl", 1.1547, -1.1547, -1.1547], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4]]}, "so2": {"name": "SO₂ 二氧化硫", "formula": "SO₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E1", "shape": "V 形", "hyb": "sp²", "angle": "≈119°", "desc": "中心 S 原子 sp² 杂化，2 个成键电子对、1 对孤电子对，V 形，键角 ≈119°。V 形，S=O 键共振等同，是酸雨的主要成因。", "atoms": [["S", 0.0, 0.0, 0.0], ["O", 1.49, 0.0, 0.0], ["O", -0.745, 1.2904, 0.0], ["Lp", -0.525, -0.9093, 0.0]], "bonds": [[0, 1, 1.5], [0, 2, 1.5]], "lp": [[3]]}, "o3": {"name": "O₃ 臭氧", "formula": "O₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E1", "shape": "V 形", "hyb": "sp²", "angle": "≈119°", "desc": "中心 O 原子 sp² 杂化，2 个成键电子对、1 对孤电子对，V 形，键角 ≈119°。V 形，含离域 π 键（π₃⁴），O-O 键等长。", "atoms": [["O", 0.0, 0.0, 0.0], ["O", 1.3764, 0.0, 0.0], ["O", -0.6882, 1.192, 0.0], ["Lp", -0.525, -0.9093, 0.0]], "bonds": [[0, 1, 1.5], [0, 2, 1.5]], "lp": [[3]]}, "no2": {"name": "NO₂ 二氧化氮", "formula": "NO₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E1", "shape": "V 形", "hyb": "sp²", "angle": "≈119°", "desc": "中心 N 原子 sp² 杂化，2 个成键电子对、1 对孤电子对，V 形，键角 ≈119°。V 形，含 1 个未成对电子，红棕色。", "atoms": [["N", 0.0, 0.0, 0.0], ["O", 1.24, 0.0, 0.0], ["O", -0.62, 1.0739, 0.0], ["Lp", -0.525, -0.9093, 0.0]], "bonds": [[0, 1, 1.5], [0, 2, 1.5]], "lp": [[3]]}, "sih4": {"name": "SiH₄ 硅烷", "formula": "SiH₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Si 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["Si", 0.0, 0.0, 0.0], ["H", 0.8545, 0.8545, 0.8545], ["H", 0.8545, -0.8545, -0.8545], ["H", -0.8545, 0.8545, -0.8545], ["H", -0.8545, -0.8545, 0.8545]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "sif4": {"name": "SiF₄ 四氟化硅", "formula": "SiF₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Si 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["Si", 0.0, 0.0, 0.0], ["F", 0.9238, 0.9238, 0.9238], ["F", 0.9238, -0.9238, -0.9238], ["F", -0.9238, 0.9238, -0.9238], ["F", -0.9238, -0.9238, 0.9238]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "sicl4": {"name": "SiCl₄ 四氯化硅", "formula": "SiCl₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Si 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["Si", 0.0, 0.0, 0.0], ["Cl", 1.1662, 1.1662, 1.1662], ["Cl", 1.1662, -1.1662, -1.1662], ["Cl", -1.1662, 1.1662, -1.1662], ["Cl", -1.1662, -1.1662, 1.1662]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "geh4": {"name": "GeH₄ 锗烷", "formula": "GeH₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Ge 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["Ge", 0.0, 0.0, 0.0], ["H", 0.8833, 0.8833, 0.8833], ["H", 0.8833, -0.8833, -0.8833], ["H", -0.8833, 0.8833, -0.8833], ["H", -0.8833, -0.8833, 0.8833]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "sncl4": {"name": "SnCl₄ 四氯化锡", "formula": "SnCl₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Sn 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["Sn", 0.0, 0.0, 0.0], ["Cl", 1.3856, 1.3856, 1.3856], ["Cl", 1.3856, -1.3856, -1.3856], ["Cl", -1.3856, 1.3856, -1.3856], ["Cl", -1.3856, -1.3856, 1.3856]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "pocl3": {"name": "POCl₃ 三氯氧磷", "formula": "POCl₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 P 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["P", 0.0, 0.0, 0.0], ["O", 0.866, 0.866, 0.866], ["Cl", 1.1778, -1.1778, -1.1778], ["Cl", -1.1778, 1.1778, -1.1778], ["Cl", -1.1778, -1.1778, 1.1778]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "so2cl2": {"name": "SO₂Cl₂ 磺酰氯", "formula": "SO₂Cl₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 S 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["S", 0.0, 0.0, 0.0], ["O", 0.8256, 0.8256, 0.8256], ["O", 0.8256, -0.8256, -0.8256], ["Cl", -1.1547, 1.1547, -1.1547], ["Cl", -1.1547, -1.1547, 1.1547]], "bonds": [[0, 1, 2], [0, 2, 2], [0, 3, 1], [0, 4, 1]], "lp": []}, "pcl5": {"name": "PCl₅ 五氯化磷", "formula": "PCl₅", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX5", "shape": "三角双锥形", "hyb": "sp³d", "angle": "90°/120°", "desc": "中心 P 原子 sp³d 杂化，5 个成键电子对、0 对孤电子对，三角双锥形，键角 90°/120°。三角双锥：轴向键比赤道键长。", "atoms": [["P", 0.0, 0.0, 0.0], ["Cl", 0.0, 0.0, 2.04], ["Cl", 0.0, 0.0, -2.04], ["Cl", 2.04, 0.0, 0.0], ["Cl", -1.02, 1.7667, 0.0], ["Cl", -1.02, -1.7667, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": []}, "pf5": {"name": "PF₅ 五氟化磷", "formula": "PF₅", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX5", "shape": "三角双锥形", "hyb": "sp³d", "angle": "90°/120°", "desc": "中心 P 原子 sp³d 杂化，5 个成键电子对、0 对孤电子对，三角双锥形，键角 90°/120°。", "atoms": [["P", 0.0, 0.0, 0.0], ["F", 0.0, 0.0, 1.54], ["F", 0.0, 0.0, -1.54], ["F", 1.54, 0.0, 0.0], ["F", -0.77, 1.3337, 0.0], ["F", -0.77, -1.3337, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": []}, "pbr5": {"name": "PBr₅ 五溴化磷", "formula": "PBr₅", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX5", "shape": "三角双锥形", "hyb": "sp³d", "angle": "90°/120°", "desc": "中心 P 原子 sp³d 杂化，5 个成键电子对、0 对孤电子对，三角双锥形，键角 90°/120°。", "atoms": [["P", 0.0, 0.0, 0.0], ["Br", 0.0, 0.0, 2.2], ["Br", 0.0, 0.0, -2.2], ["Br", 2.2, 0.0, 0.0], ["Br", -1.1, 1.9053, 0.0], ["Br", -1.1, -1.9053, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": []}, "asf5": {"name": "AsF₅ 五氟化砷", "formula": "AsF₅", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX5", "shape": "三角双锥形", "hyb": "sp³d", "angle": "90°/120°", "desc": "中心 As 原子 sp³d 杂化，5 个成键电子对、0 对孤电子对，三角双锥形，键角 90°/120°。", "atoms": [["As", 0.0, 0.0, 0.0], ["F", 0.0, 0.0, 1.71], ["F", 0.0, 0.0, -1.71], ["F", 1.71, 0.0, 0.0], ["F", -0.855, 1.4809, 0.0], ["F", -0.855, -1.4809, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": []}, "sbf5": {"name": "SbF₅ 五氟化锑", "formula": "SbF₅", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX5", "shape": "三角双锥形", "hyb": "sp³d", "angle": "90°/120°", "desc": "中心 Sb 原子 sp³d 杂化，5 个成键电子对、0 对孤电子对，三角双锥形，键角 90°/120°。", "atoms": [["Sb", 0.0, 0.0, 0.0], ["F", 0.0, 0.0, 1.88], ["F", 0.0, 0.0, -1.88], ["F", 1.88, 0.0, 0.0], ["F", -0.94, 1.6281, 0.0], ["F", -0.94, -1.6281, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": []}, "sf4": {"name": "SF₄ 四氟化硫", "formula": "SF₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4E1", "shape": "变形四面体(跷跷板)形", "hyb": "sp³d", "angle": "≈89°/117°", "desc": "中心 S 原子 sp³d 杂化，4 个成键电子对、1 对孤电子对，变形四面体(跷跷板)形，键角 ≈89°/117°。孤对占赤道位，呈变形四面体（跷跷板形）。", "atoms": [["S", 0.0, 0.0, 0.0], ["F", 0.0, 0.0, 1.62], ["F", 0.0, 0.0, -1.62], ["F", -0.81, 1.403, 0.0], ["F", -0.81, -1.403, 0.0], ["Lp", 1.05, 0.0, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": [[5]]}, "sef4": {"name": "SeF₄ 四氟化硒", "formula": "SeF₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4E1", "shape": "变形四面体(跷跷板)形", "hyb": "sp³d", "angle": "≈89°/117°", "desc": "中心 Se 原子 sp³d 杂化，4 个成键电子对、1 对孤电子对，变形四面体(跷跷板)形，键角 ≈89°/117°。", "atoms": [["Se", 0.0, 0.0, 0.0], ["F", 0.0, 0.0, 1.69], ["F", 0.0, 0.0, -1.69], ["F", -0.845, 1.4636, 0.0], ["F", -0.845, -1.4636, 0.0], ["Lp", 1.05, 0.0, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": [[5]]}, "clf3": {"name": "ClF₃ 三氟化氯", "formula": "ClF₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E2", "shape": "T 形", "hyb": "sp³d", "angle": "≈87.5°", "desc": "中心 Cl 原子 sp³d 杂化，3 个成键电子对、2 对孤电子对，T 形，键角 ≈87.5°。2 对孤对占赤道位，分子呈 T 形。", "atoms": [["Cl", 0.0, 0.0, 0.0], ["F", 0.0, 0.0, 1.63], ["F", 0.0, 0.0, -1.63], ["F", -0.815, -1.4116, 0.0], ["Lp", 1.05, 0.0, 0.0], ["Lp", -0.525, 0.9093, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4], [5]]}, "brf3": {"name": "BrF₃ 三氟化溴", "formula": "BrF₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX3E2", "shape": "T 形", "hyb": "sp³d", "angle": "≈87.5°", "desc": "中心 Br 原子 sp³d 杂化，3 个成键电子对、2 对孤电子对，T 形，键角 ≈87.5°。", "atoms": [["Br", 0.0, 0.0, 0.0], ["F", 0.0, 0.0, 1.76], ["F", 0.0, 0.0, -1.76], ["F", -0.88, -1.5242, 0.0], ["Lp", 1.05, 0.0, 0.0], ["Lp", -0.525, 0.9093, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4], [5]]}, "xef2": {"name": "XeF₂ 二氟化氙", "formula": "XeF₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX2E3", "shape": "直线形", "hyb": "sp³d", "angle": "180°", "desc": "中心 Xe 原子 sp³d 杂化，2 个成键电子对、3 对孤电子对，直线形，键角 180°。3 对孤对全占赤道位，分子为直线形。", "atoms": [["Xe", 0.0, 0.0, 0.0], ["F", 0.0, 0.0, 2.0], ["F", 0.0, 0.0, -2.0], ["Lp", 1.05, 0.0, 0.0], ["Lp", -0.525, 0.9093, 0.0], ["Lp", -0.525, -0.9093, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4], [5]]}, "sf6": {"name": "SF₆ 六氟化硫", "formula": "SF₆", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX6", "shape": "正八面体形", "hyb": "sp³d²", "angle": "90°", "desc": "中心 S 原子 sp³d² 杂化，6 个成键电子对、0 对孤电子对，正八面体形，键角 90°。正八面体形，极其稳定，用作绝缘气体。", "atoms": [["S", 0.0, 0.0, 0.0], ["F", 1.62, 0.0, 0.0], ["F", -1.62, 0.0, 0.0], ["F", 0.0, 1.62, 0.0], ["F", 0.0, -1.62, 0.0], ["F", 0.0, 0.0, 1.62], ["F", 0.0, 0.0, -1.62]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1]], "lp": []}, "sef6": {"name": "SeF₆ 六氟化硒", "formula": "SeF₆", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX6", "shape": "正八面体形", "hyb": "sp³d²", "angle": "90°", "desc": "中心 Se 原子 sp³d² 杂化，6 个成键电子对、0 对孤电子对，正八面体形，键角 90°。", "atoms": [["Se", 0.0, 0.0, 0.0], ["F", 1.69, 0.0, 0.0], ["F", -1.69, 0.0, 0.0], ["F", 0.0, 1.69, 0.0], ["F", 0.0, -1.69, 0.0], ["F", 0.0, 0.0, 1.69], ["F", 0.0, 0.0, -1.69]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1]], "lp": []}, "tef6": {"name": "TeF₆ 六氟化碲", "formula": "TeF₆", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX6", "shape": "正八面体形", "hyb": "sp³d²", "angle": "90°", "desc": "中心 Te 原子 sp³d² 杂化，6 个成键电子对、0 对孤电子对，正八面体形，键角 90°。", "atoms": [["Te", 0.0, 0.0, 0.0], ["F", 1.84, 0.0, 0.0], ["F", -1.84, 0.0, 0.0], ["F", 0.0, 1.84, 0.0], ["F", 0.0, -1.84, 0.0], ["F", 0.0, 0.0, 1.84], ["F", 0.0, 0.0, -1.84]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1]], "lp": []}, "brf5": {"name": "BrF₅ 五氟化溴", "formula": "BrF₅", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX5E1", "shape": "四方锥形", "hyb": "sp³d²", "angle": "≈90°", "desc": "中心 Br 原子 sp³d² 杂化，5 个成键电子对、1 对孤电子对，四方锥形，键角 ≈90°。孤对与底部 4 个 F 相对，呈四方锥形。", "atoms": [["Br", 0.0, 0.0, 0.0], ["F", -1.76, 0.0, 0.0], ["F", 0.0, 1.76, 0.0], ["F", 0.0, -1.76, 0.0], ["F", 0.0, 0.0, 1.76], ["F", 0.0, 0.0, -1.76], ["Lp", 0.0, 0.0, 1.05]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": [[6]]}, "if5": {"name": "IF₅ 五氟化碘", "formula": "IF₅", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX5E1", "shape": "四方锥形", "hyb": "sp³d²", "angle": "≈90°", "desc": "中心 I 原子 sp³d² 杂化，5 个成键电子对、1 对孤电子对，四方锥形，键角 ≈90°。", "atoms": [["I", 0.0, 0.0, 0.0], ["F", -1.91, 0.0, 0.0], ["F", 0.0, 1.91, 0.0], ["F", 0.0, -1.91, 0.0], ["F", 0.0, 0.0, 1.91], ["F", 0.0, 0.0, -1.91], ["Lp", 0.0, 0.0, 1.05]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": [[6]]}, "clf5": {"name": "ClF₅ 五氟化氯", "formula": "ClF₅", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX5E1", "shape": "四方锥形", "hyb": "sp³d²", "angle": "≈90°", "desc": "中心 Cl 原子 sp³d² 杂化，5 个成键电子对、1 对孤电子对，四方锥形，键角 ≈90°。", "atoms": [["Cl", 0.0, 0.0, 0.0], ["F", -1.63, 0.0, 0.0], ["F", 0.0, 1.63, 0.0], ["F", 0.0, -1.63, 0.0], ["F", 0.0, 0.0, 1.63], ["F", 0.0, 0.0, -1.63], ["Lp", 0.0, 0.0, 1.05]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": [[6]]}, "xef4": {"name": "XeF₄ 四氟化氙", "formula": "XeF₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "AX4E2", "shape": "平面正方形", "hyb": "sp³d²", "angle": "90°", "desc": "中心 Xe 原子 sp³d² 杂化，4 个成键电子对、2 对孤电子对，平面正方形，键角 90°。2 对孤对上下相对，分子为平面正方形。", "atoms": [["Xe", 0.0, 0.0, 0.0], ["F", 0.0, 2.0, 0.0], ["F", 0.0, -2.0, 0.0], ["F", 0.0, 0.0, 2.0], ["F", 0.0, 0.0, -2.0], ["Lp", 0.0, 0.0, 1.05], ["Lp", 0.0, 0.0, -1.05]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": [[5], [6]]}, "h2o2": {"name": "H₂O₂ 过氧化氢", "formula": "H₂O₂", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "O1：sp³ 杂化·AX2E2·V 形；O2：sp³ 杂化·AX2E2·V 形。非平面的'半开书本'形，二面角约 111°，O-O 键易断裂。", "atoms": [["O", 0.0, 0.0, 0.0], ["O", 0.8545, 0.8545, 0.8545], ["Lp", 0.5774, -0.5774, -0.5774], ["Lp", -0.5774, 0.5774, -0.5774], ["H", -0.5543, -0.5543, 0.5543], ["Lp", 1.0469, 0.3803, 1.7136], ["Lp", 0.3803, 1.7136, 1.0469], ["H", 1.6792, 1.0392, 0.3992]], "bonds": [[0, 1, 1], [0, 4, 1], [1, 7, 1]], "lp": [[2], [3], [5], [6]]}, "n2h4": {"name": "N₂H₄ 肼（联氨）", "formula": "N₂H₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp³ 杂化·AX3E1·三角锥形；N2：sp³ 杂化·AX3E1·三角锥形。每个 N 各有 1 对孤对电子，火箭燃料。", "atoms": [["N", 0.0, 0.0, 0.0], ["N", 0.8372, 0.8372, 0.8372], ["Lp", 0.5774, -0.5774, -0.5774], ["H", -0.5831, 0.5831, -0.5831], ["H", -0.5831, -0.5831, 0.5831], ["Lp", 1.0296, 0.3629, 1.6963], ["H", 0.3582, 1.7049, 1.0315], ["H", 1.7049, 1.0315, 0.3582]], "bonds": [[0, 1, 1], [0, 3, 1], [0, 4, 1], [1, 6, 1], [1, 7, 1]], "lp": [[2], [5]]}, "hno3": {"name": "HNO₃ 硝酸", "formula": "HNO₃", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp² 杂化·AX3·平面三角形；O2：sp² 杂化·AX1E2·直线形；O3：sp³ 杂化·AX1E3·直线形；O4：sp³ 杂化·AX2E2·V 形。平面形分子，N=O 与 N-O⁻ 共振，-OH 上的 H 可电离。", "atoms": [["N", 0.0, 0.0, 0.0], ["O", 1.2, 0.0, 0.0], ["O", -0.68, 1.1778, 0.0], ["O", -0.68, -1.1778, 0.0], ["Lp", 1.7, -0.866, 0.0], ["Lp", 1.7, 0.866, 0.0], ["Lp", -0.8467, 1.4665, 0.9428], ["Lp", -1.5538, 1.0582, -0.4714], ["Lp", -0.1396, 1.8747, -0.4714], ["Lp", -1.5172, -1.0793, -0.538], ["Lp", -0.9149, -1.4271, 0.9395], ["H", -0.1308, -1.8644, -0.3855]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [3, 11, 1]], "lp": [[4], [5], [6], [7], [8], [9], [10]]}, "h2so4": {"name": "H₂SO₄ 硫酸", "formula": "H₂SO₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "S1：sp³ 杂化·AX4·正四面体形；O2：sp² 杂化·AX1E2·直线形；O3：sp² 杂化·AX1E2·直线形；O4：sp³ 杂化·AX2E2·V 形；O5：sp³ 杂化·AX2E2·V 形。S 为四面体构型，2 个 S=O、2 个 S-OH。", "atoms": [["S", 0.0, 0.0, 0.0], ["O", 0.8256, 0.8256, 0.8256], ["O", 0.8256, -0.8256, -0.8256], ["O", -0.9238, 0.9238, -0.9238], ["O", -0.9238, -0.9238, 0.9238], ["Lp", 1.1143, 1.7267, 0.5019], ["Lp", 1.1143, 0.5019, 1.7267], ["Lp", 1.1143, -0.5019, -1.7267], ["Lp", 1.1143, -1.7267, -0.5019], ["Lp", -1.1162, 0.4495, -1.7829], ["Lp", -0.4495, 1.7829, -1.1162], ["H", -1.7485, 1.1085, -0.4685], ["Lp", -0.4495, -1.7829, 1.1162], ["Lp", -1.7829, -1.1162, 0.4495], ["H", -1.1085, -0.4685, 1.7485]], "bonds": [[0, 1, 2], [0, 2, 2], [0, 3, 1], [0, 4, 1], [3, 11, 1], [4, 14, 1]], "lp": [[5], [6], [7], [8], [9], [10], [12], [13]]}, "h3po4": {"name": "H₃PO₄ 磷酸", "formula": "H₃PO₄", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "P1：sp³ 杂化·AX4·正四面体形；O2：sp² 杂化·AX1E2·直线形；O3：sp³ 杂化·AX2E2·V 形；O4：sp³ 杂化·AX2E2·V 形；O5：sp³ 杂化·AX2E2·V 形。1 个 P=O、3 个 P-OH，三元中强酸。", "atoms": [["P", 0.0, 0.0, 0.0], ["O", 0.866, 0.866, 0.866], ["O", 0.9238, -0.9238, -0.9238], ["O", -0.9238, 0.9238, -0.9238], ["O", -0.9238, -0.9238, 0.9238], ["Lp", 1.1547, 1.7671, 0.5423], ["Lp", 1.1547, 0.5423, 1.7671], ["Lp", 1.1162, -1.7829, -0.4495], ["Lp", 1.7829, -0.4495, -1.1162], ["H", 0.4685, -1.1085, -1.7485], ["Lp", -1.1162, 0.4495, -1.7829], ["Lp", -0.4495, 1.7829, -1.1162], ["H", -1.7485, 1.1085, -0.4685], ["Lp", -0.4495, -1.7829, 1.1162], ["Lp", -1.7829, -1.1162, 0.4495], ["H", -1.1085, -0.4685, 1.7485]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [0, 4, 1], [2, 9, 1], [3, 12, 1], [4, 15, 1]], "lp": [[5], [6], [7], [8], [10], [11], [13], [14]]}, "hclo": {"name": "HClO 次氯酸", "formula": "HClO", "cat": "inorg", "sub": "", "catLabel": "无机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "O1：sp³ 杂化·AX2E2·V 形。结构为 H-O-Cl，O 为 V 形中心，84 消毒液有效成分的母体。", "atoms": [["O", 0.0, 0.0, 0.0], ["Lp", 0.5774, 0.5774, 0.5774], ["Lp", 0.5774, -0.5774, -0.5774], ["Cl", -0.9815, 0.9815, -0.9815], ["H", -0.5543, -0.5543, 0.5543]], "bonds": [[0, 3, 1], [0, 4, 1]], "lp": [[1], [2]]}, "nh4p": {"name": "NH₄⁺ 铵根离子", "formula": "NH₄⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 N 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。N-H 中有 1 个配位键，4 个键完全等同。", "atoms": [["N", 0.0, 0.0, 0.0], ["H", 0.5831, 0.5831, 0.5831], ["H", 0.5831, -0.5831, -0.5831], ["H", -0.5831, 0.5831, -0.5831], ["H", -0.5831, -0.5831, 0.5831]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "h3op": {"name": "H₃O⁺ 水合氢离子", "formula": "H₃O⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 O 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。三角锥形，酸溶液中 H⁺ 的实际存在形式。", "atoms": [["O", 0.0, 0.0, 0.0], ["H", 0.5543, 0.5543, 0.5543], ["H", 0.5543, -0.5543, -0.5543], ["H", -0.5543, 0.5543, -0.5543], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": [[4]]}, "ph4p": {"name": "PH₄⁺ 鏻离子", "formula": "PH₄⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 P 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["P", 0.0, 0.0, 0.0], ["H", 0.8198, 0.8198, 0.8198], ["H", 0.8198, -0.8198, -0.8198], ["H", -0.8198, 0.8198, -0.8198], ["H", -0.8198, -0.8198, 0.8198]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "no2p": {"name": "NO₂⁺ 硝酰正离子", "formula": "NO₂⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "AX2", "shape": "直线形", "hyb": "sp", "angle": "180°", "desc": "中心 N 原子 sp 杂化，2 个成键电子对、0 对孤电子对，直线形，键角 180°。直线形，与 CO₂ 等电子。", "atoms": [["N", 0.0, 0.0, 0.0], ["O", 1.2, 0.0, 0.0], ["O", -1.2, 0.0, 0.0]], "bonds": [[0, 1, 2], [0, 2, 2]], "lp": []}, "ch3p": {"name": "CH₃⁺ 甲基碳正离子", "formula": "CH₃⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 C 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。平面三角形，空 p 轨道垂直于平面，亲电反应中间体。", "atoms": [["C", 0.0, 0.0, 0.0], ["H", 1.09, 0.0, 0.0], ["H", -0.545, 0.944, 0.0], ["H", -0.545, -0.944, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1]], "lp": []}, "n2h5p": {"name": "N₂H₅⁺ 肼鎓离子", "formula": "N₂H₅⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp³ 杂化·AX3E1·三角锥形；N2：sp³ 杂化·AX4·正四面体形。一端正电 N 无孤对（4 键），另一端 N 保留 1 对孤对。", "atoms": [["N", 0.0, 0.0, 0.0], ["N", 0.8372, 0.8372, 0.8372], ["Lp", 0.5774, -0.5774, -0.5774], ["H", -0.5831, 0.5831, -0.5831], ["H", -0.5831, -0.5831, 0.5831], ["H", 1.0315, 0.3582, 1.7049], ["H", 0.3582, 1.7049, 1.0315], ["H", 1.7049, 1.0315, 0.3582]], "bonds": [[0, 1, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1]], "lp": [[2]]}, "nh3ohp": {"name": "NH₃OH⁺ 羟胺鎓离子", "formula": "NH₃OH⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp³ 杂化·AX4·正四面体形；O2：sp³ 杂化·AX2E2·V 形。NH₂OH 质子化产物。", "atoms": [["N", 0.0, 0.0, 0.0], ["O", 0.7852, 0.7852, 0.7852], ["H", 0.5831, -0.5831, -0.5831], ["H", -0.5831, 0.5831, -0.5831], ["H", -0.5831, -0.5831, 0.5831], ["Lp", 0.9776, 0.311, 1.6443], ["Lp", 0.311, 1.6443, 0.9776], ["H", 1.6099, 0.9699, 0.3299]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 7, 1]], "lp": [[5], [6]]}, "ch3nh3p": {"name": "CH₃NH₃⁺ 甲胺鎓离子", "formula": "CH₃NH₃⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；N2：sp³ 杂化·AX4·正四面体形。甲胺结合 H⁺ 后的形式，N 上 4 键无孤对。", "atoms": [["C", 0.0, 0.0, 0.0], ["N", 0.8487, 0.8487, 0.8487], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.0431, 0.3697, 1.7164], ["H", 0.3697, 1.7164, 1.0431], ["H", 1.7164, 1.0431, 0.3697]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1]], "lp": []}, "c2h5nh3p": {"name": "C₂H₅NH₃⁺ 乙胺鎓离子", "formula": "C₂H₅NH₃⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 3 个）：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["N", 1.172, 0.192, 2.152], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["H", 1.1767, -0.8053, 1.9924], ["H", 0.4593, 0.4211, 2.83], ["H", 2.0745, 0.4813, 2.5014]], "bonds": [[0, 1, 1], [1, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1]], "lp": []}, "me2nh2p": {"name": "(CH₃)₂NH₂⁺ 二甲胺鎓离子", "formula": "(CH₃)₂NH₂⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 N（共 3 个）：sp³ 杂化·AX4·正四面体形。", "atoms": [["N", 0.0, 0.0, 0.0], ["C", 0.8487, 0.8487, 0.8487], ["C", 0.8487, -0.8487, -0.8487], ["H", -0.5831, 0.5831, -0.5831], ["H", -0.5831, -0.5831, 0.5831], ["H", 1.0585, 0.3318, 1.7851], ["H", 0.3318, 1.7851, 1.0585], ["H", 1.7851, 1.0585, 0.3318], ["H", 1.0585, -1.7851, -0.3318], ["H", 1.7851, -0.3318, -1.0585], ["H", 0.3318, -1.0585, -1.7851]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1]], "lp": []}, "me3nhp": {"name": "(CH₃)₃NH⁺ 三甲胺鎓离子", "formula": "(CH₃)₃NH⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 N（共 4 个）：sp³ 杂化·AX4·正四面体形。", "atoms": [["N", 0.0, 0.0, 0.0], ["C", 0.8487, 0.8487, 0.8487], ["C", 0.8487, -0.8487, -0.8487], ["C", -0.8487, 0.8487, -0.8487], ["H", -0.5831, -0.5831, 0.5831], ["H", 1.0585, 0.3318, 1.7851], ["H", 0.3318, 1.7851, 1.0585], ["H", 1.7851, 1.0585, 0.3318], ["H", 1.0585, -1.7851, -0.3318], ["H", 1.7851, -0.3318, -1.0585], ["H", 0.3318, -1.0585, -1.7851], ["H", -1.0585, 0.3318, -1.7851], ["H", -0.3318, 1.7851, -1.0585], ["H", -1.7851, 1.0585, -0.3318]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1], [3, 11, 1], [3, 12, 1], [3, 13, 1]], "lp": []}, "agnh32p": {"name": "[Ag(NH₃)₂]⁺ 银氨离子", "formula": "[Ag(NH₃)₂]⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "Ag1：sp 杂化·AX2·直线形；N2：sp³ 杂化·AX4·正四面体形；N3：sp³ 杂化·AX4·正四面体形。直线形配离子，N 的孤对电子配位给 Ag⁺，银镜反应与银氨溶液的核心。", "atoms": [["Ag", 0.0, 0.0, 0.0], ["N", 2.1, 0.0, 0.0], ["N", -2.1, 0.0, 0.0], ["H", 2.4367, 0.6733, 0.6733], ["H", 2.4367, 0.2465, -0.9198], ["H", 2.4367, -0.9198, 0.2465], ["H", -2.4367, -0.6733, -0.6733], ["H", -2.4367, 0.9198, -0.2465], ["H", -2.4367, -0.2465, 0.9198]], "bonds": [[0, 1, 1], [0, 2, 1], [1, 3, 1], [1, 4, 1], [1, 5, 1], [2, 6, 1], [2, 7, 1], [2, 8, 1]], "lp": []}, "cunh34p": {"name": "[Cu(NH₃)₄]²⁺ 四氨合铜离子", "formula": "[Cu(NH₃)₄]²⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "Cu1：dsp² 杂化·AX4·正四面体形；N2：sp³ 杂化·AX4·正四面体形；N3：sp³ 杂化·AX4·正四面体形；N4：sp³ 杂化·AX4·正四面体形；N5：sp³ 杂化·AX4·正四面体形。平面正方形配离子，深蓝色，检验 Cu²⁺ 的特征现象。", "atoms": [["Cu", 0.0, 0.0, 0.0], ["N", 2.0, 0.0, 0.0], ["N", -2.0, 0.0, 0.0], ["N", 0.0, 2.0, 0.0], ["N", 0.0, -2.0, 0.0], ["H", 2.3367, -0.8247, 0.4761], ["H", 2.3367, 0.8247, 0.4761], ["H", 2.3367, 0.0, -0.9522], ["H", -2.3367, -0.8247, 0.4761], ["H", -2.3367, 0.0, -0.9522], ["H", -2.3367, 0.8247, 0.4761], ["H", -0.8247, 2.3367, -0.4761], ["H", 0.8247, 2.3367, -0.4761], ["H", -0.0, 2.3367, 0.9522], ["H", -0.0, -2.3367, 0.9522], ["H", 0.8247, -2.3367, -0.4761], ["H", -0.8247, -2.3367, -0.4761]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1], [3, 11, 1], [3, 12, 1], [3, 13, 1], [4, 14, 1], [4, 15, 1], [4, 16, 1]], "lp": []}, "znnh34p": {"name": "[Zn(NH₃)₄]²⁺ 四氨合锌离子", "formula": "[Zn(NH₃)₄]²⁺", "cat": "ion", "sub": "cat", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 Zn（共 5 个）：sp³ 杂化·AX4·正四面体形。正四面体配离子，Zn(OH)₂ 溶于浓氨水的产物。", "atoms": [["Zn", 0.0, 0.0, 0.0], ["N", 1.1547, 1.1547, 1.1547], ["N", 1.1547, -1.1547, -1.1547], ["N", -1.1547, 1.1547, -1.1547], ["N", -1.1547, -1.1547, 1.1547], ["H", 1.3491, 0.6757, 2.0224], ["H", 0.6757, 2.0224, 1.3491], ["H", 2.0224, 1.3491, 0.6757], ["H", 1.3491, -2.0224, -0.6757], ["H", 2.0224, -0.6757, -1.3491], ["H", 0.6757, -1.3491, -2.0224], ["H", -1.3491, 0.6757, -2.0224], ["H", -0.6757, 2.0224, -1.3491], ["H", -2.0224, 1.3491, -0.6757], ["H", -0.6757, -2.0224, 1.3491], ["H", -2.0224, -1.3491, 0.6757], ["H", -1.3491, -0.6757, 2.0224]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1], [3, 11, 1], [3, 12, 1], [3, 13, 1], [4, 14, 1], [4, 15, 1], [4, 16, 1]], "lp": []}, "ohm": {"name": "OH⁻ 氢氧根离子", "formula": "OH⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 O 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["O", 0.0, 0.0, 0.0], ["H", 0.5543, 0.5543, 0.5543], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "hsm": {"name": "HS⁻ 硫氢根离子", "formula": "HS⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 S 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。", "atoms": [["S", 0.0, 0.0, 0.0], ["H", 0.7736, 0.7736, 0.7736], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "cnm": {"name": "CN⁻ 氰根离子", "formula": "CN⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX1E1", "shape": "直线形", "hyb": "sp", "angle": "—", "desc": "中心 C 原子 sp 杂化，1 个成键电子对、1 对孤电子对，直线形，键角 —。与 N₂、CO 等电子，C 端孤对配位能力强。", "atoms": [["C", 0.0, 0.0, 0.0], ["N", 1.16, 0.0, 0.0], ["Lp", -1.05, 0.0, 0.0]], "bonds": [[0, 1, 3]], "lp": [[2]]}, "no2m": {"name": "NO₂⁻ 亚硝酸根", "formula": "NO₂⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX2E1", "shape": "V 形", "hyb": "sp²", "angle": "≈119°", "desc": "中心 N 原子 sp² 杂化，2 个成键电子对、1 对孤电子对，V 形，键角 ≈119°。V 形。", "atoms": [["N", 0.0, 0.0, 0.0], ["O", 1.24, 0.0, 0.0], ["O", -0.62, 1.0739, 0.0], ["Lp", -0.525, -0.9093, 0.0]], "bonds": [[0, 1, 1.5], [0, 2, 1.5]], "lp": [[3]]}, "no3m": {"name": "NO₃⁻ 硝酸根", "formula": "NO₃⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 N 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。平面三角形，π₄⁶ 大 π 键，3 个 N-O 键等同。", "atoms": [["N", 0.0, 0.0, 0.0], ["O", 1.24, 0.0, 0.0], ["O", -0.62, 1.0739, 0.0], ["O", -0.62, -1.0739, 0.0]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5]], "lp": []}, "co3m": {"name": "CO₃²⁻ 碳酸根", "formula": "CO₃²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX3", "shape": "平面三角形", "hyb": "sp²", "angle": "120°", "desc": "中心 C 原子 sp² 杂化，3 个成键电子对、0 对孤电子对，平面三角形，键角 120°。平面三角形，π₄⁶ 大 π 键。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.26, 0.0, 0.0], ["O", -0.63, 1.0912, 0.0], ["O", -0.63, -1.0912, 0.0]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5]], "lp": []}, "so3m": {"name": "SO₃²⁻ 亚硫酸根", "formula": "SO₃²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 S 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。三角锥形。", "atoms": [["S", 0.0, 0.0, 0.0], ["O", 0.8603, 0.8603, 0.8603], ["O", 0.8603, -0.8603, -0.8603], ["O", -0.8603, 0.8603, -0.8603], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5]], "lp": [[4]]}, "so4m": {"name": "SO₄²⁻ 硫酸根", "formula": "SO₄²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 S 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。正四面体形，S-O 键共振等同。", "atoms": [["S", 0.0, 0.0, 0.0], ["O", 0.8603, 0.8603, 0.8603], ["O", 0.8603, -0.8603, -0.8603], ["O", -0.8603, 0.8603, -0.8603], ["O", -0.8603, -0.8603, 0.8603]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5], [0, 4, 1.5]], "lp": []}, "po4m": {"name": "PO₄³⁻ 磷酸根", "formula": "PO₄³⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 P 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["P", 0.0, 0.0, 0.0], ["O", 0.8949, 0.8949, 0.8949], ["O", 0.8949, -0.8949, -0.8949], ["O", -0.8949, 0.8949, -0.8949], ["O", -0.8949, -0.8949, 0.8949]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5], [0, 4, 1.5]], "lp": []}, "clo4m": {"name": "ClO₄⁻ 高氯酸根", "formula": "ClO₄⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Cl 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。", "atoms": [["Cl", 0.0, 0.0, 0.0], ["O", 0.9128, 0.9128, 0.9128], ["O", 0.9128, -0.9128, -0.9128], ["O", -0.9128, 0.9128, -0.9128], ["O", -0.9128, -0.9128, 0.9128]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5], [0, 4, 1.5]], "lp": []}, "clo3m": {"name": "ClO₃⁻ 氯酸根", "formula": "ClO₃⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 Cl 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。三角锥形。", "atoms": [["Cl", 0.0, 0.0, 0.0], ["O", 0.9128, 0.9128, 0.9128], ["O", 0.9128, -0.9128, -0.9128], ["O", -0.9128, 0.9128, -0.9128], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5]], "lp": [[4]]}, "bro3m": {"name": "BrO₃⁻ 溴酸根", "formula": "BrO₃⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 Br 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["Br", 0.0, 0.0, 0.0], ["O", 0.9988, 0.9988, 0.9988], ["O", 0.9988, -0.9988, -0.9988], ["O", -0.9988, 0.9988, -0.9988], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5]], "lp": [[4]]}, "io3m": {"name": "IO₃⁻ 碘酸根", "formula": "IO₃⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX3E1", "shape": "三角锥形", "hyb": "sp³", "angle": "≈107°", "desc": "中心 I 原子 sp³ 杂化，3 个成键电子对、1 对孤电子对，三角锥形，键角 ≈107°。", "atoms": [["I", 0.0, 0.0, 0.0], ["O", 1.1004, 1.1004, 1.1004], ["O", 1.1004, -1.1004, -1.1004], ["O", -1.1004, 1.1004, -1.1004], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5]], "lp": [[4]]}, "clo2m": {"name": "ClO₂⁻ 亚氯酸根", "formula": "ClO₂⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX2E2", "shape": "V 形", "hyb": "sp³", "angle": "≈104.5°", "desc": "中心 Cl 原子 sp³ 杂化，2 个成键电子对、2 对孤电子对，V 形，键角 ≈104.5°。V 形。", "atoms": [["Cl", 0.0, 0.0, 0.0], ["O", 0.9128, 0.9128, 0.9128], ["O", 0.9128, -0.9128, -0.9128], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1.5], [0, 2, 1.5]], "lp": [[3], [4]]}, "clom": {"name": "ClO⁻ 次氯酸根", "formula": "ClO⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX1E3", "shape": "直线形", "hyb": "sp³", "angle": "—", "desc": "中心 Cl 原子 sp³ 杂化，1 个成键电子对、3 对孤电子对，直线形，键角 —。84 消毒液的有效成分。", "atoms": [["Cl", 0.0, 0.0, 0.0], ["O", 0.9815, 0.9815, 0.9815], ["Lp", 0.6062, -0.6062, -0.6062], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4]]}, "mno4m": {"name": "MnO₄⁻ 高锰酸根", "formula": "MnO₄⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Mn 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。正四面体形，紫红色，强氧化剂。", "atoms": [["Mn", 0.0, 0.0, 0.0], ["O", 0.9238, 0.9238, 0.9238], ["O", 0.9238, -0.9238, -0.9238], ["O", -0.9238, 0.9238, -0.9238], ["O", -0.9238, -0.9238, 0.9238]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5], [0, 4, 1.5]], "lp": []}, "mno42m": {"name": "MnO₄²⁻ 锰酸根", "formula": "MnO₄²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Mn 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。绿色。", "atoms": [["Mn", 0.0, 0.0, 0.0], ["O", 0.9238, 0.9238, 0.9238], ["O", 0.9238, -0.9238, -0.9238], ["O", -0.9238, 0.9238, -0.9238], ["O", -0.9238, -0.9238, 0.9238]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5], [0, 4, 1.5]], "lp": []}, "cro4m": {"name": "CrO₄²⁻ 铬酸根", "formula": "CrO₄²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 Cr 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。黄色，与重铬酸根存在平衡。", "atoms": [["Cr", 0.0, 0.0, 0.0], ["O", 0.9526, 0.9526, 0.9526], ["O", 0.9526, -0.9526, -0.9526], ["O", -0.9526, 0.9526, -0.9526], ["O", -0.9526, -0.9526, 0.9526]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5], [0, 4, 1.5]], "lp": []}, "bf4m": {"name": "BF₄⁻ 四氟硼酸根", "formula": "BF₄⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 B 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。B 接受 F⁻ 孤对形成配位键。", "atoms": [["B", 0.0, 0.0, 0.0], ["F", 0.7506, 0.7506, 0.7506], ["F", 0.7506, -0.7506, -0.7506], ["F", -0.7506, 0.7506, -0.7506], ["F", -0.7506, -0.7506, 0.7506]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "pf6m": {"name": "PF₆⁻ 六氟磷酸根", "formula": "PF₆⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX6", "shape": "正八面体形", "hyb": "sp³d²", "angle": "90°", "desc": "中心 P 原子 sp³d² 杂化，6 个成键电子对、0 对孤电子对，正八面体形，键角 90°。", "atoms": [["P", 0.0, 0.0, 0.0], ["F", 1.54, 0.0, 0.0], ["F", -1.54, 0.0, 0.0], ["F", 0.0, 1.54, 0.0], ["F", 0.0, -1.54, 0.0], ["F", 0.0, 0.0, 1.54], ["F", 0.0, 0.0, -1.54]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1]], "lp": []}, "sif6m": {"name": "SiF₆²⁻ 六氟合硅酸根", "formula": "SiF₆²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX6", "shape": "正八面体形", "hyb": "sp³d²", "angle": "90°", "desc": "中心 Si 原子 sp³d² 杂化，6 个成键电子对、0 对孤电子对，正八面体形，键角 90°。", "atoms": [["Si", 0.0, 0.0, 0.0], ["F", 1.6, 0.0, 0.0], ["F", -1.6, 0.0, 0.0], ["F", 0.0, 1.6, 0.0], ["F", 0.0, -1.6, 0.0], ["F", 0.0, 0.0, 1.6], ["F", 0.0, 0.0, -1.6]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1]], "lp": []}, "alf6m": {"name": "AlF₆³⁻ 六氟合铝酸根", "formula": "AlF₆³⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX6", "shape": "正八面体形", "hyb": "sp³d²", "angle": "90°", "desc": "中心 Al 原子 sp³d² 杂化，6 个成键电子对、0 对孤电子对，正八面体形，键角 90°。冰晶石 Na₃AlF₆ 的组成部分。", "atoms": [["Al", 0.0, 0.0, 0.0], ["F", 1.7, 0.0, 0.0], ["F", -1.7, 0.0, 0.0], ["F", 0.0, 1.7, 0.0], ["F", 0.0, -1.7, 0.0], ["F", 0.0, 0.0, 1.7], ["F", 0.0, 0.0, -1.7]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1]], "lp": []}, "i3m": {"name": "I₃⁻ 三碘离子", "formula": "I₃⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX2E3", "shape": "直线形", "hyb": "sp³d", "angle": "180°", "desc": "中心 I 原子 sp³d 杂化，2 个成键电子对、3 对孤电子对，直线形，键角 180°。直线形：3 对孤对占赤道位。碘酒中 I₂ 溶于 KI 的产物。", "atoms": [["I", 0.0, 0.0, 0.0], ["I", 0.0, 0.0, 2.66], ["I", 0.0, 0.0, -2.66], ["Lp", 1.05, 0.0, 0.0], ["Lp", -0.525, 0.9093, 0.0], ["Lp", -0.525, -0.9093, 0.0]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4], [5]]}, "nh2m": {"name": "NH₂⁻ 氨基负离子", "formula": "NH₂⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "AX2E2", "shape": "V 形", "hyb": "sp³", "angle": "≈104.5°", "desc": "中心 N 原子 sp³ 杂化，2 个成键电子对、2 对孤电子对，V 形，键角 ≈104.5°。", "atoms": [["N", 0.0, 0.0, 0.0], ["H", 0.5831, 0.5831, 0.5831], ["H", 0.5831, -0.5831, -0.5831], ["Lp", -0.6062, 0.6062, -0.6062], ["Lp", -0.6062, -0.6062, 0.6062]], "bonds": [[0, 1, 1], [0, 2, 1]], "lp": [[3], [4]]}, "scnm": {"name": "SCN⁻ 硫氰酸根", "formula": "SCN⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp 杂化·AX2·直线形。直线形，检验 Fe³⁺ 的试剂（生成红色配合物）。", "atoms": [["C", 0.0, 0.0, 0.0], ["S", 1.82, 0.0, 0.0], ["N", -1.16, 0.0, 0.0]], "bonds": [[0, 1, 1], [0, 2, 3]], "lp": []}, "ocnm": {"name": "OCN⁻ 氰酸根", "formula": "OCN⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp 杂化·AX2·直线形。", "atoms": [["C", 0.0, 0.0, 0.0], ["N", 1.16, 0.0, 0.0], ["O", -1.43, 0.0, 0.0]], "bonds": [[0, 1, 3], [0, 2, 1]], "lp": []}, "n3m": {"name": "N₃⁻ 叠氮根", "formula": "N₃⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp 杂化·AX2·直线形。直线形，与 CO₂ 等电子，汽车安全气囊的原理物质。", "atoms": [["N", 0.0, 0.0, 0.0], ["N", 1.25, 0.0, 0.0], ["N", -1.25, 0.0, 0.0]], "bonds": [[0, 1, 2], [0, 2, 2]], "lp": []}, "o2m2": {"name": "O₂²⁻ 过氧根", "formula": "O₂²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "O1：sp³ 杂化·AX1E3·直线形；O2：sp³ 杂化·AX1E3·直线形。Na₂O₂、H₂O₂ 中的过氧结构，O-O 单键。", "atoms": [["O", 0.0, 0.0, 0.0], ["O", 0.8545, 0.8545, 0.8545], ["Lp", 0.5774, -0.5774, -0.5774], ["Lp", -0.5774, 0.5774, -0.5774], ["Lp", -0.5774, -0.5774, 0.5774], ["Lp", 1.0469, 0.3803, 1.7136], ["Lp", 0.3803, 1.7136, 1.0469], ["Lp", 1.7136, 1.0469, 0.3803]], "bonds": [[0, 1, 1]], "lp": [[2], [3], [4], [5], [6], [7]]}, "hco3m": {"name": "HCO₃⁻ 碳酸氢根", "formula": "HCO₃⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；O2：sp² 杂化·AX1E2·直线形；O3：sp³ 杂化·AX1E3·直线形；O4：sp³ 杂化·AX2E2·V 形。平面三角形骨架，1 个 C=O、1 个 C-O⁻、1 个 C-OH。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["O", -0.715, 1.2384, 0.0], ["O", -0.715, -1.2384, 0.0], ["Lp", 1.73, -0.866, 0.0], ["Lp", 1.73, 0.866, 0.0], ["Lp", -0.8817, 1.5271, 0.9428], ["Lp", -1.5888, 1.1188, -0.4714], ["Lp", -0.1746, 1.9353, -0.4714], ["Lp", -1.5522, -1.14, -0.538], ["Lp", -0.9499, -1.4877, 0.9395], ["H", -0.1658, -1.925, -0.3855]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [3, 11, 1]], "lp": [[4], [5], [6], [7], [8], [9], [10]]}, "hcoom": {"name": "HCOO⁻ 甲酸根", "formula": "HCOO⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；O2：sp² 杂化·AX1E2·直线形；O3：sp³ 杂化·AX1E3·直线形。2 个 C-O 键共振等同。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["O", -0.715, 1.2384, 0.0], ["H", -0.545, -0.944, 0.0], ["Lp", 1.73, -0.866, 0.0], ["Lp", 1.73, 0.866, 0.0], ["Lp", -0.8817, 1.5271, 0.9428], ["Lp", -1.5888, 1.1188, -0.4714], ["Lp", -0.1746, 1.9353, -0.4714]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1]], "lp": [[4], [5], [6], [7], [8]]}, "ch3coom": {"name": "CH₃COO⁻ 乙酸根", "formula": "CH₃COO⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp² 杂化·AX3·平面三角形；O3：sp² 杂化·AX1E2·直线形；O4：sp³ 杂化·AX1E3·直线形。羧基 2 个 C-O 键共振等同，甲基为四面体。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["O", 1.2442, 1.9974, 0.491], ["O", 1.3019, 0.4262, 2.1776], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Lp", 1.035, 2.2834, -0.4441], ["Lp", 1.7421, 2.6125, 1.1024], ["Lp", 1.4215, 1.2077, 2.79], ["Lp", 2.168, -0.0666, 2.0931], ["Lp", 0.605, -0.1861, 2.5508]], "bonds": [[0, 1, 1], [1, 2, 2], [1, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1]], "lp": [[7], [8], [9], [10], [11]]}, "hso4m": {"name": "HSO₄⁻ 硫酸氢根", "formula": "HSO₄⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "S1：sp³ 杂化·AX4·正四面体形；O2：sp² 杂化·AX1E2·直线形；O3：sp² 杂化·AX1E2·直线形；O4：sp² 杂化·AX1E2·直线形；O5：sp³ 杂化·AX2E2·V 形。", "atoms": [["S", 0.0, 0.0, 0.0], ["O", 0.8603, 0.8603, 0.8603], ["O", 0.8603, -0.8603, -0.8603], ["O", -0.8603, 0.8603, -0.8603], ["O", -0.9238, -0.9238, 0.9238], ["Lp", 1.1489, 1.7613, 0.5366], ["Lp", 1.1489, 0.5366, 1.7613], ["Lp", 1.1489, -0.5366, -1.7613], ["Lp", 1.1489, -1.7613, -0.5366], ["Lp", -0.5366, 1.7613, -1.1489], ["Lp", -1.7613, 0.5366, -1.1489], ["Lp", -0.4495, -1.7829, 1.1162], ["Lp", -1.7829, -1.1162, 0.4495], ["H", -1.1085, -0.4685, 1.7485]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5], [0, 4, 1], [4, 13, 1]], "lp": [[5], [6], [7], [8], [9], [10], [11], [12]]}, "hpo4m": {"name": "HPO₄²⁻ 磷酸氢根", "formula": "HPO₄²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "P1：sp³ 杂化·AX4·正四面体形；O2：sp² 杂化·AX1E2·直线形；O3：sp² 杂化·AX1E2·直线形；O4：sp² 杂化·AX1E2·直线形；O5：sp³ 杂化·AX2E2·V 形。", "atoms": [["P", 0.0, 0.0, 0.0], ["O", 0.8949, 0.8949, 0.8949], ["O", 0.8949, -0.8949, -0.8949], ["O", -0.8949, 0.8949, -0.8949], ["O", -0.9238, -0.9238, 0.9238], ["Lp", 1.1836, 1.7959, 0.5712], ["Lp", 1.1836, 0.5712, 1.7959], ["Lp", 1.1836, -0.5712, -1.7959], ["Lp", 1.1836, -1.7959, -0.5712], ["Lp", -0.5712, 1.7959, -1.1836], ["Lp", -1.7959, 0.5712, -1.1836], ["Lp", -0.4495, -1.7829, 1.1162], ["Lp", -1.7829, -1.1162, 0.4495], ["H", -1.1085, -0.4685, 1.7485]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1.5], [0, 4, 1], [4, 13, 1]], "lp": [[5], [6], [7], [8], [9], [10], [11], [12]]}, "h2po4m": {"name": "H₂PO₄⁻ 磷酸二氢根", "formula": "H₂PO₄⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "P1：sp³ 杂化·AX4·正四面体形；O2：sp² 杂化·AX1E2·直线形；O3：sp² 杂化·AX1E2·直线形；O4：sp³ 杂化·AX2E2·V 形；O5：sp³ 杂化·AX2E2·V 形。", "atoms": [["P", 0.0, 0.0, 0.0], ["O", 0.8949, 0.8949, 0.8949], ["O", 0.8949, -0.8949, -0.8949], ["O", -0.9238, 0.9238, -0.9238], ["O", -0.9238, -0.9238, 0.9238], ["Lp", 1.1836, 1.7959, 0.5712], ["Lp", 1.1836, 0.5712, 1.7959], ["Lp", 1.1836, -0.5712, -1.7959], ["Lp", 1.1836, -1.7959, -0.5712], ["Lp", -1.1162, 0.4495, -1.7829], ["Lp", -0.4495, 1.7829, -1.1162], ["H", -1.7485, 1.1085, -0.4685], ["Lp", -0.4495, -1.7829, 1.1162], ["Lp", -1.7829, -1.1162, 0.4495], ["H", -1.1085, -0.4685, 1.7485]], "bonds": [[0, 1, 1.5], [0, 2, 1.5], [0, 3, 1], [0, 4, 1], [3, 11, 1], [4, 14, 1]], "lp": [[5], [6], [7], [8], [9], [10], [12], [13]]}, "cr2o7m": {"name": "Cr₂O₇²⁻ 重铬酸根", "formula": "Cr₂O₇²⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "Cr1：sp³ 杂化·AX4·正四面体形；Cr2：sp³ 杂化·AX4·正四面体形；O3：sp³ 杂化·AX2E2·V 形。2 个 CrO₄ 四面体共用 1 个顶点 O，橙色，强氧化剂。", "atoms": [["Cr", 0.0, 0.0, 0.0], ["Cr", 1.2702, 0.1702, 2.3702], ["O", 0.9526, 0.9526, 0.9526], ["O", 0.9526, -0.9526, -0.9526], ["O", -0.9526, 0.9526, -0.9526], ["O", -0.9526, -0.9526, 0.9526], ["O", 1.2778, -1.4591, 2.1094], ["O", 0.1058, 0.5444, 3.4778], ["O", 2.7444, 0.6427, 2.9409], ["Lp", 0.4784, 1.8117, 1.1451], ["Lp", 1.8117, 1.1451, 0.4784]], "bonds": [[0, 2, 1], [1, 2, 1], [0, 3, 1.5], [0, 4, 1.5], [0, 5, 1.5], [1, 6, 1.5], [1, 7, 1.5], [1, 8, 1.5]], "lp": [[9], [10]]}, "aloh4m": {"name": "[Al(OH)₄]⁻ 四羟基合铝酸根", "formula": "[Al(OH)₄]⁻", "cat": "ion", "sub": "anion", "catLabel": "离子团", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "Al1：sp³ 杂化·AX4·正四面体形；O2：sp³ 杂化·AX2E2·V 形；O3：sp³ 杂化·AX2E2·V 形；O4：sp³ 杂化·AX2E2·V 形；O5：sp³ 杂化·AX2E2·V 形。Al(OH)₃ 溶于强碱的产物（旧教材写作 AlO₂⁻）。", "atoms": [["Al", 0.0, 0.0, 0.0], ["O", 1.0796, 1.0796, 1.0796], ["O", 1.0796, -1.0796, -1.0796], ["O", -1.0796, 1.0796, -1.0796], ["O", -1.0796, -1.0796, 1.0796], ["Lp", 1.2721, 0.6054, 1.9388], ["Lp", 0.6054, 1.9388, 1.2721], ["H", 1.9044, 1.2644, 0.6244], ["Lp", 1.2721, -1.9388, -0.6054], ["Lp", 1.9388, -0.6054, -1.2721], ["H", 0.6244, -1.2644, -1.9044], ["Lp", -1.2721, 0.6054, -1.9388], ["Lp", -0.6054, 1.9388, -1.2721], ["H", -1.9044, 1.2644, -0.6244], ["Lp", -0.6054, -1.9388, 1.2721], ["Lp", -1.9388, -1.2721, 0.6054], ["H", -1.2644, -0.6244, 1.9044]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 7, 1], [2, 10, 1], [3, 13, 1], [4, 16, 1]], "lp": [[5], [6], [8], [9], [11], [12], [14], [15]]}, "ch4": {"name": "CH₄ 甲烷", "formula": "CH₄", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "AX4", "shape": "正四面体形", "hyb": "sp³", "angle": "109°28′", "desc": "中心 C 原子 sp³ 杂化，4 个成键电子对、0 对孤电子对，正四面体形，键角 109°28′。最简单的有机物，天然气主要成分。", "atoms": [["C", 0.0, 0.0, 0.0], ["H", 0.6293, 0.6293, 0.6293], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "c2h6": {"name": "C₂H₆ 乙烷", "formula": "C₂H₆", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形。C-C 单键可旋转，交错式构象最稳定。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.0989, 0.3722, 1.8256], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1]], "lp": []}, "c3h8": {"name": "C₃H₈ 丙烷", "formula": "C₃H₈", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 3 个）：sp³ 杂化·AX4·正四面体形。液化石油气主要成分。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.1855, 0.1588, 2.2122], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["H", 1.1905, -0.9175, 2.0399], ["H", 0.4163, 0.4061, 2.9438], ["H", 2.1594, 0.471, 2.5892]], "bonds": [[0, 1, 1], [1, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1]], "lp": []}, "c4h10": {"name": "C₄H₁₀ 正丁烷", "formula": "C₄H₁₀", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 4 个）：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.1855, 0.1588, 2.2122], ["C", 1.1926, -1.3618, 1.9687], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["H", 0.4163, 0.4061, 2.9438], ["H", 2.1594, 0.471, 2.5892], ["H", 0.1879, -1.758, 2.116], ["H", 1.8777, -1.8388, 2.6696], ["H", 1.5172, -1.5649, 0.9482]], "bonds": [[0, 1, 1], [1, 2, 1], [2, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1], [1, 7, 1], [1, 8, 1], [2, 9, 1], [2, 10, 1], [3, 11, 1], [3, 12, 1], [3, 13, 1]], "lp": []}, "ic4h10": {"name": "C₄H₁₀ 异丁烷（2-甲基丙烷）", "formula": "C₄H₁₀", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 4 个）：sp³ 杂化·AX4·正四面体形。正丁烷的同分异构体，中心碳为叔碳。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 0.8891, -0.8891, -0.8891], ["C", -0.8891, 0.8891, -0.8891], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.0989, 0.3722, 1.8256], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["H", 1.0989, -1.8256, -0.3722], ["H", 1.8256, -0.3722, -1.0989], ["H", 0.3722, -1.0989, -1.8256], ["H", -1.0989, 0.3722, -1.8256], ["H", -0.3722, 1.8256, -1.0989], ["H", -1.8256, 1.0989, -0.3722]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1], [3, 11, 1], [3, 12, 1], [3, 13, 1]], "lp": []}, "c5h12": {"name": "C₅H₁₂ 正戊烷", "formula": "C₅H₁₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 5 个）：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.1855, 0.1588, 2.2122], ["C", 1.1926, -1.3618, 1.9687], ["C", -0.2269, -1.9216, 2.1769], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["H", 0.4163, 0.4061, 2.9438], ["H", 2.1594, 0.471, 2.5892], ["H", 1.8777, -1.8388, 2.6696], ["H", 1.5172, -1.5649, 0.9482], ["H", -0.9588, -1.2005, 1.8131], ["H", -0.3934, -2.1042, 3.2385], ["H", -0.3331, -2.8564, 1.6264]], "bonds": [[0, 1, 1], [1, 2, 1], [2, 3, 1], [3, 4, 1], [0, 5, 1], [0, 6, 1], [0, 7, 1], [1, 8, 1], [1, 9, 1], [2, 10, 1], [2, 11, 1], [3, 12, 1], [3, 13, 1], [4, 14, 1], [4, 15, 1], [4, 16, 1]], "lp": []}, "cy3": {"name": "C₃H₆ 环丙烷", "formula": "C₃H₆", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 3 个）：sp³ 杂化·AX4·正四面体形。三元环张力极大（键角 60°），香蕉形弯曲键。", "atoms": [["C", 0.872, 0.0, 0.0], ["C", -0.436, 0.7552, 0.0], ["C", -0.436, -0.7552, 0.0], ["H", 1.5208, -0.0, 0.8759], ["H", 1.5208, -0.0, -0.8759], ["H", -0.7604, 1.317, -0.8759], ["H", -0.7604, 1.317, 0.8759], ["H", -0.7604, -1.317, -0.8759], ["H", -0.7604, -1.317, 0.8759]], "bonds": [[0, 1, 1], [1, 2, 1], [2, 0, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [2, 7, 1], [2, 8, 1]], "lp": []}, "cy6": {"name": "C₆H₁₂ 环己烷（椅式构象）", "formula": "C₆H₁₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 6 个）：sp³ 杂化·AX4·正四面体形。椅式构象最稳定，C-H 分直立键(a键)与平伏键(e键)。", "atoms": [["C", 1.452, 0.0, 0.2567], ["C", 0.726, 1.2575, -0.2567], ["C", -0.726, 1.2575, 0.2567], ["C", -1.452, 0.0, -0.2567], ["C", -0.726, -1.2575, 0.2567], ["C", 0.726, -1.2575, -0.2567], ["H", 1.476, 0.0, 1.3464], ["H", 2.4874, 0.0, -0.0838], ["H", 0.738, 1.2783, -1.3464], ["H", 1.2437, 2.1542, 0.0838], ["H", -1.2437, 2.1542, -0.0838], ["H", -0.738, 1.2783, 1.3464], ["H", -1.476, 0.0, -1.3464], ["H", -2.4874, 0.0, 0.0838], ["H", -1.2437, -2.1542, -0.0838], ["H", -0.738, -1.2783, 1.3464], ["H", 0.738, -1.2783, -1.3464], ["H", 1.2437, -2.1542, 0.0838]], "bonds": [[0, 1, 1], [1, 2, 1], [2, 3, 1], [3, 4, 1], [4, 5, 1], [5, 0, 1], [0, 6, 1], [0, 7, 1], [1, 8, 1], [1, 9, 1], [2, 10, 1], [2, 11, 1], [3, 12, 1], [3, 13, 1], [4, 14, 1], [4, 15, 1], [5, 16, 1], [5, 17, 1]], "lp": []}, "c2h4": {"name": "C₂H₄ 乙烯", "formula": "C₂H₄", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形。平面形分子，C=C 为 1 σ + 1 π，π 键不能旋转。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 1.34, 0.0, 0.0], ["H", -0.545, 0.944, 0.0], ["H", -0.545, -0.944, 0.0], ["H", 1.885, -0.944, 0.0], ["H", 1.885, 0.944, 0.0]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [1, 4, 1], [1, 5, 1]], "lp": []}, "c3h6": {"name": "C₃H₆ 丙烯", "formula": "C₃H₆", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp² 杂化·AX3·平面三角形；C3：sp² 杂化·AX3·平面三角形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.2759, 2.0965, 0.4554], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.2038, 0.5363, 1.8713], ["H", 1.0479, 2.4083, -0.5639], ["H", 1.8186, 2.7669, 1.1218]], "bonds": [[0, 1, 1], [1, 2, 2], [0, 3, 1], [0, 4, 1], [0, 5, 1], [1, 6, 1], [2, 7, 1], [2, 8, 1]], "lp": []}, "b1ene": {"name": "C₄H₈ 1-丁烯", "formula": "C₄H₈", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形；C3：sp³ 杂化·AX4·正四面体形；C4：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 1.34, 0.0, 0.0], ["C", 2.11, -1.3337, 0.0], ["C", 2.4234, -1.7455, 1.4504], ["H", -0.545, 0.944, 0.0], ["H", -0.545, -0.944, 0.0], ["H", 1.885, 0.944, 0.0], ["H", 3.0415, -1.2154, -0.5535], ["H", 1.5016, -2.1045, -0.4731], ["H", 2.5595, -2.8258, 1.5001], ["H", 1.5966, -1.4533, 2.0978], ["H", 3.336, -1.2488, 1.78]], "bonds": [[0, 1, 2], [1, 2, 1], [2, 3, 1], [0, 4, 1], [0, 5, 1], [1, 6, 1], [2, 7, 1], [2, 8, 1], [3, 9, 1], [3, 10, 1], [3, 11, 1]], "lp": []}, "b2ene": {"name": "C₄H₈ 2-丁烯", "formula": "C₄H₈", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp² 杂化·AX3·平面三角形；C3：sp² 杂化·AX3·平面三角形；C4：sp³ 杂化·AX4·正四面体形。双键两侧存在顺反异构（图示为反式）。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.2759, 2.0965, 0.4554], ["C", 0.9538, 2.537, -0.9847], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.2038, 0.5363, 1.8713], ["H", 1.8186, 2.7669, 1.1218], ["H", 0.0286, 2.0622, -1.3115], ["H", 1.7677, 2.2402, -1.6461], ["H", 0.8369, 3.6202, -1.0158]], "bonds": [[0, 1, 1], [1, 2, 2], [2, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1], [1, 7, 1], [2, 8, 1], [3, 9, 1], [3, 10, 1], [3, 11, 1]], "lp": []}, "b13diene": {"name": "C₄H₆ 1,3-丁二烯", "formula": "C₄H₆", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 4 个）：sp² 杂化·AX3·平面三角形。共轭二烯，π 电子离域，橡胶的单体骨架。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 1.34, 0.0, 0.0], ["C", 2.11, -1.3337, 0.0], ["C", 1.44, -2.4942, 0.0], ["H", -0.545, 0.944, 0.0], ["H", -0.545, -0.944, 0.0], ["H", 1.885, 0.944, 0.0], ["H", 3.2, -1.3337, 0.0], ["H", 0.35, -2.4942, 0.0], ["H", 1.985, -3.4381, 0.0]], "bonds": [[0, 1, 2], [1, 2, 1], [2, 3, 2], [0, 4, 1], [0, 5, 1], [1, 6, 1], [2, 7, 1], [3, 8, 1], [3, 9, 1]], "lp": []}, "c2h2": {"name": "C₂H₂ 乙炔", "formula": "C₂H₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp 杂化·AX2·直线形；C2：sp 杂化·AX2·直线形。直线形，C≡C 为 1 σ + 2 π，电石气。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 1.2, 0.0, 0.0], ["H", -1.09, 0.0, 0.0], ["H", 2.29, 0.0, 0.0]], "bonds": [[0, 1, 3], [0, 2, 1], [1, 3, 1]], "lp": []}, "c3h4": {"name": "C₃H₄ 丙炔", "formula": "C₃H₄", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp 杂化·AX2·直线形；C3：sp 杂化·AX2·直线形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.5819, 1.5819, 1.5819], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 2.2113, 2.2113, 2.2113]], "bonds": [[0, 1, 1], [1, 2, 3], [0, 3, 1], [0, 4, 1], [0, 5, 1], [2, 6, 1]], "lp": []}, "b1yne": {"name": "C₄H₆ 1-丁炔", "formula": "C₄H₆", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp 杂化·AX2·直线形；C2：sp 杂化·AX2·直线形；C3：sp³ 杂化·AX4·正四面体形；C4：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 1.2, 0.0, 0.0], ["C", 2.74, 0.0, 0.0], ["C", 3.2533, 1.0267, 1.0267], ["H", -1.09, 0.0, 0.0], ["H", 3.1033, 0.266, -0.9926], ["H", 3.1033, -0.9926, 0.266], ["H", 3.3744, 1.9956, 0.5422], ["H", 4.2135, 0.6958, 1.4225], ["H", 2.5354, 1.1153, 1.842]], "bonds": [[0, 1, 3], [1, 2, 1], [2, 3, 1], [0, 4, 1], [2, 5, 1], [2, 6, 1], [3, 7, 1], [3, 8, 1], [3, 9, 1]], "lp": []}, "b2yne": {"name": "C₄H₆ 2-丁炔", "formula": "C₄H₆", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp 杂化·AX2·直线形；C3：sp 杂化·AX2·直线形；C4：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.5819, 1.5819, 1.5819], ["C", 2.4711, 2.4711, 2.4711], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.8417, 3.1004, 3.1004], ["H", 3.1004, 3.1004, 1.8417], ["H", 3.1004, 1.8417, 3.1004]], "bonds": [[0, 1, 1], [1, 2, 3], [2, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1], [3, 7, 1], [3, 8, 1], [3, 9, 1]], "lp": []}, "benzene": {"name": "C₆H₆ 苯", "formula": "C₆H₆", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 6 个）：sp² 杂化·AX3·平面三角形。平面正六边形，π₆⁶ 大 π 键，6 个 C-C 键完全等同（介于单双键之间）。", "atoms": [["C", 1.4, 0.0, 0.0], ["C", 0.7, 1.2124, 0.0], ["C", -0.7, 1.2124, 0.0], ["C", -1.4, 0.0, 0.0], ["C", -0.7, -1.2124, 0.0], ["C", 0.7, -1.2124, 0.0], ["H", 2.49, -0.0, 0.0], ["H", 1.245, 2.1564, 0.0], ["H", -1.245, 2.1564, 0.0], ["H", -2.49, 0.0, 0.0], ["H", -1.245, -2.1564, 0.0], ["H", 1.245, -2.1564, 0.0]], "bonds": [[0, 1, 1.5], [1, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 0, 1.5], [0, 6, 1], [1, 7, 1], [2, 8, 1], [3, 9, 1], [4, 10, 1], [5, 11, 1]], "lp": []}, "toluene": {"name": "C₇H₈ 甲苯", "formula": "C₇H₈", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形；C3：sp² 杂化·AX3·平面三角形；C4：sp² 杂化·AX3·平面三角形；C5：sp² 杂化·AX3·平面三角形；C6：sp² 杂化·AX3·平面三角形；C7：sp³ 杂化·AX4·正四面体形。甲基使苯环邻对位活化。", "atoms": [["C", 1.4, 0.0, 0.0], ["C", 0.7, 1.2124, 0.0], ["C", -0.7, 1.2124, 0.0], ["C", -1.4, 0.0, 0.0], ["C", -0.7, -1.2124, 0.0], ["C", 0.7, -1.2124, 0.0], ["C", 2.94, -0.0, 0.0], ["H", 1.245, 2.1564, 0.0], ["H", -1.245, 2.1564, 0.0], ["H", -2.49, 0.0, 0.0], ["H", -1.245, -2.1564, 0.0], ["H", 1.245, -2.1564, 0.0], ["H", 3.3033, -0.89, 0.5138], ["H", 3.3033, 0.89, 0.5138], ["H", 3.3033, -0.0, -1.0277]], "bonds": [[0, 1, 1.5], [1, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 0, 1.5], [0, 6, 1], [1, 7, 1], [2, 8, 1], [3, 9, 1], [4, 10, 1], [5, 11, 1], [6, 12, 1], [6, 13, 1], [6, 14, 1]], "lp": []}, "phenol": {"name": "C₆H₆O 苯酚", "formula": "C₆H₆O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形；C3：sp² 杂化·AX3·平面三角形；C4：sp² 杂化·AX3·平面三角形；C5：sp² 杂化·AX3·平面三角形；C6：sp² 杂化·AX3·平面三角形；O7：sp³ 杂化·AX2E2·V 形。羟基直接连苯环，弱酸性（石炭酸）。", "atoms": [["C", 1.4, 0.0, 0.0], ["C", 0.7, 1.2124, 0.0], ["C", -0.7, 1.2124, 0.0], ["C", -1.4, 0.0, 0.0], ["C", -0.7, -1.2124, 0.0], ["C", 0.7, -1.2124, 0.0], ["O", 2.83, -0.0, 0.0], ["H", 1.245, 2.1564, 0.0], ["H", -1.245, 2.1564, 0.0], ["H", -2.49, 0.0, 0.0], ["H", -1.245, -2.1564, 0.0], ["H", 1.245, -2.1564, 0.0], ["Lp", 3.1633, -0.8165, 0.4714], ["Lp", 3.1633, 0.8165, 0.4714], ["H", 3.15, -0.0, -0.9051]], "bonds": [[0, 1, 1.5], [1, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 0, 1.5], [0, 6, 1], [1, 7, 1], [2, 8, 1], [3, 9, 1], [4, 10, 1], [5, 11, 1], [6, 14, 1]], "lp": [[12], [13]]}, "aniline": {"name": "C₆H₇N 苯胺", "formula": "C₆H₇N", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形；C3：sp² 杂化·AX3·平面三角形；C4：sp² 杂化·AX3·平面三角形；C5：sp² 杂化·AX3·平面三角形；C6：sp² 杂化·AX3·平面三角形；N7：sp³ 杂化·AX3E1·三角锥形。氨基的孤对电子与苯环共轭，碱性弱于脂肪胺。", "atoms": [["C", 1.4, 0.0, 0.0], ["C", 0.7, 1.2124, 0.0], ["C", -0.7, 1.2124, 0.0], ["C", -1.4, 0.0, 0.0], ["C", -0.7, -1.2124, 0.0], ["C", 0.7, -1.2124, 0.0], ["N", 2.87, -0.0, 0.0], ["H", 1.245, 2.1564, 0.0], ["H", -1.245, 2.1564, 0.0], ["H", -2.49, 0.0, 0.0], ["H", -1.245, -2.1564, 0.0], ["H", 1.245, -2.1564, 0.0], ["Lp", 3.2033, -0.8165, 0.4714], ["H", 3.2067, 0.8247, 0.4761], ["H", 3.2067, -0.0, -0.9522]], "bonds": [[0, 1, 1.5], [1, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 0, 1.5], [0, 6, 1], [1, 7, 1], [2, 8, 1], [3, 9, 1], [4, 10, 1], [5, 11, 1], [6, 13, 1], [6, 14, 1]], "lp": [[12]]}, "chlorobenzene": {"name": "C₆H₅Cl 氯苯", "formula": "C₆H₅Cl", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 6 个）：sp² 杂化·AX3·平面三角形。Cl 与苯环 p-π 共轭，C-Cl 键难断裂。", "atoms": [["C", 1.4, 0.0, 0.0], ["C", 0.7, 1.2124, 0.0], ["C", -0.7, 1.2124, 0.0], ["C", -1.4, 0.0, 0.0], ["C", -0.7, -1.2124, 0.0], ["C", 0.7, -1.2124, 0.0], ["Cl", 3.17, -0.0, 0.0], ["H", 1.245, 2.1564, 0.0], ["H", -1.245, 2.1564, 0.0], ["H", -2.49, 0.0, 0.0], ["H", -1.245, -2.1564, 0.0], ["H", 1.245, -2.1564, 0.0]], "bonds": [[0, 1, 1.5], [1, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 0, 1.5], [0, 6, 1], [1, 7, 1], [2, 8, 1], [3, 9, 1], [4, 10, 1], [5, 11, 1]], "lp": []}, "benzoic": {"name": "C₇H₆O₂ 苯甲酸", "formula": "C₇H₆O₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形；C3：sp² 杂化·AX3·平面三角形；C4：sp² 杂化·AX3·平面三角形；C5：sp² 杂化·AX3·平面三角形；C6：sp² 杂化·AX3·平面三角形；C7：sp² 杂化·AX3·平面三角形；O8：sp² 杂化·AX1E2·直线形；O9：sp³ 杂化·AX2E2·V 形。常用食品防腐剂。", "atoms": [["C", 1.4, 0.0, 0.0], ["C", 0.7, 1.2124, 0.0], ["C", -0.7, 1.2124, 0.0], ["C", -1.4, 0.0, 0.0], ["C", -0.7, -1.2124, 0.0], ["C", 0.7, -1.2124, 0.0], ["C", 2.94, -0.0, 0.0], ["O", 3.555, -1.0652, 0.0], ["O", 3.655, 1.2384, 0.0], ["H", 1.245, 2.1564, 0.0], ["H", -1.245, 2.1564, 0.0], ["H", -2.49, 0.0, 0.0], ["H", -1.245, -2.1564, 0.0], ["H", 1.245, -2.1564, 0.0], ["Lp", 3.055, -1.9312, 0.0], ["Lp", 4.555, -1.0652, 0.0], ["Lp", 4.5288, 1.1188, -0.4714], ["Lp", 3.8217, 1.5271, 0.9428], ["H", 3.1362, 1.9075, -0.4525]], "bonds": [[0, 1, 1.5], [1, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 0, 1.5], [0, 6, 1], [6, 7, 2], [6, 8, 1], [1, 9, 1], [2, 10, 1], [3, 11, 1], [4, 12, 1], [5, 13, 1], [8, 18, 1]], "lp": [[14], [15], [16], [17]]}, "benzaldehyde": {"name": "C₇H₆O 苯甲醛", "formula": "C₇H₆O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形；C3：sp² 杂化·AX3·平面三角形；C4：sp² 杂化·AX3·平面三角形；C5：sp² 杂化·AX3·平面三角形；C6：sp² 杂化·AX3·平面三角形；C7：sp² 杂化·AX3·平面三角形；O8：sp² 杂化·AX1E2·直线形。苦杏仁气味。", "atoms": [["C", 1.4, 0.0, 0.0], ["C", 0.7, 1.2124, 0.0], ["C", -0.7, 1.2124, 0.0], ["C", -1.4, 0.0, 0.0], ["C", -0.7, -1.2124, 0.0], ["C", 0.7, -1.2124, 0.0], ["C", 2.94, -0.0, 0.0], ["O", 3.555, -1.0652, 0.0], ["H", 1.245, 2.1564, 0.0], ["H", -1.245, 2.1564, 0.0], ["H", -2.49, 0.0, 0.0], ["H", -1.245, -2.1564, 0.0], ["H", 1.245, -2.1564, 0.0], ["H", 3.485, 0.944, 0.0], ["Lp", 3.055, -1.9312, 0.0], ["Lp", 4.555, -1.0652, 0.0]], "bonds": [[0, 1, 1.5], [1, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 0, 1.5], [0, 6, 1], [6, 7, 2], [1, 8, 1], [2, 9, 1], [3, 10, 1], [4, 11, 1], [5, 12, 1], [6, 13, 1]], "lp": [[14], [15]]}, "styrene": {"name": "C₈H₈ 苯乙烯", "formula": "C₈H₈", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 8 个）：sp² 杂化·AX3·平面三角形。聚苯乙烯塑料的单体，整体共平面共轭。", "atoms": [["C", 1.4, 0.0, 0.0], ["C", 0.7, 1.2124, 0.0], ["C", -0.7, 1.2124, 0.0], ["C", -1.4, 0.0, 0.0], ["C", -0.7, -1.2124, 0.0], ["C", 0.7, -1.2124, 0.0], ["C", 2.94, -0.0, 0.0], ["C", 3.61, -1.1605, 0.0], ["H", 1.245, 2.1564, 0.0], ["H", -1.245, 2.1564, 0.0], ["H", -2.49, 0.0, 0.0], ["H", -1.245, -2.1564, 0.0], ["H", 1.245, -2.1564, 0.0], ["H", 3.485, 0.944, 0.0], ["H", 3.065, -2.1044, 0.0], ["H", 4.7, -1.1605, 0.0]], "bonds": [[0, 1, 1.5], [1, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 0, 1.5], [0, 6, 1], [6, 7, 2], [1, 8, 1], [2, 9, 1], [3, 10, 1], [4, 11, 1], [5, 12, 1], [6, 13, 1], [7, 14, 1], [7, 15, 1]], "lp": []}, "naphthalene": {"name": "C₁₀H₈ 萘", "formula": "C₁₀H₈", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "每个 C（共 10 个）：sp² 杂化·AX3·平面三角形。两个苯环稠合，π₁₀¹⁰ 离域，卫生球（樟脑丸）的传统成分。", "atoms": [["C", 0.0, 0.7, 0.0], ["C", 0.0, -0.7, 0.0], ["C", -1.2124, 1.4, 0.0], ["C", -2.4249, 0.7, 0.0], ["C", -2.4249, -0.7, 0.0], ["C", -1.2124, -1.4, 0.0], ["C", 1.2124, 1.4, 0.0], ["C", 2.4249, 0.7, 0.0], ["C", 2.4249, -0.7, 0.0], ["C", 1.2124, -1.4, 0.0], ["H", -1.2124, 2.49, 0.0], ["H", -3.3688, 1.245, 0.0], ["H", -3.3688, -1.245, 0.0], ["H", -1.2124, -2.49, 0.0], ["H", 1.2124, 2.49, 0.0], ["H", 3.3688, 1.245, 0.0], ["H", 3.3688, -1.245, 0.0], ["H", 1.2124, -2.49, 0.0]], "bonds": [[0, 2, 1.5], [2, 3, 1.5], [3, 4, 1.5], [4, 5, 1.5], [5, 1, 1.5], [1, 0, 1.5], [0, 6, 1.5], [6, 7, 1.5], [7, 8, 1.5], [8, 9, 1.5], [9, 1, 1.5], [2, 10, 1], [3, 11, 1], [4, 12, 1], [5, 13, 1], [6, 14, 1], [7, 15, 1], [8, 16, 1], [9, 17, 1]], "lp": []}, "meoh": {"name": "CH₄O 甲醇", "formula": "CH₄O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；O2：sp³ 杂化·AX2E2·V 形。工业酒精，有毒（致盲）。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 0.8256, 0.8256, 0.8256], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Lp", 1.0181, 0.3514, 1.6847], ["Lp", 0.3514, 1.6847, 1.0181], ["H", 1.6504, 1.0104, 0.3704]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 7, 1]], "lp": [[5], [6]]}, "etoh": {"name": "C₂H₆O 乙醇", "formula": "C₂H₆O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形；O3：sp³ 杂化·AX2E2·V 形。酒精的主要成分，O 为 V 形中心。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["O", 1.1643, 0.211, 2.1177], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["Lp", 1.1689, -0.7764, 1.9596], ["Lp", 0.4587, 0.4378, 2.7889], ["H", 2.0221, 0.4859, 2.4497]], "bonds": [[0, 1, 1], [1, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [1, 6, 1], [1, 7, 1], [2, 10, 1]], "lp": [[8], [9]]}, "proh1": {"name": "C₃H₈O 1-丙醇", "formula": "C₃H₈O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形；C3：sp³ 杂化·AX4·正四面体形；O4：sp³ 杂化·AX2E2·V 形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.1855, 0.1588, 2.2122], ["O", 1.1921, -1.2532, 1.9861], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["H", 0.4163, 0.4061, 2.9438], ["H", 2.1594, 0.471, 2.5892], ["Lp", 0.2703, -1.6167, 2.1213], ["Lp", 1.8206, -1.6908, 2.6292], ["H", 1.478, -1.432, 1.0873]], "bonds": [[0, 1, 1], [1, 2, 1], [2, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1], [1, 7, 1], [1, 8, 1], [2, 9, 1], [2, 10, 1], [3, 13, 1]], "lp": [[11], [12]]}, "proh2": {"name": "C₃H₈O 2-丙醇（异丙醇）", "formula": "C₃H₈O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形；C3：sp³ 杂化·AX4·正四面体形；O4：sp³ 杂化·AX2E2·V 形。常用消毒擦拭剂。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.1855, 0.1588, 2.2122], ["O", 0.211, 2.1177, 1.1643], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.8256, 1.0989, 0.3722], ["H", 1.1905, -0.9175, 2.0399], ["H", 0.4163, 0.4061, 2.9438], ["H", 2.1594, 0.471, 2.5892], ["Lp", -0.7764, 1.9596, 1.1689], ["Lp", 0.4378, 2.7889, 0.4587], ["H", 0.4859, 2.4497, 2.0221]], "bonds": [[0, 1, 1], [1, 2, 1], [1, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1], [3, 13, 1]], "lp": [[11], [12]]}, "eg": {"name": "C₂H₆O₂ 乙二醇", "formula": "C₂H₆O₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形；O3：sp³ 杂化·AX2E2·V 形；O4：sp³ 杂化·AX2E2·V 形。汽车防冻液主要成分。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["O", 0.8256, -0.8256, -0.8256], ["O", 1.1643, 0.211, 2.1177], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["Lp", 1.0181, -1.6847, -0.3514], ["Lp", 1.6847, -0.3514, -1.0181], ["H", 0.3704, -1.0104, -1.6504], ["Lp", 1.1689, -0.7764, 1.9596], ["Lp", 0.4587, 0.4378, 2.7889], ["H", 2.0221, 0.4859, 2.4497]], "bonds": [[0, 1, 1], [0, 2, 1], [1, 3, 1], [0, 4, 1], [0, 5, 1], [1, 6, 1], [1, 7, 1], [2, 10, 1], [3, 13, 1]], "lp": [[8], [9], [11], [12]]}, "glycerol": {"name": "C₃H₈O₃ 丙三醇（甘油）", "formula": "C₃H₈O₃", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形；C3：sp³ 杂化·AX4·正四面体形；O4：sp³ 杂化·AX2E2·V 形；O5：sp³ 杂化·AX2E2·V 形；O6：sp³ 杂化·AX2E2·V 形。护肤品保湿剂，硝酸甘油的母体。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["C", 1.1855, 0.1588, 2.2122], ["O", 0.8256, -0.8256, -0.8256], ["O", 0.211, 2.1177, 1.1643], ["O", 1.1921, -1.2532, 1.9861], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.8256, 1.0989, 0.3722], ["H", 0.4163, 0.4061, 2.9438], ["H", 2.1594, 0.471, 2.5892], ["Lp", 1.0181, -1.6847, -0.3514], ["Lp", 1.6847, -0.3514, -1.0181], ["H", 0.3704, -1.0104, -1.6504], ["Lp", -0.7764, 1.9596, 1.1689], ["Lp", 0.4378, 2.7889, 0.4587], ["H", 0.4859, 2.4497, 2.0221], ["Lp", 0.2703, -1.6167, 2.1213], ["Lp", 1.8206, -1.6908, 2.6292], ["H", 1.478, -1.432, 1.0873]], "bonds": [[0, 1, 1], [1, 2, 1], [0, 3, 1], [1, 4, 1], [2, 5, 1], [0, 6, 1], [0, 7, 1], [1, 8, 1], [2, 9, 1], [2, 10, 1], [3, 13, 1], [4, 16, 1], [5, 19, 1]], "lp": [[11], [12], [14], [15], [17], [18]]}, "dme": {"name": "C₂H₆O 甲醚", "formula": "C₂H₆O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；O2：sp³ 杂化·AX2E2·V 形；C3：sp³ 杂化·AX4·正四面体形。乙醇的同分异构体，O 为 V 形。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 0.8256, 0.8256, 0.8256], ["C", 1.1008, 0.1475, 2.0541], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Lp", 0.3514, 1.6847, 1.0181], ["Lp", 1.6847, 1.0181, 0.3514], ["H", 1.1058, -0.9288, 1.8818], ["H", 0.3317, 0.3947, 2.7858], ["H", 2.0747, 0.4596, 2.4312]], "bonds": [[0, 1, 1], [1, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1]], "lp": [[6], [7]]}, "dee": {"name": "C₄H₁₀O 乙醚", "formula": "C₄H₁₀O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形；O3：sp³ 杂化·AX2E2·V 形；C4：sp³ 杂化·AX4·正四面体形；C5：sp³ 杂化·AX4·正四面体形。早期麻醉剂。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["O", 1.1643, 0.211, 2.1177], ["C", 1.1709, -1.201, 1.8916], ["C", -0.2486, -1.7608, 2.0997], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722], ["Lp", 0.4587, 0.4378, 2.7889], ["Lp", 2.0578, 0.4974, 2.4636], ["H", 1.856, -1.678, 2.5925], ["H", 1.4955, -1.4041, 0.8711], ["H", -0.9805, -1.0397, 1.736], ["H", -0.4151, -1.9434, 3.1614], ["H", -0.3548, -2.6956, 1.5492]], "bonds": [[0, 1, 1], [1, 2, 1], [2, 3, 1], [3, 4, 1], [0, 5, 1], [0, 6, 1], [0, 7, 1], [1, 8, 1], [1, 9, 1], [3, 12, 1], [3, 13, 1], [4, 14, 1], [4, 15, 1], [4, 16, 1]], "lp": [[10], [11]]}, "eo": {"name": "C₂H₄O 环氧乙烷", "formula": "C₂H₄O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形；O3：sp³ 杂化·AX2E2·V 形。三元环醚，张力大易开环，医用消毒剂。", "atoms": [["C", -0.735, 0.0, 0.0], ["C", 0.735, 0.0, 0.0], ["O", 0.0, 1.204, 0.0], ["H", -1.3008, -0.3175, 0.8759], ["H", -1.3008, -0.3175, -0.8759], ["H", 1.3008, -0.3175, -0.8759], ["H", 1.3008, -0.3175, 0.8759], ["Lp", 0.0, 1.7992, -0.8036], ["Lp", 0.0, 1.7992, 0.8036]], "bonds": [[0, 1, 1], [1, 2, 1], [2, 0, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1]], "lp": [[7], [8]]}, "hcho": {"name": "CH₂O 甲醛", "formula": "CH₂O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；O2：sp² 杂化·AX1E2·直线形。平面三角形，福尔马林、装修污染的主角。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["H", -0.545, 0.944, 0.0], ["H", -0.545, -0.944, 0.0], ["Lp", 1.73, -0.866, 0.0], ["Lp", 1.73, 0.866, 0.0]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1]], "lp": [[4], [5]]}, "ch3cho": {"name": "C₂H₄O 乙醛", "formula": "C₂H₄O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp² 杂化·AX3·平面三角形；O3：sp² 杂化·AX1E2·直线形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["O", 1.2442, 1.9974, 0.491], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["H", 1.2038, 0.5363, 1.8713], ["Lp", 1.035, 2.2834, -0.4441], ["Lp", 1.7421, 2.6125, 1.1024]], "bonds": [[0, 1, 1], [1, 2, 2], [0, 3, 1], [0, 4, 1], [0, 5, 1], [1, 6, 1]], "lp": [[7], [8]]}, "acetone": {"name": "C₃H₆O 丙酮", "formula": "C₃H₆O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp² 杂化·AX3·平面三角形；O3：sp² 杂化·AX1E2·直线形；C4：sp³ 杂化·AX4·正四面体形。羰基平面三角形，常见有机溶剂。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["O", 1.2442, 1.9974, 0.491], ["C", 1.3337, 0.3906, 2.2767], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Lp", 1.035, 2.2834, -0.4441], ["Lp", 1.7421, 2.6125, 1.1024], ["H", 1.464, 1.2424, 2.9442], ["H", 2.2776, -0.1465, 2.1846], ["H", 0.574, -0.2769, 2.6835]], "bonds": [[0, 1, 1], [1, 2, 2], [1, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1], [3, 9, 1], [3, 10, 1], [3, 11, 1]], "lp": [[7], [8]]}, "hcooh": {"name": "CH₂O₂ 甲酸（蚁酸）", "formula": "CH₂O₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；O2：sp² 杂化·AX1E2·直线形；O3：sp³ 杂化·AX2E2·V 形。羧基为平面结构，C=O 与 C-OH 有明显区别。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["O", -0.715, 1.2384, 0.0], ["H", -0.545, -0.944, 0.0], ["Lp", 1.73, -0.866, 0.0], ["Lp", 1.73, 0.866, 0.0], ["Lp", -0.8817, 1.5271, 0.9428], ["Lp", -1.5888, 1.1188, -0.4714], ["H", -0.1962, 1.9075, -0.4525]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [2, 8, 1]], "lp": [[4], [5], [6], [7]]}, "ch3cooh": {"name": "C₂H₄O₂ 乙酸（醋酸）", "formula": "C₂H₄O₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp² 杂化·AX3·平面三角形；O3：sp² 杂化·AX1E2·直线形；O4：sp³ 杂化·AX2E2·V 形。食醋的主要成分。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["O", 1.2442, 1.9974, 0.491], ["O", 1.3019, 0.4262, 2.1776], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Lp", 1.035, 2.2834, -0.4441], ["Lp", 1.7421, 2.6125, 1.1024], ["Lp", 1.4215, 1.2077, 2.79], ["Lp", 2.168, -0.0666, 2.0931], ["H", 0.6329, -0.1616, 2.5359]], "bonds": [[0, 1, 1], [1, 2, 2], [1, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1], [3, 11, 1]], "lp": [[7], [8], [9], [10]]}, "mf": {"name": "C₂H₄O₂ 甲酸甲酯", "formula": "C₂H₄O₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；O2：sp² 杂化·AX1E2·直线形；O3：sp³ 杂化·AX2E2·V 形；C4：sp³ 杂化·AX4·正四面体形。乙酸的同分异构体。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["O", -0.715, 1.2384, 0.0], ["C", -0.9533, 1.6512, 1.3482], ["H", -0.545, -0.944, 0.0], ["Lp", 1.73, -0.866, 0.0], ["Lp", 1.73, 0.866, 0.0], ["Lp", -1.5888, 1.1188, -0.4714], ["Lp", -0.1746, 1.9353, -0.4714], ["H", -1.8443, 1.152, 1.729], ["H", -1.1015, 2.7307, 1.3769], ["H", -0.0958, 1.3856, 1.9665]], "bonds": [[0, 1, 2], [0, 2, 1], [2, 3, 1], [0, 4, 1], [3, 9, 1], [3, 10, 1], [3, 11, 1]], "lp": [[5], [6], [7], [8]]}, "ea": {"name": "C₄H₈O₂ 乙酸乙酯", "formula": "C₄H₈O₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp² 杂化·AX3·平面三角形；O3：sp² 杂化·AX1E2·直线形；O4：sp³ 杂化·AX2E2·V 形；C5：sp³ 杂化·AX4·正四面体形；C6：sp³ 杂化·AX4·正四面体形。水果香味，酯化反应的经典产物。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["O", 1.2442, 1.9974, 0.491], ["O", 1.3019, 0.4262, 2.1776], ["C", 1.4729, 1.5437, 3.0533], ["C", 0.4447, 2.6345, 2.7004], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Lp", 1.035, 2.2834, -0.4441], ["Lp", 1.7421, 2.6125, 1.1024], ["Lp", 2.168, -0.0666, 2.0931], ["Lp", 0.605, -0.1861, 2.5508], ["H", 2.4805, 1.9437, 2.9395], ["H", 1.3235, 1.2235, 4.0844], ["H", 0.8723, 3.6163, 2.9035], ["H", -0.4525, 2.4971, 3.3039], ["H", 0.1865, 2.5622, 1.6439]], "bonds": [[0, 1, 1], [1, 2, 2], [1, 3, 1], [3, 4, 1], [4, 5, 1], [0, 6, 1], [0, 7, 1], [0, 8, 1], [4, 13, 1], [4, 14, 1], [5, 15, 1], [5, 16, 1], [5, 17, 1]], "lp": [[9], [10], [11], [12]]}, "menh2": {"name": "CH₅N 甲胺", "formula": "CH₅N", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；N2：sp³ 杂化·AX3E1·三角锥形。N 为三角锥形，1 对孤对电子，有碱性。", "atoms": [["C", 0.0, 0.0, 0.0], ["N", 0.8487, 0.8487, 0.8487], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Lp", 1.0412, 0.3745, 1.7078], ["H", 0.3697, 1.7164, 1.0431], ["H", 1.7164, 1.0431, 0.3697]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 6, 1], [1, 7, 1]], "lp": [[5]]}, "me2nh": {"name": "C₂H₇N 二甲胺", "formula": "C₂H₇N", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp³ 杂化·AX3E1·三角锥形；C2：sp³ 杂化·AX4·正四面体形；C3：sp³ 杂化·AX4·正四面体形。", "atoms": [["N", 0.0, 0.0, 0.0], ["C", 0.8487, 0.8487, 0.8487], ["C", 0.8487, -0.8487, -0.8487], ["Lp", -0.5774, 0.5774, -0.5774], ["H", -0.5831, -0.5831, 0.5831], ["H", 1.0585, 0.3318, 1.7851], ["H", 0.3318, 1.7851, 1.0585], ["H", 1.7851, 1.0585, 0.3318], ["H", 1.0585, -1.7851, -0.3318], ["H", 1.7851, -0.3318, -1.0585], ["H", 0.3318, -1.0585, -1.7851]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1]], "lp": [[3]]}, "me3n": {"name": "C₃H₉N 三甲胺", "formula": "C₃H₉N", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp³ 杂化·AX3E1·三角锥形；C2：sp³ 杂化·AX4·正四面体形；C3：sp³ 杂化·AX4·正四面体形；C4：sp³ 杂化·AX4·正四面体形。", "atoms": [["N", 0.0, 0.0, 0.0], ["C", 0.8487, 0.8487, 0.8487], ["C", 0.8487, -0.8487, -0.8487], ["C", -0.8487, 0.8487, -0.8487], ["Lp", -0.5774, -0.5774, 0.5774], ["H", 1.0585, 0.3318, 1.7851], ["H", 0.3318, 1.7851, 1.0585], ["H", 1.7851, 1.0585, 0.3318], ["H", 1.0585, -1.7851, -0.3318], ["H", 1.7851, -0.3318, -1.0585], ["H", 0.3318, -1.0585, -1.7851], ["H", -1.0585, 0.3318, -1.7851], ["H", -0.3318, 1.7851, -1.0585], ["H", -1.7851, 1.0585, -0.3318]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1], [2, 8, 1], [2, 9, 1], [2, 10, 1], [3, 11, 1], [3, 12, 1], [3, 13, 1]], "lp": [[4]]}, "urea": {"name": "CH₄N₂O 尿素", "formula": "CH₄N₂O", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；O2：sp² 杂化·AX1E2·直线形；N3：sp³ 杂化·AX3E1·三角锥形；N4：sp³ 杂化·AX3E1·三角锥形。第一个人工合成的有机物（维勒，1828）。", "atoms": [["C", 0.0, 0.0, 0.0], ["O", 1.23, 0.0, 0.0], ["N", -0.735, 1.2731, 0.0], ["N", -0.735, -1.2731, 0.0], ["Lp", 1.73, -0.866, 0.0], ["Lp", 1.73, 0.866, 0.0], ["Lp", -0.9017, 1.5617, 0.9428], ["H", -1.6175, 1.1523, -0.4761], ["H", -0.1892, 1.977, -0.4761], ["Lp", -1.5722, -1.1746, -0.538], ["H", -0.9722, -1.5248, 0.9489], ["H", -0.1572, -1.9954, -0.4056]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [2, 7, 1], [2, 8, 1], [3, 10, 1], [3, 11, 1]], "lp": [[4], [5], [6], [9]]}, "gly": {"name": "C₂H₅NO₂ 甘氨酸", "formula": "C₂H₅NO₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "N1：sp³ 杂化·AX3E1·三角锥形；C2：sp³ 杂化·AX4·正四面体形；C3：sp² 杂化·AX3·平面三角形；O4：sp² 杂化·AX1E2·直线形；O5：sp³ 杂化·AX2E2·V 形。最简单的氨基酸，氨基 + 羧基连在同一碳链上。", "atoms": [["N", 0.0, 0.0, 0.0], ["C", 0.8487, 0.8487, 0.8487], ["C", 1.1451, 0.1184, 2.1717], ["O", 1.2835, 0.7611, 3.2113], ["O", 1.2593, -1.3069, 2.1917], ["Lp", 0.5774, -0.5774, -0.5774], ["H", -0.5831, 0.5831, -0.5831], ["H", -0.5831, -0.5831, 0.5831], ["H", 0.3318, 1.7851, 1.0585], ["H", 1.7851, 1.0585, 0.3318], ["Lp", 1.5374, 0.2936, 4.0581], ["Lp", 1.1422, 1.751, 3.2097], ["Lp", 1.5519, -1.6304, 1.2919], ["Lp", 0.3723, -1.7092, 2.4184], ["H", 1.9066, -1.5668, 2.8513]], "bonds": [[0, 1, 1], [1, 2, 1], [2, 3, 2], [2, 4, 1], [0, 6, 1], [0, 7, 1], [1, 8, 1], [1, 9, 1], [4, 14, 1]], "lp": [[5], [10], [11], [12], [13]]}, "mecn": {"name": "C₂H₃N 乙腈", "formula": "C₂H₃N", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp 杂化·AX2·直线形。含 C≡N 叁键，常用极性溶剂。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["N", 1.5588, 1.5588, 1.5588], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293]], "bonds": [[0, 1, 1], [1, 2, 3], [0, 3, 1], [0, 4, 1], [0, 5, 1]], "lp": []}, "meno2": {"name": "CH₃NO₂ 硝基甲烷", "formula": "CH₃NO₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；N2：sp² 杂化·AX3·平面三角形；O3：sp² 杂化·AX1E2·直线形；O4：sp³ 杂化·AX1E3·直线形。硝基中 N=O 与 N-O⁻ 共振，2 个 N-O 键等同。", "atoms": [["C", 0.0, 0.0, 0.0], ["N", 0.8487, 0.8487, 0.8487], ["O", 1.1951, 1.93, 0.4603], ["O", 1.2413, 0.4085, 2.0741], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Lp", 0.9859, 2.216, -0.4748], ["Lp", 1.693, 2.545, 1.0717], ["Lp", 1.3609, 1.19, 2.6865], ["Lp", 2.1073, -0.0843, 1.9896], ["Lp", 0.5444, -0.2039, 2.4474]], "bonds": [[0, 1, 1], [1, 2, 2], [1, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1]], "lp": [[7], [8], [9], [10], [11]]}, "ch3cl": {"name": "CH₃Cl 一氯甲烷", "formula": "CH₃Cl", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["Cl", 1.0219, 1.0219, 1.0219], ["H", 0.6293, -0.6293, -0.6293], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "ch2cl2": {"name": "CH₂Cl₂ 二氯甲烷", "formula": "CH₂Cl₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形。常用萃取溶剂，四面体但不是正四面体。", "atoms": [["C", 0.0, 0.0, 0.0], ["Cl", 1.0219, 1.0219, 1.0219], ["Cl", 1.0219, -1.0219, -1.0219], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "chcl3": {"name": "CHCl₃ 三氯甲烷（氯仿）", "formula": "CHCl₃", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形。早期麻醉剂，光照下生成光气。", "atoms": [["C", 0.0, 0.0, 0.0], ["Cl", 1.0219, 1.0219, 1.0219], ["Cl", 1.0219, -1.0219, -1.0219], ["Cl", -1.0219, 1.0219, -1.0219], ["H", -0.6293, -0.6293, 0.6293]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "ccl4": {"name": "CCl₄ 四氯化碳", "formula": "CCl₄", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形。正四面体，非极性分子，曾用灭火剂。", "atoms": [["C", 0.0, 0.0, 0.0], ["Cl", 1.0219, 1.0219, 1.0219], ["Cl", 1.0219, -1.0219, -1.0219], ["Cl", -1.0219, 1.0219, -1.0219], ["Cl", -1.0219, -1.0219, 1.0219]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}, "vc": {"name": "C₂H₃Cl 氯乙烯", "formula": "C₂H₃Cl", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形。PVC 塑料的单体。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 1.34, 0.0, 0.0], ["H", -0.545, 0.944, 0.0], ["H", -0.545, -0.944, 0.0], ["Cl", 2.225, -1.5329, 0.0], ["H", 1.885, 0.944, 0.0]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [1, 4, 1], [1, 5, 1]], "lp": []}, "dce": {"name": "C₂H₄Cl₂ 1,2-二氯乙烷", "formula": "C₂H₄Cl₂", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形；C2：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 0.8891, 0.8891, 0.8891], ["Cl", 1.0219, -1.0219, -1.0219], ["H", -0.6293, 0.6293, -0.6293], ["H", -0.6293, -0.6293, 0.6293], ["Cl", 1.2298, 0.0498, 2.4098], ["H", 0.3722, 1.8256, 1.0989], ["H", 1.8256, 1.0989, 0.3722]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [1, 5, 1], [1, 6, 1], [1, 7, 1]], "lp": []}, "c2f4": {"name": "C₂F₄ 四氟乙烯", "formula": "C₂F₄", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp² 杂化·AX3·平面三角形；C2：sp² 杂化·AX3·平面三角形。特氟龙（PTFE）的单体。", "atoms": [["C", 0.0, 0.0, 0.0], ["C", 1.34, 0.0, 0.0], ["F", -0.675, 1.1691, 0.0], ["F", -0.675, -1.1691, 0.0], ["F", 2.015, -1.1691, 0.0], ["F", 2.015, 1.1691, 0.0]], "bonds": [[0, 1, 2], [0, 2, 1], [0, 3, 1], [1, 4, 1], [1, 5, 1]], "lp": []}, "cf4": {"name": "CF₄ 四氟化碳", "formula": "CF₄", "cat": "org", "sub": "", "catLabel": "有机分子", "axe": "", "shape": "", "hyb": "", "angle": "", "desc": "C1：sp³ 杂化·AX4·正四面体形。", "atoms": [["C", 0.0, 0.0, 0.0], ["F", 0.7794, 0.7794, 0.7794], ["F", 0.7794, -0.7794, -0.7794], ["F", -0.7794, 0.7794, -0.7794], ["F", -0.7794, -0.7794, 0.7794]], "bonds": [[0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1]], "lp": []}};
 
+const COL = {
+  sigma: 0x6aa6dd, sigmaDots: 0xbfdcff,
+  pi:    0xe06b6b, piDots:   0xffc2b8,
+  lone:  0xb89ae8, loneDots: 0xe4d4ff,
+  stick: 0xc8ccd4,
+};
+
+/* ================= 场景 ================= */
 const canvas = document.getElementById('molCanvas');
-const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
-const box = document.getElementById('canvasBox');
-renderer.setSize(box.clientWidth, box.clientHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
-camera.aspect = box.clientWidth / box.clientHeight;
-camera.updateProjectionMatrix();
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0d1017);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+const key = new THREE.DirectionalLight(0xffffff, 0.9); key.position.set(4, 6, 5); scene.add(key);
+const rim = new THREE.DirectionalLight(0x9db8ff, 0.45); rim.position.set(-5, -3, -4); scene.add(rim);
+const root = new THREE.Group(); scene.add(root);
 
-window.addEventListener('resize', function(){
-  renderer.setSize(box.clientWidth, box.clientHeight);
-  camera.aspect = box.clientWidth / box.clientHeight;
-  camera.updateProjectionMatrix();
-});
-
-// 灯光
-scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-const keyLight = new THREE.DirectionalLight(0xffffff, 0.65);
-keyLight.position.set(5, 5, 5);
-scene.add(keyLight);
-const fillLight = new THREE.DirectionalLight(0xa7c8ff, 0.3);
-fillLight.position.set(-4, -2, -5);
-scene.add(fillLight);
-
-const molGroup = new THREE.Group();
-scene.add(molGroup);
-
-// 鼠标拖拽
-let isDragging = false;
-let prevMouse = {x:0, y:0};
-canvas.addEventListener('mousedown', function(e){
-  isDragging = true;
-  prevMouse = {x:e.clientX, y:e.clientY};
-});
-canvas.addEventListener('mousemove', function(e){
-  if(!isDragging) return;
-  molGroup.rotation.y += (e.clientX - prevMouse.x) * 0.01;
-  molGroup.rotation.x += (e.clientY - prevMouse.y) * 0.01;
-  prevMouse = {x:e.clientX, y:e.clientY};
-});
-canvas.addEventListener('mouseup', function(){isDragging=false;});
-canvas.addEventListener('mouseleave', function(){isDragging=false;});
-
-// 滚轮缩放
-canvas.addEventListener('wheel', function(e){
-  e.preventDefault();
-  camera.position.z += e.deltaY * 0.01;
-  camera.position.z = Math.max(5, Math.min(25, camera.position.z));
-});
-
-// 自动旋转
-let autoRotate = false;
-document.getElementById('rotateSwitch').onclick = function(){
-  autoRotate = !autoRotate;
-  this.classList.toggle('active');
-};
-
-// 视角切换
-let currentView = 'orbital';
-document.querySelectorAll('.view-btn').forEach(function(btn, i){
-  btn.onclick = function(){
-    document.querySelectorAll('.view-btn').forEach(function(b){b.classList.remove('active');});
-    btn.classList.add('active');
-    currentView = i===0 ? 'orbital' : 'bond';
-    drawMolecule();
-  };
-});
-
-// 左侧手风琴
-document.querySelectorAll('.chapter-title').forEach(function(title){
-  title.onclick = function(){
-    title.classList.toggle('open');
-    title.nextElementSibling.classList.toggle('show');
-  };
-});
-
-// 颜色定义
-const COLOR_BOND = 0x4da6ff;   // 成键轨道蓝色
-const COLOR_LONE = 0xa78bfa;   // 孤对轨道紫色
-const COLOR_PI = 0xf87171;     // π键红色
-const COLOR_C = 0x6b7280;      // 碳原子灰色
-const COLOR_H = 0xffffff;      // 氢原子白色
-const COLOR_O = 0xef4444;      // 氧原子红色
-const COLOR_F = 0x10b981;      // 氟原子绿色
-const COLOR_CL = 0x10b981;     // 氯原子绿色
-
-// 工具函数：归一化方向向量
-function normDir(x,y,z){
-  const len = Math.hypot(x,y,z);
-  return [x/len, y/len, z/len];
+let fitR = 2.5, fitDir = new THREE.Vector3(0.42, 0.3, 0.86).normalize();
+function fitCamera(R){
+  fitR = R;
+  const vfov = camera.fov * Math.PI / 180;
+  const distH = R / Math.tan(vfov / 2);
+  const distW = R / (Math.tan(vfov / 2) * Math.max(camera.aspect, 0.2));
+  const dist = Math.max(distH, distW) * 1.12;
+  camera.position.copy(fitDir).multiplyScalar(dist);
 }
+function resize(){
+  const w = canvas.parentElement.clientWidth;
+  const h = canvas.parentElement.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  fitCamera(fitR);
+}
+window.addEventListener('resize', resize);
 
-// ====================== 所有分子数据 ======================
-const molData = {
-  // CH4 甲烷 sp3杂化 正四面体
-  ch4: {
-    name: 'CH₄ 甲烷',
-    tags: ['正四面体','sp³杂化'],
-    desc: '中心C原子sp³杂化，4个σ键，0对孤电子对，键角109°28\'。',
-    centers: [
-      {
-        pos:[0,0,0], r:1.3, color:COLOR_C,
-        orbitals: [
-          {dir:normDir(1,1,1), isBond:true},
-          {dir:normDir(-1,-1,1), isBond:true},
-          {dir:normDir(-1,1,-1), isBond:true},
-          {dir:normDir(1,-1,-1), isBond:true}
-        ]
-      }
-    ],
-    atoms: [
-      {pos:normDir(1,1,1), r:0.45, color:COLOR_H, centerIdx:0},
-      {pos:normDir(-1,-1,1), r:0.45, color:COLOR_H, centerIdx:0},
-      {pos:normDir(-1,1,-1), r:0.45, color:COLOR_H, centerIdx:0},
-      {pos:normDir(1,-1,-1), r:0.45, color:COLOR_H, centerIdx:0}
-    ],
-    scale: 1.4,
-    bondOverlap: 1.08 // 轻微重叠，和参考图一致
-  },
-  // NH3 氨气 sp3杂化 三角锥
-  nh3: {
-    name: 'NH₃ 氨气',
-    tags: ['三角锥形','sp³杂化','1对孤对'],
-    desc: '中心N原子sp³杂化，3个σ键，1对孤电子对，键角约107°。',
-    centers: [
-      {
-        pos:[0,0,0], r:1.2, color:COLOR_BOND,
-        orbitals: [
-          {dir:normDir(1,0.6,1), isBond:true},
-          {dir:normDir(-1,0.6,1), isBond:true},
-          {dir:normDir(0,0.6,-1.2), isBond:true},
-          {dir:normDir(0,-1.2,0), isBond:false}
-        ]
-      }
-    ],
-    atoms: [
-      {pos:normDir(1,0.6,1), r:0.4, color:COLOR_H, centerIdx:0},
-      {pos:normDir(-1,0.6,1), r:0.4, color:COLOR_H, centerIdx:0},
-      {pos:normDir(0,0.6,-1.2), r:0.4, color:COLOR_H, centerIdx:0}
-    ],
-    scale: 1.3,
-    bondOverlap: 1.08
-  },
-  // H2O 水 sp3杂化 V形
-  h2o: {
-    name: 'H₂O 水',
-    tags: ['V形','sp³杂化','2对孤对'],
-    desc: '中心O原子sp³杂化，2个σ键，2对孤电子对，键角约104.5°。',
-    centers: [
-      {
-        pos:[0,0,0], r:1.1, color:COLOR_O,
-        orbitals: [
-          {dir:normDir(0.9,0.7,0), isBond:true},
-          {dir:normDir(-0.9,0.7,0), isBond:true},
-          {dir:normDir(0,-0.8,0.8), isBond:false},
-          {dir:normDir(0,-0.8,-0.8), isBond:false}
-        ]
-      }
-    ],
-    atoms: [
-      {pos:normDir(0.9,0.7,0), r:0.38, color:COLOR_H, centerIdx:0},
-      {pos:normDir(-0.9,0.7,0), r:0.38, color:COLOR_H, centerIdx:0}
-    ],
-    scale: 1.2,
-    bondOverlap: 1.02
-  },
-  // CO2 二氧化碳 sp杂化 直线形
-  co2: {
-    name: 'CO₂ 二氧化碳',
-    tags: ['直线形','sp杂化'],
-    desc: '中心C原子sp杂化，2个σ键+2个π键，键角180°。',
-    centers: [
-      {
-        pos:[0,0,0], r:1.0, color:COLOR_C,
-        orbitals: [
-          {dir:[1,0,0], isBond:true},
-          {dir:[-1,0,0], isBond:true}
-        ]
-      }
-    ],
-    atoms: [
-      {pos:[1,0,0], r:0.55, color:COLOR_O, centerIdx:0},
-      {pos:[-1,0,0], r:0.55, color:COLOR_O, centerIdx:0}
-    ],
-    scale: 1.5,
-    bondOverlap: 1.05
-  },
-  // BF3 三氟化硼 sp2杂化 平面三角形
-  bf3: {
-    name: 'BF₃ 三氟化硼',
-    tags: ['平面三角形','sp²杂化'],
-    desc: '中心B原子sp²杂化，3个σ键，0对孤电子对，键角120°。',
-    centers: [
-      {
-        pos:[0,0,0], r:1.1, color:COLOR_BOND,
-        orbitals: [
-          {dir:[1,0,0], isBond:true},
-          {dir:[-0.5,0.866,0], isBond:true},
-          {dir:[-0.5,-0.866,0], isBond:true}
-        ]
-      }
-    ],
-    atoms: [
-      {pos:[1,0,0], r:0.5, color:COLOR_F, centerIdx:0},
-      {pos:[-0.5,0.866,0], r:0.5, color:COLOR_F, centerIdx:0},
-      {pos:[-0.5,-0.866,0], r:0.5, color:COLOR_F, centerIdx:0}
-    ],
-    scale: 1.3,
-    bondOverlap: 1.08
-  },
-  // 乙烷 C2H6 sp3杂化 两个碳
-  c2h6: {
-    name: 'C₂H₆ 乙烷',
-    tags: ['碳碳单键','sp³杂化','交错式构象'],
-    desc: '两个C原子均为sp³杂化，C-C σ键头碰头重叠，每个C连3个H，键角约109.5°。',
-    centers: [
-      {
-        pos:[-0.75,0,0], r:1.1, color:COLOR_C,
-        orbitals: [
-          {dir:[1,0,0], isBond:true}, // C-C键向右
-          {dir:normDir(-1,1,1), isBond:true},
-          {dir:normDir(-1,-1,1), isBond:true},
-          {dir:normDir(-1,0,-1.4), isBond:true}
-        ]
-      },
-      {
-        pos:[0.75,0,0], r:1.1, color:COLOR_C,
-        orbitals: [
-          {dir:[-1,0,0], isBond:true}, // C-C键向左
-          {dir:normDir(1,-1,1), isBond:true},
-          {dir:normDir(1,1,1), isBond:true},
-          {dir:normDir(1,0,-1.4), isBond:true}
-        ]
-      }
-    ],
-    atoms: [
-      {pos:normDir(-1,1,1), r:0.4, color:COLOR_H, centerIdx:0},
-      {pos:normDir(-1,-1,1), r:0.4, color:COLOR_H, centerIdx:0},
-      {pos:normDir(-1,0,-1.4), r:0.4, color:COLOR_H, centerIdx:0},
-      {pos:normDir(1,-1,1), r:0.4, color:COLOR_H, centerIdx:1},
-      {pos:normDir(1,1,1), r:0.4, color:COLOR_H, centerIdx:1},
-      {pos:normDir(1,0,-1.4), r:0.4, color:COLOR_H, centerIdx:1}
-    ],
-    scale: 1.2,
-    bondOverlap: 1.08,
-    ccBond: 1.5 // C-C键距离
-  },
-  // 乙烯 C2H4 sp2杂化 平面结构
-  c2h4: {
-    name: 'C₂H₄ 乙烯',
-    tags: ['碳碳双键','sp²杂化','平面结构','含π键'],
-    desc: '两个C原子均为sp²杂化，C-C之间1个σ键+1个π键肩并肩重叠，每个C连2个H，键角约120°。',
-    centers: [
-      {
-        pos:[-0.65,0,0], r:1.0, color:COLOR_C,
-        orbitals: [
-          {dir:[1,0,0], isBond:true}, // C-C σ键向右
-          {dir:normDir(-1,1,0), isBond:true},
-          {dir:normDir(-1,-1,0), isBond:true}
-        ]
-      },
-      {
-        pos:[0.65,0,0], r:1.0, color:COLOR_C,
-        orbitals: [
-          {dir:[-1,0,0], isBond:true}, // C-C σ键向左
-          {dir:normDir(1,1,0), isBond:true},
-          {dir:normDir(1,-1,0), isBond:true}
-        ]
-      }
-    ],
-    atoms: [
-      {pos:normDir(-1,1,0), r:0.4, color:COLOR_H, centerIdx:0},
-      {pos:normDir(-1,-1,0), r:0.4, color:COLOR_H, centerIdx:0},
-      {pos:normDir(1,1,0), r:0.4, color:COLOR_H, centerIdx:1},
-      {pos:normDir(1,-1,0), r:0.4, color:COLOR_H, centerIdx:1}
-    ],
-    scale: 1.2,
-    bondOverlap: 1.08,
-    ccBond: 1.3, // C=C键距离更短
-    hasPi: true // 有π键
+/* ================= 光点纹理 ================= */
+function dotTexture(){
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d');
+  const grd = g.createRadialGradient(32,32,0,32,32,32);
+  grd.addColorStop(0, 'rgba(255,255,255,1)');
+  grd.addColorStop(0.4, 'rgba(255,255,255,.6)');
+  grd.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grd; g.fillRect(0,0,64,64);
+  return new THREE.CanvasTexture(c);
+}
+const DOT_TEX = dotTexture();
+
+/* ================= 电子云构建 ================= */
+const unitSphere = new THREE.SphereGeometry(1, 26, 18);
+const anims = [];   // {pts, axis:'x'|'z', speed}
+let cloudK = 0.85;
+
+function cloudMat(color, op){
+  return new THREE.MeshBasicMaterial({
+    color, transparent: true, opacity: op * cloudK,
+    blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+  });
+}
+function samplePoints(n, radii){
+  const p = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++){
+    // 严格在椭球内部（半径 ×0.72）
+    let x, y, z;
+    do { x = Math.random()*2-1; y = Math.random()*2-1; z = Math.random()*2-1; }
+    while (x*x + y*y + z*z > 1);
+    const r = Math.cbrt(Math.random()) * 0.72;
+    const L = Math.hypot(x, y, z) || 1;
+    p[i*3]   = x / L * r * radii[0];
+    p[i*3+1] = y / L * r * radii[1];
+    p[i*3+2] = z / L * r * radii[2];
   }
-};
-
-let currentMol = 'ch4';
-let progress = 100;
-
-// 分子切换
-document.querySelectorAll('.mol-item[data-mol]').forEach(function(item){
-  item.onclick = function(){
-    document.querySelectorAll('.mol-item').forEach(function(i){i.classList.remove('active');});
-    item.classList.add('active');
-    currentMol = item.dataset.mol;
-    if(molData[currentMol]) drawMolecule();
-  };
-});
-
-// ====================== 内部星光粒子 ======================
-function createStarDust(baseR, starColor, starCount, scaleY=1){
-  const positions = new Float32Array(starCount * 3);
-  for(let i = 0; i < starCount; i++){
-    const randRad = baseR * 0.85 * Math.cbrt(Math.random());
-    const theta = 2 * Math.PI * Math.random();
-    const phi = Math.acos(2 * Math.random() - 1);
-    positions[i*3] = randRad * Math.sin(phi) * Math.cos(theta);
-    positions[i*3+1] = randRad * Math.sin(phi) * Math.sin(theta) * scaleY;
-    positions[i*3+2] = randRad * Math.cos(phi);
-  }
+  return p;
+}
+function makeCloud(kind, radii, colorMain, colorDots, nDots, axis, speed){
+  const g = new THREE.Group();
+  g.userData.kind = kind;
+  const m1 = new THREE.Mesh(unitSphere, cloudMat(colorMain, 0.17));
+  m1.scale.set(...radii);
+  const m2 = new THREE.Mesh(unitSphere, cloudMat(colorMain, 0.09));
+  m2.scale.set(radii[0]*1.18, radii[1]*1.35, radii[2]*1.35);
+  g.add(m1, m2);
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const mat = new THREE.PointsMaterial({
-    color: starColor, size:0.018, transparent:true, opacity:0.9,
-    sizeAttenuation:true, blending:THREE.AdditiveBlending, depthWrite:false
-  });
-  return new THREE.Points(geo, mat);
+  geo.setAttribute('position', new THREE.BufferAttribute(samplePoints(nDots, radii), 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({
+    color: colorDots, size: 0.05, map: DOT_TEX, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+  }));
+  pts.userData.isDots = true;
+  g.add(pts);
+  anims.push({ pts, axis, speed });
+  return g;
+}
+function basisOf(xDir, zHint){
+  const x = xDir.clone().normalize();
+  let z = zHint.clone().sub(x.clone().multiplyScalar(zHint.dot(x)));
+  if (z.length() < 1e-6) z = new THREE.Vector3(0,0,1).sub(x.clone().multiplyScalar(x.z));
+  z.normalize();
+  const y = new THREE.Vector3().crossVectors(z, x);
+  return new THREE.Matrix4().makeBasis(x, y, z);
 }
 
-// ====================== 单个纺锤形轨道 ======================
-function createOrbital(baseR, color, dir){
-  const dx = dir[0], dy = dir[1], dz = dir[2];
-  const orbGeo = new THREE.SphereGeometry(baseR * 0.32, 36, 36);
-  orbGeo.scale(1, 2.8, 1);
-  const orbMat = new THREE.MeshPhysicalMaterial({
-    color: color, transparent:true, opacity:0.35, roughness:0.08, metalness:0.2,
-    transmission:0.3, thickness:0.5, emissive:color, emissiveIntensity:0.55
-  });
-  const orb = new THREE.Mesh(orbGeo, orbMat);
-  orb.position.set(dx * baseR * 0.5, dy * baseR * 0.5, dz * baseR * 0.5);
-  orb.lookAt(dx*5, dy*5, dz*5);
-  orb.rotateX(Math.PI/2);
-  orb.add(createStarDust(baseR * 0.32 * 2.8, color, 25, 1/2.8));
-  return orb;
-}
-
-// ====================== π键（红色弯曲管道） ======================
-function createPiBond(start, end){
-  const group = new THREE.Group();
-  const mid = [(start[0]+end[0])/2, (start[1]+end[1])/2, (start[2]+end[2])/2];
-  const dist = Math.hypot(end[0]-start[0], end[1]-start[1], end[2]-start[2]);
-  
-  // 上下两个弧形电子云
-  for(let side = -1; side <= 1; side += 2){
-    const tubeGeo = new THREE.TorusGeometry(dist/2, 0.18, 16, 32, Math.PI);
-    const tubeMat = new THREE.MeshPhysicalMaterial({
-      color: COLOR_PI, transparent:true, opacity:0.4, roughness:0.1,
-      transmission:0.2, emissive:COLOR_PI, emissiveIntensity:0.5
-    });
-    const tube = new THREE.Mesh(tubeGeo, tubeMat);
-    tube.position.set(mid[0], mid[1] + side*0.2, mid[2]);
-    tube.rotateY(Math.PI/2);
-    tube.rotateZ(side * Math.PI/2);
-    group.add(tube);
-    tube.add(createStarDust(dist/2, COLOR_PI, 30));
-  }
-  return group;
-}
-
-// ====================== 中心原子（带杂化轨道） ======================
-function createCenter(centerCfg){
-  const group = new THREE.Group();
-  group.position.set(centerCfg.pos[0], centerCfg.pos[1], centerCfg.pos[2]);
-  
-  // 生成所有轨道
-  centerCfg.orbitals.forEach(function(orb){
-    const color = orb.isBond ? COLOR_BOND : COLOR_LONE;
-    group.add(createOrbital(centerCfg.r, color, orb.dir));
-  });
-  
-  // 中心核
-  const coreGeo = new THREE.SphereGeometry(centerCfg.r * 0.25, 32, 32);
-  const coreMat = new THREE.MeshBasicMaterial({
-    color: 0x6366f1, transparent:true, opacity:0.5
-  });
-  const core = new THREE.Mesh(coreGeo, coreMat);
-  core.add(createStarDust(centerCfg.r * 0.25, 0x6366f1, 20));
-  group.add(core);
-  group.add(createStarDust(centerCfg.r * 0.9, 0x60a5fa, 80));
-  
-  return group;
-}
-
-// ====================== 原子模型 ======================
-function createAtom(r, color){
-  const group = new THREE.Group();
-  const geo = new THREE.SphereGeometry(r, 36, 36);
-  const mat = new THREE.MeshPhysicalMaterial({
-    color: color, transparent:true, opacity:0.45, roughness:0.08, metalness:0.3,
-    transmission:0.25, thickness:0.4, emissive:color, emissiveIntensity:0.42
-  });
-  const atom = new THREE.Mesh(geo, mat);
-  atom.add(createStarDust(r * 0.8, color, 20));
-  group.add(atom);
-  return group;
-}
-
-// ====================== 主绘制函数 ======================
-function drawMolecule(){
-  while(molGroup.children.length > 0){
-    molGroup.remove(molGroup.children[0]);
-  }
-  const molCfg = molData[currentMol];
-  const t = progress / 100;
-
-  // 画所有中心原子的杂化轨道
-  const centers = [];
-  molCfg.centers.forEach(function(cfg){
-    const c = createCenter(cfg);
-    centers.push(c);
-    molGroup.add(c);
-  });
-
-  // 多中心分子调整位置（乙烷、乙烯）
-  if(molCfg.ccBond){
-    const ccDist = molCfg.ccBond * t;
-    centers[0].position.x = -ccDist/2;
-    centers[1].position.x = ccDist/2;
-  }
-
-  // π键（乙烯）
-  if(currentView === 'bond' && molCfg.hasPi && t > 0.7){
-    const pi = createPiBond(
-      [-molCfg.ccBond/2, 0, 0],
-      [molCfg.ccBond/2, 0, 0]
-    );
-    pi.scale.setScalar(t);
-    molGroup.add(pi);
-  }
-
-  // 成键状态：周围原子
-  if(currentView === 'bond'){
-    const startDist = molCfg.scale * 2.8;
-    const endDist = molCfg.scale * molCfg.bondOverlap;
-    const currentDist = startDist - (startDist - endDist) * t;
-
-    molCfg.atoms.forEach(function(atomCfg){
-      const center = molCfg.centers[atomCfg.centerIdx];
-      const dir = atomCfg.pos;
-      const cx = center.pos[0], cy = center.pos[1], cz = center.pos[2];
-      const x = cx + dir[0] * currentDist;
-      const y = cy + dir[1] * currentDist;
-      const z = cz + dir[2] * currentDist;
-      const atom = createAtom(atomCfg.r, atomCfg.color);
-      atom.position.set(x, y, z);
-      molGroup.add(atom);
+function clearRoot(){
+  anims.length = 0;
+  while (root.children.length){
+    const ch = root.children.pop();
+    ch.traverse(o => {
+      if (o.geometry && o.geometry !== unitSphere) o.geometry.dispose();
+      if (o.material && o.material.dispose) o.material.dispose();
     });
   }
-
-  // 更新信息卡
-  document.querySelector('.info-card h2').textContent = molCfg.name;
-  let tagHtml = '';
-  molCfg.tags.forEach(function(tag){
-    let cls = 'tag';
-    if(tag.includes('孤对')) cls += ' lone';
-    if(tag.includes('π')) cls += ' pi';
-    tagHtml += `<span class="${cls}">${tag}</span>`;
-  });
-  document.querySelector('.info-card .tag-box').innerHTML = tagHtml;
-  document.querySelector('.info-card p').textContent = molCfg.desc;
 }
 
-// 滑动条
-const slider = document.getElementById('evolveSlider');
-const sliderText = document.getElementById('sliderValue');
-slider.oninput = function(e){
-  progress = parseInt(e.target.value);
-  if(currentView === 'orbital'){
-    sliderText.textContent = '中心原子VSEPR杂化轨道模型';
-  }else{
-    if(progress < 25) sliderText.textContent = '阶段一：原子远离';
-    else if(progress < 55) sliderText.textContent = '阶段二：轨道靠近';
-    else if(progress < 80) sliderText.textContent = '阶段三：电子云重叠';
-    else sliderText.textContent = '阶段四：稳定成键';
-  }
-  drawMolecule();
+function buildMol(id){
+  clearRoot();
+  const d = MOLS[id];
+  const atoms = d.atoms; const bonds = d.bonds;
+  const P = atoms.map(a => new THREE.Vector3(a[1], a[2], a[3]));
+  const isLp = atoms.map(a => a[0] === 'Lp');
+
+  /* 原子球 + 标签半径 */
+  atoms.forEach((a, i) => {
+    if (isLp[i]) return;
+    const e = ELEM[a[0]] || ELEM.H;
+    const m = new THREE.Mesh(unitSphere, new THREE.MeshPhysicalMaterial({
+      color: e[0], roughness: 0.28, metalness: 0.15, clearcoat: 0.5,
+    }));
+    m.position.copy(P[i]); m.scale.setScalar(e[1] * 0.55);
+    root.add(m);
+  });
+
+  /* 键棍 */
+  const stickMat = new THREE.MeshStandardMaterial({ color: COL.stick, roughness: 0.5, metalness: 0.2 });
+  bonds.forEach(([i, j, o]) => {
+    const A = P[i], B = P[j];
+    const dir = B.clone().sub(A); const L = dir.length(); dir.normalize();
+    const mk = (off) => {
+      const g = new THREE.CylinderGeometry(0.045, 0.045, L, 10);
+      const m = new THREE.Mesh(g, stickMat);
+      m.position.copy(A).lerp(B, 0.5).add(off);
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir);
+      root.add(m);
+    };
+    const ref = Math.abs(dir.y) < 0.9 ? new THREE.Vector3(0,1,0) : new THREE.Vector3(1,0,0);
+    const p1 = new THREE.Vector3().crossVectors(dir, ref).normalize();
+    if (o === 2){ mk(p1.clone().multiplyScalar(0.085)); mk(p1.clone().multiplyScalar(-0.085)); }
+    else if (o === 3){
+      const p2 = new THREE.Vector3().crossVectors(dir, p1).normalize();
+      [0, 2.094, 4.189].forEach(a => {
+        mk(p1.clone().multiplyScalar(Math.cos(a)*0.11).add(p2.clone().multiplyScalar(Math.sin(a)*0.11)));
+      });
+    }
+    else mk(new THREE.Vector3());
+  });
+
+  /* σ 云 */
+  bonds.forEach(([i, j]) => {
+    const A = P[i], B = P[j];
+    const dir = B.clone().sub(A); const L = dir.length();
+    const g = makeCloud('sigma', [L*0.52, 0.34, 0.34], COL.sigma, COL.sigmaDots, 42, 'x', 0.010);
+    g.position.copy(A).lerp(B, 0.5);
+    g.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0), dir.normalize());
+    root.add(g);
+  });
+
+  /* π 云 */
+  bonds.forEach(([i, j, o]) => {
+    if (o < 1.5) return;
+    const A = P[i], B = P[j];
+    const dir = B.clone().sub(A); const L = dir.length(); dir.normalize();
+    const mid = A.clone().lerp(B, 0.5);
+    const opK = o === 1.5 ? 0.62 : 1.0;
+    if (o === 3){
+      // 三键：红色圆柱壳 + σ 已画
+      const shell = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.42, 0.42, L*0.8, 26, 1, true),
+        cloudMat(COL.pi, 0.13));
+      shell.position.copy(mid);
+      shell.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir);
+      const grp = new THREE.Group(); grp.userData.kind = 'pi'; grp.add(shell);
+      const geo = new THREE.BufferGeometry();
+      const n = 60, pp = new Float32Array(n*3);
+      for (let k = 0; k < n; k++){
+        const a = Math.random()*Math.PI*2, r = 0.42*(0.75+Math.random()*0.35);
+        pp[k*3] = Math.cos(a)*r; pp[k*3+1] = (Math.random()-0.5)*L*0.7; pp[k*3+2] = Math.sin(a)*r;
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+      const pts = new THREE.Points(geo, new THREE.PointsMaterial({
+        color: COL.piDots, size: 0.05, map: DOT_TEX, transparent: true, opacity: 0.85,
+        blending: THREE.AdditiveBlending, depthWrite: false }));
+      pts.userData.isDots = true; grp.add(pts);
+      anims.push({ pts, axis: 'y', speed: 0.012 });
+      root.add(grp);
+    } else {
+      // 双键（含 1.5）：上下两个 π 透镜
+      const ref = Math.abs(dir.y) < 0.9 ? new THREE.Vector3(0,1,0) : new THREE.Vector3(1,0,0);
+      const perp = new THREE.Vector3().crossVectors(dir, ref).normalize();
+      [-1, 1].forEach(sgn => {
+        const g = makeCloud('pi', [L*0.40, 0.36, 0.15], COL.pi, COL.piDots, 30, 'x', 0.008);
+        g.material;
+        g.children.forEach(c => { if (c.material) c.material.opacity *= opK; });
+        g.position.copy(mid).add(perp.clone().multiplyScalar(sgn * 0.34));
+        g.setRotationFromMatrix(basisOf(dir, perp));
+        root.add(g);
+      });
+    }
+  });
+
+  /* 孤对云 */
+  (d.lp || []).forEach(([li]) => {
+    // 找最近的非 Lp 原子作为中心
+    let ci = -1, best = 1e9;
+    atoms.forEach((a, i) => {
+      if (isLp[i]) return;
+      const t = P[i].distanceToSquared(P[li]);
+      if (t < best){ best = t; ci = i; }
+    });
+    if (ci < 0) return;
+    const dir = P[li].clone().sub(P[ci]).normalize();
+    const g = makeCloud('lone', [0.40, 0.40, 0.62], COL.lone, COL.loneDots, 30, 'z', 0.006);
+    g.position.copy(P[ci]).add(dir.clone().multiplyScalar(0.55));
+    g.setRotationFromMatrix(basisOf(new THREE.Vector3(1,0,0), dir));
+    // makeCloud 的椭球长轴在 x：把它转到 dir 上
+    g.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0), dir);
+    root.add(g);
+  });
+
+  /* 相机取景：同时适配垂直与水平视场 */
+  let R = 1.2;
+  P.forEach((p, i) => { if (!isLp[i]) R = Math.max(R, p.length() + 0.9); });
+  fitCamera(R);
+  camera.lookAt(0, 0, 0);
+
+  /* 信息卡 */
+  document.getElementById('molName').textContent = d.name;
+  document.getElementById('molFormula').textContent = d.formula;
+  const tags = [d.catLabel, d.axe, d.shape, d.hyb && (d.hyb + ' 杂化'), d.angle && ('键角 ' + d.angle)].filter(Boolean);
+  document.getElementById('tagWrap').innerHTML = tags.map(t => `<span class="info-tag">${t}</span>`).join('');
+  document.getElementById('molDesc').textContent = d.desc;
+  document.querySelectorAll('.mol-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+}
+
+/* ================= 显隐开关 ================= */
+const kindOn = { sigma: true, pi: true, lone: true };
+let dotsOn = true, spinOn = true;
+function applyVis(){
+  root.traverse(o => {
+    const grp = o.userData && o.userData.kind ? o : null;
+  });
+  root.children.forEach(ch => {
+    const k = ch.userData && ch.userData.kind;
+    if (!k) return;
+    ch.visible = kindOn[k];
+    ch.children.forEach(c => { if (c.userData.isDots) c.visible = dotsOn; });
+  });
+}
+function bindSwitch(id, fn){
+  const el = document.getElementById(id);
+  el.onclick = () => { el.classList.toggle('active'); fn(el.classList.contains('active')); };
+}
+bindSwitch('tgSigma', v => { kindOn.sigma = v; applyVis(); });
+bindSwitch('tgPi',    v => { kindOn.pi = v; applyVis(); });
+bindSwitch('tgLone',  v => { kindOn.lone = v; applyVis(); });
+bindSwitch('tgDots',  v => { dotsOn = v; applyVis(); });
+bindSwitch('tgSpin',  v => { spinOn = v; });
+document.getElementById('cloudSlider').oninput = e => {
+  cloudK = Number(e.target.value);
+  document.getElementById('cloudTip').textContent = '浓度 ' + cloudK.toFixed(2);
+  root.traverse(o => {
+    if (o.isMesh && o.material && o.material.blending === THREE.AdditiveBlending && o.geometry === unitSphere){
+      o.material.opacity = o.material.userData.base ? o.material.userData.base * cloudK : o.material.opacity;
+    }
+  });
+  // 简单可靠：直接重建当前分子
+  buildMol(currentId);
 };
 
-// 弹窗
-document.getElementById('backHome').onclick = function(){window.location.href="/teaching";};
-document.querySelectorAll('.modal-close').forEach(function(btn){
-  btn.onclick = function(){document.getElementById(btn.dataset.modal).style.display="none";};
+/* ================= 左栏导航 ================= */
+const GROUPS = [
+  { key: 'inorg', label: '无机分子结构' },
+  { key: 'ion',   label: '离子团结构', subs: [{ key: 'cat', label: '阳离子' }, { key: 'anion', label: '阴离子' }] },
+  { key: 'org',   label: '有机分子结构' },
+];
+const LIST = Object.keys(MOLS).map(id => ({ id, ...MOLS[id] }));
+function renderNav(filter){
+  const box = document.getElementById('navBox');
+  box.innerHTML = '';
+  GROUPS.forEach(g => {
+    let items = LIST.filter(m => m.cat === g.key);
+    const acc = document.createElement('div'); acc.className = 'acc open';
+    const head = document.createElement('div'); head.className = 'acc-head';
+    head.innerHTML = `<span class="t">${g.label}</span><span class="n"></span><span class="chev">▶</span>`;
+    head.onclick = () => acc.classList.toggle('open');
+    acc.appendChild(head);
+    const body = document.createElement('div'); body.className = 'acc-body';
+    const addItems = (arr, subLabel) => {
+      const its = arr.filter(m => !filter || m.name.includes(filter) || m.formula.includes(filter));
+      if (!its.length) return 0;
+      if (subLabel){ const sl = document.createElement('div'); sl.className = 'sub-label'; sl.textContent = subLabel; body.appendChild(sl); }
+      its.forEach(m => {
+        const el = document.createElement('div');
+        el.className = 'mol-item' + (m.id === currentId ? ' active' : '');
+        el.dataset.id = m.id;
+        el.innerHTML = `<span>${m.name}</span><span class="f">${m.formula}</span>`;
+        el.onclick = () => {
+          currentId = m.id; buildMol(m.id);
+          renderNav(document.getElementById('searchInput').value.trim());
+          if (window.innerWidth <= 1100) document.querySelector('.right-panel').classList.remove('open');
+        };
+        body.appendChild(el);
+      });
+      return its.length;
+    };
+    let count = 0;
+    if (g.subs){
+      g.subs.forEach(s => { count += addItems(items.filter(m => m.sub === s.key), s.label); });
+    } else count = addItems(items);
+    head.querySelector('.n').textContent = count + ' 种';
+    acc.appendChild(body);
+    box.appendChild(acc);
+  });
+}
+document.getElementById('searchInput').oninput = e => renderNav(e.target.value.trim());
+document.getElementById('navToggle').onclick = () => document.querySelector('.right-panel').classList.toggle('open');
+
+/* ================= 交互 ================= */
+let dragging = false, px = 0, py = 0;
+canvas.addEventListener('pointerdown', e => { dragging = true; px = e.clientX; py = e.clientY; canvas.setPointerCapture(e.pointerId); });
+window.addEventListener('pointerup', () => dragging = false);
+window.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  const dx = (e.clientX - px) * 0.007, dy = (e.clientY - py) * 0.007;
+  px = e.clientX; py = e.clientY;
+  const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx);
+  const qx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy);
+  root.quaternion.premultiply(qy).premultiply(qx);
 });
-document.getElementById('openVseprTable').onclick = function(){
-  document.getElementById('tableModal').style.display="flex";
-};
-document.getElementById('openFeedback').onclick = function(){
-  document.getElementById('feedbackModal').style.display="flex";
-};
-document.querySelectorAll('.modal').forEach(function(modal){
-  modal.onclick = function(e){if(e.target === modal) modal.style.display="none";};
-});
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  camera.position.multiplyScalar(e.deltaY > 0 ? 1.07 : 0.93);
+}, { passive: false });
 
-// 反馈
-document.getElementById('sendFeedbackBtn').onclick = function(){
-  const content = document.getElementById('feedbackContent').value.trim();
-  const contact = document.getElementById('feedbackContact').value.trim();
-  if(!content){alert('请填写反馈内容');return;}
-  let list = JSON.parse(localStorage.getItem('chemFeedback') || '[]');
-  list.push({time:new Date().toLocaleString(), content, contact});
-  localStorage.setItem('chemFeedback', JSON.stringify(list));
-  alert('反馈提交成功！');
-  document.getElementById('feedbackContent').value = '';
-  document.getElementById('feedbackContact').value = '';
-  document.getElementById('feedbackModal').style.display = 'none';
-};
-
-// 动画循环
+/* ================= 主循环 ================= */
+const qSpin = new THREE.Quaternion();
 function animate(){
   requestAnimationFrame(animate);
-  if(autoRotate) molGroup.rotation.y += 0.005;
+  if (spinOn && !dragging){
+    qSpin.setFromAxisAngle(new THREE.Vector3(0,1,0), 0.004);
+    root.quaternion.premultiply(qSpin);
+  }
+  anims.forEach(a => {
+    if (a.axis === 'x') a.pts.rotation.x += a.speed;
+    else if (a.axis === 'y') a.pts.rotation.y += a.speed;
+    else a.pts.rotation.z += a.speed;
+  });
   renderer.render(scene, camera);
 }
+
+let currentId = 'co2';
+resize();
+renderNav('');
+buildMol(currentId);
 animate();
-
-// 初始化
-drawMolecule();
-
 </script>
 </body>
 </html>
