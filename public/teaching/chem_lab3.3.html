@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同分异构体闯关 · 化学生活教学中心</title>
+<style>
+
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+
+
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+
+
+
+
+
+
+/* ===== 同分异构体闯关专用 ===== */
+.iso-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:auto}
+.iso-card{width:min(580px,94%);border:1px solid var(--line);border-radius:14px;padding:28px 32px;
+ background:var(--paper);box-shadow:0 8px 30px rgba(0,0,0,.10)}
+.iso-q{font-size:17px;font-family:var(--serif-cn);line-height:1.8;margin:10px 0 18px}
+.iso-opt{display:block;width:100%;text-align:left;border:1px solid var(--line-strong);background:transparent;
+ color:var(--ink);border-radius:8px;padding:11px 16px;font-size:14px;margin:8px 0;cursor:pointer;font-family:inherit;transition:all .15s}
+.iso-opt:hover{border-color:var(--accent);color:var(--accent)}
+.iso-opt.right{border-color:#2e7d4f;color:#2e7d4f;background:rgba(46,125,79,.08)}
+.iso-opt.wrong{border-color:#c0392b;color:#c0392b;background:rgba(192,57,43,.08)}
+.iso-exp{margin-top:12px;font-size:12.5px;line-height:1.9;color:var(--ink-dim);
+ border-left:3px solid var(--accent);padding:6px 12px;background:var(--accent-soft)}
+.lvl-item{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;border-radius:5px;
+ cursor:pointer;font-size:12.5px;border:1px solid transparent}
+.lvl-item:hover{border-color:var(--line)}
+.lvl-item.cur{border-color:var(--accent);color:var(--accent)}
+.lvl-badge{font-size:11px;padding:1px 8px;border-radius:8px;border:1px solid var(--line-strong);color:var(--ink-mute)}
+.lvl-badge.pass{border-color:#2e7d4f;color:#2e7d4f}
+.iso-hud{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--ink-dim);margin-bottom:6px}
+.iso-hud b{color:var(--accent);font-family:Georgia,serif;font-size:15px}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">构</span>
+    <h1 style="white-space:nowrap">同分异构体闯关挑战</h1>
+    <span class="lecture-tag">ORGANIC · LAB 03</span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <div class="theme-switch" role="group" aria-label="主题切换">
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="panel-section">
+      <div class="panel-title">关卡（正确率 ≥80% 通关）</div>
+      <div id="lvlList"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">三大异构类型</div>
+      <p class="info-desc">① 碳链异构：主链骨架不同（正/异/新戊烷）；<br>
+      ② 位置异构：官能团位置不同（1-丁烯/2-丁烯）；<br>
+      ③ 官能团异构：类别不同（乙醇/二甲醚、羧酸/酯、烯烃/环烷）。</p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">两大数法</div>
+      <p class="info-desc">① 等效氢法：对称位置的氢等效，一氯代物种数 = 等效氢种数；<br>
+      ② 定一议二法：二元取代先固定一个，再移动另一个，注意去重。</p>
+    </div>
+  </div>
+
+  <div class="canvas-box" style="background:var(--bg-deep)">
+    <div class="iso-stage" id="stage"></div>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">常用结论速记</div>
+      <p class="info-desc">
+      烷烃异构数：C₄=2，C₅=3，C₆=5，C₇=9，C₈=18。<br><br>
+      丁基 4 种 → 丁醇 4、丁基氯 4、戊酸 4；<br>
+      丙基 2 种 → 丙醇 2、丁酸 2。<br><br>
+      苯二取代 3 种（邻间对）；三取代 3 种（连偏均）。<br><br>
+      酯按「酸的碳数」枚举：甲酸酯→醇基种类数……</p>
+    </div>
+  </div>
+</div>
+
+<script>window.__ISO__ = {"chapters": ["烷烃骨架", "等效氢与卤代", "烯烃与炔烃", "苯环定位", "醇醚·羧酸与酯"], "qs": [[0, "丁烷 C₄H₁₀ 的同分异构体有几种？", ["1 种", "2 种", "3 种", "4 种"], 1, "2 种：正丁烷 CH₃CH₂CH₂CH₃ 和异丁烷（2-甲基丙烷）。从 C₄ 开始才有碳链异构。"], [0, "戊烷 C₅H₁₂ 的同分异构体有几种？", ["2 种", "3 种", "4 种", "5 种"], 1, "3 种：正戊烷、2-甲基丁烷（异戊烷）、2,2-二甲基丙烷（新戊烷）。"], [0, "己烷 C₆H₁₄ 的同分异构体有几种？", ["4 种", "5 种", "6 种", "7 种"], 1, "5 种：正己烷、2-甲基戊烷、3-甲基戊烷、2,2-二甲基丁烷、2,3-二甲基丁烷。"], [0, "庚烷 C₇H₁₆ 的同分异构体有几种？", ["7 种", "8 种", "9 种", "11 种"], 2, "9 种。常用数轴记忆：C₄=2、C₅=3、C₆=5、C₇=9、C₈=18。"], [0, "戊烷的三种同分异构体中，沸点最高的是？", ["新戊烷", "异戊烷", "正戊烷", "三者相同"], 2, "正戊烷。支链越多分子间接触面积越小、范德华力越弱，沸点越低：正戊烷 36℃ > 异戊烷 28℃ > 新戊烷 9.5℃。"], [1, "新戊烷（2,2-二甲基丙烷）的一氯代物有几种？", ["1 种", "2 种", "3 种", "4 种"], 0, "1 种。12 个氢全部等效（4 个甲基对称）——这也是证明分子高度对称的经典例子。"], [1, "丁烷 C₄H₁₀ 的一氯代物共有几种？", ["2 种", "3 种", "4 种", "5 种"], 2, "4 种：正丁烷有 2 种等效氢（1 位、2 位）→ 2 种；异丁烷有 2 种（甲基氢、叔氢）→ 2 种；共 4 种。"], [1, "CH₄ 的二氯代物只有 1 种，这一事实证明了什么？", ["甲烷是平面正方形", "甲烷是正四面体结构", "C-H 键完全相同", "氯原子很大"], 1, "若 CH₄ 是平面正方形，CH₂Cl₂ 应有邻位、对位 2 种；只有 1 种说明 4 个氢在空间完全等价 → 正四面体。"], [1, "丙烷的二氯代物 C₃H₆Cl₂ 有几种？", ["2 种", "3 种", "4 种", "5 种"], 2, "4 种：1,1-、2,2-、1,2-、1,3-二氯丙烷。方法：定一议二——先固定一个 Cl，再移动另一个。"], [1, "戊烷 C₅H₁₂ 的一氯代物共有几种？", ["6 种", "7 种", "8 种", "9 种"], 2, "8 种：正戊烷 3 种等效氢、异戊烷 4 种、新戊烷 1 种，共 3+4+1=8 种。"], [2, "分子式 C₄H₈ 的烯烃（不含环烷烃）有几种？", ["2 种", "3 种", "4 种", "5 种"], 1, "3 种：1-丁烯、2-丁烯、2-甲基丙烯（异丁烯）。若把 2-丁烯的顺反异构也算上则为 4 种，高考默认不算顺反时答 3。"], [2, "分子式 C₄H₈ 的同分异构体（含环烷烃）共几种？", ["3 种", "4 种", "5 种", "6 种"], 2, "5 种：3 种烯烃 + 环丁烷 + 甲基环丙烷。烯烃与环烷烃互为官能团异构（类别异构）。"], [2, "C₄H₆ 的炔烃同分异构体有几种？", ["1 种", "2 种", "3 种", "4 种"], 1, "2 种：1-丁炔、2-丁炔。三键不能在端位以外的支链位——炔烃没有碳链异构只有位置异构。"], [2, "C₅H₁₀ 的烯烃（不算顺反）有几种？", ["4 种", "5 种", "6 种", "7 种"], 1, "5 种：1-戊烯、2-戊烯、2-甲基-1-丁烯、3-甲基-1-丁烯、2-甲基-2-丁烯。"], [2, "既能发生加成反应、又能使酸性 KMnO₄ 褪色的 C₄H₈ 有几种结构？", ["1 种", "2 种", "3 种", "4 种"], 2, "3 种（1-丁烯、2-丁烯、异丁烯）。环烷烃虽同为 C₄H₈ 但不能加成、不能使 KMnO₄ 褪色，被性质排除。"], [3, "苯的二氯代物有几种？", ["2 种", "3 种", "4 种", "6 种"], 1, "3 种：邻位、间位、对位。苯环 6 个氢完全等效，第二个氯只有三种相对位置。"], [3, "分子式 C₈H₁₀ 的芳香烃有几种？", ["2 种", "3 种", "4 种", "5 种"], 2, "4 种：乙苯、邻二甲苯、间二甲苯、对二甲苯。"], [3, "甲苯的一氯代物（苯环上 + 侧链上）共几种？", ["3 种", "4 种", "5 种", "6 种"], 1, "4 种：苯环上邻、间、对 3 种 + 侧链甲基上 1 种（苄氯）。注意审题是否限定「苯环上」。"], [3, "苯的三氯代物有几种？", ["3 种", "4 种", "5 种", "6 种"], 0, "3 种：1,2,3-（连）、1,2,4-（偏）、1,3,5-（均）。技巧：三氯代物 = 三氢代物，把未被取代的氢当取代基想。"], [3, "对二甲苯苯环上的一氯代物有几种？", ["1 种", "2 种", "3 种", "4 种"], 0, "1 种。对二甲苯苯环上 4 个氢完全等效（高度对称）。比较：邻二甲苯 2 种、间二甲苯 3 种。"], [4, "分子式 C₄H₁₀O 的醇类有几种？", ["2 种", "3 种", "4 种", "5 种"], 2, "4 种，等于丁基的种数：正丁醇、异丁醇（2-甲基-1-丙醇）、仲丁醇（2-丁醇）、叔丁醇。技巧：—OH 插在哪，就看丁基有几种。"], [4, "分子式 C₄H₁₀O 的醚类有几种？", ["2 种", "3 种", "4 种", "5 种"], 1, "3 种：甲丙醚、甲异丙醚、乙醚。醚 = 两个烃基夹一个氧，注意甲乙醚与甲异丙醚不同。"], [4, "分子式 C₂H₆O 的两种同分异构体体现了哪种异构类型？", ["碳链异构", "位置异构", "官能团异构", "顺反异构"], 2, "官能团异构：乙醇（CH₃CH₂OH，醇）与二甲醚（CH₃OCH₃，醚）。可用与 Na 是否反应鉴别。"], [4, "分子式 C₄H₈O₂ 的羧酸有几种？", ["1 种", "2 种", "3 种", "4 种"], 1, "2 种：丁酸、2-甲基丙酸。羧基必在端位（—COOH 占一个碳），剩下丙基有 2 种。"], [4, "分子式 C₄H₈O₂ 的酯有几种？", ["2 种", "3 种", "4 种", "5 种"], 2, "4 种：甲酸正丙酯、甲酸异丙酯、乙酸乙酯、丙酸甲酯。方法：按「酸的碳数」从 1 开始枚举，两边碳数之和=3。"], [4, "分子式 C₅H₁₀O₂ 的羧酸有几种？", ["2 种", "3 种", "4 种", "5 种"], 2, "4 种：—COOH 占一个碳，剩余丁基有 4 种（正/异/仲/叔），即 4 种戊酸。"], [4, "分子式 C₅H₁₀O₂ 的酯有几种？", ["5 种", "7 种", "9 种", "10 种"], 2, "9 种：甲酸丁酯 4 种（丁基 4）+ 乙酸丙酯 2 种（丙基 2）+ 丙酸乙酯 1 种 + 丁酸甲酯 2 种 = 9。"]]};</script>
+<script>
+/* ===== 同分异构体闯关 ===== */
+const D = window.__ISO__;
+const $ = (id) => document.getElementById(id);
+const LS = "chem-iso-progress-v1";
+let prog = JSON.parse(localStorage.getItem(LS) || "{}");
+const save = () => localStorage.setItem(LS, JSON.stringify(prog));
+let ch = 0, qi = 0, rightCnt = 0, answered = false;
+
+function chQs(c){ return D.qs.map((q,i)=>({...q,i})).filter(q => q[0] === c); }
+
+function renderChapters(){
+  const w = $("lvlList"); w.innerHTML = "";
+  D.chapters.forEach((n,c) => {
+    const p = prog[c];
+    const total = chQs(c).length;
+    const badge = p && p.done ? `<span class="lvl-badge pass">已通关 ${p.score}/${total}</span>`
+      : p ? `<span class="lvl-badge">${p.score}/${total}</span>` : `<span class="lvl-badge">未开始</span>`;
+    const d = document.createElement("div");
+    d.className = "lvl-item" + (c===ch?" cur":"");
+    d.innerHTML = `<span>第${"一二三四五"[c]}章 · ${n}</span>${badge}`;
+    d.onclick = () => { ch = c; qi = 0; rightCnt = 0; renderChapters(); renderQ(); };
+    w.appendChild(d);
+  });
+}
+
+function renderQ(){
+  answered = false;
+  const list = chQs(ch);
+  if (qi >= list.length) return renderSummary(list.length);
+  const q = list[qi];
+  $("stage").innerHTML = `
+    <div class="iso-card">
+      <div class="iso-hud"><span>第${"一二三四五"[ch]}章 · ${D.chapters[ch]}</span>
+        <span>第 <b>${qi+1}</b> / ${list.length} 题</span><span>已对 <b>${rightCnt}</b></span></div>
+      <div class="iso-q">${q[1]}</div>
+      ${q[2].map((o,i) => `<button class="iso-opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join("")}
+      <div id="exp"></div>
+    </div>`;
+  $("stage").querySelectorAll(".iso-opt").forEach(b => b.onclick = () => answer(q, +b.dataset.i, b));
+}
+function answer(q, pick, btn){
+  if (answered) return; answered = true;
+  const right = pick === q[3];
+  if (right) rightCnt++;
+  $("stage").querySelectorAll(".iso-opt").forEach(b => {
+    if (+b.dataset.i === q[3]) b.classList.add("right");
+    else if (b === btn) b.classList.add("wrong");
+  });
+  $("exp").innerHTML = `<div class="iso-exp">${right?"✓ 回答正确。":"✗ 正确答案：" + q[2][q[3]] + "。"}${q[4]}</div>`;
+  setTimeout(() => { qi++; renderQ(); }, right ? 1600 : 3200);
+}
+function renderSummary(total){
+  const pass = rightCnt / total >= 0.8;
+  const old = prog[ch] || {score: 0, done: false};
+  prog[ch] = {score: Math.max(old.score, rightCnt), done: old.done || pass};
+  save(); renderChapters();
+  $("stage").innerHTML = `
+    <div class="iso-card" style="text-align:center">
+      <div style="font-size:44px">${pass?"🏆":"📖"}</div>
+      <div style="font-size:20px;font-family:var(--serif-cn);margin:10px 0">
+        本章得分 ${rightCnt} / ${total}　${pass ? "通关！" : "未通关（需 ≥80%）"}</div>
+      <p class="info-desc">${pass ? "可以去挑战下一章了。" : "建议看解析复盘后再来一轮，同分异构体数错一次就要补一次。"}</p>
+      <button class="func-btn" id="btnAgain2" style="margin-top:8px">再来一轮</button>
+    </div>`;
+  $("btnAgain2").onclick = () => { qi = 0; rightCnt = 0; renderQ(); };
+}
+
+renderChapters(); renderQ();
+</script>
+<script>/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();</script>
+</body>
+</html>
