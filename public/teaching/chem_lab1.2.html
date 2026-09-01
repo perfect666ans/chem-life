@@ -216,10 +216,12 @@ body::after{
   border-radius:8px;border:1px solid var(--line);margin-top:10px;
 }
 
+
+
+
 </style>
 </head>
 <body>
-
 <nav class="topnav">
   <div class="brand">
     <span class="badge">晶</span>
@@ -227,39 +229,35 @@ body::after{
     <span class="lecture-tag">STRUCTURE · LAB 02</span>
   </div>
   <div class="nav-right">
-    <a class="nav-btn" id="openVseprPage" href="chem_lab1.1.html">切换 VSEPR 分子模型 <span class="arr">→</span></a>
-    <button class="nav-btn back-btn" id="backHome" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <a class="nav-btn" href="chem_lab1.1.html">切换 VSEPR 分子模型 <span class="arr">→</span></a>
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
     <div class="theme-switch" role="group" aria-label="主题切换">
-  <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
-  <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
-  <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
-</div>
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
   </div>
 </nav>
 
 <div class="main-wrap">
   <div class="side left-panel">
-    <div class="info-card" id="crystalInfoBox">
-      <h2>NaCl 氯化钠</h2>
-      <div class="tag-wrap" id="tagWrap">
-        <span class="info-tag">离子晶体</span>
-        <span class="info-tag">配位数6:6</span>
-        <span class="info-tag">a=1.6nm</span>
-      </div>
-      <p class="info-desc">晶胞中心坐标系原点(0,0,0)，坐标范围 -0.8 ~ +0.8，拖拽画布以晶胞中心为支点旋转</p>
+    <div class="info-card">
+      <h2 id="crysName">—</h2>
+      <div class="tag-wrap" id="tagWrap"></div>
+      <p class="info-desc" id="crysDesc"></p>
     </div>
     <div class="panel-section">
       <div class="panel-title">微粒透明度</div>
       <div class="slider-wrap">
-        <input type="range" id="opacitySlider" min="0.05" max="1.0" step="0.01" value="0.4">
-        <div class="slider-tip" id="opacityTip">透明度：0.4（默认中点）</div>
+        <input type="range" id="opacitySlider" min="0.1" max="1.0" step="0.01" value="0.85">
+        <div class="slider-tip" id="opacityTip">透明度 0.85</div>
       </div>
     </div>
     <div class="panel-section">
       <div class="panel-title">晶胞延展范围</div>
       <div class="slider-wrap">
-        <input type="range" id="cellExtendSlider" min="0" max="1" step="0.001" value="0">
-        <div class="slider-tip" id="sliderTip">仅显示中心1个最小晶胞</div>
+        <input type="range" id="cellExtendSlider" min="0" max="1" step="0.01" value="0">
+        <div class="slider-tip" id="sliderTip">仅显示中心 1 个晶胞</div>
       </div>
     </div>
     <div class="panel-section">
@@ -269,9 +267,10 @@ body::after{
     <div class="panel-section">
       <div class="panel-title">晶胞边界切割</div>
       <div class="switch-row">
-        <span class="switch-label">开启立方体切割</span>
+        <span class="switch-label">沿晶胞边界切平</span>
         <div class="switch" id="clipCellSwitch"></div>
       </div>
+      <p class="info-desc">顶点微粒只留 1/8，棱上留 1/4，面上留 1/2——真实呈现晶胞分摊。</p>
     </div>
   </div>
 
@@ -280,9 +279,10 @@ body::after{
     <div class="proj-modal" id="projModal">
       <h3>二维投影点阵图 <button class="proj-close" id="closeProj">×</button></h3>
       <select class="proj-select" id="projViewSelect">
-        <option value="001">俯视c轴 [001]</option>
-        <option value="100">俯视a轴 [100]</option>
-        <option value="010">俯视b轴 [010]</option>
+        <option value="001">俯视 c 轴 [001]</option>
+        <option value="100">俯视 a 轴 [100]</option>
+        <option value="010">俯视 b 轴 [010]</option>
+        <option value="110">对角视图 [110]</option>
       </select>
       <canvas class="proj-canvas" id="projCanvas"></canvas>
     </div>
@@ -296,7 +296,7 @@ body::after{
         <option value="metal">金属晶体</option>
         <option value="covalent">共价晶体</option>
         <option value="molecule">分子晶体</option>
-        <option value="mix">混合晶体</option>
+        <option value="mix">混合型晶体</option>
       </select>
     </div>
     <div class="panel-section">
@@ -307,19 +307,12 @@ body::after{
       <div class="panel-title">显示样式</div>
       <select class="select-box" id="modelStyleSel">
         <option value="ballstick">球棍模型</option>
-        <option value="spacefill">空间填充（原子相切）</option>
+        <option value="spacefill">比例模型（相邻粒子相切）</option>
       </select>
     </div>
-    <div class="panel-section">
+    <div class="panel-section" id="speciesSection">
       <div class="panel-title">微粒显隐</div>
-      <div class="switch-row">
-        <span class="switch-label">显示粒子A</span>
-        <div class="switch active" id="showAtom1Switch"></div>
-      </div>
-      <div class="switch-row">
-        <span class="switch-label">显示粒子B</span>
-        <div class="switch active" id="showAtom2Switch"></div>
-      </div>
+      <div id="speciesToggles"></div>
     </div>
     <div class="panel-section">
       <div class="panel-title">点阵投影分析</div>
@@ -329,7 +322,6 @@ body::after{
 </div>
 
 <script>
-
 /* ========= 主题切换 washi / sumi / ai ========= */
 (function(){
   const root=document.documentElement, KEY='ch-theme-lab';
@@ -341,644 +333,375 @@ body::after{
   document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
   sync();
 })();
+</script>
+<script>
+const CRYSTALS = {"nacl": {"name": "NaCl 氯化钠（食盐）", "type": "ion", "tags": ["NaCl 型", "配位数 6:6", "面心立方"], "desc": "Na⁺ 与 Cl⁻ 交替占据面心立方阵点。厨房食盐的微观结构。", "note": "", "species": [{"sp": "Na", "color": 16034128, "r": 1.02}, {"sp": "Cl", "color": 3523725, "r": 1.81}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "kcl": {"name": "KCl 氯化钾", "type": "ion", "tags": ["NaCl 型", "配位数 6:6"], "desc": "低钠盐的主要成分，结构与食盐相同，K⁺ 半径更大。", "note": "", "species": [{"sp": "K", "color": 13148927, "r": 1.38}, {"sp": "Cl", "color": 3523725, "r": 1.81}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "lif": {"name": "LiF 氟化锂", "type": "ion", "tags": ["NaCl 型", "配位数 6:6"], "desc": "锂离子电池电解质原料之一，Li⁺ 是常见离子中半径最小的一档。", "note": "", "species": [{"sp": "Li", "color": 16765286, "r": 0.76}, {"sp": "F", "color": 8909055, "r": 1.33}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "mgo": {"name": "MgO 氧化镁", "type": "ion", "tags": ["NaCl 型", "耐火材料"], "desc": "耐火砖主要成分，熔点高达 2852 ℃，离子键很强。", "note": "", "species": [{"sp": "Mg", "color": 8188028, "r": 0.72}, {"sp": "O", "color": 15688801, "r": 1.4}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "bao": {"name": "BaO 氧化钡", "type": "ion", "tags": ["NaCl 型", "配位数 6:6"], "desc": "Ba²⁺ 半径大，与 O²⁻ 形成 NaCl 型堆积。", "note": "", "species": [{"sp": "Ba", "color": 6737151, "r": 1.35}, {"sp": "O", "color": 15688801, "r": 1.4}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "cscl": {"name": "CsCl 氯化铯", "type": "ion", "tags": ["CsCl 型", "配位数 8:8", "简单立方"], "desc": "Cl⁻ 作简单立方堆积，Cs⁺ 填入体心立方空隙。", "note": "", "species": [{"sp": "Cs", "color": 11569655, "r": 1.67}, {"sp": "Cl", "color": 3523725, "r": 1.81}], "atoms": [[0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "csbr": {"name": "CsBr 溴化铯", "type": "ion", "tags": ["CsCl 型", "配位数 8:8"], "desc": "与 CsCl 同构，红外光学材料。", "note": "", "species": [{"sp": "Cs", "color": 11569655, "r": 1.67}, {"sp": "Br", "color": 14251874, "r": 1.96}], "atoms": [[0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "zns": {"name": "ZnS 闪锌矿", "type": "ion", "tags": ["闪锌矿型", "配位数 4:4", "四面体配位"], "desc": "S²⁻ 面心立方，Zn²⁺ 占据半数四面体空隙。夜光粉常用基材。", "note": "", "species": [{"sp": "Zn", "color": 15253864, "r": 0.74}, {"sp": "S", "color": 16768324, "r": 1.84}], "atoms": [[0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "caf2": {"name": "CaF₂ 萤石", "type": "ion", "tags": ["萤石型", "配位数 8:4"], "desc": "Ca²⁺ 面心立方，F⁻ 填满全部四面体空隙。萤石可磨制光学镜片。", "note": "", "species": [{"sp": "Ca", "color": 16753920, "r": 1.0}, {"sp": "F", "color": 8909055, "r": 1.33}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [1, -0.4, -0.4, -0.4], [1, -0.4, 0.4, 0.4], [1, 0.4, -0.4, 0.4], [1, 0.4, 0.4, -0.4], [1, -0.4, -0.4, 0.4], [1, -0.4, 0.4, -0.4], [1, 0.4, -0.4, -0.4], [1, 0.4, 0.4, 0.4]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "tio2": {"name": "TiO₂ 金红石", "type": "ion", "tags": ["金红石型", "配位数 6:3"], "desc": "防晒霜与白色颜料的主要成分，Ti 六配位、O 三配位。", "note": "", "species": [{"sp": "Ti", "color": 11584734, "r": 0.61}, {"sp": "O", "color": 15688801, "r": 1.4}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0], [1, -0.32, -0.32, -0.8], [1, 0.32, 0.32, -0.8], [1, 0.48, -0.48, 0.0], [1, -0.48, 0.48, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "cu2o": {"name": "Cu₂O 氧化亚铜", "type": "ion", "tags": ["赤铜矿型", "半导体"], "desc": "O 作体心立方排布，Cu 位于四面体位置，是经典半导体材料。", "note": "", "species": [{"sp": "Cu", "color": 13667151, "r": 0.77}, {"sp": "O", "color": 15688801, "r": 1.4}], "atoms": [[0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "cu": {"name": "Cu 金属铜", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。导线、电缆的核心材料。", "note": "", "species": [{"sp": "Cu", "color": 13667151, "r": 1.28}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "ag": {"name": "Ag 金属银", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。导电性最好的金属。", "note": "", "species": [{"sp": "Ag", "color": 15263976, "r": 1.44}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "au": {"name": "Au 金属金", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。延展性最好的金属。", "note": "", "species": [{"sp": "Au", "color": 16766720, "r": 1.44}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "al": {"name": "Al 金属铝", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。地壳含量最高的金属。", "note": "", "species": [{"sp": "Al", "color": 13684944, "r": 1.43}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "ni": {"name": "Ni 金属镍", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。不锈钢与电池材料。", "note": "", "species": [{"sp": "Ni", "color": 11055288, "r": 1.25}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "na": {"name": "Na 金属钠", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。活泼金属，保存在煤油中。", "note": "", "species": [{"sp": "Na", "color": 16034128, "r": 1.86}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "k": {"name": "K 金属钾", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。比钠更活泼。", "note": "", "species": [{"sp": "K", "color": 13148927, "r": 2.27}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "fe": {"name": "Fe α-铁", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。常温下铁为体心立方。", "note": "", "species": [{"sp": "Fe", "color": 10260367, "r": 1.26}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "w": {"name": "W 金属钨", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。熔点最高的金属，灯丝材料。", "note": "", "species": [{"sp": "W", "color": 7240587, "r": 1.37}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "ba": {"name": "Ba 金属钡", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。碱土金属。", "note": "", "species": [{"sp": "Ba", "color": 6737151, "r": 2.17}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "po": {"name": "Po 金属钋（简单立方）", "type": "metal", "tags": ["金属晶体", "简单立方", "配位数 6"], "desc": "唯一以简单立方堆积的金属，配位数 6，空间利用率仅 52%。", "note": "", "species": [{"sp": "Po", "color": 11176123, "r": 1.68}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "mg": {"name": "Mg 金属镁（六方最密）", "type": "metal", "tags": ["金属晶体", "六方最密堆积", "配位数 12"], "desc": "hcp 六方最密堆积（Mg、Zn、Ti 同类），配位数 12，空间利用率 74%。", "note": "六方晶胞：延展仅沿 c 轴方向堆叠", "species": [{"sp": "Mg", "color": 8188028, "r": 1.6}], "atoms": [[0, 0.62, 0.0, -0.506], [0, 0.31, 0.5369, -0.506], [0, -0.31, 0.5369, -0.506], [0, -0.62, 0.0, -0.506], [0, -0.31, -0.5369, -0.506], [0, 0.31, -0.5369, -0.506], [0, 0, 0, -0.506], [0, 0.31, 0.179, 0], [0, 0.0, 0.358, 0], [0, -0.31, 0.179, 0], [0, 0.62, 0.0, 0.506], [0, 0.31, 0.5369, 0.506], [0, -0.31, 0.5369, 0.506], [0, -0.62, 0.0, 0.506], [0, -0.31, -0.5369, 0.506], [0, 0.31, -0.5369, 0.506], [0, 0, 0, 0.506]], "bond": false, "cell": {"half": [0.62, 0.62, 0.506], "vec": [0, 0, 1.012], "frame": "hex", "hexR": 0.62}}, "diamond": {"name": "金刚石 C", "type": "covalent", "tags": ["共价晶体", "sp³ 正四面体", "最硬天然物质"], "desc": "每个 C 与 4 个相邻 C 以共价键相连，形成空间网状结构。", "note": "", "species": [{"sp": "C", "color": 11581117, "r": 0.77}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "si": {"name": "单晶硅 Si", "type": "covalent", "tags": ["共价晶体", "金刚石型", "芯片基材"], "desc": "与金刚石同构，是芯片与光伏板的基础材料。", "note": "", "species": [{"sp": "Si", "color": 12759680, "r": 1.11}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "sic": {"name": "SiC 碳化硅", "type": "covalent", "tags": ["共价晶体", "闪锌矿型", "金刚砂"], "desc": "C 与 Si 交替占据金刚石阵点，硬度仅次于金刚石，作磨料。", "note": "", "species": [{"sp": "Si", "color": 12759680, "r": 1.11}, {"sp": "C", "color": 11581117, "r": 0.77}], "atoms": [[0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "sio2": {"name": "SiO₂ 石英（方石英型）", "type": "covalent", "tags": ["共价晶体", "SiO₄ 四面体", "沙子主要成分"], "desc": "每个 Si 连 4 个 O 形成四面体，每个 O 桥接两个 Si。河沙、水晶的主要成分。", "note": "", "species": [{"sp": "Si", "color": 12759680, "r": 1.11}, {"sp": "O", "color": 15688801, "r": 0.66}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4], [1, -0.6, -0.6, -0.6], [1, -0.2, -0.2, -0.6], [1, -0.2, -0.6, -0.2], [1, -0.6, -0.2, -0.2], [1, -0.6, 0.6, 0.6], [1, -0.2, 0.2, 0.6], [1, -0.2, 0.6, 0.2], [1, -0.6, 0.2, 0.2], [1, 0.6, -0.6, 0.6], [1, 0.2, -0.2, 0.6], [1, 0.2, -0.6, 0.2], [1, 0.6, -0.2, 0.2], [1, 0.6, 0.6, -0.6], [1, 0.2, 0.2, -0.6], [1, 0.2, 0.6, -0.2], [1, 0.6, 0.2, -0.2]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "co2": {"name": "CO₂ 干冰", "type": "molecule", "tags": ["分子晶体", "面心立方", "升华制冷"], "desc": "CO₂ 分子占据面心立方阵点，分子间仅靠范德华力，所以易升华。", "note": "", "species": [{"sp": "C", "color": 11581117, "r": 0.77}, {"sp": "O", "color": 15688801, "r": 0.66}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, 0.208, 0.208, -0.592], [1, -0.208, -0.208, 0.592], [1, 0.208, 0.208, -0.592], [1, -0.208, -0.208, 0.592], [1, 0.208, -0.592, 0.208], [1, -0.208, 0.592, -0.208], [1, 0.208, -0.592, 0.208], [1, -0.208, 0.592, -0.208], [1, -0.592, 0.208, 0.208], [1, 0.592, -0.208, -0.208], [1, -0.592, 0.208, 0.208], [1, 0.592, -0.208, -0.208]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "i2": {"name": "I₂ 碘晶体", "type": "molecule", "tags": ["分子晶体", "双原子分子", "易升华"], "desc": "I₂ 分子成对排列，分子内是共价键、分子间是范德华力，所以碘易升华、易溶于酒精。", "note": "", "species": [{"sp": "I", "color": 11894492, "r": 1.33}], "atoms": [[0, -0.8, -0.8, -0.544], [0, -0.8, -0.8, 0.544], [0, -0.8, -0.8, -0.544], [0, -0.8, -0.8, 0.544], [0, -0.8, 0.8, -0.544], [0, -0.8, 0.8, 0.544], [0, -0.8, 0.8, -0.544], [0, -0.8, 0.8, 0.544], [0, 0.8, -0.8, -0.544], [0, 0.8, -0.8, 0.544], [0, 0.8, -0.8, -0.544], [0, 0.8, -0.8, 0.544], [0, 0.8, 0.8, -0.544], [0, 0.8, 0.8, 0.544], [0, 0.8, 0.8, -0.544], [0, 0.8, 0.8, 0.544], [0, 0.0, 0.0, -0.544], [0, 0.0, 0.0, 0.544], [0, 0.0, 0.0, -0.544], [0, 0.0, 0.0, 0.544]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "p4": {"name": "P₄ 白磷", "type": "molecule", "tags": ["分子晶体", "正四面体分子", "自燃"], "desc": "4 个 P 构成正四面体小分子，键角被迫弯成 60°，张力大所以活泼、40℃ 即自燃。", "note": "", "species": [{"sp": "P", "color": 16747625, "r": 1.1}], "atoms": [[0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, 0.144, 0.144, -0.656], [0, 0.144, -0.144, 0.656], [0, -0.144, 0.144, 0.656], [0, -0.144, -0.144, -0.656], [0, 0.144, 0.144, -0.656], [0, 0.144, -0.144, 0.656], [0, -0.144, 0.144, 0.656], [0, -0.144, -0.144, -0.656], [0, 0.144, -0.656, 0.144], [0, 0.144, 0.656, -0.144], [0, -0.144, -0.656, -0.144], [0, -0.144, 0.656, 0.144], [0, 0.144, -0.656, 0.144], [0, 0.144, 0.656, -0.144], [0, -0.144, -0.656, -0.144], [0, -0.144, 0.656, 0.144], [0, -0.656, 0.144, 0.144], [0, -0.656, -0.144, -0.144], [0, 0.656, 0.144, -0.144], [0, 0.656, -0.144, 0.144], [0, -0.656, 0.144, 0.144], [0, -0.656, -0.144, -0.144], [0, 0.656, 0.144, -0.144], [0, 0.656, -0.144, 0.144]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "graphite": {"name": "石墨 C", "type": "mix", "tags": ["混合型晶体", "层状结构", "导电"], "desc": "层内 C–C 共价键（键长 142 pm），层间范德华力。铅笔芯、电极材料。", "note": "层状结构：延展仅沿层间方向堆叠", "species": [{"sp": "C", "color": 11581117, "r": 0.77}], "atoms": [[0, -0.5196, 0.6, -0.42], [0, -0.5196, -0.3, -0.42], [0, -0.5196, 0.0, -0.42], [0, -0.2598, 0.15, -0.42], [0, -0.2598, 0.45, -0.42], [0, 0.0, 0.6, -0.42], [0, -0.2598, -0.75, -0.42], [0, -0.2598, -0.45, -0.42], [0, 0.0, -0.3, -0.42], [0, 0.0, 0.0, -0.42], [0, 0.2598, 0.15, -0.42], [0, 0.2598, 0.45, -0.42], [0, 0.5196, 0.6, -0.42], [0, 0.2598, -0.75, -0.42], [0, 0.2598, -0.45, -0.42], [0, 0.5196, -0.3, -0.42], [0, 0.5196, 0.0, -0.42], [0, -0.5196, 0.0, 0.42], [0, -0.5196, 0.3, 0.42], [0, -0.2598, 0.45, 0.42], [0, -0.2598, 0.75, 0.42], [0, -0.5196, -0.6, 0.42], [0, -0.2598, -0.45, 0.42], [0, -0.2598, -0.15, 0.42], [0, 0.0, 0.0, 0.42], [0, 0.0, 0.3, 0.42], [0, 0.2598, 0.45, 0.42], [0, 0.2598, 0.75, 0.42], [0, 0.0, -0.6, 0.42], [0, 0.2598, -0.45, 0.42], [0, 0.2598, -0.15, 0.42], [0, 0.5196, 0.0, 0.42], [0, 0.5196, 0.3, 0.42], [0, 0.5196, -0.6, 0.42]], "bond": true, "cell": {"half": [0.8, 0.8, 0.84], "vec": [0, 0, 1.68], "frame": "cube"}}};
+const GROUPS = {"ion": ["nacl", "kcl", "lif", "mgo", "bao", "cscl", "csbr", "zns", "caf2", "tio2", "cu2o"], "metal": ["cu", "ag", "au", "al", "ni", "na", "k", "fe", "w", "ba", "po", "mg"], "covalent": ["diamond", "si", "sic", "sio2"], "molecule": ["co2", "i2", "p4"], "mix": ["graphite"]};
 
-// ===================== 全局基础初始化 晶胞中心坐标系 =====================
+
+/* ================= 基础场景 ================= */
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0e17);
+scene.background = new THREE.Color(0x0d1017);
 const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 2000);
-camera.position.z = 10;
+camera.position.set(6.5, 5.2, 8.5);
+camera.lookAt(0, 0, 0);
 const canvas = document.getElementById('crystalCanvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.localClippingEnabled = true;
 const wrapDom = document.querySelector('.canvas-box');
-const CELL_HALF = 0.8;
-const CELL_SIZE = CELL_HALF * 2;
-
-function resizeRender() {
-  const w = wrapDom.clientWidth;
-  const h = wrapDom.clientHeight;
-  renderer.setSize(w, h);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
+function resizeRender(){
+  const w = wrapDom.clientWidth, h = wrapDom.clientHeight;
+  renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
 }
 resizeRender();
 window.addEventListener('resize', resizeRender);
-window.addEventListener('load', ()=>{
-  setTimeout(resizeRender, 100);
-  refreshMaterialList();
-});
 
-// 光照系统
-scene.add(new THREE.AmbientLight(0xffffff, 0.42));
-const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.72);
-dirLight1.position.set(9, 11, 13);
-scene.add(dirLight1);
-const dirLight2 = new THREE.DirectionalLight(0xc6e0ff, 0.31);
-dirLight2.position.set(-9, -7, -11);
-scene.add(dirLight2);
+scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+const keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
+keyLight.position.set(9, 11, 13); scene.add(keyLight);
+const rimLight = new THREE.DirectionalLight(0xa7c8ff, 0.35);
+rimLight.position.set(-9, -7, -11); scene.add(rimLight);
 
-const crystalRoot = new THREE.Group();
-scene.add(crystalRoot);
+const root = new THREE.Group(); scene.add(root);
 
-// 旋转逻辑根治：支点永久晶胞中心原点(0,0,0)，不偏移顶点
-let drag = false;
-let lastX = 0, lastY = 0;
-canvas.addEventListener('mousedown', e => {
-  drag = true;
-  lastX = e.clientX;
-  lastY = e.clientY;
-});
+/* 拖拽旋转 + 滚轮缩放 */
+let drag = false, lastX = 0, lastY = 0;
+canvas.addEventListener('mousedown', e => { drag = true; lastX = e.clientX; lastY = e.clientY; });
 canvas.addEventListener('mousemove', e => {
   if (!drag) return;
-  const dx = e.clientX - lastX;
-  const dy = e.clientY - lastY;
-  crystalRoot.rotation.y += dx * 0.005;
-  crystalRoot.rotation.x += dy * 0.005;
-  lastX = e.clientX;
-  lastY = e.clientY;
+  root.rotation.y += (e.clientX - lastX) * 0.005;
+  root.rotation.x += (e.clientY - lastY) * 0.005;
+  lastX = e.clientX; lastY = e.clientY;
+  updateClipPlanes();
 });
-canvas.addEventListener('mouseup', () => drag = false);
-canvas.addEventListener('mouseleave', () => drag = false);
+['mouseup','mouseleave'].forEach(ev => canvas.addEventListener(ev, () => drag = false));
 canvas.addEventListener('wheel', e => {
   e.preventDefault();
-  camera.position.z += e.deltaY * 0.01;
-  camera.position.z = THREE.MathUtils.clamp(camera.position.z, 4, 25);
-});
+  const s = 1 + e.deltaY * 0.001;
+  camera.position.multiplyScalar(s);
+  const l = camera.position.length();
+  if (l < 3.5) camera.position.setLength(3.5);
+  if (l > 30) camera.position.setLength(30);
+}, { passive:false });
 
-// ===================== 全局配置（已删除化学键开关/粗细滑块） =====================
-let config = {
-  crystalType: 'ion',
-  material: 'nacl',
-  cellExtend: 0,
-  modelStyle: 'ballstick',
-  showAtom1: true,
-  showAtom2: true,
-  particleOpacity: 0.4,
-  clipCell: false
-};
+/* ================= 状态 ================= */
+const state = { type:'ion', mat:'nacl', extend:0, style:'ballstick', opacity:0.85, clip:false, hidden:new Set() };
 
-// 全元素固定配色（统一规范，每种原子唯一色）
-const ATOM_COLOR_MAP = {
-  Na:0xff9494, Cl:0x10b981, Cs:0xc8a2ff, O:0x87cefa,
-  Si:0x999999, C:0x333333, Zn:0xffd700, S:0xffdd44,
-  Ca:0xffa500, F:0x87f0ff, Mg:0x7cf07c, Ti:0xb0c4de,
-  Cu:0xb87333, Fe:0x777777, Ag:0xe8e8e8, Au:0xffd700,
-  I:0x9932cc, Li:0xffe066, Ba:0x66ccff, W:0x555555,
-  Al:0xd0d0d0, Ni:0x888888, P:0xff6666, H:0xf8f8f8,
-  Po:0xaa88bb
-};
-const COLOR_FRAME = 0x3b82f6;
-
-// ===================== 扩容全部晶体分类列表 =====================
-const crystalTypeGroup = {
-  ion: ["nacl", "cscl", "zns", "caf2", "mgo", "lif", "bao", "tio2"],
-  metal: ["cu", "ag", "au", "al", "ni", "fe", "na", "w", "mg", "zn", "ti", "po"],
-  covalent: ["diamond", "si", "sic", "sio2"],
-  molecule: ["co2", "i2", "p4", "h2o", "s8"],
-  mix: ["graphite", "mica"]
-};
-
-// ===================== 完整标准晶胞数据库（统一中心坐标系 -0.8~0.8） =====================
-const crystalDataLib = {
-  nacl:{
-    name:"NaCl 氯化钠",formula:"NaCl",type:"ion",tag:["离子晶体","NaCl型","配位数6:6"],desc:"Na⁺、Cl⁻交替面心立方",
-    atom1:"Na",atom2:"Cl",rad1:0.22,rad2:0.32,
-    atom1Pos:[
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF],[0,0,0],
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF]
-    ],
-    atom2Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ]
-  },
-  cscl:{
-    name:"CsCl 氯化铯",formula:"CsCl",type:"ion",tag:["离子晶体","CsCl型","配位数8:8"],desc:"简单立方穿插结构",
-    atom1:"Cs",atom2:"Cl",rad1:0.28,rad2:0.35,
-    atom1Pos:[[0,0,0]],
-    atom2Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF]
-    ]
-  },
-  zns:{
-    name:"ZnS 闪锌矿",formula:"ZnS",type:"ion",tag:["离子晶体","闪锌矿型","配位数4:4"],desc:"类金刚石四面体配位",
-    atom1:"Zn",atom2:"S",rad1:0.20,rad2:0.30,
-    atom1Pos:[[-0.4,-0.4,-0.4],[0.4,0.4,-0.4],[0.4,-0.4,0.4],[-0.4,0.4,0.4]],
-    atom2Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ]
-  },
-  caf2:{
-    name:"CaF₂ 萤石",formula:"CaF₂",type:"ion",tag:["离子晶体","萤石型","配位数8:4"],desc:"Ca面心立方，F填充四面体空隙",
-    atom1:"Ca",atom2:"F",rad1:0.25,rad2:0.18,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],
-      [-CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],[0,0,0]
-    ],
-    atom2Pos:[[-0.4,-0.4,-0.4],[0.4,-0.4,-0.4],[-0.4,0.4,-0.4],[0.4,0.4,-0.4],[-0.4,-0.4,0.4],[0.4,-0.4,0.4],[-0.4,0.4,0.4],[0.4,0.4,0.4]]
-  },
-  mgo:{
-    name:"MgO 氧化镁",formula:"MgO",type:"ion",tag:["离子晶体","NaCl型氧化物"],desc:"Mg、O交替面心立方",
-    atom1:"Mg",atom2:"O",rad1:0.20,rad2:0.30,
-    atom1Pos:[
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF],[0,0,0],
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF]
-    ],
-    atom2Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ]
-  },
-  lif:{
-    name:"LiF 氟化锂",formula:"LiF",type:"ion",tag:["离子晶体","NaCl型卤化物"],desc:"Li、F交替面心立方",
-    atom1:"Li",atom2:"F",rad1:0.18,rad2:0.32,
-    atom1Pos:[
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF],[0,0,0],
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF]
-    ],
-    atom2Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ]
-  },
-  bao:{
-    name:"BaO 氧化钡",formula:"BaO",type:"ion",tag:["离子晶体","NaCl型氧化物"],desc:"Ba、O交替面心立方",
-    atom1:"Ba",atom2:"O",rad1:0.33,rad2:0.28,
-    atom1Pos:[
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF],[0,0,0],
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF]
-    ],
-    atom2Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ]
-  },
-  tio2:{
-    name:"TiO₂ 金红石",formula:"TiO₂",type:"ion",tag:["离子晶体","金红石型"],desc:"Ti六配位O，O三配位Ti",
-    atom1:"Ti",atom2:"O",rad1:0.21,rad2:0.26,
-    atom1Pos:[[-0.4,0,0],[0.4,0,0],[0,-0.4,0],[0,0.4,0],[0,0,-0.4],[0,0,0.4],[0,0,0]],
-    atom2Pos:[[-0.3,-0.3,-0.3],[0.3,0.3,-0.3],[0.3,-0.3,0.3],[-0.3,0.3,0.3],[-0.3,-0.3,0.3],[0.3,0.3,0.3],[0.3,-0.3,-0.3],[-0.3,0.3,-0.3]]
-  },
-  cu:{
-    name:"Cu 金属铜(面心立方)",formula:"Cu",type:"metal",tag:["金属晶体","FCC面心立方"],desc:"配位数12，最密堆积",
-    atom1:"Cu",atom2:null,rad1:0.35,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ],
-    atom2Pos:[]
-  },
-  ag:{
-    name:"Ag 金属银(面心立方)",formula:"Ag",type:"metal",tag:["金属晶体","FCC面心立方"],desc:"配位数12",
-    atom1:"Ag",atom2:null,rad1:0.36,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ],
-    atom2Pos:[]
-  },
-  au:{
-    name:"Au 金属金(面心立方)",formula:"Au",type:"metal",tag:["金属晶体","FCC面心立方"],desc:"配位数12",
-    atom1:"Au",atom2:null,rad1:0.37,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ],
-    atom2Pos:[]
-  },
-  al:{
-    name:"Al 金属铝(面心立方)",formula:"Al",type:"metal",tag:["金属晶体","FCC面心立方"],desc:"配位数12",
-    atom1:"Al",atom2:null,rad1:0.34,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ],
-    atom2Pos:[]
-  },
-  ni:{
-    name:"Ni 金属镍(面心立方)",formula:"Ni",type:"metal",tag:["金属晶体","FCC面心立方"],desc:"配位数12",
-    atom1:"Ni",atom2:null,rad1:0.33,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ],
-    atom2Pos:[]
-  },
-  fe:{
-    name:"Fe 金属铁(体心立方)",formula:"Fe",type:"metal",tag:["金属晶体","BCC体心立方"],desc:"配位数8",
-    atom1:"Fe",atom2:null,rad1:0.32,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],[0,0,0]
-    ],
-    atom2Pos:[]
-  },
-  na:{
-    name:"Na 金属钠(体心立方)",formula:"Na",type:"metal",tag:["金属晶体","BCC体心立方"],desc:"配位数8",
-    atom1:"Na",atom2:null,rad1:0.38,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],[0,0,0]
-    ],
-    atom2Pos:[]
-  },
-  w:{
-    name:"W 金属钨(体心立方)",formula:"W",type:"metal",tag:["金属晶体","BCC体心立方"],desc:"配位数8",
-    atom1:"W",atom2:null,rad1:0.30,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],[0,0,0]
-    ],
-    atom2Pos:[]
-  },
-  mg:{
-    name:"Mg 金属镁(六方密堆)",formula:"Mg",type:"metal",tag:["金属晶体","HCP六方密堆"],desc:"配位数12",
-    atom1:"Mg",atom2:null,rad1:0.36,rad2:0,
-    atom1Pos:[[-0.533,0,-0.4],[0.533,0,-0.4],[-0.533,0,0.4],[0.533,0,0.4],[0,0,0]],
-    atom2Pos:[]
-  },
-  zn:{
-    name:"Zn 金属锌(六方密堆)",formula:"Zn",type:"metal",tag:["金属晶体","HCP六方密堆"],desc:"配位数12",
-    atom1:"Zn",atom2:null,rad1:0.37,rad2:0,
-    atom1Pos:[[-0.533,0,-0.4],[0.533,0,-0.4],[-0.533,0,0.4],[0.533,0,0.4],[0,0,0]],
-    atom2Pos:[]
-  },
-  ti:{
-    name:"Ti 金属钛(六方密堆)",formula:"Ti",type:"metal",tag:["金属晶体","HCP六方密堆"],desc:"配位数12",
-    atom1:"Ti",atom2:null,rad1:0.35,rad2:0,
-    atom1Pos:[[-0.533,0,-0.4],[0.533,0,-0.4],[-0.533,0,0.4],[0.533,0,0.4],[0,0,0]],
-    atom2Pos:[]
-  },
-  po:{
-    name:"Po 钋(简单立方)",formula:"Po",type:"metal",tag:["金属晶体","简单立方堆积"],desc:"配位数6",
-    atom1:"Po",atom2:null,rad1:0.32,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF]
-    ],
-    atom2Pos:[]
-  },
-  diamond:{
-    name:"金刚石 C",formula:"C",type:"covalent",tag:["共价晶体","金刚石型"],desc:"sp³正四面体配位，键角109°28′",
-    atom1:"C",atom2:null,rad1:0.24,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [0,0,0],[-0.4,-0.4,-0.4],[0.4,0.4,-0.4],[0.4,-0.4,0.4],[-0.4,0.4,0.4]
-    ],
-    atom2Pos:[]
-  },
-  si:{
-    name:"单晶硅 Si",formula:"Si",type:"covalent",tag:["共价晶体","类金刚石"],desc:"Si四面体共价网络",
-    atom1:"Si",atom2:null,rad1:0.27,rad2:0,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [0,0,0],[-0.4,-0.4,-0.4],[0.4,0.4,-0.4],[0.4,-0.4,0.4],[-0.4,0.4,0.4]
-    ],
-    atom2Pos:[]
-  },
-  sic:{
-    name:"碳化硅 SiC",formula:"SiC",type:"covalent",tag:["共价晶体","闪锌矿型共价"],desc:"Si、C交替四面体配位",
-    atom1:"Si",atom2:"C",rad1:0.27,rad2:0.24,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],[0,0,0]
-    ],
-    atom2Pos:[[-0.4,-0.4,-0.4],[0.4,0.4,-0.4],[0.4,-0.4,0.4],[-0.4,0.4,0.4]]
-  },
-  sio2:{
-    name:"SiO₂ 石英",formula:"SiO₂",type:"covalent",tag:["共价晶体","二氧化硅构型"],desc:"Si四配位O，12元环骨架",
-    atom1:"Si",atom2:"O",rad1:0.26,rad2:0.20,
-    atom1Pos:[[-CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF]],
-    atom2Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF+0.4],[-CELL_HALF,-CELL_HALF+0.4,-CELL_HALF],[-CELL_HALF+0.4,-CELL_HALF,-CELL_HALF],
-      [-CELL_HALF,-CELL_HALF,CELL_HALF-0.4],[-CELL_HALF,-CELL_HALF+0.4,CELL_HALF],[-CELL_HALF+0.4,-CELL_HALF,CELL_HALF],
-      [CELL_HALF,CELL_HALF,-CELL_HALF+0.4],[CELL_HALF,CELL_HALF-0.4,-CELL_HALF],[CELL_HALF-0.4,CELL_HALF,-CELL_HALF],
-      [CELL_HALF,CELL_HALF,CELL_HALF-0.4],[CELL_HALF,CELL_HALF-0.4,CELL_HALF],[CELL_HALF-0.4,CELL_HALF,CELL_HALF]
-    ]
-  },
-  co2:{
-    name:"干冰 CO₂",formula:"CO₂",type:"molecule",tag:["分子晶体","面心立方分子堆积"],desc:"CO₂分子密堆积，配位数12",
-    atom1:"C",atom2:"O",rad1:0.22,rad2:0.18,
-    atom1Pos:[
-      [-CELL_HALF,-CELL_HALF,-CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,-CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF],
-      [CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,CELL_HALF],
-      [-CELL_HALF,0,0],[CELL_HALF,0,0],[0,-CELL_HALF,0],[0,CELL_HALF,0],[0,0,-CELL_HALF],[0,0,CELL_HALF]
-    ],
-    atom2Pos:[[-0.3,0,0],[0.3,0,0],[0,-0.3,0],[0,0.3,0],[0,0,-0.3],[0,0,0.3]]
-  },
-  i2:{
-    name:"碘晶体 I₂",formula:"I₂",type:"molecule",tag:["分子晶体","I₂双原子分子堆积"],desc:"I₂分子范德华堆积",
-    atom1:"I",atom2:null,rad1:0.34,rad2:0,
-    atom1Pos:[[-CELL_HALF,-0.4,0],[CELL_HALF,0.4,0],[-0.4,-CELL_HALF,0],[0.4,CELL_HALF,0],[-0.4,0,-CELL_HALF],[0.4,0,CELL_HALF]],
-    atom2Pos:[]
-  },
-  p4:{
-    name:"白磷 P₄",formula:"P₄",type:"molecule",tag:["分子晶体","正四面体P4分子"],desc:"P4分子呈正四面体",
-    atom1:"P",atom2:null,rad1:0.28,rad2:0,
-    atom1Pos:[[-0.3,-0.3,-0.3],[0.3,0.3,-0.3],[0.3,-0.3,0.3],[-0.3,0.3,0.3]],
-    atom2Pos:[]
-  },
-  h2o:{
-    name:"冰 H₂O",formula:"H₂O",type:"molecule",tag:["分子晶体","氢键四面体网络"],desc:"水分子氢键连接，配位数4",
-    atom1:"O",atom2:"H",rad1:0.26,rad2:0.12,
-    atom1Pos:[[-0.4,0,0],[0.4,0,0],[0,-0.4,0],[0,0.4,0],[0,0,-0.4],[0,0,0.4],[0,0,0]],
-    atom2Pos:[[-0.2,-0.2,-0.2],[0.2,0.2,-0.2],[0.2,-0.2,0.2],[-0.2,0.2,0.2]]
-  },
-  s8:{
-    name:"斜方硫 S₈",formula:"S₈",type:"molecule",tag:["分子晶体","皇冠型S8环分子"],desc:"8元硫环分子堆积",
-    atom1:"S",atom2:null,rad1:0.25,rad2:0,
-    atom1Pos:[
-      [-0.45,0,0],[-0.22,0.39,0],
-      [0.22,0.39,0],[0.45,0,0],
-      [0.22,-0.39,0],[-0.22,-0.39,0],
-      [-0.12,0,0.43],[0.12,0,0.43]
-    ],
-    atom2Pos:[]
-  },
-  graphite:{
-    name:"石墨",formula:"C",type:"mix",tag:["混合晶体","层状共价晶体"],desc:"平面六边形碳层，层间范德华力",
-    atom1:"C",atom2:null,rad1:0.22,rad2:0,
-    atom1Pos:[
-      [-0.3,0,0],[0.3,0,0],
-      [-0.15,0.26,0],[0.15,0.26,0],
-      [-0.15,-0.26,0],[0.15,-0.26,0],
-      [-0.3,0,0.4],[0.3,0,0.4],
-      [-0.15,0.26,0.4],[0.15,0.26,0.4],
-      [-0.15,-0.26,0.4],[0.15,-0.26,0.4]
-    ],
-    atom2Pos:[]
-  },
-  mica:{
-    name:"云母（简化模型）",formula:"Mica",type:"mix",tag:["混合晶体","层状硅酸盐"],desc:"简化层状结构演示",
-    atom1:"Si",atom2:"O",rad1:0.20,rad2:0.23,
-    atom1Pos:[[-0.3,0,0],[0.3,0,0],[0,0.3,0],[0,-0.3,0]],
-    atom2Pos:[[-0.4,0,0.15],[0.4,0,0.15],[0,0.4,0.15],[0,-0.4,0.15]]
+/* ================= 晶胞边界切割 ================= */
+let clipBases = [];   // {n:Vector3 局部法向, c:常数}
+let clipPlanes = [];
+function buildClipBases(cell){
+  clipBases = [];
+  if (cell.frame === 'cube'){
+    const [hx, hy, hz] = cell.half;
+    [[1,0,0,hx],[-1,0,0,hx],[0,1,0,hy],[0,-1,0,hy],[0,0,1,hz],[0,0,-1,hz]]
+      .forEach(([x,y,z,c]) => clipBases.push({ n:new THREE.Vector3(x,y,z), c }));
+  } else if (cell.frame === 'hex'){
+    const R = cell.hexR, hz = cell.half[2];
+    for (let k = 0; k < 6; k++){
+      const a = Math.PI/3 * k + Math.PI/6;
+      clipBases.push({ n:new THREE.Vector3(Math.cos(a), Math.sin(a), 0), c: R * Math.cos(Math.PI/6) });
+    }
+    clipBases.push({ n:new THREE.Vector3(0,0,1), c: hz });
+    clipBases.push({ n:new THREE.Vector3(0,0,-1), c: hz });
   }
-};
-
-// ===================== 通用工具函数 =====================
-function distance(p1,p2){
-  const dx=p1[0]-p2[0];
-  const dy=p1[1]-p2[1];
-  const dz=p1[2]-p2[2];
-  return Math.sqrt(dx*dx+dy*dy+dz*dz);
+  clipPlanes = clipBases.map(b => new THREE.Plane(b.n.clone().negate(), b.c));
 }
+function updateClipPlanes(){
+  if (!clipPlanes.length) return;
+  const q = root.quaternion;
+  clipPlanes.forEach((p, i) => {
+    p.normal.copy(clipBases[i].n).applyQuaternion(q).negate();
+    p.constant = clipBases[i].c;
+  });
+}
+function activeClip(){ return state.clip ? clipPlanes : null; }
 
-// 清空场景晶体
-function clearCrystal(){
-  while(crystalRoot.children.length>0){
-    crystalRoot.remove(crystalRoot.children[0]);
+/* ================= 渲染 ================= */
+const unitSphere = new THREE.SphereGeometry(1, 28, 28);
+let stickMat;
+
+function clearRoot(){
+  while (root.children.length) {
+    const ch = root.children.pop();
+    ch.traverse(o => {
+      if (o.geometry && o.geometry !== unitSphere) o.geometry.dispose();
+      if (o.material && o.material !== stickMat) { /* 共享材质不单独 dispose */ }
+    });
   }
 }
 
-// 绘制晶胞边框
-function drawCellFrame(){
-  const pts=[
-    [-CELL_HALF,-CELL_HALF,-CELL_HALF],[CELL_HALF,-CELL_HALF,-CELL_HALF],
-    [CELL_HALF,-CELL_HALF,CELL_HALF],[-CELL_HALF,-CELL_HALF,CELL_HALF],
-    [-CELL_HALF,CELL_HALF,-CELL_HALF],[CELL_HALF,CELL_HALF,-CELL_HALF],
-    [CELL_HALF,CELL_HALF,CELL_HALF],[-CELL_HALF,CELL_HALF,CELL_HALF]
-  ];
-  const edges=[
-    [0,1],[1,2],[2,3],[3,0],
-    [4,5],[5,6],[6,7],[7,4],
-    [0,4],[1,5],[2,6],[3,7]
-  ];
-  const mat=new THREE.LineBasicMaterial({color:COLOR_FRAME});
-  for(let e of edges){
-    const g=new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(...pts[e[0]]),
-      new THREE.Vector3(...pts[e[1]])
-    ]);
-    crystalRoot.add(new THREE.Line(g,mat));
-  }
+function visibleRadius(sp){   // 球棍模型的视觉半径（压缩差异便于观察）
+  return 0.14 + sp.r * 0.085;
 }
 
-// 渲染整套晶胞（已彻底删除化学键圆柱体绘制逻辑）
-function renderCrystal(){
-  clearCrystal();
-  const data=crystalDataLib[config.material];
-  // 绘制晶框
-  drawCellFrame();
+function buildCrystal(){
+  clearRoot();
+  const d = CRYSTALS[state.mat];
+  const cell = d.cell;
+  buildClipBases(cell);
 
-  // 根据模型模式设置球体半径：空间填充模型直接使用原子半径，实现相切；球棍模型缩小球体
-  let r1=data.rad1;
-  let r2=data.rad2;
-  if(config.modelStyle==="ballstick"){
-    r1=r1*0.4;
-    r2=r2>0?r2*0.4:0;
+  /* ---- 1. 延展：收集所有可见原子 ---- */
+  const ext = state.extend;
+  const atoms = [];
+  const [hx, hy, hz] = cell.half;
+  const [vx, vy, vz] = cell.vec;
+  const range = 1.0001 + ext * 1.05;   // 以晶胞为单位的外扩圈数
+  const offRange = ext <= 0.001 ? [0] : [-1, 0, 1];
+  for (const oi of offRange) for (const oj of offRange) for (const ok of offRange){
+    const ox = oi*vx, oy = oj*vy, oz = ok*vz;
+    // 六方晶胞只允许沿 z 轴延展
+    if (cell.frame === 'hex' && (oi !== 0 || oj !== 0)) continue;
+    for (const [si, x, y, z] of d.atoms){
+      const px = x+ox, py = y+oy, pz = z+oz;
+      if (Math.abs(px) <= hx*range + 1e-4 &&
+          Math.abs(py) <= hy*range + 1e-4 &&
+          Math.abs(pz) <= hz*range + 1e-4){
+        atoms.push({ si, p: new THREE.Vector3(px, py, pz) });
+      }
+    }
   }
-  // 空间填充模式：不缩放，原生半径原子自然相切贴合
-  const geo1=new THREE.SphereGeometry(r1,16,16);
-  const mat1=new THREE.MeshStandardMaterial({
-    color:ATOM_COLOR_MAP[data.atom1],
-    transparent:true,opacity:config.particleOpacity
+
+  /* ---- 2. 半径：比例模型按真实半径相切 ---- */
+  let radiusOf = si => visibleRadius(d.species[si]);
+  if (state.style === 'spacefill'){
+    // 找最近邻对，令 r1+r2 = 最近邻距
+    let best = null;
+    const inner = atoms.filter(a => Math.abs(a.p.x)<=hx+1e-3 && Math.abs(a.p.y)<=hy+1e-3 && Math.abs(a.p.z)<=hz+1e-3);
+    for (let i = 0; i < atoms.length; i++){
+      for (let j = i+1; j < atoms.length; j++){
+        const dist = atoms[i].p.distanceTo(atoms[j].p);
+        if (dist < 1e-4) continue;
+        const rs = d.species[atoms[i].si].r + d.species[atoms[j].si].r;
+        const ratio = dist / rs;
+        if (!best || ratio < best.ratio) best = { ratio };
+      }
+    }
+    const k = best ? best.ratio : 0.4;
+    radiusOf = si => d.species[si].r * k;
+  }
+
+  /* ---- 3. 画原子 ---- */
+  const clip = activeClip();
+  const mats = d.species.map(s => new THREE.MeshPhysicalMaterial({
+    color: s.color, transparent: true, opacity: state.opacity,
+    roughness: 0.25, metalness: 0.15, clearcoat: 0.4,
+    clippingPlanes: clip, clipShadows: true,
+  }));
+  atoms.forEach(a => {
+    if (state.hidden.has(a.si)) return;
+    const m = new THREE.Mesh(unitSphere, mats[a.si]);
+    m.position.copy(a.p);
+    m.scale.setScalar(radiusOf(a.si));
+    root.add(m);
   });
 
-  // 绘制粒子A
-  if(config.showAtom1){
-    for(let pos of data.atom1Pos){
-      const m=new THREE.Mesh(geo1,mat1);
-      m.position.set(...pos);
-      crystalRoot.add(m);
+  /* ---- 4. 化学键：短棍（表面到表面） ---- */
+  if (d.bond && state.style === 'ballstick'){
+    // 自动键长阈值 = 中心晶胞内最小非零距离 × 1.25
+    const inner = atoms.filter(a => Math.abs(a.p.x)<=hx+1e-3 && Math.abs(a.p.y)<=hy+1e-3 && Math.abs(a.p.z)<=hz+1e-3);
+    let minD = Infinity;
+    for (let i = 0; i < inner.length; i++)
+      for (let j = i+1; j < inner.length; j++){
+        const dist = inner[i].p.distanceTo(inner[j].p);
+        if (dist > 1e-4 && dist < minD) minD = dist;
+      }
+    const cutoff = minD * 1.25;
+    stickMat = new THREE.MeshStandardMaterial({ color: 0xb8c0cc, roughness: 0.45, metalness: 0.3, clippingPlanes: clip });
+    const up = new THREE.Vector3(0,1,0);
+    for (let i = 0; i < atoms.length; i++){
+      for (let j = i+1; j < atoms.length; j++){
+        const A = atoms[i], B = atoms[j];
+        if (state.hidden.has(A.si) && state.hidden.has(B.si)) continue;
+        const dist = A.p.distanceTo(B.p);
+        if (dist > cutoff) continue;
+        const dir = B.p.clone().sub(A.p).normalize();
+        const r1 = radiusOf(A.si) * 0.92, r2 = radiusOf(B.si) * 0.92;
+        const start = A.p.clone().addScaledVector(dir, r1);
+        const end = B.p.clone().addScaledVector(dir, -r2);
+        const len = start.distanceTo(end);
+        if (len <= 0.02) continue;
+        const geo = new THREE.CylinderGeometry(0.05, 0.05, len, 10);
+        const stick = new THREE.Mesh(geo, stickMat);
+        stick.position.copy(start).lerp(end, 0.5);
+        stick.quaternion.setFromUnitVectors(up, dir);
+        root.add(stick);
+      }
     }
   }
 
-  // 绘制粒子B
-  if(data.atom2&&config.showAtom2){
-    const geo2=new THREE.SphereGeometry(r2,16,16);
-    const mat2=new THREE.MeshStandardMaterial({
-      color:ATOM_COLOR_MAP[data.atom2],
-      transparent:true,opacity:config.particleOpacity
-    });
-    for(let pos of data.atom2Pos){
-      const m=new THREE.Mesh(geo2,mat2);
-      m.position.set(...pos);
-      crystalRoot.add(m);
+  /* ---- 5. 晶胞框架 ---- */
+  const frameMat = new THREE.LineBasicMaterial({ color: 0x8a94a6, transparent: true, opacity: 0.75 });
+  if (cell.frame === 'cube'){
+    const g = new THREE.EdgesGeometry(new THREE.BoxGeometry(hx*2, hy*2, hz*2));
+    root.add(new THREE.LineSegments(g, frameMat));
+  } else if (cell.frame === 'hex'){
+    const pts = [];
+    const R = cell.hexR, zt = cell.half[2];
+    for (let k = 0; k < 6; k++){
+      const a1 = Math.PI/3*k, a2 = Math.PI/3*(k+1);
+      const p1 = [R*Math.cos(a1), R*Math.sin(a1)], p2 = [R*Math.cos(a2), R*Math.sin(a2)];
+      pts.push(new THREE.Vector3(p1[0],p1[1],zt), new THREE.Vector3(p2[0],p2[1],zt));
+      pts.push(new THREE.Vector3(p1[0],p1[1],-zt), new THREE.Vector3(p2[0],p2[1],-zt));
+      pts.push(new THREE.Vector3(p1[0],p1[1],zt), new THREE.Vector3(p1[0],p1[1],-zt));
     }
+    const g = new THREE.BufferGeometry().setFromPoints(pts);
+    root.add(new THREE.LineSegments(g, frameMat));
   }
 
-  // 更新图例
-  updateLegend(data);
-  // 更新二维投影
+  updateInfo(d);
   drawProjection();
 }
 
-// 更新右侧图例文字
-function updateLegend(data){
-  const wrap=document.getElementById("legendWrap");
-  wrap.innerHTML="";
-  const item1=document.createElement("div");
-  item1.className="legend-item";
-  item1.innerHTML=`<span class="legend-ball" style="background:#${ATOM_COLOR_MAP[data.atom1].toString(16).padStart(6,'0')}"></span>${data.atom1}`;
-  wrap.appendChild(item1);
-  if(data.atom2){
-    const item2=document.createElement("div");
-    item2.className="legend-item";
-    item2.innerHTML=`<span class="legend-ball" style="background:#${ATOM_COLOR_MAP[data.atom2].toString(16).padStart(6,'0')}"></span>${data.atom2}`;
-    wrap.appendChild(item2);
-  }
+/* ================= 信息卡 / 图例 / 显隐 ================= */
+function hex(c){ return '#' + c.toString(16).padStart(6, '0'); }
+function updateInfo(d){
+  document.getElementById('crysName').textContent = d.name;
+  document.getElementById('tagWrap').innerHTML = d.tags.map(t => `<span class="info-tag">${t}</span>`).join('');
+  document.getElementById('crysDesc').textContent = d.desc + (d.note ? '（' + d.note + '）' : '');
+  // 图例
+  document.getElementById('legendWrap').innerHTML = d.species.map((s, i) =>
+    `<span class="legend-item"><span class="legend-ball" style="background:${hex(s.color)}"></span>${s.sp}</span>`
+  ).join('');
+  // 显隐开关：只有一种粒子时整块隐藏
+  const sec = document.getElementById('speciesSection');
+  const box = document.getElementById('speciesToggles');
+  if (d.species.length < 2){ sec.classList.add('hidden'); state.hidden.clear(); return; }
+  sec.classList.remove('hidden');
+  box.innerHTML = '';
+  d.species.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'switch-row';
+    row.innerHTML = `<span class="switch-label"><span class="legend-ball" style="background:${hex(s.color)};margin-right:5px"></span>${s.sp} 微粒</span>`;
+    const sw = document.createElement('div');
+    sw.className = 'switch' + (state.hidden.has(i) ? '' : ' active');
+    sw.onclick = () => {
+      state.hidden.has(i) ? state.hidden.delete(i) : state.hidden.add(i);
+      buildCrystal();
+    };
+    row.appendChild(sw);
+    box.appendChild(row);
+  });
 }
 
-// 绘制2D投影图
+/* ================= 二维投影点阵 ================= */
 function drawProjection(){
-  const canvas=document.getElementById("projCanvas");
-  const ctx=canvas.getContext("2d");
-  const w=canvas.width=canvas.offsetWidth;
-  const h=canvas.height=canvas.offsetHeight;
-  ctx.fillStyle="#0c121f";
-  ctx.fillRect(0,0,w,h);
-  const data=crystalDataLib[config.material];
-  const axis=document.getElementById("projViewSelect").value;
-  let xi,yi;
-  if(axis==="001"){xi=0;yi=1;}
-  else if(axis==="100"){xi=1;yi=2;}
-  else {xi=0;yi=2;}
-  const scale=120;
-  const cx=w/2,cy=h/2;
-
-  // 绘制粒子A
-  ctx.fillStyle=`#${ATOM_COLOR_MAP[data.atom1].toString(16).padStart(6,'0')}`;
-  for(let p of data.atom1Pos){
-    const x=cx+p[xi]*scale;
-    const y=cy-p[yi]*scale;
+  const modal = document.getElementById('projModal');
+  if (modal.style.display !== 'block') return;
+  const cv = document.getElementById('projCanvas');
+  // 弹层刚 display:block 时可能尚未排版，等一帧再画，避免 0 尺寸画布
+  if (!cv.offsetWidth || !cv.offsetHeight){ requestAnimationFrame(drawProjection); return; }
+  const ctx = cv.getContext('2d');
+  const w = cv.width = cv.offsetWidth * 2, h = cv.height = cv.offsetHeight * 2;
+  ctx.clearRect(0, 0, w, h);
+  const d = CRYSTALS[state.mat];
+  const cell = d.cell;
+  const axis = document.getElementById('projViewSelect').value;
+  // 投影基
+  let u, v, depthAxis;
+  if (axis === '001'){ u = new THREE.Vector3(1,0,0); v = new THREE.Vector3(0,1,0); depthAxis = 'z'; }
+  else if (axis === '100'){ u = new THREE.Vector3(0,1,0); v = new THREE.Vector3(0,0,1); depthAxis = 'x'; }
+  else if (axis === '010'){ u = new THREE.Vector3(1,0,0); v = new THREE.Vector3(0,0,1); depthAxis = 'y'; }
+  else { u = new THREE.Vector3(Math.SQRT1_2,Math.SQRT1_2,0); v = new THREE.Vector3(0,0,1); depthAxis = 'd'; }
+  const [hx, hy, hz] = cell.half;
+  const halfU = axis==='110' ? Math.hypot(hx, hy) : Math.max(Math.abs(u.x)*hx + Math.abs(u.y)*hy + Math.abs(u.z)*hz);
+  const halfV = Math.max(Math.abs(v.x)*hx + Math.abs(v.y)*hy + Math.abs(v.z)*hz);
+  const scale = Math.min(w, h) * 0.42 / Math.max(halfU, halfV);
+  const cx = w/2, cy = h/2;
+  // 晶胞边界
+  ctx.strokeStyle = 'rgba(160,170,185,.8)'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
+  if (cell.frame === 'hex'){
     ctx.beginPath();
-    ctx.arc(x,y,6,0,Math.PI*2);
-    ctx.fill();
-  }
-  // 绘制粒子B
-  if(data.atom2){
-    ctx.fillStyle=`#${ATOM_COLOR_MAP[data.atom2].toString(16).padStart(6,'0')}`;
-    for(let p of data.atom2Pos){
-      const x=cx+p[xi]*scale;
-      const y=cy-p[yi]*scale;
-      ctx.beginPath();
-      ctx.arc(x,y,4,0,Math.PI*2);
-      ctx.fill();
+    for (let k = 0; k <= 6; k++){
+      const a = Math.PI/3*k;
+      const px = cx + cell.hexR*Math.cos(a)*scale*(axis==='001'?1:0.9);
+      const py = cy - cell.hexR*Math.sin(a)*scale*(axis==='001'?1:0.9);
+      k ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
     }
+    ctx.stroke();
+  } else {
+    ctx.strokeRect(cx - halfU*scale, cy - halfV*scale, halfU*2*scale, halfV*2*scale);
   }
+  ctx.setLineDash([]);
+  // 原子（中心晶胞），按深度排序，远的先画且变淡
+  const list = d.atoms
+    .map(([si, x, y, z]) => ({ si, p: new THREE.Vector3(x, y, z) }))
+    .filter(a => !state.hidden.has(a.si))
+    .filter(a => Math.abs(a.p.x)<=hx+1e-3 && Math.abs(a.p.y)<=hy+1e-3 && Math.abs(a.p.z)<=hz+1e-3)
+    .map(a => ({ ...a, depth: depthAxis==='x' ? a.p.x : depthAxis==='y' ? a.p.y : depthAxis==='z' ? a.p.z : (a.p.x - a.p.y) }))
+    .sort((a, b) => a.depth - b.depth);
+  const dmin = list.length ? list[0].depth : 0, dmax = list.length ? list[list.length-1].depth : 1;
+  list.forEach(a => {
+    const s = d.species[a.si];
+    const px = cx + a.p.dot(u) * scale;
+    const py = cy - a.p.dot(v) * scale;
+    const rr = Math.max(6, s.r * 14);
+    const t = dmax > dmin ? (a.depth - dmin) / (dmax - dmin) : 0.5;
+    ctx.globalAlpha = 0.35 + 0.65 * t;
+    ctx.beginPath(); ctx.arc(px, py, rr, 0, Math.PI*2);
+    ctx.fillStyle = hex(s.color); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.stroke();
+  });
+  // 标注
+  ctx.fillStyle = 'rgba(230,235,242,.9)';
+  ctx.font = `500 ${Math.round(w/46)}px "JetBrains Mono", monospace`;
+  ctx.fillText('[' + axis + '] view · 颜色区分粒子种类 · 近亮远暗', 16, h - 18);
 }
 
-// 切换晶体大类，刷新下拉列表
-function refreshMaterialList(){
-  const sel=document.getElementById("crystalMatSel");
-  sel.innerHTML="";
-  const list=crystalTypeGroup[config.crystalType];
-  for(let key of list){
-    const opt=document.createElement("option");
-    opt.value=key;
-    opt.innerText=crystalDataLib[key].name;
-    sel.appendChild(opt);
-  }
-  config.material=list[0];
-  renderCrystal();
+/* ================= 控件绑定 ================= */
+const typeSel = document.getElementById('crystalTypeSel');
+const matSel = document.getElementById('crystalMatSel');
+const TYPE_LABEL = { ion:'离子晶体', metal:'金属晶体', covalent:'共价晶体', molecule:'分子晶体', mix:'混合型晶体' };
+function refreshMats(){
+  matSel.innerHTML = '';
+  GROUPS[state.type].forEach(id => {
+    const o = document.createElement('option');
+    o.value = id; o.textContent = CRYSTALS[id].name;
+    matSel.appendChild(o);
+  });
+  state.mat = GROUPS[state.type][0];
+  state.hidden.clear();
+  buildCrystal();
 }
+typeSel.onchange = e => { state.type = e.target.value; refreshMats(); };
+matSel.onchange = e => { state.mat = e.target.value; state.hidden.clear(); buildCrystal(); };
+document.getElementById('modelStyleSel').onchange = e => { state.style = e.target.value; buildCrystal(); };
 
-// 通用元素绑定
-function bind(id,ev,fn){
-  const el=document.getElementById(id);
-  if(el) el[ev]=fn;
-}
-
-// 所有控件绑定事件
-bind("crystalTypeSel","onchange",e=>{
-  config.crystalType=e.target.value;
-  refreshMaterialList();
-});
-bind("crystalMatSel","onchange",e=>{
-  config.material=e.target.value;
-  renderCrystal();
-});
-bind("viewModeSel","onchange",()=>renderCrystal());
-bind("modelStyleSel","onchange",()=>renderCrystal());
-bind("projViewSelect","onchange",()=>drawProjection());
-bind("openProjBtn","onclick",()=>{
-  document.getElementById("projModal").style.display="block";
+const opSlider = document.getElementById('opacitySlider');
+opSlider.oninput = () => {
+  state.opacity = Number(opSlider.value);
+  document.getElementById('opacityTip').textContent = '透明度 ' + state.opacity.toFixed(2);
+  buildCrystal();
+};
+const extSlider = document.getElementById('cellExtendSlider');
+extSlider.oninput = () => {
+  state.extend = Number(extSlider.value);
+  const tip = document.getElementById('sliderTip');
+  if (state.extend <= 0.01) tip.textContent = '仅显示中心 1 个晶胞';
+  else if (state.extend < 0.5) tip.textContent = '延展中：相邻晶胞的键与微粒渐入';
+  else tip.textContent = '完全延展：3×3×3 晶胞';
+  buildCrystal();
+};
+document.getElementById('clipCellSwitch').onclick = function(){
+  this.classList.toggle('active');
+  state.clip = this.classList.contains('active');
+  buildCrystal();
+};
+document.getElementById('openProjBtn').onclick = () => {
+  document.getElementById('projModal').style.display = 'block';
   drawProjection();
-});
-bind("closeProj","onclick",()=>{
-  document.getElementById("projModal").style.display="none";
-});
+};
+document.getElementById('closeProj').onclick = () => {
+  document.getElementById('projModal').style.display = 'none';
+};
+document.getElementById('projViewSelect').onchange = drawProjection;
 
-// 透明度滑块绑定
-const opSlider=document.getElementById("opacitySlider");
-opSlider.oninput=()=>{
-  config.particleOpacity=Number(opSlider.value);
-  document.getElementById("opacityTip").innerText=`透明度：${config.particleOpacity}（默认中点）`;
-  renderCrystal();
-};
-// 延展范围滑块
-const extSlider=document.getElementById("cellExtendSlider");
-extSlider.oninput=()=>{
-  config.cellExtend=Number(extSlider.value);
-  let tip="";
-  if(config.cellExtend<=0.001) tip="仅显示中心1个最小晶胞";
-  else if(config.cellExtend<0.33) tip="轻微延展：相邻晶胞";
-  else if(config.cellExtend<0.66) tip="中度延展：平面多层晶胞";
-  else tip="完全延展：三维27个晶胞";
-  document.getElementById("sliderTip").innerText=tip;
-  renderCrystal();
-};
-
-// 开关绑定
-document.getElementById("showAtom1Switch").onclick=function(){
-  this.classList.toggle("active");
-  config.showAtom1=this.classList.contains("active");
-  renderCrystal();
-};
-document.getElementById("showAtom2Switch").onclick=function(){
-  this.classList.toggle("active");
-  config.showAtom2=this.classList.contains("active");
-  renderCrystal();
-};
-document.getElementById("clipCellSwitch").onclick=function(){
-  this.classList.toggle("active");
-  config.clipCell=this.classList.contains("active");
-  renderCrystal();
-};
-
-// 主渲染循环
-function animate(){
-  requestAnimationFrame(animate);
-  renderer.render(scene,camera);
-}
+/* ================= 主循环 ================= */
+function animate(){ requestAnimationFrame(animate); renderer.render(scene, camera); }
 animate();
-
-/* ========= 信息卡同步补丁 ========= */
-(function(){
-  // 碳原子原配色 #333 在深色画布上几乎不可见，调亮
-  ATOM_COLOR_MAP.C = 0x9aa0a6;
-  function upd(){
-    const d = crystalDataLib[config.material];
-    if(!d) return;
-    document.querySelector('#crystalInfoBox h2').textContent = d.name;
-    document.getElementById('tagWrap').innerHTML =
-      d.tag.map(t=>'<span class="info-tag">'+t+'</span>').join('');
-    document.querySelector('#crystalInfoBox .info-desc').textContent =
-      d.desc + ' · 拖拽旋转，滚轮缩放';
-  }
-  document.getElementById('crystalMatSel').addEventListener('change', upd);
-  document.getElementById('crystalTypeSel').addEventListener('change', function(){ setTimeout(upd, 0); });
-  upd();
-  renderCrystal();
-})();
+refreshMats();
 
 </script>
 </body>
