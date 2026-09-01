@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>元素防线：化学塔防 · 化学生活教学中心</title>
+<style>
+
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+
+
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+
+
+
+
+
+
+/* ===== 塔防专用 ===== */
+.td-wrap{position:absolute;inset:0}
+#tdCanvas{width:100%;height:100%;display:block;cursor:pointer}
+.td-stat{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-dim);padding:3px 0}
+.td-stat b{color:var(--ink);font-family:var(--mono)}
+.td-hpbar{height:8px;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:4px 0 6px}
+.td-hpbar i{display:block;height:100%;background:#c8102e;transition:width .3s}
+.td-tower{border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:8px;cursor:pointer}
+.td-tower:hover{border-color:var(--accent)}
+.td-tower.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.td-tower.dis{opacity:.4;cursor:not-allowed}
+.td-tower h4{margin:0;font-size:13px;display:flex;justify-content:space-between}
+.td-tower h4 i{font-style:normal;color:var(--accent);font-family:var(--mono)}
+.td-tower p{margin:4px 0 0;font-size:11.5px;color:var(--ink-mute);line-height:1.7}
+.td-log{margin-top:10px;font-size:11.5px;line-height:1.9;color:var(--ink-dim);max-height:170px;overflow:auto;
+ border-top:1px dashed var(--line);padding-top:8px}
+.td-log b{color:var(--accent)}
+.td-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;
+ padding:8px 14px;font-size:12.5px;cursor:pointer;font-family:inherit;width:100%;margin-top:6px}
+.td-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.td-btn:disabled{opacity:.35;cursor:not-allowed}
+.td-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.td-hint{font-size:11.5px;color:var(--accent);margin-top:6px;min-height:34px;line-height:1.7}
+.td-ref{font-size:11.5px;line-height:2;color:var(--ink-dim)}
+.td-ref b{color:var(--ink)}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">防</span>
+    <h1 style="white-space:nowrap">元素防线：化学塔防</h1>
+    <span class="lecture-tag">GAMES · LAB 02</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-btn" href="chem_lab5.1.html">元素纪元 RPG <span class="arr">→</span></a>
+    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    <div class="theme-switch" role="group" aria-label="主题切换">
+      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="panel-section">
+      <div class="panel-title">防线状态</div>
+      <div class="td-stat"><span>烧杯核心</span><b id="tdCore">10 / 10</b></div>
+      <div class="td-hpbar"><i id="tdCoreBar"></i></div>
+      <div class="td-stat"><span>金币</span><b id="tdGold">120</b></div>
+      <div class="td-stat"><span>波次</span><b id="tdWave">0 / 15</b></div>
+      <div class="td-stat"><span>场上敌人</span><b id="tdFoes">0</b></div>
+      <div class="td-stat"><span>历史最佳</span><b id="tdBest">第 0 波</b></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">克制速查</div>
+      <div class="td-ref">
+        <b>沉淀塔</b> → SO₄²⁻ CO₃²⁻ PO₄³⁻<br>
+        <b>中和塔</b> → H⁺ CH₃COOH OH⁻ NH₃·H₂O<br>
+        <b>氧化塔</b> → Fe²⁺ S²⁻ I⁻<br>
+        反应克制伤害 ×2.5；末波巨怪无弱点，靠数量堆伤害。
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">操作</div>
+      <button class="td-btn" id="tdSpeed">⏩ 速度 ×1</button>
+      <button class="td-btn" id="tdReset">↺ 重新开始</button>
+    </div>
+  </div>
+
+  <div class="canvas-box" style="background:var(--bg-deep)">
+    <div class="td-wrap"><canvas id="tdCanvas"></canvas></div>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">建造反应塔</div>
+      <div id="tdShop"></div>
+      <button class="td-btn primary" id="tdStart">▶ 开始第 1 波</button>
+      <div class="td-hint" id="tdHint"></div>
+      <div class="td-log" id="tdLog"></div>
+    </div>
+  </div>
+</div>
+
+<script>window.__TD__ = {"towers": [{"id": "prec", "name": "沉淀塔", "reagent": "BaCl₂ 试剂", "cost": 50, "dmg": 9, "range": 2.3, "rate": 1.0, "color": "#2a5d9f", "cats": ["anion"], "desc": "克制可沉淀阴离子：SO₄²⁻ / CO₃²⁻ / PO₄³⁻", "eq": {"SO₄²⁻": "Ba²⁺ + SO₄²⁻ = BaSO₄↓", "CO₃²⁻": "Ba²⁺ + CO₃²⁻ = BaCO₃↓", "PO₄³⁻": "3Ba²⁺ + 2PO₄³⁻ = Ba₃(PO₄)₂↓"}}, {"id": "neut", "name": "中和塔", "reagent": "H⁺ / OH⁻ 双向", "cost": 60, "dmg": 12, "range": 2.0, "rate": 0.85, "color": "#c8102e", "cats": ["acid", "base"], "desc": "克制酸与碱：H⁺ / CH₃COOH / OH⁻ / NH₃·H₂O", "eq": {"H⁺": "H⁺ + OH⁻ = H₂O", "CH₃COOH": "CH₃COOH + OH⁻ = CH₃COO⁻ + H₂O", "OH⁻": "H⁺ + OH⁻ = H₂O", "NH₃·H₂O": "NH₃·H₂O + H⁺ = NH₄⁺ + H₂O"}}, {"id": "oxid", "name": "氧化塔", "reagent": "KMnO₄ 试剂", "cost": 75, "dmg": 15, "range": 1.9, "rate": 0.7, "color": "#7a4fb0", "cats": ["reductant"], "desc": "克制还原剂：Fe²⁺ / S²⁻ / I⁻", "eq": {"Fe²⁺": "MnO₄⁻+5Fe²⁺+8H⁺=Mn²⁺+5Fe³⁺+4H₂O", "S²⁻": "2MnO₄⁻+5S²⁻+16H⁺=2Mn²⁺+5S↓+8H₂O", "I⁻": "2MnO₄⁻+10I⁻+16H⁺=2Mn²⁺+5I₂+8H₂O"}}], "enemies": [{"id": "SO₄²⁻", "cat": "anion", "color": "#2a5d9f", "hp": 30, "spd": 1.0, "gold": 6}, {"id": "CO₃²⁻", "cat": "anion", "color": "#5b8ff0", "hp": 24, "spd": 1.15, "gold": 6}, {"id": "PO₄³⁻", "cat": "anion", "color": "#7a6fd0", "hp": 42, "spd": 0.85, "gold": 8}, {"id": "H⁺", "cat": "acid", "color": "#e0635c", "hp": 22, "spd": 1.3, "gold": 6}, {"id": "CH₃COOH", "cat": "acid", "color": "#d08050", "hp": 36, "spd": 0.95, "gold": 8}, {"id": "OH⁻", "cat": "base", "color": "#2e7d4f", "hp": 26, "spd": 1.1, "gold": 6}, {"id": "NH₃·H₂O", "cat": "base", "color": "#58b06a", "hp": 34, "spd": 1.0, "gold": 8}, {"id": "Fe²⁺", "cat": "reductant", "color": "#7cb342", "hp": 30, "spd": 1.05, "gold": 7}, {"id": "S²⁻", "cat": "reductant", "color": "#c8a018", "hp": 24, "spd": 1.25, "gold": 7}, {"id": "I⁻", "cat": "reductant", "color": "#7040a0", "hp": 38, "spd": 0.9, "gold": 8}, {"id": "粗盐巨怪", "cat": "boss", "color": "#888", "hp": 420, "spd": 0.55, "gold": 60}], "waves": [[["SO₄²⁻", 5]], [["SO₄²⁻", 4], ["CO₃²⁻", 4]], [["H⁺", 6]], [["CO₃²⁻", 5], ["PO₄³⁻", 3]], [["H⁺", 5], ["OH⁻", 5]], [["Fe²⁺", 6]], [["S²⁻", 5], ["I⁻", 4]], [["NH₃·H₂O", 5], ["CH₃COOH", 4]], [["SO₄²⁻", 6], ["Fe²⁺", 5]], [["OH⁻", 6], ["S²⁻", 6]], [["PO₄³⁻", 5], ["CH₃COOH", 5]], [["I⁻", 6], ["H⁺", 6]], [["CO₃²⁻", 6], ["NH₃·H₂O", 6], ["Fe²⁺", 4]], [["SO₄²⁻", 5], ["H⁺", 5], ["S²⁻", 5], ["I⁻", 5]], [["粗盐巨怪", 1], ["SO₄²⁻", 6], ["OH⁻", 6], ["Fe²⁺", 6]]]};</script>
+<script>
+/* ===== 元素防线：化学塔防 ===== */
+const D = window.__TD__;
+const $ = (id) => document.getElementById(id);
+const KEY = "chem-td-best-v1";
+let best = 0;
+try { best = JSON.parse(localStorage.getItem(KEY)) || 0; } catch(e){}
+
+/* 地图：12 列 × 8 行，S 形路径 */
+const COLS = 12, ROWS = 8;
+const PATH = [];
+for (let c = 0; c <= 9; c++) PATH.push([c, 1]);
+for (let r = 2; r <= 4; r++) PATH.push([9, r]);
+for (let c = 8; c >= 2; c--) PATH.push([c, 4]);
+for (let r = 5; r <= 6; r++) PATH.push([2, r]);
+for (let c = 3; c <= 11; c++) PATH.push([c, 6]);
+const PATH_SET = new Set(PATH.map(p => p[0] + "," + p[1]));
+
+/* 游戏状态 */
+let gold, core, wave, running, speed, towers, foes, projs, floaters, selTower, over, won;
+function reset(){
+  gold = 120; core = 10; wave = 0; running = false; speed = 1;
+  towers = []; foes = []; projs = []; floaters = []; selTower = null; over = false; won = false;
+  renderPanel(); drawShop();
+  $("tdStart").disabled = false;
+  $("tdStart").textContent = "▶ 开始第 1 波";
+  log("欢迎来到元素防线！点击空地建塔，反应克制可造成 2.5× 伤害。");
+}
+const foeProto = id => D.enemies.find(e => e.id === id);
+
+function startWave(){
+  if (running || over || won) return;
+  if (wave >= D.waves.length) return;
+  running = true;
+  const comp = D.waves[wave];
+  const hpMul = 1 + wave * 0.18;
+  let t = 0;
+  comp.forEach(([id, n]) => {
+    const p = foeProto(id);
+    for (let i = 0; i < n; i++){
+      foes.push({id, cat: p.cat, color: p.color,
+        hp: Math.round(p.hp * hpMul), maxhp: Math.round(p.hp * hpMul),
+        spd: p.spd, gold: p.gold, seg: 0, prog: -t, r: p.cat === "boss" ? 0.42 : 0.26});
+      t += 0.9;
+    }
+  });
+  wave++;
+  if (wave > best){ best = wave; localStorage.setItem(KEY, JSON.stringify(best)); }
+  log(`第 <b>${wave}</b> 波入侵开始（${comp.map(c => c[0] + "×" + c[1]).join("、")}）`);
+  $("tdStart").disabled = true;
+  renderPanel();
+}
+
+/* 坐标换算（世界坐标=格子单位） */
+function segPos(foe){
+  let s = foe.prog;
+  if (s < 0) return null;
+  let i = Math.floor(s), f = s - i;
+  if (i >= PATH.length - 1) return "end";
+  const [x1, y1] = PATH[i], [x2, y2] = PATH[i + 1];
+  return [x1 + (x2 - x1) * f + 0.5, y1 + (y2 - y1) * f + 0.5];
+}
+
+/* 建塔 */
+const cv = $("tdCanvas"), ctx = cv.getContext("2d");
+let tile = 48, ox = 0, oy = 0;
+function fit(){
+  const box = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  if (cv.width !== box.width * dpr){ cv.width = box.width * dpr; cv.height = box.height * dpr; }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  tile = Math.min(box.width / COLS, box.height / ROWS);
+  ox = (box.width - tile * COLS) / 2; oy = (box.height - tile * ROWS) / 2;
+}
+cv.addEventListener("click", e => {
+  if (over || won) return;
+  const r = cv.getBoundingClientRect();
+  const c = Math.floor((e.clientX - r.left - ox) / tile);
+  const rr = Math.floor((e.clientY - r.top - oy) / tile);
+  if (c < 0 || c >= COLS || rr < 0 || rr >= ROWS) return;
+  if (PATH_SET.has(c + "," + rr)){ log("不能建在入侵路径上！"); return; }
+  if (towers.find(t => t.c === c && t.r === rr)){ log("这里已经有塔了。"); return; }
+  if (!selTower){ log("先在右侧选择要建造的反应塔。"); return; }
+  if (gold < selTower.cost){ log("金币不足（需要 " + selTower.cost + "）。"); return; }
+  gold -= selTower.cost;
+  towers.push({c, r: rr, type: selTower, cd: 0});
+  log(`建造 <b>${selTower.name}</b>（${selTower.reagent}），-${selTower.cost} 金币`);
+  renderPanel();
+});
+
+/* 主循环 */
+let lastT = 0;
+function loop(ts){
+  const dt = Math.min(0.05, (ts - lastT) / 1000 || 0.016) * speed;
+  lastT = ts;
+  fit();
+  step(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+function step(dt){
+  if (over || won) return;
+  // 敌人移动
+  for (const f of foes){
+    if (f.hp <= 0) continue;
+    f.prog += f.spd * dt;
+    const p = segPos(f);
+    if (p === "end"){
+      f.hp = 0; f.leaked = true;
+      const dmg = f.cat === "boss" ? 3 : 1;
+      core -= dmg;
+      log(`<b>${f.id}</b> 闯入烧杯核心！核心 -${dmg}`);
+      if (core <= 0){ core = 0; gameOver(); }
+    }
+  }
+  // 塔攻击
+  for (const t of towers){
+    t.cd -= dt;
+    if (t.cd > 0) continue;
+    let tgt = null, tp = null, bestProg = -1;
+    for (const f of foes){
+      if (f.hp <= 0) continue;
+      const p = segPos(f);
+      if (!p || p === "end") continue;
+      const d = Math.hypot(p[0] - (t.c + .5), p[1] - (t.r + .5));
+      if (d <= t.type.range && f.prog > bestProg){ bestProg = f.prog; tgt = f; tp = p; }
+    }
+    if (tgt){
+      t.cd = 1 / t.type.rate;
+      const react = t.type.cats.includes(tgt.cat);
+      const dmg = t.type.dmg * (react ? 2.5 : 1);
+      tgt.hp -= dmg;
+      projs.push({x1: t.c + .5, y1: t.r + .5, x2: tp[0], y2: tp[1], t: 1, color: t.type.color});
+      if (react) floaters.push({x: tp[0], y: tp[1] - .4, txt: "反应!", t: 1, color: t.type.color});
+      if (tgt.hp <= 0 && !tgt.counted){
+        tgt.counted = true; gold += tgt.gold;
+        const eq = react && t.type.eq[tgt.id] ? "：" + t.type.eq[tgt.id] : "";
+        log(`${t.type.name} 消灭 <b>${tgt.id}</b>${eq}（+${tgt.gold} 金币）`);
+      }
+    }
+  }
+  foes = foes.filter(f => f.hp > 0 || (!f.leaked && f.prog < PATH.length && segPos(f) !== "end" && f.prog >= 0 && f.hp > 0));
+  foes = foes.filter(f => f.hp > 0);
+  // 波次结束判定
+  if (running && foes.length === 0){
+    running = false;
+    const bonus = 20 + wave * 3;
+    gold += bonus;
+    log(`第 ${wave} 波防守成功！奖励 ${bonus} 金币。`);
+    if (wave >= D.waves.length){ won = true; win(); }
+    else { $("tdStart").disabled = false; $("tdStart").textContent = "▶ 开始第 " + (wave + 1) + " 波"; }
+    renderPanel();
+  }
+  for (let i = projs.length - 1; i >= 0; i--){ projs[i].t -= dt * 4; if (projs[i].t <= 0) projs.splice(i, 1); }
+  for (let i = floaters.length - 1; i >= 0; i--){ floaters[i].t -= dt * 1.2; if (floaters[i].t <= 0) floaters.splice(i, 1); }
+  renderPanelLite();
+}
+function gameOver(){
+  over = true;
+  log(`💥 核心被攻破！最终成绩：第 ${wave} 波。`);
+  $("tdStart").disabled = true;
+}
+function win(){
+  log("🏆 全部 15 波防守成功！粗盐巨怪已被制服，烧杯核心安然无恙！");
+  $("tdStart").disabled = true;
+}
+
+/* 绘制 */
+function draw(){
+  const box = cv.parentElement.getBoundingClientRect();
+  const cs = getComputedStyle(document.body);
+  const ink = cs.getPropertyValue("--ink").trim() || "#333";
+  const line = cs.getPropertyValue("--line").trim() || "#ccc";
+  const acc = cs.getPropertyValue("--accent").trim() || "#c8102e";
+  ctx.clearRect(0, 0, box.width, box.height);
+  // 地块
+  for (let c = 0; c < COLS; c++) for (let r = 0; r < ROWS; r++){
+    ctx.strokeStyle = line; ctx.globalAlpha = .35; ctx.lineWidth = 1;
+    ctx.strokeRect(ox + c * tile, oy + r * tile, tile, tile);
+  }
+  ctx.globalAlpha = 1;
+  // 路径
+  ctx.fillStyle = "rgba(0,0,0,.08)";
+  for (const [c, r] of PATH) ctx.fillRect(ox + c * tile, oy + r * tile, tile, tile);
+  // 终点烧杯
+  const [ec, er] = PATH[PATH.length - 1];
+  ctx.font = `${tile * .6}px serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("⚗️", ox + (ec + .5) * tile, oy + (er + .5) * tile);
+  // 塔
+  for (const t of towers){
+    const x = ox + (t.c + .5) * tile, y = oy + (t.r + .5) * tile;
+    ctx.beginPath(); ctx.arc(x, y, tile * .34, 0, 7);
+    ctx.fillStyle = t.type.color; ctx.fill();
+    ctx.beginPath(); ctx.arc(x - tile * .1, y - tile * .1, tile * .1, 0, 7);
+    ctx.fillStyle = "rgba(255,255,255,.4)"; ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.font = `bold ${tile * .26}px 'Noto Sans SC',sans-serif`;
+    ctx.fillText(t.type.name[0], x, y + 1);
+  }
+  // 敌人
+  for (const f of foes){
+    const p = segPos(f); if (!p || p === "end") continue;
+    const x = ox + p[0] * tile, y = oy + p[1] * tile;
+    ctx.beginPath(); ctx.arc(x, y, tile * f.r, 0, 7);
+    ctx.fillStyle = f.color; ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,.3)"; ctx.stroke();
+    ctx.fillStyle = "#fff"; ctx.font = `${tile * (f.cat === "boss" ? .2 : .19)}px 'Noto Sans SC',sans-serif`;
+    ctx.fillText(f.id, x, y);
+    // 血条
+    ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.fillRect(x - tile * .3, y - tile * f.r - 7, tile * .6, 4);
+    ctx.fillStyle = "#c8102e"; ctx.fillRect(x - tile * .3, y - tile * f.r - 7, tile * .6 * Math.max(0, f.hp / f.maxhp), 4);
+  }
+  // 弹道
+  for (const p of projs){
+    ctx.strokeStyle = p.color; ctx.globalAlpha = p.t; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(ox + p.x1 * tile, oy + p.y1 * tile);
+    ctx.lineTo(ox + p.x2 * tile, oy + p.y2 * tile); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  // 飘字
+  for (const f of floaters){
+    ctx.globalAlpha = Math.max(0, f.t);
+    ctx.fillStyle = f.color; ctx.font = `bold ${tile * .24}px 'Noto Sans SC',sans-serif`;
+    ctx.fillText(f.txt, ox + f.x * tile, oy + (f.y - (1 - f.t)) * tile);
+  }
+  ctx.globalAlpha = 1;
+  // 选中塔的射程预览
+  if (selTower){
+    ctx.fillStyle = ink; ctx.globalAlpha = .55; ctx.font = `${tile * .3}px 'Noto Sans SC',sans-serif`;
+    ctx.textAlign = "left";
+    ctx.fillText(`已选：${selTower.name}（点击空地建造）`, ox + 6, oy + 16);
+    ctx.globalAlpha = 1; ctx.textAlign = "center";
+  }
+  if (over || won){
+    ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.fillRect(0, 0, box.width, box.height);
+    ctx.fillStyle = "#fff"; ctx.font = "bold 26px 'Noto Sans SC',sans-serif";
+    ctx.fillText(won ? "🏆 防守成功！" : "💥 核心被攻破", box.width / 2, box.height / 2 - 10);
+    ctx.font = "15px 'Noto Sans SC',sans-serif";
+    ctx.fillText(`成绩：第 ${wave} 波 · 历史最佳 第 ${best} 波`, box.width / 2, box.height / 2 + 24);
+  }
+}
+
+/* 面板 */
+function renderPanel(){
+  $("tdCore").textContent = core + " / 10";
+  $("tdCoreBar").style.width = (core / 10 * 100) + "%";
+  renderPanelLite();
+  $("tdBest").textContent = "第 " + best + " 波";
+}
+function renderPanelLite(){
+  $("tdGold").textContent = gold;
+  $("tdWave").textContent = wave + " / " + D.waves.length;
+  $("tdFoes").textContent = foes.length;
+}
+function drawShop(){
+  const box = $("tdShop"); box.innerHTML = "";
+  D.towers.forEach(t => {
+    const d = document.createElement("div");
+    d.className = "td-tower";
+    d.innerHTML = `<h4>${t.name} <i>${t.cost} 金</i></h4><p>${t.reagent} · 伤害 ${t.dmg} · 射程 ${t.range}<br>${t.desc}</p>`;
+    d.onclick = () => {
+      if (gold < t.cost){ log("金币不足，先防守几波攒金币。"); return; }
+      selTower = t;
+      [...box.children].forEach(x => x.classList.remove("sel"));
+      d.classList.add("sel");
+    };
+    box.appendChild(d);
+  });
+}
+function log(t){
+  const el = $("tdLog");
+  el.innerHTML = `<div>· ${t}</div>` + el.innerHTML;
+  while (el.children.length > 12) el.lastChild.remove();
+}
+
+$("tdStart").onclick = startWave;
+$("tdSpeed").onclick = () => { speed = speed === 1 ? 2 : 1; $("tdSpeed").textContent = "⏩ 速度 ×" + speed; };
+$("tdReset").onclick = () => { if (confirm("重新开始本局？")) reset(); };
+
+reset();
+requestAnimationFrame(loop);
+</script>
+<script>/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();</script>
+</body>
+</html>
