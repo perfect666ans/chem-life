@@ -87,6 +87,13 @@ export const handler = async (event) => {
   try { body = JSON.parse(event.body || '{}') } catch { return fail('请求格式错误') }
   const { action } = body
 
+  if (action === 'debugEnv') {
+    // 仅返回环境变量名（不含值），用于诊断 Blobs 自动配置
+    return ok({
+      keys: Object.keys(process.env).filter((k) => /NETLIFY|BLOB|AWS|SITE/i.test(k)).sort(),
+    })
+  }
+
   try {
     await bootstrap()
 
@@ -204,13 +211,6 @@ export const handler = async (event) => {
       const open = !!(inv && inv.active && inv.expiresAt > now() && (inv.used || []).length < inv.maxUsers)
       return ok({ open, left: open ? inv.maxUsers - (inv.used || []).length : 0 })
     }
-    if (action === 'debugEnv') {
-      // 仅返回环境变量名（不含值），用于诊断 Blobs 自动配置
-      return ok({
-        keys: Object.keys(process.env).filter((k) => /NETLIFY|BLOB|AWS|SITE/i.test(k)).sort(),
-      })
-    }
-
     return fail('未知操作', 404)
   } catch (e) {
     return fail('服务器错误：' + String(e && e.message || e), 500)
