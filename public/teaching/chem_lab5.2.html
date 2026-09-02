@@ -217,6 +217,7 @@ body::after{
 
 
 
+
 /* ===== 塔防专用 ===== */
 .td-wrap{position:absolute;inset:0}
 #tdCanvas{width:100%;height:100%;display:block;cursor:pointer}
@@ -473,15 +474,35 @@ function win(){
   reportScore('td', wave);
   $("tdStart").disabled = true;
 }
-/* 成绩上报（登录状态下自动上传排行榜，离线/未登录静默跳过） */
+/* 成绩上报：登录状态下自动上传排行榜；失败进入离线队列，下次启动补传 */
+const SCORE_Q = "chem-score-queue";
 function reportScore(game, score){
   try {
     const t = localStorage.getItem('chem-token');
     if (!t) return;
     fetch('/api/forum', {method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({action: 'report', token: t, game, score})}).catch(() => {});
+      body: JSON.stringify({action: 'report', token: t, game, score})})
+      .then(r => r.json()).then(r => { if (!r.ok) queueScore(game, score); })
+      .catch(() => queueScore(game, score));
+  } catch(e){ queueScore(game, score); }
+}
+function queueScore(game, score){
+  try {
+    const q = JSON.parse(localStorage.getItem(SCORE_Q) || '[]');
+    q.push({game, score});
+    localStorage.setItem(SCORE_Q, JSON.stringify(q.slice(-50)));
   } catch(e){}
 }
+function flushScoreQueue(){
+  try {
+    const t = localStorage.getItem('chem-token');
+    const q = JSON.parse(localStorage.getItem(SCORE_Q) || '[]');
+    if (!t || !q.length) return;
+    localStorage.setItem(SCORE_Q, '[]');
+    q.forEach(({game, score}) => reportScore(game, score));
+  } catch(e){}
+}
+flushScoreQueue();
 
 /* 绘制 */
 function draw(){

@@ -94,7 +94,18 @@ export const handler = async (event) => {
       if (!GAMES.includes(game)) return fail('未知游戏', 404)
       const board = (await getJSON(forumStore(), 'score:' + game)) || {}
       const rows = Object.values(board).sort((a, b) => b.score - a.score).slice(0, 20)
-      return ok({ rows, total: Object.keys(board).length })
+      // 可选登录：附带「我的排名」
+      let me = null
+      const u = await userByToken(body.token)
+      if (u && board[u.username]) {
+        const all = Object.values(board).sort((a, b) => b.score - a.score)
+        me = {
+          rank: all.findIndex((r) => r.username === u.username) + 1,
+          score: board[u.username].score,
+          total: all.length,
+        }
+      }
+      return ok({ rows, total: Object.keys(board).length, me })
     }
 
     /* ---------- 以下需登录 ---------- */

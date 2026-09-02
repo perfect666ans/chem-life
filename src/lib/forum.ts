@@ -32,6 +32,8 @@ export type BoardRow = {
   at: number
 }
 
+export type BoardMe = { rank: number; score: number; total: number } | null
+
 export const POST_TAGS = ['学习讨论', '题目求助', '页面反馈', '心得分享', '闲聊灌水']
 
 export const GAMES = [
@@ -65,7 +67,8 @@ export const replyPost = (postId: string, content: string) =>
 export const likePost = (postId: string) =>
   api<{ likes: number; liked: boolean }>('like', { postId })
 export const delPost = (postId: string) => api('del', { postId })
-export const getBoard = (game: string) => api<{ rows: BoardRow[]; total: number }>('board', { game })
+export const getBoard = (game: string) =>
+  api<{ rows: BoardRow[]; total: number; me: BoardMe }>('board', { game })
 
 export const fmtTime = (t: number) => {
   const d = new Date(t)

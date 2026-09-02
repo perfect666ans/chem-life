@@ -217,6 +217,7 @@ body::after{
 
 
 
+
 /* ===== 挑战树专用 ===== */
 .kt-wrap{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center}
 .kt-svg{width:100%;height:100%;min-width:760px}
@@ -487,15 +488,35 @@ function renderWelcome(){
   $("ktMsg").textContent = "";
 }
 
-/* 成绩上报（登录状态下自动上传排行榜，离线/未登录静默跳过） */
+/* 成绩上报：登录状态下自动上传排行榜；失败进入离线队列，下次启动补传 */
+const SCORE_Q = "chem-score-queue";
 function reportScore(game, score){
   try {
     const t = localStorage.getItem('chem-token');
     if (!t) return;
     fetch('/api/forum', {method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({action: 'report', token: t, game, score})}).catch(() => {});
+      body: JSON.stringify({action: 'report', token: t, game, score})})
+      .then(r => r.json()).then(r => { if (!r.ok) queueScore(game, score); })
+      .catch(() => queueScore(game, score));
+  } catch(e){ queueScore(game, score); }
+}
+function queueScore(game, score){
+  try {
+    const q = JSON.parse(localStorage.getItem(SCORE_Q) || '[]');
+    q.push({game, score});
+    localStorage.setItem(SCORE_Q, JSON.stringify(q.slice(-50)));
   } catch(e){}
 }
+function flushScoreQueue(){
+  try {
+    const t = localStorage.getItem('chem-token');
+    const q = JSON.parse(localStorage.getItem(SCORE_Q) || '[]');
+    if (!t || !q.length) return;
+    localStorage.setItem(SCORE_Q, '[]');
+    q.forEach(({game, score}) => reportScore(game, score));
+  } catch(e){}
+}
+flushScoreQueue();
 
 $("ktReset").onclick = () => {
   if (!confirm("清空挑战树全部进度（XP、连胜、成就）？")) return;

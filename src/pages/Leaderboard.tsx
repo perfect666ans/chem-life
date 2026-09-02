@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Trophy } from 'lucide-react'
-import { GAMES, fmtTime, getBoard, type BoardRow } from '../lib/forum'
+import { GAMES, fmtTime, getBoard, type BoardMe, type BoardRow } from '../lib/forum'
 
 const MEDAL = ['🥇', '🥈', '🥉']
 
@@ -9,13 +9,14 @@ export default function LeaderboardPage() {
   const [game, setGame] = useState<string>(GAMES[0].id)
   const [rows, setRows] = useState<BoardRow[]>([])
   const [total, setTotal] = useState(0)
+  const [me, setMe] = useState<BoardMe>(null)
   const [err, setErr] = useState('')
 
   useEffect(() => {
     setErr('')
     void (async () => {
       const r = await getBoard(game)
-      if (r.ok) { setRows(r.rows); setTotal(r.total) }
+      if (r.ok) { setRows(r.rows); setTotal(r.total); setMe(r.me ?? null) }
       else setErr(r.error || '加载失败')
     })()
   }, [game])
@@ -48,6 +49,15 @@ export default function LeaderboardPage() {
       </div>
 
       {err && <div className="mb-4 rounded-lg bg-rose-50 px-4 py-2 text-sm text-rose-700">{err}</div>}
+
+      {me && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm">
+          <span className="font-medium text-indigo-800">我的排名</span>
+          <span className="font-mono text-lg font-bold text-indigo-700">#{me.rank}</span>
+          <span className="text-slate-600">最好成绩 {me.score} {g.unit}</span>
+          <span className="ml-auto text-xs text-slate-400">共 {me.total} 位玩家</span>
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <table className="w-full text-sm">
