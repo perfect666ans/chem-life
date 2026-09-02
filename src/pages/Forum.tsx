@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { Heart, MessageSquare, Send, Trash2 } from 'lucide-react'
+import { Heart, MessageSquare, Pin, Search, Send, Trash2 } from 'lucide-react'
 import { useAuth } from '../lib/auth'
 import {
-  createPost, delPost, fmtTime, getPost, likePost, listPosts, replyPost,
+  createPost, delPost, fmtTime, getPost, likePost, listPosts, pinPost, replyPost,
   POST_TAGS, type PostBrief, type PostFull,
 } from '../lib/forum'
 
@@ -24,6 +24,9 @@ export default function ForumPage() {
   const [open, setOpen] = useState<PostFull | null>(null)
   const [err, setErr] = useState('')
   const [filter, setFilter] = useState('')
+  const [q, setQ] = useState('')
+  const [total, setTotal] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
 
   // 发帖表单
   const [title, setTitle] = useState('')
@@ -31,12 +34,15 @@ export default function ForumPage() {
   const [tag, setTag] = useState(POST_TAGS[0])
   const [reply, setReply] = useState('')
 
-  const reload = async () => {
-    const r = await listPosts()
-    if (r.ok) setPosts(r.posts)
-    else setErr(r.error || '加载失败')
+  const load = async (offset = 0, append = false, kw = q) => {
+    const r = await listPosts(kw, offset)
+    if (r.ok) {
+      setPosts((prev) => (append ? [...prev, ...r.posts] : r.posts))
+      setTotal(r.total); setHasMore(r.hasMore)
+    } else setErr(r.error || '加载失败')
   }
-  useEffect(() => { void reload() }, [])
+  const reload = () => load(0, false)
+  useEffect(() => { void load(0, false, '') }, [])
 
   const openPost = async (id: string) => {
     const r = await getPost(id)
@@ -99,14 +105,24 @@ export default function ForumPage() {
         </div>
       )}
 
-      {/* 筛选 */}
-      <div className="mb-4 flex flex-wrap gap-2 text-sm">
+      {/* 搜索 + 筛选 */}
+      <div className="mb-3 flex gap-2">
+        <input className={inputCls} placeholder="搜索标题或内容…" value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && load(0, false)} />
+        <button onClick={() => load(0, false)}
+          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-slate-800 px-4 text-sm text-white hover:bg-slate-700">
+          <Search className="h-4 w-4" /> 搜索
+        </button>
+      </div>
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
         <button onClick={() => setFilter('')}
           className={`rounded-full px-3 py-1 text-xs ${!filter ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600'}`}>全部</button>
         {POST_TAGS.map((t) => (
           <button key={t} onClick={() => setFilter(t)}
             className={`rounded-full px-3 py-1 text-xs ${filter === t ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600'}`}>{t}</button>
         ))}
+        <span className="ml-auto text-xs text-slate-400">共 {total} 帖</span>
       </div>
 
       {/* 帖子列表 */}
@@ -118,6 +134,11 @@ export default function ForumPage() {
             <div className="flex items-center gap-2">
               <span className="text-lg">{p.author.avatar}</span>
               <span className="text-sm font-medium text-slate-800">{p.author.nickname}</span>
+              {p.pinned && (
+                <span className="flex items-center gap-0.5 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                  <Pin className="h-3 w-3" /> 置顶
+                </span>
+              )}
               <span className={`rounded-full px-2 py-0.5 text-xs ${TAG_COLOR[p.tag] || TAG_COLOR.闲聊灌水}`}>{p.tag}</span>
               <span className="ml-auto text-xs text-slate-400">{fmtTime(p.createdAt)}</span>
             </div>
@@ -130,6 +151,12 @@ export default function ForumPage() {
           </article>
         ))}
       </div>
+      {hasMore && !filter && (
+        <button onClick={() => load(posts.length, true)}
+          className="mt-4 w-full rounded-lg border border-slate-300 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+          加载更多（已显示 {posts.length}/{total}）
+        </button>
+      )}
 
       {/* 详情抽屉 */}
       {open && (
@@ -153,6 +180,16 @@ export default function ForumPage() {
                 className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:border-rose-300 hover:text-rose-600">
                 <Heart className="h-4 w-4" /> {(open.likes || []).length}
               </button>
+              {user?.isAdmin && (
+                <button
+                  onClick={async () => {
+                    const r = await pinPost(open.id)
+                    if (r.ok) { void openPost(open.id); void reload() }
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:border-amber-300 hover:text-amber-600">
+                  <Pin className="h-4 w-4" /> {open.pinned ? '取消置顶' : '置顶'}
+                </button>
+              )}
               {user && (user.username === open.author.username || user.isAdmin) && (
                 <button
                   onClick={async () => {

@@ -70,7 +70,10 @@ const brief = (p) => ({
   content: p.content,
   likes: (p.likes || []).length,
   replies: (p.replies || []).length,
+  pinned: !!p.pinned,
 })
+
+const PAGE = 20
 
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return fail('仅支持 POST', 405)
@@ -81,8 +84,17 @@ export const handler = async (event) => {
   try {
     /* ---------- 公开读取 ---------- */
     if (action === 'list') {
-      const posts = await listPosts()
-      return ok({ posts: posts.slice(0, 100).map(brief) })
+      let posts = await listPosts()
+      const q = clip(body.q, 40).toLowerCase()
+      if (q) posts = posts.filter((p) =>
+        p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q))
+      posts.sort((a, b) => ((!!b.pinned) - (!!a.pinned)) || (b.createdAt - a.createdAt))
+      const offset = Math.max(0, Number(body.offset) || 0)
+      return ok({
+        posts: posts.slice(offset, offset + PAGE).map(brief),
+        total: posts.length,
+        hasMore: offset + PAGE < posts.length,
+      })
     }
     if (action === 'get') {
       const p = await getJSON(forumStore(), 'post:' + clip(body.postId, 40))
@@ -160,6 +172,15 @@ export const handler = async (event) => {
       if (p.author.username !== u.username && !u.isAdmin) return fail('只能删除自己的帖子', 403)
       await forumStore().delete('post:' + p.id)
       return ok({})
+    }
+
+    if (action === 'pin') {
+      if (!u.isAdmin) return fail('仅管理员可置顶', 403)
+      const p = await getJSON(forumStore(), 'post:' + clip(body.postId, 40))
+      if (!p) return fail('帖子不存在', 404)
+      p.pinned = !p.pinned
+      await forumStore().setJSON('post:' + p.id, p)
+      return ok({ pinned: p.pinned })
     }
 
     if (action === 'report') {

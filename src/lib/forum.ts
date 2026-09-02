@@ -10,6 +10,7 @@ export type PostBrief = {
   content: string
   likes: number
   replies: number
+  pinned: boolean
 }
 
 export type Reply = {
@@ -58,7 +59,8 @@ async function api<T = Record<string, unknown>>(
   }
 }
 
-export const listPosts = () => api<{ posts: PostBrief[] }>('list')
+export const listPosts = (q = '', offset = 0) =>
+  api<{ posts: PostBrief[]; total: number; hasMore: boolean }>('list', { q, offset })
 export const getPost = (postId: string) => api<{ post: PostFull }>('get', { postId })
 export const createPost = (title: string, content: string, tag: string) =>
   api<{ post: PostBrief }>('post', { title, content, tag })
@@ -67,6 +69,7 @@ export const replyPost = (postId: string, content: string) =>
 export const likePost = (postId: string) =>
   api<{ likes: number; liked: boolean }>('like', { postId })
 export const delPost = (postId: string) => api('del', { postId })
+export const pinPost = (postId: string) => api<{ pinned: boolean }>('pin', { postId })
 export const getBoard = (game: string) =>
   api<{ rows: BoardRow[]; total: number; me: BoardMe }>('board', { game })
 
