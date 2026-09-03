@@ -1,0 +1,10 @@
+name = "huaxue-shenghuo"
+pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "CHEM_AUTH"
+id = "REPLACE_ME_AUTH"
+
+[[kv_namespaces]]
+binding = "CHEM_FORUM"
+id = "REPLACE_ME_FORUM"
