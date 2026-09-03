@@ -4,3 +4,5 @@ dist/
 
 # Local Netlify folder
 .netlify
+migration/kv-auth.json
+migration/kv-forum.json
