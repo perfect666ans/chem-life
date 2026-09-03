@@ -3,8 +3,8 @@ pages_build_output_dir = "dist"
 
 [[kv_namespaces]]
 binding = "CHEM_AUTH"
-id = "REPLACE_ME_AUTH"
+id = "f2cf5fbdad4c4c0994c3b6833cf4fd6e"
 
 [[kv_namespaces]]
 binding = "CHEM_FORUM"
-id = "REPLACE_ME_FORUM"
+id = "21f123c9a897489798db608c280d4cc5"
