@@ -1,7 +1,7 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route, useLocation } from 'react-router'
+import { Routes, Route } from 'react-router'
 import SiteHeader from './components/SiteHeader'
-import Home from './pages/HomeRedesign'
+import Home from './pages/Home'
 
 // 路由级代码分割：非首页按需加载，降低首屏体积
 const DatabasePage = lazy(() => import('./pages/Database'))
@@ -22,11 +22,9 @@ const PageLoading = () => (
 )
 
 export default function App() {
-  const location = useLocation()
-  const isHome = location.pathname === '/'
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      {!isHome && <SiteHeader />}
+      <SiteHeader />
       <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/" element={<Home />} />

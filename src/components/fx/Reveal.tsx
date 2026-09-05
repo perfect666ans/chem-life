@@ -1,0 +1,24 @@
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+
+/** 错落进场：进入视口时按 stagger 延迟浮现 */
+export default function Reveal({ children, delay = 0, className = '' }: { children: ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setShown(true); return }
+    const io = new IntersectionObserver((es) => {
+      es.forEach((e) => { if (e.isIntersecting) { setShown(true); io.disconnect() } })
+    }, { threshold: 0.08, rootMargin: '0px 0px -5% 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} data-reveal="" className={(shown ? 'in ' : '') + className} style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  )
+}
