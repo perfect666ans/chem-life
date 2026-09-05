@@ -16,7 +16,7 @@ export default function HScroller({ children }: { children: ReactNode }) {
     if (!el || !track || !thumb) return
     const hsEl = el, trackEl = track, thumbEl = thumb
     let current = 0, vel = 0, dragging = false, tdragging = false, bounceEdge: number | null = null
-    let sx = 0, scur = 0, lastX = 0, lastT = 0, tx = 0, tleft = 0, moved = 0, gt = 0
+    let sx = 0, scur = 0, lastX = 0, lastT = 0, tx = 0, tleft = 0, moved = 0, gt = 0, downTarget: EventTarget | null = null, internal = false
 
     const maxS = () => Math.max(0, hsEl.scrollWidth - hsEl.clientWidth)
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -54,7 +54,7 @@ export default function HScroller({ children }: { children: ReactNode }) {
           if (current >= m) { current = m; bounceEdge = m; if (Math.abs(vel) <= 2.5) vel = 0 }
         } else vel = 0
       }
-      hsEl.scrollLeft = current
+      internal = true; hsEl.scrollLeft = current; internal = false
       syncBar()
       requestAnimationFrame(frame)
     }
@@ -62,7 +62,7 @@ export default function HScroller({ children }: { children: ReactNode }) {
 
     const down = (e: PointerEvent) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return
-      dragging = true; vel = 0; moved = 0; sx = e.clientX; scur = current
+      dragging = true; vel = 0; moved = 0; sx = e.clientX; scur = current; downTarget = e.target
       lastX = e.clientX; lastT = performance.now()
       try { hsEl.setPointerCapture(e.pointerId) } catch { /* noop */ }
       hsEl.style.cursor = 'grabbing'
@@ -78,19 +78,29 @@ export default function HScroller({ children }: { children: ReactNode }) {
       const v = ((lastX - e.clientX) / dt) * 16
       vel = vel * 0.5 + v * 0.5; lastX = e.clientX; lastT = now
     }
-    const up = () => {
+    const up = (e: PointerEvent) => {
       if (!dragging) return
       dragging = false; hsEl.style.cursor = ''
+      try { hsEl.releasePointerCapture(e.pointerId) } catch { /* noop */ }
       const m = maxS()
       if (current < 0 || current > m) { if (Math.abs(vel) < 2) vel = current < 0 ? -2.2 : 2.2; return }
       if (Math.abs(vel) < 3 || reduce) vel = 0
+      /* 点击（非拖拽）时指针捕获会劫持 click 目标，这里手动触发链接 */
+      if (moved <= 6 && downTarget) {
+        const a = (downTarget as HTMLElement).closest('a')
+        if (a) setTimeout(() => (a as HTMLAnchorElement).click(), 0)
+      }
     }
     const suppressClick = (e: Event) => { if (moved > 6) { e.preventDefault(); e.stopPropagation() } }
+    /* 手机触摸：浏览器原生横向滚动（惯性丝滑）时，反向同步 current */
+    const onScroll = () => { if (!internal && !dragging && !tdragging) { current = hsEl.scrollLeft; vel = 0; bounceEdge = null } }
+    hsEl.addEventListener('scroll', onScroll, { passive: true })
 
     hsEl.addEventListener('pointerdown', down)
     hsEl.addEventListener('pointermove', move)
+    const onCancel = () => { dragging = false; hsEl.style.cursor = '' }
     hsEl.addEventListener('pointerup', up)
-    hsEl.addEventListener('pointercancel', up)
+    hsEl.addEventListener('pointercancel', onCancel)
     hsEl.addEventListener('click', suppressClick, true)
 
     const tdown = (e: PointerEvent) => {
@@ -124,8 +134,9 @@ export default function HScroller({ children }: { children: ReactNode }) {
       hsEl.removeEventListener('pointerdown', down)
       hsEl.removeEventListener('pointermove', move)
       hsEl.removeEventListener('pointerup', up)
-      hsEl.removeEventListener('pointercancel', up)
+      hsEl.removeEventListener('pointercancel', onCancel)
       hsEl.removeEventListener('click', suppressClick, true)
+      hsEl.removeEventListener('scroll', onScroll)
       thumb.removeEventListener('pointerdown', tdown)
       window.removeEventListener('pointermove', tmove)
       window.removeEventListener('pointerup', tUp)

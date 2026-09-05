@@ -1,4 +1,4 @@
-// 教学中心门户 —— 模仿 tk-chem.cc/nav.html 的讲座目录式设计
+// 教学中心门户 · 讲座式分区目录
 // 罗马数字分区 · 衬线标题 · 编号卡片 · 「进入 →」
 
 type Card = {
@@ -253,7 +253,7 @@ export default function TeachingPage() {
             化学世界<em>可视化</em>教学中心
           </h1>
           <p>
-            模仿 tk-chem 的讲座式目录：按专题分区、编号进入。两个 3D 实验室已完整可用，
+            按专题分区、编号进入的讲座式目录。两个 3D 实验室已完整可用，
             其余板块陆续接入。
           </p>
           <div className="meta">
@@ -303,7 +303,7 @@ export default function TeachingPage() {
         ))}
 
         <div className="tk-foot">
-          CHEM-LIFE TEACHING PORTAL · 目录式设计灵感：tk-chem.cc/nav.html
+          CHEM-LIFE TEACHING PORTAL
         </div>
       </main>
     </div>

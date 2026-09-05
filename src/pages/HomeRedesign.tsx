@@ -32,16 +32,16 @@ const WORLDS = [
   { img: worldStructure, color: '#3ECBFF', en: 'STRUCTURE', name: '晶脉回响', tags: '分子 · 晶体 · 电子排布', badge: '结构', to: '/teaching' },
   { img: worldOrganic, color: '#B4FF5C', en: 'ORGANIC', name: '有机迷林', tags: '命名 · 异构 · 机理', badge: '有机', to: '/teaching' },
   { img: worldPrinciple, color: '#FF9A3D', en: 'PRINCIPLE', name: '熔炉法则', tags: '能量 · 平衡 · 电化学', badge: '原理', to: '/teaching' },
-  { img: worldRpg, color: '#C77DFF', en: 'RPG', name: '元素纪元', tags: '30 波元素兽 · 方程式施法', badge: 'RPG', to: '/teaching' },
-  { img: worldTd, color: '#FF5C5C', en: 'ARCADE TD', name: '元素防线', tags: '沉淀塔 · 中和塔 · 15 波守卫战', badge: '塔防', to: '/teaching' },
-  { img: worldReview, color: '#8AB4FF', en: 'REVIEW', name: '知识星河', tags: '知识地图 · 闪卡 · 技能树', badge: '复习', to: '/teaching' },
+  { img: worldRpg, color: '#C77DFF', en: 'RPG', name: '元素纪元', tags: '30 波元素兽 · 方程式施法', badge: 'RPG', to: '/teaching/chem_lab5.1.html' },
+  { img: worldTd, color: '#FF5C5C', en: 'ARCADE TD', name: '元素防线', tags: '沉淀塔 · 中和塔 · 15 波守卫战', badge: '塔防', to: '/teaching/chem_lab5.2.html' },
+  { img: worldReview, color: '#8AB4FF', en: 'PERSONA', name: '人格星岛', tags: 'CBTI 化学人格 · 12 题测阵营', badge: '测试', to: '/teaching/chem_lab5.3.html' },
 ]
 
 const PORTALS = [
   { img: portalLab, color: '#3ECBFF', code: 'LAB', name: '模拟实验室', badge: '16 实验室',
     desc: '晶体结构 · 有机机理 · 电化学 · 平衡速率，16 间互动实验室像真做实验一样学。', to: '/teaching' },
   { img: portalLife, color: '#B4FF5C', code: 'LIFE', name: '生活探究馆', badge: '持续更新',
-    desc: '维生素与化学 · 氨基酸与化学 · 厨房里的反应，膳食指南宝塔即将上线。', to: '/vitamins' /* TODO: C-02 上线后改 /life */ },
+    desc: '维生素与化学 · 氨基酸与化学 · 厨房里的反应，膳食指南宝塔即将上线。', to: '/life' },
   { img: portalDb, color: '#FFB84D', code: 'DB', name: '成分检索库', badge: '417 条目',
     desc: '417 条成分记录覆盖 12 类日常物品，俗名、化学式、用途一站式检索。', to: '/database' },
 ]
@@ -87,7 +87,7 @@ export default function HomeRedesign() {
             <Reveal delay={360}>
               <div className="hr-cta">
                 <Link className="hr-btn hr-btn-ink" to="/teaching">进入模拟实验室 <span className="arr">→</span></Link>
-                <Link className="hr-btn hr-btn-ink" to="/vitamins">进入生活探究馆 <span className="arr">→</span></Link>
+                <Link className="hr-btn hr-btn-ink" to="/life">进入生活探究馆 <span className="arr">→</span></Link>
                 <Link className="hr-btn hr-btn-ink" to="/database">进入成分检索库 <span className="arr">→</span></Link>
               </div>
             </Reveal>

@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react'
 import { Routes, Route, useLocation } from 'react-router'
 import SiteHeader from './components/SiteHeader'
 import Home from './pages/HomeRedesign'
+import LifeHall from './pages/LifeHall'
 
 // 路由级代码分割：非首页按需加载，降低首屏体积
 const DatabasePage = lazy(() => import('./pages/Database'))
@@ -30,6 +31,7 @@ export default function App() {
       <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/life" element={<LifeHall />} />
           <Route path="/database" element={<DatabasePage />} />
           <Route path="/pubchem" element={<PubChemPage />} />
           <Route path="/kitchen" element={<KitchenPage />} />
