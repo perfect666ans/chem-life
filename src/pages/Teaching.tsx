@@ -52,32 +52,6 @@ const sections: Section[] = [
   },
   {
     roman: 'Ⅱ',
-    label: 'REVIEW',
-    title: '复习板块',
-    range: '记忆 · 连胜 · 复盘',
-    cards: [
-      {
-        no: '01',
-        name: '知识球 · 知识地图',
-        desc: '52 个核心知识点力导向网络：五册教材分色、「前置→后续」学习路径箭头，每点配预习卡与母题方向，支持搜索与教材筛选。',
-        href: '/teaching/chem_lab2.1.html',
-      },
-      {
-        no: '02',
-        name: '化学闪卡复习',
-        desc: '高中化学 10 章 150 张精编闪卡：必修一二 + 选择性必修 1-3，Leitner 记忆盒追踪进度、识别薄弱、到期智能推荐。',
-        href: '/teaching/chem_lab2.2.html',
-      },
-      {
-        no: '03',
-        name: '知识挑战树',
-        desc: '10 条章节枝干 × 3 层共 30 个挑战节点：抽题自评闯关、点亮解锁上层，XP 等级、连胜纪录与 8 项成就本地持久化。',
-        href: '/teaching/chem_lab2.3.html',
-      },
-    ],
-  },
-  {
-    roman: 'Ⅲ',
     label: 'ORGANIC CHEMISTRY',
     title: '有机化学',
     range: '≡键 · R-OH · 酯化',
@@ -103,7 +77,7 @@ const sections: Section[] = [
     ],
   },
   {
-    roman: 'Ⅳ',
+    roman: 'Ⅲ',
     label: 'REACTION PRINCIPLES',
     title: '化学反应原理',
     range: 'ΔH · K · e⁻',
@@ -131,6 +105,32 @@ const sections: Section[] = [
         name: '化学反应与电能',
         desc: '原电池 / 电解池 / 电镀 / 吸氧腐蚀动画：电子流、气泡、离子迁移、电表与直流电源全联动。',
         href: '/teaching/chem_lab4.4.html',
+      },
+    ],
+  },
+  {
+    roman: 'Ⅳ',
+    label: 'REVIEW',
+    title: '复习板块',
+    range: '记忆 · 连胜 · 复盘',
+    cards: [
+      {
+        no: '01',
+        name: '知识球 · 知识地图',
+        desc: '52 个核心知识点力导向网络：五册教材分色、「前置→后续」学习路径箭头，每点配预习卡与母题方向，支持搜索与教材筛选。',
+        href: '/teaching/chem_lab2.1.html',
+      },
+      {
+        no: '02',
+        name: '化学闪卡复习',
+        desc: '高中化学 10 章 150 张精编闪卡：必修一二 + 选择性必修 1-3，Leitner 记忆盒追踪进度、识别薄弱、到期智能推荐。',
+        href: '/teaching/chem_lab2.2.html',
+      },
+      {
+        no: '03',
+        name: '知识挑战树',
+        desc: '10 条章节枝干 × 3 层共 30 个挑战节点：抽题自评闯关、点亮解锁上层，XP 等级、连胜纪录与 8 项成就本地持久化。',
+        href: '/teaching/chem_lab2.3.html',
       },
     ],
   },
