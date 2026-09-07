@@ -65,7 +65,7 @@ export default function HomeRedesign() {
             </Link>
             <nav className="hr-nav">
               <Link to="/#worlds" className="active">趣味探索</Link>
-              <Link to="/#portals">功能门户</Link>
+              <Link to="/leaderboard">排行榜</Link>
               <Link to="/forum">论坛</Link>
               <Link to="/profile">我的</Link>
             </nav>

@@ -134,52 +134,6 @@ const sections: Section[] = [
       },
     ],
   },
-  {
-    roman: 'Ⅴ',
-    label: 'GAMES',
-    title: '游戏板块',
-    range: 'XP · Boss · Combo',
-    cards: [
-      {
-        no: '01',
-        name: '元素纪元 RPG',
-        desc: '回合制元素对战：答氧化还原题攻击、答错被反击，20 种元素精灵可削弱捕获进图鉴，等级成长与战绩本地保存。',
-        href: '/teaching/chem_lab5.1.html',
-      },
-      {
-        no: '02',
-        name: '元素防线：化学塔防',
-        desc: '沉淀 / 中和 / 氧化三种反应塔抵御 15 波离子入侵：反应克制 2.5× 伤害并播报真实方程式，金币经济与最佳纪录。',
-        href: '/teaching/chem_lab5.2.html',
-      },
-      {
-        no: '03',
-        name: 'CBTI 化学人格鉴定',
-        desc: '16 道题 × 4 维度测出你的物质人格：16 种结果卡（从钠到氦），可复制的分享文案。',
-        href: '/teaching/chem_lab5.3.html',
-      },
-    ],
-  },
-  {
-    roman: 'Ⅵ',
-    label: 'COMMUNITY',
-    title: '社区与排行',
-    range: '论坛 · 排行 · 个人档案',
-    cards: [
-      {
-        no: '01',
-        name: '交流论坛',
-        desc: '开贴讨论化学问题、反馈页面问题、分享学习心得，支持回复与点赞；浏览免登录。',
-        href: '/forum',
-      },
-      {
-        no: '02',
-        name: '排行榜 / 统计',
-        desc: '塔防 / RPG / 挑战树最好成绩榜：登录后玩游戏自动上报，只保留每人最高纪录。',
-        href: '/leaderboard',
-      },
-    ],
-  },
 ]
 
 const TK_STYLE = `

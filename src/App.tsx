@@ -1,6 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route, useLocation } from 'react-router'
-import SiteHeader from './components/SiteHeader'
+import { Routes, Route } from 'react-router'
 import Home from './pages/HomeRedesign'
 import LifeHall from './pages/LifeHall'
 
@@ -23,11 +22,8 @@ const PageLoading = () => (
 )
 
 export default function App() {
-  const location = useLocation()
-  const isHome = location.pathname === '/'
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      {!isHome && <SiteHeader />}
       <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/" element={<Home />} />

@@ -67,6 +67,9 @@ const LABS = [
   { to: '/amino-acids', color: '#5fb7ff', code: 'AMINO ACIDS', name: '氨基酸与化学', glyph: '氨',
     desc: '20 种氨基酸的分类、必需氨基酸与肽键形成的分子机制。',
     bg: 'radial-gradient(120% 120% at 70% 25%,#17324a,#0b1622 60%),radial-gradient(55% 55% at 22% 80%,rgba(95,183,255,.32),transparent)' },
+  { to: '/kitchen', color: '#f5a623', code: 'KITCHEN', name: '厨房化学', glyph: '厨',
+    desc: '12 个厨房现象背后的化学原理：美拉德反应、发酵、胶体聚沉……',
+    bg: 'radial-gradient(120% 120% at 30% 75%,#45300f,#150e04 60%),radial-gradient(55% 55% at 80% 22%,rgba(245,166,35,.32),transparent)' },
 ]
 
 export default function LifeHall() {
@@ -268,6 +271,7 @@ export default function LifeHall() {
       <div className="wrap">
         <div className="top">
           <h1>生活探究馆</h1><span className="tag">NUTRITION · CHEMISTRY</span>
+          <Link to="/" style={{ marginLeft: 'auto', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '.08em', color: 'var(--ink-2)', textDecoration: 'none', border: '1px solid var(--line-2)', padding: '6px 12px', borderRadius: 999 }}>← 返回首页</Link>
           <ThemeToggle targetId="lifeRoot" />
         </div>
         <p className="sub">中国居民膳食指南（2022）· 悬停宝塔任一层看摄入量，点击查看详情</p>
