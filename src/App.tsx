@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router'
 import Home from './pages/HomeRedesign'
+import NavChrome from './components/NavChrome'
 import LifeHall from './pages/LifeHall'
 
 // 路由级代码分割：非首页按需加载，降低首屏体积
@@ -25,6 +26,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <Suspense fallback={<PageLoading />}>
+        <NavChrome />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/life" element={<LifeHall />} />

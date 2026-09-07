@@ -112,7 +112,7 @@ export default function HomeRedesign() {
             <div className="hr-grid">
               {WORLDS.map((w, i) => (
                 <Reveal key={w.en} delay={i * 90}>
-                  <TiltCard className="hr-zone" to={w.to} style={{ ['--zc' as string]: w.color }}>
+                  <TiltCard className="hr-zone" to={w.to} reload={w.to.endsWith('.html')} style={{ ['--zc' as string]: w.color }}>
                     <span className="badge on">{w.badge}</span>
                     <div className="art">
                       <div className="ph"><img src={w.img} alt={w.name} loading="lazy" /><div className="mask" /></div>

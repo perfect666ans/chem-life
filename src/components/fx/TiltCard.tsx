@@ -5,7 +5,7 @@ import { Link } from 'react-router'
  * 3D tilt 百叶窗 + 探照灯（C-01 定稿参数：X±10° Y±12°，双层圆形光晕 140/480px）
  * 用法：内部需含 .ph 元素（探照灯跟随其定位）
  */
-export default function TiltCard({ children, className = '', style, to = '#' }: { children: ReactNode; className?: string; style?: CSSProperties; to?: string }) {
+export default function TiltCard({ children, className = '', style, to = '#', reload = false }: { children: ReactNode; className?: string; style?: CSSProperties; to?: string; reload?: boolean }) {
   const ref = useRef<HTMLAnchorElement>(null)
   const raf = useRef(0)
 
@@ -38,7 +38,7 @@ export default function TiltCard({ children, className = '', style, to = '#' }: 
   }
 
   return (
-    <Link ref={ref} to={to} className={className} style={style} onMouseMove={onMove} onMouseLeave={onLeave}>
+    <Link ref={ref} to={to} reloadDocument={reload} className={className} style={style} onMouseMove={onMove} onMouseLeave={onLeave}>
       {children}
     </Link>
   )

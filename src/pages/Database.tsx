@@ -41,7 +41,7 @@ function MaterialsTab() {
   return (
     <div>
       {/* 筛选区 */}
-      <div className="sticky top-14 z-30 -mx-4 border-b bg-slate-50/95 px-4 py-3 backdrop-blur">
+      <div className="sticky top-0 z-30 -mx-4 border-b bg-slate-50/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-col gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
