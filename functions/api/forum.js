@@ -1,4 +1,19 @@
-// Cloudflare Pages Function：论坛 + 排行榜（KV）——由 Netlify 移植 + W-12 防刷榜
+// Cloudflare Pages Function：交流论坛 + 游戏排行榜（KV 持久化）
+// 路由：POST /api/forum  {action: ...}
+// 由 netlify/functions/forum.js 移植，接口契约完全一致，前端无需改动
+// 环境变量/绑定：KV namespace 绑定为 CHEM_AUTH（读用户）与 CHEM_FORUM（帖子/榜单）
+//
+// - list      {q?, offset?}                    公开：帖子列表（置顶优先，新→旧，每页 20）
+// - get       {postId}                        公开：帖子详情+回复
+// - post      {token, title, content, tag}    登录：发帖
+// - reply     {token, postId, content}        登录：回复
+// - like      {token, postId}                 登录：点赞/取消
+// - del       {token, postId}                 登录：删帖（本人或管理员）
+// - pin       {token, postId}                 登录：置顶/取消（仅管理员）
+// - report    {token, game, score}            登录：上报成绩（只保留每人每游戏最高，带服务端上限+限频）
+// - board     {game, token?}                  公开：排行榜 Top 20（可选附带我的排名）
+// 游戏标识：td=化学塔防(波) rpg=元素纪元(波) tree=知识挑战树(点亮节点数)
+
 const now = () => Date.now()
 const rand = (n = 8) =>
   [...crypto.getRandomValues(new Uint8Array(n))].map((b) => b.toString(16).padStart(2, '0')).join('')
@@ -26,8 +41,10 @@ const ok = (data) => json({ ok: true, ...data })
 const fail = (message, code = 400) => json({ ok: false, error: message }, code)
 
 const TAGS = ['学习讨论', '题目求助', '页面反馈', '心得分享', '闲聊灌水']
-const GAMES = ['td', 'rpg', 'tree']
-const SCORE_CAP = { td: 20, rpg: 100, tree: 30 }
+const GAMES = ['td', 'rpg', 'tree', 'snake', 'merge', 'aufbau']
+// 【W-12 防刷榜】每游戏成绩合理上限（td 目前 15 波可通关，留余量；tree 满节点 30）
+const SCORE_CAP = { td: 20, rpg: 100, tree: 30, snake: 999999, merge: 9999999, aufbau: 59 }
+// 【W-12 防刷榜】每用户每分钟最多上报次数
 const REPORT_RATE = { windowMs: 60e3, max: 10 }
 const clip = (v, max) => String(v ?? '').slice(0, max).trim()
 
@@ -64,6 +81,7 @@ export async function onRequestPost(context) {
   const { action } = body
 
   try {
+    /* ---------- 公开读取 ---------- */
     if (action === 'list') {
       let posts = await listPosts(env)
       const q = clip(body.q, 40).toLowerCase()
@@ -87,6 +105,7 @@ export async function onRequestPost(context) {
       if (!GAMES.includes(game)) return fail('未知游戏', 404)
       const board = (await getJSON(env.CHEM_FORUM, 'score:' + game)) || {}
       const rows = Object.values(board).sort((a, b) => b.score - a.score).slice(0, 20)
+      // 可选登录：附带「我的排名」
       let me = null
       const u = await userByToken(env, body.token)
       if (u && board[u.username]) {
@@ -100,6 +119,26 @@ export async function onRequestPost(context) {
       return ok({ rows, total: Object.keys(board).length, me })
     }
 
+    /* 使用时长榜：仅统计选择公开的用户（W-06 后半句） */
+    if (action === 'usageBoard') {
+      const users = await env.CHEM_AUTH.list({ prefix: 'user:' })
+      const usageKeys = await env.CHEM_FORUM.list({ prefix: 'usage:' })
+      const usageMap = {}
+      for (const k of usageKeys.keys) usageMap[k.name.slice(5)] = (await getJSON(env.CHEM_FORUM, k.name)) || {}
+      const rows = []
+      for (const k of users.keys) {
+        const uname = k.name.slice(5)
+        const u = await getJSON(env.CHEM_AUTH, k.name)
+        if (!u || !u.showUsage) continue
+        const uu = usageMap[uname] || {}
+        const total = Object.values(uu).reduce((a, b) => a + b, 0)
+        if (total > 0) rows.push({ username: u.nickname || uname, avatar: u.avatar || '🧪', total })
+      }
+      rows.sort((a, b) => b.total - a.total)
+      return ok({ rows: rows.slice(0, 20) })
+    }
+
+    /* ---------- 以下需登录 ---------- */
     const u = await userByToken(env, body.token)
     if (!u) return fail('请先登录', 401)
 
@@ -167,7 +206,9 @@ export async function onRequestPost(context) {
       const score = Math.floor(Number(body.score))
       if (!GAMES.includes(game)) return fail('未知游戏', 404)
       if (!Number.isFinite(score) || score < 0 || score > 100000) return fail('成绩不合法')
-      if (score > SCORE_CAP[game]) return fail('成绩超出上限（' + game + ' 最高 ' + SCORE_CAP[game] + '）', 422)
+      // 【W-12】超过游戏理论上限直接拒绝
+      if (score > SCORE_CAP[game]) return fail(`成绩超出上限（${game} 最高 ${SCORE_CAP[game]}）`, 422)
+      // 【W-12】限频：每分钟最多 REPORT_RATE.max 次
       const rlKey = 'rl:report:' + u.username
       const rl = (await getJSON(env.CHEM_FORUM, rlKey)) || { count: 0, resetAt: now() + REPORT_RATE.windowMs }
       if (now() > rl.resetAt) { rl.count = 0; rl.resetAt = now() + REPORT_RATE.windowMs }

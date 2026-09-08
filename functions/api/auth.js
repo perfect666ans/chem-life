@@ -1,7 +1,25 @@
-// Cloudflare Pages Function：账号系统（KV 持久化）——由 Netlify 移植，接口契约不变
+// Cloudflare Pages Function：账号系统（KV 持久化）
+// 路由：POST /api/auth  {action: ...}
+// 由 netlify/functions/auth.js 移植，接口契约完全一致，前端无需改动
+// 环境变量/绑定：KV namespace 绑定为 CHEM_AUTH
+//
+// - bootstrap        惰性创建管理员（账号见 ADMIN_NAME；初始密码登录后请立即修改）
+// - login            {username, password}
+// - register         {username, password, code}   需要管理员开放的邀请窗口
+// - me               {token}
+// - logout           {token}
+// - updateProfile    {token, nickname, avatar, bio, tags, showUsage, showGameTime}
+// - changePassword   {token, oldPassword, newPassword}
+// - setInvite        {token, code, openPassword, durationMin, maxUsers}   仅管理员
+// - getInvite        {token}                                             仅管理员
+// - closeInvite      {token}                                             仅管理员
+// - inviteStatus     {}              公开：当前是否开放注册
+
 const ADMIN_NAME = '18573854599'
+// ⚠️ 部署后请第一时间登录并修改管理员密码（此初始密码已出现在公开仓库历史中）
 const ADMIN_INIT_PASSWORD = 'perfect2017'
 
+// --- Web Crypto 工具（Pages Functions 无 node:crypto） ---
 const enc = new TextEncoder()
 async function sha(s) {
   const buf = await crypto.subtle.digest('SHA-256', enc.encode(s))
@@ -13,6 +31,7 @@ const rand = (n = 32) =>
 
 const now = () => Date.now()
 
+// --- KV 访问（替代 Netlify Blobs） ---
 async function getJSON(env, key) {
   return (await env.CHEM_AUTH.get(key, 'json')) ?? null
 }
@@ -80,6 +99,7 @@ export async function onRequestPost(context) {
   try {
     await bootstrap(env)
 
+    /* ---------- 登录 ---------- */
     if (action === 'login') {
       const { username, password } = body
       if (!validName(username) && username !== ADMIN_NAME) return fail('账号格式不正确')
@@ -90,6 +110,7 @@ export async function onRequestPost(context) {
       return ok({ token, user: publicUser(u) })
     }
 
+    /* ---------- 注册（邀请窗口） ---------- */
     if (action === 'register') {
       const { username, password, code } = body
       if (!validName(username)) return fail('账号需为 2-24 位字母/数字/中文/下划线')
@@ -116,16 +137,32 @@ export async function onRequestPost(context) {
       return ok({ token, user: publicUser(user) })
     }
 
+    /* ---------- 会话 ---------- */
     if (action === 'me') {
       const u = await userByToken(env, body.token)
       if (!u) return fail('未登录或会话已过期', 401)
-      return ok({ user: publicUser(u) })
+      return ok({ user: { ...publicUser(u), usage: (await getJSON(env, 'usage:' + u.username)) || {} } })
+    }
+    /* 使用时长心跳：前端每 ~20s 上报一次各模块停留秒数（W-06） */
+    if (action === 'heartbeat') {
+      const u = await userByToken(env, body.token)
+      if (!u) return fail('未登录', 401)
+      const mod = String(body.module || '').slice(0, 24)
+      const secs = Math.min(Math.max(Number(body.seconds) || 0, 0), 120)
+      if (mod && secs > 0) {
+        const key = 'usage:' + u.username
+        const usage = (await getJSON(env, key)) || {}
+        usage[mod] = (usage[mod] || 0) + Math.round(secs)
+        await setJSON(env, key, usage)
+      }
+      return ok({})
     }
     if (action === 'logout') {
       if (body.token) await env.CHEM_AUTH.delete('session:' + body.token).catch(() => {})
       return ok({})
     }
 
+    /* ---------- 个人资料 ---------- */
     if (action === 'updateProfile') {
       const u = await userByToken(env, body.token)
       if (!u) return fail('未登录', 401)
@@ -152,6 +189,35 @@ export async function onRequestPost(context) {
       return ok({})
     }
 
+    if (action === 'bindPhone') {
+      const u = await userByToken(env, body.token)
+      if (!u) return fail('未登录', 401)
+      const phone = String(body.phone || '').trim()
+      if (!/^1\d{10}$/.test(phone)) return fail('手机号格式不正确（需 11 位大陆手机号）')
+      const all = await env.CHEM_AUTH.list({ prefix: 'user:' })
+      for (const k of all.keys) {
+        const other = await getJSON(env, k.name)
+        if (other && other.username !== u.username && other.phone === phone) return fail('该手机号已被其他账号绑定', 409)
+      }
+      u.phone = phone
+      await setJSON(env, 'user:' + u.username, u)
+      return ok({ user: { ...publicUser(u), usage: (await getJSON(env, 'usage:' + u.username)) || {} } })
+    }
+    if (action === 'resetPassword') {
+      const u = await getJSON(env, 'user:' + String(body.username || '').trim())
+      if (!u) return fail('账号不存在', 404)
+      if (!u.phone) return fail('该账号未绑定手机号，请联系站长重置', 403)
+      if (u.phone !== String(body.phone || '').trim()) return fail('手机号与账号绑定的不一致', 401)
+      const np = String(body.newPassword || '')
+      if (np.length < 6) return fail('新密码至少 6 位')
+      u.salt = rand(16)
+      u.hash = await hashPw(np, u.salt)
+      u.mustChangePw = false
+      await setJSON(env, 'user:' + u.username, u)
+      return ok({})
+    }
+
+    /* ---------- 管理员：登录权限（邀请窗口） ---------- */
     if (action === 'setInvite') {
       const u = await userByToken(env, body.token)
       if (!u || !u.isAdmin) return fail('无权限', 403)

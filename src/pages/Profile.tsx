@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Check, KeyRound, LogOut, Plus, ShieldCheck, UserRound } from 'lucide-react'
 import {
+  bindPhone,
   changePassword,
   closeInvite,
   getInvite,
@@ -9,6 +10,7 @@ import {
   updateProfile,
   useAuth,
   logout,
+  refresh,
   type InviteState,
 } from '../lib/auth'
 
@@ -41,6 +43,43 @@ const PRESET_TAGS = [
 const inputCls =
   'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
 
+const MOD_LABELS: Record<string, string> = {
+  home: '首页', teaching: '模拟实验室', life: '生活探究馆', database: '成分检索库',
+  kitchen: '厨房化学', vitamins: '维生素与化学', amino: '氨基酸与化学',
+  pubchem: '化合物查询', forum: '交流论坛', leaderboard: '排行榜', profile: '个人中心',
+}
+function fmtDur(sec: number) {
+  if (sec < 60) return sec + ' 秒'
+  if (sec < 3600) return Math.round(sec / 60) + ' 分钟'
+  return (sec / 3600).toFixed(1) + ' 小时'
+}
+function UsageSection({ usage }: { usage?: Record<string, number> }) {
+  const rows = Object.entries(usage || {}).sort((a, b) => b[1] - a[1])
+  const total = rows.reduce((a, r) => a + r[1], 0)
+  return (
+    <Section title="我的使用时长">
+      {rows.length === 0 ? (
+        <p className="text-sm text-slate-400">暂无记录——在各个模块逛一会儿，这里就会出现你的足迹。</p>
+      ) : (
+        <>
+          <p className="mb-3 text-xs text-slate-500">总计 {fmtDur(total)} ｜ 每 20 秒自动记录一次，仅自己可见</p>
+          <div className="space-y-2">
+            {rows.map(([k, v]) => (
+              <div key={k} className="flex items-center gap-3 text-sm">
+                <span className="w-24 shrink-0 text-slate-600">{MOD_LABELS[k] || k}</span>
+                <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full rounded-full bg-indigo-400" style={{ width: Math.max(4, (v / (rows[0]?.[1] || 1)) * 100) + '%' }} />
+                </div>
+                <span className="w-20 shrink-0 text-right font-mono text-xs text-slate-500">{fmtDur(v)}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </Section>
+  )
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6">
@@ -54,6 +93,7 @@ export default function ProfilePage() {
   const { user, ready } = useAuth()
   const nav = useNavigate()
   const [msg, setMsg] = useState('')
+  const [phone, setPhone] = useState('')
   const [ok, setOk] = useState('')
 
   // 资料表单
@@ -133,6 +173,7 @@ export default function ProfilePage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-5 px-4 py-8">
+      <UsageSection usage={user.usage} />
       <div className="flex items-center gap-3">
         <span className="text-3xl">{user.avatar}</span>
         <div>
@@ -349,6 +390,46 @@ export default function ProfilePage() {
           <UserRound className="h-4 w-4" />
           保存资料
         </button>
+      </Section>
+
+      {/* 账号安全：绑定手机 + 切换账号 */}
+      <Section title="账号安全">
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="w-20 text-sm text-slate-500">绑定手机</span>
+            <input
+              className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              placeholder={user.phone ? user.phone : '11 位大陆手机号（找回密码凭据）'}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+            />
+            <button
+              disabled={phone.length !== 11}
+              onClick={async () => {
+                const r = await bindPhone(phone)
+                if (r.ok) { setMsg('手机号已绑定'); setPhone(''); void refresh() }
+                else setMsg(r.error || '绑定失败')
+              }}
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
+            >
+              绑定 / 换绑
+            </button>
+          </div>
+          {user.phone && <p className="text-xs text-slate-400">当前已绑定：{user.phone} ｜ 登录页「忘记密码」可用此号重置</p>}
+          <div className="flex items-center gap-3 pt-1">
+            <span className="w-20 text-sm text-slate-500">切换账号</span>
+            <button
+              onClick={async () => {
+                if (!window.confirm('退出当前账号并回到登录页？')) return
+                await logout()
+                window.location.href = '/login'
+              }}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              退出登录 ↪
+            </button>
+          </div>
+        </div>
       </Section>
 
       {/* 修改密码 */}

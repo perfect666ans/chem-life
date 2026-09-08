@@ -170,6 +170,7 @@ function maxZ(){var m=0;made.forEach(function(z){if(z>m)m=z});return m}
 function updateHud(){
   document.getElementById('score').textContent=score;
   if(score>best){best=score;try{localStorage.setItem('fusionBest',best)}catch(e){}}
+      try{__chemReport('merge',score)}catch(e){}
   
   document.getElementById('sBest').textContent=best;
   var m=maxZ();document.getElementById('maxel').textContent=m?SYM[m-1]+'('+m+')':'—';
@@ -443,6 +444,12 @@ modal.addEventListener('click',function(e){if(e.target===modal)modal.classList.r
 
 buildTable();updateHud();draw();
 })();
+</script>
+<script>
+/* 成绩上报：登录状态下把最高分写入排行榜（W-06） */
+window.__chemReport=function(game,score){try{var t=localStorage.getItem('chem-token');if(!t)return;
+fetch('/api/forum',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'report',token:t,game:game,score:Math.floor(score)})}).catch(function(){})}catch(e){}};
 </script>
 <a href="/" title="返回首页" style="position:fixed;right:20px;bottom:20px;z-index:9999;width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.85);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35);text-decoration:none;backdrop-filter:blur(6px);font-size:18px">⌂</a>
 </body>

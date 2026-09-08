@@ -10,6 +10,8 @@ export type UserProfile = {
   tags: string[]
   showUsage: boolean
   showGameTime: boolean
+  usage?: Record<string, number>
+  phone?: string
   createdAt: number
   mustChangePw?: boolean
 }
@@ -98,6 +100,17 @@ export async function updateProfile(patch: Partial<UserProfile>) {
 
 export const changePassword = (oldPassword: string, newPassword: string) =>
   api('changePassword', { oldPassword, newPassword })
+
+/** 绑定手机号（找回密码凭据） */
+export const bindPhone = (phone: string) => api<{ user: UserProfile }>('bindPhone', { phone })
+
+/** 忘记密码：账号 + 已绑定手机号 → 重置 */
+export const resetPassword = (username: string, phone: string, newPassword: string) =>
+  api('resetPassword', { username, phone, newPassword })
+
+/** 使用时长心跳：module 为模块名，seconds 为本段停留秒数（W-06） */
+export const heartbeat = (module: string, seconds: number) =>
+  api('heartbeat', { module, seconds })
 
 export const inviteStatus = () => api<{ open: boolean; left: number }>('inviteStatus')
 

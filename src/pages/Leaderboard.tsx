@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Trophy } from 'lucide-react'
-import { GAMES, fmtTime, getBoard, type BoardMe, type BoardRow } from '../lib/forum'
+import { GAMES, fmtTime, getBoard, getUsageBoard, type BoardMe, type BoardRow, type UsageRow } from '../lib/forum'
 
 const MEDAL = ['🥇', '🥈', '🥉']
 
@@ -11,17 +11,25 @@ export default function LeaderboardPage() {
   const [total, setTotal] = useState(0)
   const [me, setMe] = useState<BoardMe>(null)
   const [err, setErr] = useState('')
+  const [usageRows, setUsageRows] = useState<UsageRow[]>([])
+  const fmtDur = (sec: number) => (sec < 3600 ? Math.round(sec / 60) + ' 分钟' : (sec / 3600).toFixed(1) + ' 小时')
 
   useEffect(() => {
     setErr('')
     void (async () => {
+      if (game === 'usage') {
+        const r = await getUsageBoard()
+        if (r.ok) setUsageRows(r.rows)
+        else setErr(r.error || '加载失败')
+        return
+      }
       const r = await getBoard(game)
       if (r.ok) { setRows(r.rows); setTotal(r.total); setMe(r.me ?? null) }
       else setErr(r.error || '加载失败')
     })()
   }, [game])
 
-  const g = GAMES.find((x) => x.id === game)!
+  const g = GAMES.find((x) => x.id === game)
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -46,11 +54,15 @@ export default function LeaderboardPage() {
             {x.name}
           </button>
         ))}
+        <button onClick={() => setGame('usage')}
+          className={`rounded-full px-4 py-1.5 text-sm ${game === 'usage' ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'}`}>
+          ⏱ 使用时长榜
+        </button>
       </div>
 
       {err && <div className="mb-4 rounded-lg bg-rose-50 px-4 py-2 text-sm text-rose-700">{err}</div>}
 
-      {me && (
+      {me && g && (
         <div className="mb-4 flex items-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm">
           <span className="font-medium text-indigo-800">我的排名</span>
           <span className="font-mono text-lg font-bold text-indigo-700">#{me.rank}</span>
@@ -59,6 +71,36 @@ export default function LeaderboardPage() {
         </div>
       )}
 
+      {game === 'usage' ? (
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-slate-50 text-left text-xs text-slate-500">
+                <th className="px-4 py-3 font-medium">名次</th>
+                <th className="px-4 py-3 font-medium">玩家</th>
+                <th className="px-4 py-3 font-medium">累计时长</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usageRows.length === 0 && (
+                <tr><td colSpan={3} className="px-4 py-10 text-center text-slate-400">
+                  暂无公开时长的用户。到「我的 → 使用时长」打开公开开关后即可上榜。
+                </td></tr>
+              )}
+              {usageRows.map((r, i) => (
+                <tr key={r.username} className="border-b last:border-0">
+                  <td className="px-4 py-3">{MEDAL[i] || i + 1}</td>
+                  <td className="px-4 py-3">
+                    <span className="mr-2">{r.avatar}</span>
+                    <span className="font-medium text-slate-800">{r.username}</span>
+                  </td>
+                  <td className="px-4 py-3 font-mono font-bold text-amber-600">{fmtDur(r.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <table className="w-full text-sm">
           <thead>
@@ -83,7 +125,7 @@ export default function LeaderboardPage() {
                   <span className="font-medium text-slate-800">{r.nickname}</span>
                 </td>
                 <td className="px-4 py-3 font-mono font-bold text-indigo-700">
-                  {r.score} <span className="text-xs font-normal text-slate-400">{g.unit}</span>
+                  {r.score} <span className="text-xs font-normal text-slate-400">{g?.unit}</span>
                 </td>
                 <td className="px-4 py-3 text-xs text-slate-400">{fmtTime(r.at)}</td>
               </tr>
@@ -91,6 +133,7 @@ export default function LeaderboardPage() {
           </tbody>
         </table>
       </div>
+      )}
       <p className="mt-3 text-xs text-slate-400">共 {total} 位玩家上榜 · 榜单展示前 20 名 · 使用时长与游戏时长可在「个人信息」中自主选择是否公开（即将上线）。</p>
     </div>
   )

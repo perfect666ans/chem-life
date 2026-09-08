@@ -41,7 +41,12 @@ export const GAMES = [
   { id: 'td', name: '元素防线 · 化学塔防', unit: '波' },
   { id: 'rpg', name: '元素纪元 RPG', unit: '波' },
   { id: 'tree', name: '知识挑战树', unit: '节点' },
+  { id: 'snake', name: '链式星蛇', unit: '分' },
+  { id: 'merge', name: '元素熔炉', unit: '能量' },
+  { id: 'aufbau', name: '轨道之门', unit: '亚层' },
 ] as const
+
+export type UsageRow = { username: string; avatar: string; total: number }
 
 async function api<T = Record<string, unknown>>(
   action: string,
@@ -70,6 +75,8 @@ export const likePost = (postId: string) =>
   api<{ likes: number; liked: boolean }>('like', { postId })
 export const delPost = (postId: string) => api('del', { postId })
 export const pinPost = (postId: string) => api<{ pinned: boolean }>('pin', { postId })
+export const getUsageBoard = () => api<{ rows: UsageRow[] }>('usageBoard')
+
 export const getBoard = (game: string) =>
   api<{ rows: BoardRow[]; total: number; me: BoardMe }>('board', { game })
 

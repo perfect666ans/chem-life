@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { FlaskConical, KeyRound, LogIn, UserPlus } from 'lucide-react'
-import { inviteStatus, login, register, useAuth } from '../lib/auth'
+import { inviteStatus, login, register, resetPassword, useAuth } from '../lib/auth'
 
 export default function LoginPage() {
   const { user, ready } = useAuth()
   const nav = useNavigate()
-  const [tab, setTab] = useState<'login' | 'register'>('login')
+  const [tab, setTab] = useState<'login' | 'register' | 'reset'>('login')
+  const [phone, setPhone] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [code, setCode] = useState('')
@@ -25,8 +26,14 @@ export default function LoginPage() {
   const submit = async () => {
     setBusy(true)
     setMsg('')
-    const r =
-      tab === 'login'
+    let r
+    if (tab === 'reset') {
+      r = await resetPassword(username.trim(), phone.trim(), password)
+      setBusy(false)
+      if (r.ok) { setMsg('密码已重置，请用新密码登录'); setTab('login'); return }
+      setMsg(r.error || '重置失败'); return
+    }
+    r = tab === 'login'
         ? await login(username.trim(), password)
         : await register(username.trim(), password, code.trim())
     setBusy(false)
@@ -54,11 +61,12 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="mb-5 grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm">
+        <div className="mb-5 grid grid-cols-3 rounded-lg bg-slate-100 p-1 text-sm">
           {(
             [
               ['login', '登录', LogIn],
               ['register', '注册', UserPlus],
+              ['reset', '忘记密码', KeyRound],
             ] as const
           ).map(([k, label, Icon]) => (
             <button
@@ -87,11 +95,20 @@ export default function LoginPage() {
           <input
             className={inputCls}
             type="password"
-            placeholder={tab === 'login' ? '密码' : '初始密码（管理员设置的开放密码）'}
+            placeholder={tab === 'login' ? '密码' : tab === 'reset' ? '新密码（至少 6 位）' : '初始密码（管理员设置的开放密码）'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && void submit()}
           />
+          {tab === 'reset' && (
+            <input
+              className={inputCls}
+              placeholder="注册时绑定的手机号（11 位）"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              onKeyDown={(e) => e.key === 'Enter' && void submit()}
+            />
+          )}
           {tab === 'register' && (
             <>
               <input
@@ -116,11 +133,11 @@ export default function LoginPage() {
 
         <button
           onClick={() => void submit()}
-          disabled={busy || !username.trim() || !password}
+          disabled={busy || !username.trim() || !password || (tab === 'reset' && phone.trim().length !== 11)}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
         >
           <KeyRound className="h-4 w-4" />
-          {busy ? '请稍候…' : tab === 'login' ? '登录' : '注册并登录'}
+          {busy ? '请稍候…' : tab === 'login' ? '登录' : tab === 'reset' ? '重置密码' : '注册并登录'}
         </button>
 
         {tab === 'register' && (

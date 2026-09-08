@@ -119,6 +119,7 @@ function flap(){
 function endGame(title,tip){
   running=false;
   if(maxGi>bestGi){bestGi=maxGi;try{localStorage.setItem('aufbauBestGi',bestGi)}catch(e){}}
+  try{__chemReport('aufbau',litCount)}catch(e){}
   ovT.textContent=title;ovTip.innerHTML=tip;
   document.getElementById('startBtn').textContent='再来一局';
   ov.classList.remove('hide');hud();
@@ -249,6 +250,12 @@ cv.addEventListener('pointerdown',function(e){e.preventDefault();flap()});
 addEventListener('keydown',function(e){if(e.key===' '||e.key==='ArrowUp'){if(running)flap();else start();e.preventDefault()}});
 init();markNext(0);hud();draw();
 })();
+</script>
+<script>
+/* 成绩上报：登录状态下把最高分写入排行榜（W-06） */
+window.__chemReport=function(game,score){try{var t=localStorage.getItem('chem-token');if(!t)return;
+fetch('/api/forum',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'report',token:t,game:game,score:Math.floor(score)})}).catch(function(){})}catch(e){}};
 </script>
 <a href="/" title="返回首页" style="position:fixed;right:20px;bottom:20px;z-index:9999;width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.85);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35);text-decoration:none;backdrop-filter:blur(6px);font-size:18px">⌂</a>
 </body>
