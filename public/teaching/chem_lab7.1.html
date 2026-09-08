@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>链式反应蛇 · v4 星空吞噬者</title>
+<style>
+:root{--bg:#070d16;--panel:#101a26;--line:rgba(160,190,220,.14);--ink:#dbe6f2;--ink2:#7e90a6;--gold:#e8c98a;--red:#e0705f}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(90% 70% at 50% 0%,#0b1522,var(--bg));color:var(--ink);font-family:'Noto Sans SC',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:18px 14px 40px;-webkit-font-smoothing:antialiased}
+h1{font-family:'Ma Shan Zheng','Noto Serif SC',serif;font-weight:400;font-size:30px;letter-spacing:.1em}
+.sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.32em;color:var(--ink2);margin:4px 0 14px}
+.hud{display:flex;gap:16px;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink2);flex-wrap:wrap;justify-content:center}
+.hud b{color:var(--ink);font-size:16px}
+.hud .chain{color:var(--red)}
+.stage{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#060b12;box-shadow:0 20px 50px -20px rgba(0,0,0,.75)}
+canvas{display:block;width:min(92vw,440px);height:auto;touch-action:none}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(5,9,15,.84);backdrop-filter:blur(4px);transition:opacity .3s}
+.overlay.hide{opacity:0;pointer-events:none}
+.overlay .big{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:900}
+.overlay .tip{font-size:12.5px;color:var(--ink2);line-height:1.9;text-align:center;max-width:340px;padding:0 16px}
+.overlay button{font-size:14px;font-weight:700;padding:11px 30px;border-radius:999px;border:none;background:#c8d6e6;color:#0a1420;cursor:pointer}
+.dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(2,54px);gap:8px;margin-top:16px}
+.dpad button{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);font-size:20px;touch-action:none}
+.dpad .up{grid-column:2}.dpad .left{grid-column:1;grid-row:2}.dpad .down{grid-column:2;grid-row:2}.dpad .right{grid-column:3;grid-row:2}
+.foot{margin-top:14px;font-size:11px;color:var(--ink2);text-align:center;line-height:1.8;max-width:460px}
+</style>
+</head>
+<body>
+<h1>链式反应蛇</h1>
+<div class="sub">STARFALL DEVOURER</div>
+<div class="hud">
+  <div>得分 <b id="score">0</b></div>
+  <div>中子 <b id="neutrons">0</b>/3</div>
+  <div>已吞 <b id="total">0</b></div>
+  <div class="chain">链式 ×<b id="chain">1</b></div>
+  <div>最高 <b id="best">0</b></div>
+</div>
+<div class="stage">
+  <canvas id="c" width="440" height="440"></canvas>
+  <div class="overlay" id="ov">
+    <div class="big" id="ovTitle">星空吞噬者</div>
+    <div class="tip" id="ovTip">苍茫星海中游荡的吞噬者小蛇。<br>吞吃白色中子（会随时间消散，越快链越稳）；每 3 个触发<b style="color:var(--red)">链式裂变</b>：体内电流贯通、得分翻倍、速度飙升。<br>灰色<b>硼棒</b>会吸收你的 1 个中子（不致命，但会打断节奏）；蓝色<b>重水</b>会永久回调你的速度。<br>星域边缘是虫洞——穿过会从对侧出现，撞墙不存在。陨石随链式反应增多，别撞上、别咬到自己。</div>
+    <button id="startBtn">开始游荡</button>
+  </div>
+</div>
+<div class="dpad">
+  <button class="up" data-d="0,-1">▲</button>
+  <button class="left" data-d="-1,0">◀</button>
+  <button class="down" data-d="0,1">▼</button>
+  <button class="right" data-d="1,0">▶</button>
+</div>
+<div class="foot">铀-235 每裂一次平均放出 2~3 个中子——1 个进来、2~3 个出去；<br>硼棒吸收中子、重水慢化中子，都是真实反应堆里的控制手段</div>
+<script>
+(function(){
+var cv=document.getElementById('c'),ctx=cv.getContext('2d');
+var W=cv.width,H=cv.height,N=22,CELL=W/N;
+var MAX_ROCK=9;
+
+/* 星空背景 */
+var stars=[];
+for(var i=0;i<150;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+0.3,tw:Math.random()*6.28,sp:0.5+Math.random()});
+function makeAsteroid(){
+  var r=5+Math.random()*11,sides=[],n=7+(Math.random()*3|0);
+  for(var i=0;i<n;i++)sides.push(0.72+Math.random()*0.45);
+  return {x:Math.random()*W,y:Math.random()*H,r:r,vx:(Math.random()*0.14-0.07),vy:(Math.random()*0.14-0.07),rot:Math.random()*6.28,vr:(Math.random()*0.004-0.002),sides:sides,craters:[0,1,2].map(function(){return{a:Math.random()*6.28,d:Math.random()*0.5,cr:0.15+Math.random()*0.2}})};
+}
+
+var snake,dir,ndir,neutrons,total,chain,score,speed,alive,flash,raf,gravOn,gravToast;
+var neutron=null,nLife=0,bonus=null,rod=null,rodRespawn=0,hw=null,hwTimer=8;
+var bolts=[],sparks=[],toasts=[];
+var asteroids=[];
+var best=0;try{best=+localStorage.getItem('starfallBest')||0}catch(e){}
+document.getElementById('best').textContent=best;
+var ov=document.getElementById('ov'),ovT=document.getElementById('ovTitle'),ovTip=document.getElementById('ovTip');
+
+function toast(text,x,y,color){toasts.push({text:text,x:x,y:y,life:1,color:color||'#e8c98a'})}
+
+function init(){
+  snake=[{x:11,y:11},{x:10,y:11},{x:9,y:11}];
+  dir={x:1,y:0};ndir=dir;
+  neutrons=0;total=0;chain=1;score=0;speed=140;alive=true;flash=0;gravOn=false;gravToast=0;
+  bolts=[];sparks=[];toasts=[];bonus=null;rod=null;rodRespawn=0;hw=null;hwTimer=8;
+  asteroids=[makeAsteroid(),makeAsteroid()];           // 初始 1-2 块陨石
+  placeNeutron();updateHud();
+}
+function freeCell(){
+  var p;do{p={x:1+((Math.random()*(N-2))|0),y:1+((Math.random()*(N-2))|0)}}
+  while(hitBody(p)||(neutron&&neutron.x===p.x&&neutron.y===p.y)||(rod&&rod.x===p.x&&rod.y===p.y)||(hw&&hw.x===p.x&&hw.y===p.y)||inRock(p));
+  return p;
+}
+function placeNeutron(){
+  neutron=freeCell();
+  nLife= total<21 ? 30 : Math.max(15, 25-(total-21)*0.5);  // 30s 起步；21 个后 25s，每个 -0.5s，下限 15s
+}
+function placeRod(){rod=freeCell()}
+function placeHw(){hw=freeCell()}
+function hitBody(p){return snake.some(function(s){return s.x===p.x&&s.y===p.y})}
+function inRock(p){var cx=p.x*CELL+CELL/2,cy=p.y*CELL+CELL/2;return asteroids.some(function(a){var dx=a.x-cx,dy=a.y-cy;return dx*dx+dy*dy<(a.r+CELL*0.62)*(a.r+CELL*0.62)})}
+function updateHud(){
+  document.getElementById('score').textContent=score;
+  document.getElementById('neutrons').textContent=neutrons;
+  document.getElementById('total').textContent=total;
+  document.getElementById('chain').textContent=chain;
+  document.getElementById('best').textContent=best;
+}
+
+/* 体内闪电：头→尾 */
+function spawnBolts(){
+  var n=1+chain;
+  for(var k=0;k<n;k++){
+    var pts=[],amp=8+k*2;
+    for(var i=0;i<snake.length;i++){
+      var s=snake[i],px=s.x*CELL+CELL/2,py=s.y*CELL+CELL/2;
+      if(i>0&&i<snake.length-1){
+        var prev=snake[i-1],nxt=snake[i+1];
+        var dx=nxt.x-prev.x,dy=nxt.y-prev.y,l=Math.hypot(dx,dy)||1;
+        var off=(Math.random()*2-1)*amp;
+        px+=-dy/l*off;py+=dx/l*off;
+      }
+      pts.push([px,py]);
+    }
+    bolts.push({pts:pts,life:1,w:2.2+chain*0.5});
+  }
+  for(var j=0;j<8+chain*3;j++){
+    var s2=snake[(Math.random()*snake.length)|0];
+    sparks.push({x:s2.x*CELL+CELL/2,y:s2.y*CELL+CELL/2,vx:(Math.random()*2-1)*1.4,vy:(Math.random()*2-1)*1.4,life:1,r:1+Math.random()*1.6});
+  }
+  flash=9;
+}
+
+function step(){
+  dir=ndir;
+  var h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  /* 星域边缘是虫洞：穿过即从对侧出现，永不撞墙 */
+  if(h.x<0)h.x=N-1;else if(h.x>=N)h.x=0;
+  if(h.y<0)h.y=N-1;else if(h.y>=N)h.y=0;
+  var cause=null;
+  if(hitBody(h))cause='self';
+  else{
+    for(var i=0;i<asteroids.length;i++){var a=asteroids[i];
+      var ax=a.x-h.x*CELL-CELL/2,ay=a.y-h.y*CELL-CELL/2;
+      if(ax*ax+ay*ay<(a.r+CELL*0.34)*(a.r+CELL*0.34)){cause='rock';break}}
+  }
+  if(cause)return die(cause);
+
+  snake.unshift(h);
+  var hx=h.x*CELL+CELL/2,hy=h.y*CELL+CELL/2;
+
+  /* 硼棒：吸收 1 个中子，不致命，棒被消耗 */
+  if(rod&&h.x===rod.x&&h.y===rod.y){
+    neutrons=Math.max(0,neutrons-1);
+    score=Math.max(0,score-10);
+    toast('硼棒吸收了一个中子',hx,hy-14,'#c8d6e6');
+    rod=null;rodRespawn=8;
+    snake.pop();
+    updateHud();return;
+  }
+  /* 重水：速度回调（+3 中子当量的增速被抵消），永久生效直到再裂变 */
+  if(hw&&h.x===hw.x&&h.y===hw.y){
+    speed=Math.min(280,speed+36);                       // 最慢 = 初始速度的一半
+    toast('重水慢化 · 速度回调',hx,hy-14,'#9fd4ff');
+    hw=null;hwTimer=10+Math.random()*6;
+    snake.pop();
+    updateHud();return;
+  }
+  if(neutron&&h.x===neutron.x&&h.y===neutron.y){
+    neutrons++;total++;score+=10*chain;
+    if(total>=12&&!gravOn){gravOn=true;gravToast=140;toast('引力觉醒 · 星空为你弯曲',W/2,40,'#e8c98a')}
+    if(neutrons>=3){
+      neutrons=0;chain++;score+=50*chain;speed=Math.max(68,speed-12);
+      spawnBolts();
+      var target=Math.min(2+Math.floor((chain-1)/3),MAX_ROCK);  // 每 3 次链式 +1
+      while(asteroids.length<target)asteroids.push(makeAsteroid());
+      if(chain>=2&&!rod&&rodRespawn<=0)placeRod();
+      var tail=snake.pop();if(tail)bonus={x:tail.x,y:tail.y,life:30};
+    }
+    placeNeutron();
+  }else if(bonus&&h.x===bonus.x&&h.y===bonus.y){score+=25*chain;bonus=null;snake.pop();
+  }else snake.pop();
+
+  if(bonus&&--bonus.life<=0)bonus=null;
+  /* 中子限时 */
+  nLife-=speed/1000;
+  if(nLife<=0){placeNeutron();toast('中子消散了',W/2,40,'#7e90a6')}
+  /* 硼棒重生 / 重水刷新 */
+  if(rodRespawn>0){rodRespawn-=speed/1000;if(rodRespawn<=0&&chain>=2)placeRod()}
+  if(!hw){hwTimer-=speed/1000;if(hwTimer<=0&&chain>=1)placeHw()}
+  updateHud();
+}
+function die(cause){
+  alive=false;
+  if(score>best){best=score;try{localStorage.setItem('starfallBest',best)}catch(e){}}
+  ovT.textContent='星骸漂流';
+  var why={self:'咬到了自己的链',rock:'撞上了一块陨石'}[cause];
+  ovTip.innerHTML='最终得分 <b style="color:var(--gold)">'+score+'</b> ｜ 链式等级 ×'+chain+' ｜ 吞吃中子 '+total+'<br>'+why;
+  document.getElementById('startBtn').textContent='再次苏醒';
+  ov.classList.remove('hide');
+}
+
+/* 引力弯曲：幅度起始于 ~1/4 格，每链式 +2.5px，呼吸脉动 */
+function bend(x,y,hx,hy,t){
+  var dx=hx-x,dy=hy-y,d=Math.hypot(dx,dy)||1;
+  var amp=(2+(chain-1)*1.2)*(1+0.35*Math.sin(t*2.2));
+  var pull=amp*Math.exp(-d/240);
+  return [x+dx/d*pull,y+dy/d*pull];
+}
+function headC(){return [snake[0].x*CELL+CELL/2,snake[0].y*CELL+CELL/2]}
+
+function drawAsteroid(a,t,grav){
+  var pos=grav?bend(a.x,a.y,grav[0],grav[1],t):[a.x,a.y];
+  var x=pos[0],y=pos[1];
+  a.rot+=a.vr;a.x+=a.vx;a.y+=a.vy;
+  if(a.x<-30)a.x=W+30;if(a.x>W+30)a.x=-30;if(a.y<-30)a.y=H+30;if(a.y>H+30)a.y=-30;
+  ctx.save();ctx.translate(x,y);ctx.rotate(a.rot);
+  ctx.beginPath();
+  var n=a.sides.length;
+  for(var i=0;i<n;i++){var ang=i/n*6.28,r=a.r*a.sides[i];var px=Math.cos(ang)*r,py=Math.sin(ang)*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}
+  ctx.closePath();
+  ctx.fillStyle='#39434f';ctx.fill();
+  ctx.strokeStyle='rgba(190,210,230,.35)';ctx.lineWidth=1;ctx.stroke();
+  a.craters.forEach(function(c){ctx.beginPath();ctx.arc(Math.cos(c.a)*a.r*c.d*1.4,Math.sin(c.a)*a.r*c.d*1.4,a.r*c.cr,0,6.283);ctx.fillStyle='rgba(10,16,24,.55)';ctx.fill()});
+  ctx.restore();
+}
+
+function draw(){
+  var t=Date.now()/1000;
+  var bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0a1320');bg.addColorStop(1,'#060b12');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  /* 最外圈：缓冲星域（略暗，无道具） */
+  ctx.fillStyle='rgba(3,6,11,.5)';
+  ctx.fillRect(0,0,W,CELL);ctx.fillRect(0,H-CELL,W,CELL);ctx.fillRect(0,0,CELL,H);ctx.fillRect(W-CELL,0,CELL,H);
+  /* 中心区界（淡淡虚线） */
+  ctx.strokeStyle='rgba(160,190,220,.09)';ctx.setLineDash([4,6]);
+  ctx.strokeRect(CELL+0.5,CELL+0.5,W-2*CELL-1,H-2*CELL-1);ctx.setLineDash([]);
+  var grav=gravOn?headC():null;
+
+  for(var i=0;i<stars.length;i++){
+    var st=stars[i],pos=grav?bend(st.x,st.y,grav[0],grav[1],t):[st.x,st.y];
+    var tw=0.55+0.45*Math.sin(t*st.sp*2+st.tw);
+    ctx.globalAlpha=tw*(grav?0.9:0.75);
+    ctx.fillStyle='#dce9f8';ctx.fillRect(pos[0],pos[1],st.r,st.r);
+  }
+  ctx.globalAlpha=1;
+  for(var a2=0;a2<asteroids.length;a2++)drawAsteroid(asteroids[a2],t,grav);
+
+  /* 漂浮提示 */
+  for(var k2=toasts.length-1;k2>=0;k2--){
+    var tt=toasts[k2];tt.y-=0.4;tt.life-=0.02;
+    if(tt.life<=0){toasts.splice(k2,1);continue}
+    ctx.globalAlpha=Math.min(1,tt.life*1.5);
+    ctx.fillStyle=tt.color;ctx.font='bold 13px "Noto Sans SC",sans-serif';ctx.textAlign='center';
+    ctx.fillText(tt.text,tt.x,tt.y);
+    ctx.globalAlpha=1;
+  }
+
+  /* 硼棒 */
+  if(rod){
+    ctx.fillStyle='#4d5966';ctx.fillRect(rod.x*CELL+3,rod.y*CELL+3,CELL-6,CELL-6);
+    ctx.strokeStyle='rgba(200,214,230,.4)';ctx.strokeRect(rod.x*CELL+3,rod.y*CELL+3,CELL-6,CELL-6);
+    ctx.fillStyle='#cfd8e3';ctx.font='bold '+(CELL*0.5)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('硼',rod.x*CELL+CELL/2,rod.y*CELL+CELL/2+1);
+  }
+  /* 重水 */
+  if(hw){
+    var hpx=hw.x*CELL+CELL/2,hpy=hw.y*CELL+CELL/2+Math.sin(t*2.5)*2;
+    ctx.fillStyle='rgba(159,212,255,.28)';ctx.beginPath();ctx.arc(hpx,hpy,CELL*0.5,0,6.283);ctx.fill();
+    ctx.fillStyle='#9fd4ff';
+    ctx.beginPath();ctx.moveTo(hpx,hpy-CELL*0.34);
+    ctx.quadraticCurveTo(hpx+CELL*0.3,hpy+CELL*0.1,hpx,hpy+CELL*0.3);
+    ctx.quadraticCurveTo(hpx-CELL*0.3,hpy+CELL*0.1,hpx,hpy-CELL*0.34);
+    ctx.fill();
+    ctx.fillStyle='#0a1420';ctx.font='bold '+(CELL*0.28)+'px sans-serif';
+    ctx.fillText('D₂O',hpx,hpy+CELL*0.08);
+  }
+  /* 奖励中子 */
+  if(bonus){ctx.globalAlpha=Math.min(1,bonus.life/10);
+    ctx.fillStyle='#cfe2f4';ctx.beginPath();ctx.arc(bonus.x*CELL+CELL/2,bonus.y*CELL+CELL/2,CELL*0.2,0,6.283);ctx.fill();ctx.globalAlpha=1}
+  /* 食物中子：微光脉动，快消散时变暗闪烁 */
+  if(neutron){
+    var urg=nLife<3?(0.4+0.3*Math.sin(t*8)):1;
+    ctx.fillStyle='rgba(235,244,255,'+((0.6+0.25*Math.sin(t*3))*urg)+')';
+    ctx.beginPath();ctx.arc(neutron.x*CELL+CELL/2,neutron.y*CELL+CELL/2,CELL*0.22,0,6.283);ctx.fill();
+  }
+
+  /* 蛇 */
+  for(var i2=snake.length-1;i2>=0;i2--){
+    var s=snake[i2],px=s.x*CELL,py=s.y*CELL;
+    var goldSeg=flash>0&&i2%2===0;
+    ctx.fillStyle=goldSeg?'#d9b988':(i2===0?'#b8c8da':'#7e90a6');
+    if(ctx.roundRect){ctx.beginPath();ctx.roundRect(px+2.5,py+2.5,CELL-5,CELL-5,6);ctx.fill()}
+    else ctx.fillRect(px+2.5,py+2.5,CELL-5,CELL-5);
+    var seed=(s.x*7+s.y*13)%10;
+    ctx.fillStyle='rgba(240,248,255,'+(0.5+0.4*Math.sin(t*2+seed))+')';
+    ctx.fillRect(px+CELL*0.32,py+CELL*0.36,1.4,1.4);
+    ctx.fillStyle='rgba(240,248,255,'+(0.4+0.4*Math.sin(t*1.6+seed*2))+')';
+    ctx.fillRect(px+CELL*0.6,py+CELL*0.58,1.1,1.1);
+    if(i2===0){ctx.fillStyle='#1a2634';ctx.font='bold '+(CELL*0.4)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('U',px+CELL/2,py+CELL/2+1)}
+  }
+
+  /* 体内闪电（头→尾） */
+  for(var b=bolts.length-1;b>=0;b--){
+    var bo=bolts[b];bo.life-=0.06;
+    if(bo.life<=0){bolts.splice(b,1);continue}
+    ctx.save();
+    ctx.globalAlpha=Math.min(1,bo.life*1.3);
+    ctx.lineJoin='round';ctx.lineCap='round';
+    ctx.strokeStyle='rgba(255,214,150,'+(0.55*bo.life)+')';ctx.lineWidth=bo.w*2.2*bo.life;
+    ctx.beginPath();ctx.moveTo(bo.pts[0][0],bo.pts[0][1]);
+    for(var p=1;p<bo.pts.length;p++)ctx.lineTo(bo.pts[p][0],bo.pts[p][1]);
+    ctx.stroke();
+    ctx.strokeStyle='rgba(255,248,232,'+bo.life+')';ctx.lineWidth=bo.w*bo.life*0.7;
+    ctx.stroke();
+    ctx.restore();
+  }
+  for(var k=sparks.length-1;k>=0;k--){
+    var sp=sparks[k];sp.x+=sp.vx;sp.y+=sp.vy;sp.life-=0.035;
+    if(sp.life<=0){sparks.splice(k,1);continue}
+    ctx.globalAlpha=sp.life;ctx.fillStyle='#f0e6cf';
+    ctx.beginPath();ctx.arc(sp.x,sp.y,sp.r*sp.life,0,6.283);ctx.fill();ctx.globalAlpha=1;
+  }
+  if(flash>0){ctx.fillStyle='rgba(232,201,138,'+(flash/9*0.08)+')';ctx.fillRect(0,0,W,H);flash--}
+}
+function loop(){
+  if(alive)step();
+  draw();
+  if(alive)raf=setTimeout(loop,speed);
+}
+function start(){clearTimeout(raf);init();ov.classList.add('hide');loop()}
+document.getElementById('startBtn').onclick=start;
+addEventListener('keydown',function(e){
+  var k=e.key;
+  if(k==='ArrowUp'||k==='w')setD(0,-1);else if(k==='ArrowDown'||k==='s')setD(0,1);
+  else if(k==='ArrowLeft'||k==='a')setD(-1,0);else if(k==='ArrowRight'||k==='d')setD(1,0);
+  else if(k===' '&&!alive){start();e.preventDefault()}
+});
+function setD(x,y){if(x===-dir.x&&y===-dir.y)return;ndir={x:x,y:y}}
+document.querySelectorAll('.dpad button').forEach(function(b){
+  var d=b.dataset.d.split(',');
+  b.addEventListener('pointerdown',function(e){e.preventDefault();setD(+d[0],+d[1])});
+});
+var tx=0,ty=0;
+cv.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY});
+cv.addEventListener('touchmove',function(e){e.preventDefault()});
+cv.addEventListener('touchend',function(e){
+  var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)<18&&Math.abs(dy)<18)return;
+  if(Math.abs(dx)>Math.abs(dy))setD(dx>0?1:-1,0);else setD(0,dy>0?1:-1);
+});
+init();draw();
+})();
+</script>
+<a href="/" title="返回首页" style="position:fixed;right:20px;bottom:20px;z-index:9999;width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.85);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35);text-decoration:none;backdrop-filter:blur(6px);font-size:18px">⌂</a>
+</body>
+</html>

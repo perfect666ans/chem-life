@@ -29,9 +29,9 @@ const MARQUEE = [
 ]
 
 const WORLDS = [
-  { img: worldStructure, color: '#3ECBFF', en: 'STRUCTURE', name: '晶脉回响', tags: '分子 · 晶体 · 电子排布', badge: '结构', to: '/teaching' },
-  { img: worldOrganic, color: '#B4FF5C', en: 'ORGANIC', name: '有机迷林', tags: '命名 · 异构 · 机理', badge: '有机', to: '/teaching' },
-  { img: worldPrinciple, color: '#FF9A3D', en: 'PRINCIPLE', name: '熔炉法则', tags: '能量 · 平衡 · 电化学', badge: '原理', to: '/teaching' },
+  { img: worldStructure, color: '#3ECBFF', en: 'FISSION', name: '链式星蛇', tags: '吞吃中子 · 链式裂变 · 引力觉醒', badge: '贪吃蛇', to: '/teaching/chem_lab7.1.html' },
+  { img: worldOrganic, color: '#B4FF5C', en: 'FUSION', name: '元素熔炉', tags: '118 元素 · 相加聚变 · 周期表点亮', badge: '合成', to: '/teaching/chem_lab7.2.html' },
+  { img: worldPrinciple, color: '#FF9A3D', en: 'AUFBAU', name: '轨道之门', tags: '构造原理 · 59 扇轨道门 · 洪特规则', badge: '跑酷', to: '/teaching/chem_lab7.3.html' },
   { img: worldRpg, color: '#C77DFF', en: 'RPG', name: '元素纪元', tags: '30 波元素兽 · 方程式施法', badge: 'RPG', to: '/teaching/chem_lab5.1.html' },
   { img: worldTd, color: '#FF5C5C', en: 'ARCADE TD', name: '元素防线', tags: '沉淀塔 · 中和塔 · 15 波守卫战', badge: '塔防', to: '/teaching/chem_lab5.2.html' },
   { img: worldReview, color: '#8AB4FF', en: 'PERSONA', name: '人格星岛', tags: 'CBTI 化学人格 · 12 题测阵营', badge: '测试', to: '/teaching/chem_lab5.3.html' },
