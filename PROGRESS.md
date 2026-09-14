@@ -149,3 +149,14 @@
 ### 备注
 
 - 主人管理员账号密码已非初始密码（登录返回"密码错误"），说明改密流程生效；后续自动化验收需要登录态时请先问主人要当前密码
+
+
+---
+
+## 2026-09-14（深夜②）· chem_lab3.1 有机反应机理库换代
+
+- 按《mechanism-library-说明书.md》方案 A 整页替换：18 个高中有机反应、7 大类别、断键/成键时间轴、双钩/鱼钩箭头、预测产物练习、通关印章，three r128
+- **修复说明书未发现的 bug**：顶栏「返回门户」写的是 `./teaching`（会 404 到 /teaching/teaching），已改 `/teaching`；另注入「⌂ 返回首页」、本地 vendor 优先（vendor→cdnjs→jsdelivr 三级回退）、误触保护
+- 旧版与 build_mech_lab.py 归档「过渡文件已舍弃」；scripts/README、门户描述同步更新
+- 线上实测（pages.dev）：18 个目录项、THREE r128、画布/播放条/练习/印章齐全，抽点 4 个反应切换无报错；zao B+ v8 部署验收过（新 hash、备案小字、误触保护均在）
+- B+ v8：zao-chem-dist-v8.zip（60 文件 2266KB，index-CaWN8l75.js）
