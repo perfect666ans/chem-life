@@ -160,3 +160,15 @@
 - 旧版与 build_mech_lab.py 归档「过渡文件已舍弃」；scripts/README、门户描述同步更新
 - 线上实测（pages.dev）：18 个目录项、THREE r128、画布/播放条/练习/印章齐全，抽点 4 个反应切换无报错；zao B+ v8 部署验收过（新 hash、备案小字、误触保护均在）
 - B+ v8：zao-chem-dist-v8.zip（60 文件 2266KB，index-CaWN8l75.js）
+
+
+---
+
+## 2026-09-14（深夜③）· chem_lab3.2 换代为有机命名实验室 v32
+
+- 按说明书整页替换并**改名**：有机系统命名中心 → 有机命名实验室（Teaching.tsx 名称与描述已更新）
+- 模块内容：烷/烯/含氧/酯/芳香五族 + 命名生成器；搭结构/拼名称/纠错三题型；标准闯关 10 题 + 地狱挑战 6 题；三主题 + WebAudio 音效；进度 localStorage 免登录
+- 适配：React 18.2 UMD + ReactDOM UMD 下载本地化到 public/vendor/（说明书建议项）；three.js 走本地 vendor；顶栏 themes 区注入「← 门户 / ⌂ 首页」（融入模块自带 tbtn 风格，未大改布局）；误触保护
+- 旧版与 build_naming_lab.py 归档「过渡文件已舍弃」；scripts/README 同步
+- 线上实测（pages.dev）：React/ReactDOM/THREE 全加载、六 Tab 渲染、生成器界面完整、切 Tab 无报错；zao B+ v9 部署验收过
+- B+ v9：zao-chem-dist-v9.zip（62 文件 2338KB，index-VrLGv9Yr.js）
