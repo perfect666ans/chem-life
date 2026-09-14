@@ -33,17 +33,11 @@ const sections: Section[] = [
       {
         no: '02',
         name: '晶体结构深度实验室',
-        desc: '31 种晶体：晶胞延展、立方体切割、比例模型、微粒显隐、四视角二维投影点阵。',
+        desc: '42 种晶体 6 大类：晶胞延展生长切割、沿晶胞边界切平、配位数分析、分摊拆解、(hkl) 二维投影。',
         href: '/teaching/chem_lab1.2.html',
       },
       {
         no: '03',
-        name: '离子晶体晶胞专题',
-        desc: 'NaCl、CsCl、ZnS、CaF₂、TiO₂ 等典型离子晶体晶胞对比（入口同晶体实验室·离子晶体）。',
-        href: '/teaching/chem_lab1.2.html',
-      },
-      {
-        no: '04',
         name: '核外电子排布实验室',
         desc: '118 元素点选：玻尔壳层动画、轨道方框图（泡利·洪特）、排布式三形态、常见离子切换、半径对比。',
         href: '/teaching/chem_lab1.3.html',

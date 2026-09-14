@@ -1,256 +1,245 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="washi">
+<html lang="zh-CN" data-theme="lab">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>晶体结构深度实验室 | 生活中的化学 · 教学实验室</title>
-<script src="../vendor/three.min.js"></script>
+<title>晶体结构深度实验室 · r128 | 生活中的化学</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-
-/* =========================================================
-   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
-   ========================================================= */
+/* ============ 化学视界主题 · 实验纸白 lab / 深蓝夜 night ============ */
 :root{
-  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --serif-cn:"Noto Serif SC","Source Han Serif SC",serif;
   --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
-  --display-en:"Shippori Mincho","Noto Serif SC",serif;
   --mono:"JetBrains Mono","IBM Plex Mono",monospace;
 }
-:root,:root[data-theme="washi"]{
-  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
-  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
-  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
-  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
-  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
-  --inset:rgba(26,24,23,.045);
-  --topnav-bg:rgba(247,244,236,.88);
-  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
-  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
-  --canvas-bg:#0d1017;
-  --noise-mode:multiply; --noise-alpha:.045;
+:root,:root[data-theme="lab"]{
+  --bg:#f2f4fa; --surface:#ffffff; --surface-2:#eef1f8; --paper:#ffffff;
+  --line:rgba(35,42,61,.12); --line-strong:rgba(35,42,61,.26);
+  --ink:#232a3d; --ink-dim:#5a6478; --ink-mute:#98a1b5;
+  --accent:#5b5bd6; --accent-soft:rgba(91,91,214,.10);
+  --cyan:#00a8c4; --cyan-soft:rgba(0,168,196,.12);
+  --amber:#d97706; --amber-soft:rgba(217,119,6,.12);
+  --canvas-bg:#e9edf5;
+  --topnav-bg:rgba(255,255,255,.86);
+  --shadow:0 14px 40px rgba(35,42,61,.14);
+  --btn-ink:#ffffff;
 }
-:root[data-theme="sumi"]{
-  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
-  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
-  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
-  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
-  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
-  --inset:rgba(0,0,0,.30);
-  --topnav-bg:rgba(13,13,15,.86);
-  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
-  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
-  --canvas-bg:#0d1017;
-  --noise-mode:overlay; --noise-alpha:.03;
+:root[data-theme="cinnabar"]{
+  --bg:#f5ecdd; --surface:#fdf7ec; --surface-2:#f3e7d2; --paper:#fbf4e6;
+  --line:rgba(74,44,32,.14); --line-strong:rgba(74,44,32,.30);
+  --ink:#3b2a20; --ink-dim:#7d6350; --ink-mute:#ab9078;
+  --accent:#c03f2b; --accent-soft:rgba(192,63,43,.10);
+  --cyan:#c8862a; --cyan-soft:rgba(200,134,42,.14);
+  --amber:#b3541e; --amber-soft:rgba(179,84,30,.14);
+  --canvas-bg:#eee1cb; --topnav-bg:rgba(245,236,221,.88);
+  --shadow:0 14px 40px rgba(74,44,32,.16); --btn-ink:#fdf7ec;
 }
-:root[data-theme="ai"]{
-  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
-  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
-  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
-  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
-  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
-  --inset:rgba(0,0,0,.30);
-  --topnav-bg:rgba(10,14,21,.86);
-  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
-  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
-  --canvas-bg:#0d1017;
-  --noise-mode:overlay; --noise-alpha:.03;
+:root[data-theme="night"]{
+  --bg:#0a0e17; --surface:#121826; --surface-2:#1a2233; --paper:#151c2c;
+  --line:rgba(226,232,244,.10); --line-strong:rgba(226,232,244,.24);
+  --ink:#e8ecf4; --ink-dim:#9aa6bd; --ink-mute:#5d6a85;
+  --accent:#8b8bf5; --accent-soft:rgba(139,139,245,.16);
+  --cyan:#2ee6d6; --cyan-soft:rgba(46,230,214,.12);
+  --amber:#f5b04c; --amber-soft:rgba(245,176,76,.14);
+  --canvas-bg:#0a0e17;
+  --topnav-bg:rgba(10,14,23,.85);
+  --shadow:0 16px 46px rgba(0,0,0,.5);
+  --btn-ink:#0a0e17;
 }
-*,*::before,*::after{
-  box-sizing:border-box;margin:0;padding:0;
-  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
-}
-body{
-  font-family:var(--sans-cn);
-  background:var(--bg-void); color:var(--ink);
-  overflow:hidden; line-height:1.7; position:relative; height:100vh;
-}
-body::after{
-  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+body{font-family:var(--sans-cn);background:var(--bg);color:var(--ink);
+  overflow:hidden;height:100vh;line-height:1.7;position:relative;}
+.hidden{display:none !important;}
 
 /* ---- 顶栏 ---- */
-.topnav{
-  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
-  padding:0 clamp(14px,2.5vw,28px); gap:14px;
-  background:var(--topnav-bg); backdrop-filter:blur(18px);
-  border-bottom:1px solid var(--line); position:relative; z-index:50;
-}
-.brand{display:flex;align-items:center;gap:12px;min-width:0;}
-.brand .badge{
-  display:inline-flex;align-items:center;justify-content:center;flex:none;
-  width:26px;height:26px;background:var(--accent);
-  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
-}
-:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
-.brand h1{
-  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.brand .lecture-tag{
-  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
-  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
-}
-.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
-.nav-btn{
-  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
-  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
-  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
-  transition:all .25s;white-space:nowrap;
-}
+.topnav{height:58px;flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(12px,2.4vw,26px);gap:12px;background:var(--topnav-bg);
+  backdrop-filter:blur(16px);border-bottom:1px solid var(--line);position:relative;z-index:50;}
+.brand{display:flex;align-items:center;gap:11px;min-width:0;}
+.brand .badge{display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:28px;height:28px;border-radius:7px;font-family:var(--serif-cn);font-weight:900;font-size:15px;
+  color:#fff;background:linear-gradient(135deg,var(--accent),var(--cyan));}
+.brand h1{font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.brand .lecture-tag{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:11px;white-space:nowrap;}
+.nav-right{display:flex;align-items:center;gap:8px;flex:none;}
+.nav-btn{display:inline-flex;align-items:center;gap:5px;cursor:pointer;text-decoration:none;
+  font-size:12.5px;font-weight:500;color:var(--ink-dim);border:1px solid var(--line);
+  border-radius:999px;padding:5px 13px;background:transparent;transition:all .25s;white-space:nowrap;}
 .nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
-.nav-btn .arr{font-family:var(--mono);}
-/* 主题切换 */
-.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
-.ts-dot{
-  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:10px;border-left:1px solid var(--line);}
+.ts-dot{background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
   display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
-  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
-}
-.ts-dot:hover{color:var(--ink-dim);}
+  font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--ink-mute);transition:all .2s;}
 .ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
-.ts-swatch{
-  width:13px;height:13px;border-radius:50%;flex:none;
+.ts-swatch{width:13px;height:13px;border-radius:50%;flex:none;
   background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
-  border:1px solid rgba(128,128,128,.4);
-}
-@media (max-width:900px){
-  .brand .lecture-tag{display:none;}
-  .ts-dot .ts-name{display:none;}
-}
+  border:1px solid rgba(128,128,128,.4);}
+@media (max-width:900px){.brand .lecture-tag{display:none;}.ts-dot .ts-name{display:none;}}
 
-/* ---- 主体三栏 ---- */
-.main-wrap{display:flex;height:calc(100vh - 61px);}
-.side{
-  background:var(--surface);overflow-y:auto;flex:none;
-  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
-}
-.panel-section{margin-bottom:22px;}
-.panel-title{
-  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
-  border-bottom:1px solid var(--line);
-}
-/* 开关 */
+/* ---- 三栏主体 ---- */
+.main-wrap{display:flex;height:calc(100vh - 59px);}
+.side{background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;}
+.panel-section{margin-bottom:20px;}
+.panel-title{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:11px;padding-bottom:7px;border-bottom:1px solid var(--line);}
 .switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
 .switch-label{font-size:13px;color:var(--ink-dim);}
-.switch{
-  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
-  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
-}
-.switch::after{
-  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
-  border-radius:50%;top:3px;left:3px;transition:.3s;
-}
+.switch{width:42px;height:23px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;}
+.switch::after{content:'';position:absolute;width:15px;height:15px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;}
 .switch.active{background:var(--accent);border-color:var(--accent);}
-.switch.active::after{left:23px;background:#fff;}
-/* 滑块 */
-.slider-wrap input[type="range"]{
-  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
-  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
-}
-.slider-wrap input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
-  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
-  box-shadow:0 1px 6px rgba(0,0,0,.25);
-}
-.slider-value,.slider-tip{
-  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
-  color:var(--ink-mute);margin-top:8px;
-}
-/* 下拉 */
-.select-box,.proj-select{
-  width:100%;padding:8px 10px;background:var(--surface-2);
-  border:1px solid var(--line);color:var(--ink);border-radius:8px;
-  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
-}
+.switch.active::after{left:22px;background:#fff;}
+.slider-wrap input[type="range"]{width:100%;height:4px;border-radius:2px;background:var(--surface-2);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;border:1px solid var(--line);}
+.slider-wrap input[type="range"]:disabled{opacity:.4;cursor:not-allowed;}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);}
+.slider-tip{text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.5px;
+  color:var(--ink-mute);margin-top:7px;}
+.select-box,.proj-select{width:100%;padding:7px 9px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;font-size:13px;cursor:pointer;font-family:var(--sans-cn);}
 .select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
-/* 功能按钮 */
-.func-btn{
-  width:100%;padding:9px 0;background:var(--accent-soft);
-  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
-  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
-}
-.func-btn:hover{background:var(--accent);color:#fff;}
+.func-btn{width:100%;padding:8px 0;margin-bottom:7px;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;cursor:pointer;
+  font-size:13px;transition:.25s;font-family:var(--sans-cn);}
+.func-btn:hover{background:var(--accent);color:var(--btn-ink);}
+.func-btn.ghost{background:transparent;border-color:var(--line);color:var(--ink-dim);}
+.func-btn.ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+.func-btn.on{background:var(--accent);color:var(--btn-ink);}
 
-
-/* ---- 晶体实验室布局 ---- */
-.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
-.info-card{
-  border:1px solid var(--line);border-radius:12px;padding:16px;
-  background:var(--paper);margin-bottom:18px;
-}
-.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
-.tag-wrap{margin-bottom:10px;}
-.info-tag{
-  display:inline-block;background:var(--accent-soft);color:var(--accent);
-  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
-  font-size:11px;margin:0 5px 5px 0;
-}
-.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
-.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.left-panel{width:252px;border-right:1px solid var(--line);padding:15px;}
+.info-card{border:1px solid var(--line);border-radius:12px;padding:15px;background:var(--paper);
+  margin-bottom:16px;box-shadow:0 2px 10px rgba(35,42,61,.05);}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:18px;letter-spacing:.5px;margin-bottom:9px;}
+.tag-wrap{margin-bottom:9px;}
+.info-tag{display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:1px 8px;border-radius:999px;font-size:11px;margin:0 4px 4px 0;}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.75;}
+.info-eff{font-size:12px;color:var(--cyan);font-family:var(--mono);margin-top:7px;}
+.legend-row{display:flex;flex-wrap:wrap;gap:9px;}
 .legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
 .legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
-.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
-#crystalCanvas{width:100%;height:100%;display:block;}
-.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
-/* 二维投影浮层 */
-.proj-modal{
-  display:none;position:absolute;top:18px;right:18px;z-index:60;
-  background:var(--paper);border:1px solid var(--line);border-radius:12px;
-  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);overflow:hidden;}
+#crystalCanvas{width:100%;height:100%;display:block;touch-action:none;}
+.right-panel{width:206px;border-left:1px solid var(--line);padding:15px;}
+
+/* ---- 浮层通用 ---- */
+.modal{display:none;position:absolute;z-index:60;background:var(--paper);
+  border:1px solid var(--line);border-radius:14px;padding:16px;
+  box-shadow:var(--shadow);}
+.modal h3{font-family:var(--serif-cn);font-weight:700;font-size:14.5px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;line-height:1;}
+.modal-close:hover{color:var(--accent);}
+
+/* ---- 投影面板 ---- */
+#projModal{top:16px;right:16px;width:min(380px,86%);}
+.hkl-row{display:flex;align-items:center;gap:6px;margin:8px 0;font-family:var(--mono);font-size:13px;}
+.hkl-row input{width:44px;padding:5px 4px;text-align:center;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:6px;font-family:var(--mono);font-size:13px;}
+.hkl-row input:focus{border-color:var(--accent);outline:none;}
+.hkl-presets{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0 8px;}
+.hkl-preset{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;
+  border:1px solid var(--line);background:transparent;color:var(--ink-dim);cursor:pointer;transition:.2s;}
+.hkl-preset:hover{border-color:var(--accent);color:var(--accent);}
+.proj-note{font-family:var(--mono);font-size:11px;color:var(--ink-mute);margin-top:8px;line-height:1.6;}
+.proj-canvas{width:100%;height:300px;background:var(--canvas-bg);border-radius:9px;border:1px solid var(--line);margin-top:8px;}
+
+/* ---- 配位 HUD ---- */
+#cnHud{display:none;position:absolute;left:16px;bottom:16px;z-index:55;max-width:300px;
+  background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--amber);
+  border-radius:10px;padding:11px 14px;box-shadow:var(--shadow);font-size:12.5px;}
+#cnHud .cn-title{font-family:var(--serif-cn);font-weight:700;margin-bottom:4px;}
+#cnHud .cn-body{color:var(--ink-dim);line-height:1.7;}
+#cnHud .cn-tip{margin-top:6px;font-size:11px;color:var(--ink-mute);}
+
+/* ---- 分摊拆解面板 ---- */
+#decompModal{left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,92%);}
+.slot-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--line);
+  border-radius:9px;margin-bottom:7px;opacity:.35;transition:all .4s;}
+.slot-row.lit{opacity:1;border-color:var(--accent);background:var(--accent-soft);}
+.slot-frac{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--accent);width:44px;flex:none;}
+.slot-name{font-size:13px;color:var(--ink-dim);width:64px;flex:none;}
+.slot-detail{font-family:var(--mono);font-size:12px;color:var(--ink);flex:1;text-align:right;}
+.slot-bar{height:4px;border-radius:2px;background:var(--surface-2);margin-top:5px;overflow:hidden;grid-column:1/-1;}
+.slot-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width .5s ease;}
+.slot-main{flex:1;}
+#decompFormula{display:none;text-align:center;padding:14px 8px 4px;}
+#decompFormula .f-card{display:inline-block;border:1px solid var(--cyan);background:var(--cyan-soft);
+  border-radius:10px;padding:9px 18px;font-family:var(--mono);font-size:15px;color:var(--ink);margin-bottom:9px;}
+#decompQuiz{display:none;margin-top:8px;}
+#decompQuiz .q-text{font-size:13px;margin-bottom:8px;}
+.quiz-opts{display:flex;gap:7px;justify-content:center;}
+.quiz-opt{font-family:var(--mono);font-size:14px;min-width:42px;padding:6px 0;border-radius:8px;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer;transition:.2s;}
+.quiz-opt:hover{border-color:var(--accent);}
+.quiz-opt.right{background:var(--cyan-soft);border-color:var(--cyan);color:var(--cyan);}
+.quiz-opt.wrong{background:var(--amber-soft);border-color:var(--amber);color:var(--amber);}
+#decompDone{display:none;text-align:center;color:var(--cyan);font-size:13px;padding:6px 0 2px;}
+
+/* ---- 错误提示 ---- */
+#loadError{display:none;position:absolute;inset:0;z-index:100;background:var(--bg);
+  align-items:center;justify-content:center;text-align:center;padding:30px;font-size:14px;color:var(--ink-dim);}
+#loadError code{display:block;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--ink-mute);}
+
+@media (max-width:860px){
+  .left-panel{width:210px;}
+  .right-panel{width:172px;}
 }
-.proj-modal h3{
-  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
-  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
-}
-.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
-.proj-close:hover{color:var(--accent);}
-.proj-canvas{
-  width:100%;height:300px;background:var(--canvas-bg);
-  border-radius:8px;border:1px solid var(--line);margin-top:10px;
-}
-
-
-
-
-
-
 </style>
+<script>
+/* 主题抢读：在 CSS 渲染前恢复记忆主题，避免闪烁 */
+(function(){
+  var KEY='chem-lab-theme-v2', valid=['lab','night','cinnabar'];
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  document.documentElement.dataset.theme=valid.indexOf(saved)>=0?saved:'lab';
+})();
+</script>
+<style>html,body{overscroll-behavior:none;}</style>
 </head>
 <body>
 <nav class="topnav">
   <div class="brand">
     <span class="badge">晶</span>
     <h1>晶体结构深度实验室</h1>
-    <span class="lecture-tag">STRUCTURE · LAB 02</span>
+    <span class="lecture-tag">STRUCTURE · LAB 02 · r128</span>
   </div>
   <div class="nav-right">
-    <a class="nav-btn" href="chem_lab1.1.html">切换 VSEPR 分子模型 <span class="arr">→</span></a>
-    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
-    <button class="nav-btn" onclick="location.href='/'"><span class="arr">⌂</span> 返回首页</button>
+    <a class="nav-btn" href="chem_lab1.1.html">切换 VSEPR 模型 <span>→</span></a>
+    <button class="nav-btn" onclick="location.href='/teaching'"><span>←</span> 返回门户</button>
+    <button class="nav-btn" onclick="location.href='/'"><span>⌂</span> 返回首页</button>
     <div class="theme-switch" role="group" aria-label="主题切换">
-      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
-      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
-      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+      <button class="ts-dot" data-set-theme="lab" aria-label="实验纸白"><span class="ts-swatch" style="--a:#f2f4fa;--b:#5b5bd6"></span><span class="ts-name">纸白</span></button>
+      <button class="ts-dot" data-set-theme="night" aria-label="深蓝夜"><span class="ts-swatch" style="--a:#0a0e17;--b:#2ee6d6"></span><span class="ts-name">夜蓝</span></button>
+      <button class="ts-dot" data-set-theme="cinnabar" aria-label="朱砂"><span class="ts-swatch" style="--a:#f5ecdd;--b:#c03f2b"></span><span class="ts-name">朱砂</span></button>
     </div>
   </div>
 </nav>
 
 <div class="main-wrap">
+  <!-- 左栏：信息与切割 -->
   <div class="side left-panel">
     <div class="info-card">
       <h2 id="crysName">—</h2>
       <div class="tag-wrap" id="tagWrap"></div>
       <p class="info-desc" id="crysDesc"></p>
+      <div class="info-eff" id="effLine"></div>
     </div>
     <div class="panel-section">
       <div class="panel-title">微粒透明度</div>
       <div class="slider-wrap">
-        <input type="range" id="opacitySlider" min="0.1" max="1.0" step="0.01" value="0.85">
-        <div class="slider-tip" id="opacityTip">透明度 0.85</div>
+        <input type="range" id="opacitySlider" min="0.1" max="1.0" step="0.01" value="0.92">
+        <div class="slider-tip" id="opacityTip">透明度 0.92</div>
       </div>
     </div>
     <div class="panel-section">
@@ -261,39 +250,83 @@ body::after{
       </div>
     </div>
     <div class="panel-section">
-      <div class="panel-title">粒子图例</div>
-      <div class="legend-row" id="legendWrap"></div>
-    </div>
-    <div class="panel-section">
       <div class="panel-title">晶胞边界切割</div>
       <div class="switch-row">
         <span class="switch-label">沿晶胞边界切平</span>
         <div class="switch" id="clipCellSwitch"></div>
       </div>
-      <p class="info-desc">顶点微粒只留 1/8，棱上留 1/4，面上留 1/2——真实呈现晶胞分摊。</p>
+      <p class="info-desc">开启后沿晶胞边界切平：顶点微粒只留 1/8，棱上留 1/4，面上留 1/2，真实呈现晶胞分摊。开启时延展范围自动回退到中心晶胞。</p>
+    </div>
+    <div class="panel-section" id="hexSection" style="display:none;">
+      <div class="panel-title">六方晶胞取法</div>
+      <select class="select-box" id="hexCellSel">
+        <option value="prism">六棱柱（3 个原胞）</option>
+        <option value="rhombic">平行六面体（原胞）</option>
+      </select>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">粒子图例</div>
+      <div class="legend-row" id="legendWrap"></div>
     </div>
   </div>
 
+  <!-- 画布区 -->
   <div class="canvas-box">
     <canvas id="crystalCanvas"></canvas>
-    <div class="proj-modal" id="projModal">
-      <h3>二维投影点阵图 <button class="proj-close" id="closeProj">×</button></h3>
-      <select class="proj-select" id="projViewSelect">
-        <option value="001">俯视 c 轴 [001]</option>
-        <option value="100">俯视 a 轴 [100]</option>
-        <option value="010">俯视 b 轴 [010]</option>
-        <option value="110">对角视图 [110]</option>
-      </select>
+
+    <div class="modal" id="projModal">
+      <h3>二维投影点阵 · (hkl) <button class="modal-close" id="closeProj">×</button></h3>
+      <div class="hkl-row">[ <input id="hklH" type="number" min="-9" max="9" value="0">
+        <input id="hklK" type="number" min="-9" max="9" value="0">
+        <input id="hklL" type="number" min="-9" max="9" value="1"> ]</div>
+      <div class="hkl-presets">
+        <button class="hkl-preset" data-hkl="0,0,1">[001]</button>
+        <button class="hkl-preset" data-hkl="1,0,0">[100]</button>
+        <button class="hkl-preset" data-hkl="1,1,0">[110]</button>
+        <button class="hkl-preset" data-hkl="1,1,1">[111]</button>
+      </div>
       <canvas class="proj-canvas" id="projCanvas"></canvas>
+      <div class="proj-note" id="projNote"></div>
+    </div>
+
+    <div id="cnHud">
+      <div class="cn-title">配位数分析</div>
+      <div class="cn-body" id="cnBody">点击晶胞中任意微粒作为中心原子。</div>
+      <div class="cn-tip">拖动右栏「配位容差」滑块，观察最近邻圈如何扩展。</div>
+    </div>
+
+    <div class="modal" id="decompModal">
+      <h3>分摊拆解 · 先数后看 <button class="modal-close" id="closeDecomp">×</button></h3>
+      <div id="decompSlots"></div>
+      <div id="decompFormula">
+        <div class="f-card" id="formulaCard"></div>
+        <div style="font-size:12px;color:var(--ink-dim);" id="formulaSub"></div>
+      </div>
+      <div id="decompQuiz">
+        <div class="q-text" id="quizText"></div>
+        <div class="quiz-opts" id="quizOpts"></div>
+      </div>
+      <div id="decompDone">拆解完成 ✓ 均摊口诀：顶点 1/8 · 棱心 1/4 · 面心 1/2 · 体内 1</div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="func-btn ghost" id="decompReplay" style="margin:0;">再演示一遍</button>
+        <button class="func-btn" id="decompNext" style="margin:0;">开始拆解</button>
+      </div>
+    </div>
+
+    <div id="loadError">
+      <div>three.js r128 加载失败，请检查网络后刷新。<br>本页面需要访问 cdnjs / jsdelivr / unpkg CDN。</div>
+      <code id="loadErrorDetail"></code>
     </div>
   </div>
 
+  <!-- 右栏：选择与工具 -->
   <div class="side right-panel">
     <div class="panel-section">
       <div class="panel-title">晶体大类</div>
       <select class="select-box" id="crystalTypeSel">
         <option value="ion">离子晶体</option>
         <option value="metal">金属晶体</option>
+        <option value="alloy">合金晶体</option>
         <option value="covalent">共价晶体</option>
         <option value="molecule">分子晶体</option>
         <option value="mix">混合型晶体</option>
@@ -307,213 +340,475 @@ body::after{
       <div class="panel-title">显示样式</div>
       <select class="select-box" id="modelStyleSel">
         <option value="ballstick">球棍模型</option>
-        <option value="spacefill">比例模型（相邻粒子相切）</option>
+        <option value="spacefill">比例模型（相邻相切）</option>
       </select>
+    </div>
+    <div class="panel-section" id="bondSection">
+      <div class="panel-title">化学键</div>
+      <div class="switch-row">
+        <span class="switch-label">显示化学键短棍</span>
+        <div class="switch active" id="bondSwitch"></div>
+      </div>
     </div>
     <div class="panel-section" id="speciesSection">
       <div class="panel-title">微粒显隐</div>
       <div id="speciesToggles"></div>
     </div>
     <div class="panel-section">
-      <div class="panel-title">点阵投影分析</div>
-      <button class="func-btn" id="openProjBtn">打开二维投影面板</button>
+      <div class="panel-title">教学工具</div>
+      <button class="func-btn" id="openDecompBtn">分摊拆解（先数后看）</button>
+      <button class="func-btn" id="cnToggleBtn">配位数分析</button>
+      <button class="func-btn" id="openProjBtn">二维投影（hkl）</button>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">配位容差</div>
+      <div class="slider-wrap">
+        <input type="range" id="cnTolSlider" min="1.0" max="1.60" step="0.01" value="1.08">
+        <div class="slider-tip" id="cnTolTip">1.08 × 最近邻距</div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">画质</div>
+      <select class="select-box" id="qualitySel">
+        <option value="high">高（辉光 + 调色）</option>
+        <option value="mid">中（仅调色）</option>
+        <option value="low">低（直出，流畅）</option>
+      </select>
+      <div class="slider-tip" id="qualityTip" style="margin-top:7px;text-align:left;line-height:1.6;"></div>
     </div>
   </div>
 </div>
 
 <script>
-/* ========= 主题切换 washi / sumi / ai ========= */
+/* ============ r128 CDN 双源顺序加载（后处理可选，失败自动降级直出） ============ */
 (function(){
-  const root=document.documentElement, KEY='ch-theme-lab';
-  const valid=['washi','sumi','ai'];
-  const saved=localStorage.getItem(KEY);
-  root.dataset.theme=valid.includes(saved)?saved:'washi';
-  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
-  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
-  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
-  sync();
+  var S = function(p){ return 'https://cdn.jsdelivr.net/npm/three@0.128.0/' + p; };
+  var U = function(p){ return 'https://unpkg.com/three@0.128.0/' + p; };
+  var M = function(p){ return 'https://registry.npmmirror.com/three/0.128.0/files/' + p; };
+  var scripts = [
+    { urls: ['../vendor/three.r128.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', S('build/three.min.js'), U('build/three.min.js')], required: true },
+    { urls: [S('examples/js/controls/OrbitControls.js'), U('examples/js/controls/OrbitControls.js'), M('examples/js/controls/OrbitControls.js')], required: true },
+    { urls: [S('examples/js/shaders/CopyShader.js'), U('examples/js/shaders/CopyShader.js'), M('examples/js/shaders/CopyShader.js')], required: false },
+    { urls: [S('examples/js/shaders/LuminosityHighPassShader.js'), U('examples/js/shaders/LuminosityHighPassShader.js'), M('examples/js/shaders/LuminosityHighPassShader.js')], required: false },
+    { urls: [S('examples/js/shaders/GammaCorrectionShader.js'), U('examples/js/shaders/GammaCorrectionShader.js'), M('examples/js/shaders/GammaCorrectionShader.js')], required: false },
+    { urls: [S('examples/js/postprocessing/EffectComposer.js'), U('examples/js/postprocessing/EffectComposer.js'), M('examples/js/postprocessing/EffectComposer.js')], required: false },
+    { urls: [S('examples/js/postprocessing/RenderPass.js'), U('examples/js/postprocessing/RenderPass.js'), M('examples/js/postprocessing/RenderPass.js')], required: false },
+    { urls: [S('examples/js/postprocessing/ShaderPass.js'), U('examples/js/postprocessing/ShaderPass.js'), M('examples/js/postprocessing/ShaderPass.js')], required: false },
+    { urls: [S('examples/js/postprocessing/MaskPass.js'), U('examples/js/postprocessing/MaskPass.js'), M('examples/js/postprocessing/MaskPass.js')], required: false },
+    { urls: [S('examples/js/postprocessing/UnrealBloomPass.js'), U('examples/js/postprocessing/UnrealBloomPass.js'), M('examples/js/postprocessing/UnrealBloomPass.js')], required: false }
+  ];
+  window.__POST_OK__ = false;
+  function loadOne(list, i){
+    return new Promise(function(resolve, reject){
+      var s = document.createElement('script');
+      s.src = list[i]; s.async = false;
+      s.onload = resolve;
+      s.onerror = function(){ (i + 1 < list.length) ? loadOne(list, i + 1).then(resolve, reject) : reject(new Error(list[0])); };
+      document.head.appendChild(s);
+    });
+  }
+  (async function(){
+    try {
+      for (var k = 0; k < scripts.length; k++){
+        try { await loadOne(scripts[k].urls, 0); }
+        catch (e) {
+          if (scripts[k].required) throw e;
+          console.warn('[chem-lab] 后处理脚本加载失败，降级为直出渲染：', e.message);
+          return finish(false);
+        }
+      }
+      finish(true);
+    } catch (e2) {
+      document.getElementById('loadError').style.display = 'flex';
+      document.getElementById('loadErrorDetail').textContent = String(e2 && e2.message || e2);
+    }
+    function finish(ok){
+      window.__POST_OK__ = ok;
+      window.__chemReadyFired = true;   /* 供主程序轮询区分「加载中」与「已结束」 */
+      var ev = document.createEvent('Event');
+      ev.initEvent('chem-ready', true, true);
+      window.dispatchEvent(ev);
+    }
+  })();
 })();
 </script>
+
 <script>
-const CRYSTALS = {"nacl": {"name": "NaCl 氯化钠（食盐）", "type": "ion", "tags": ["NaCl 型", "配位数 6:6", "面心立方"], "desc": "Na⁺ 与 Cl⁻ 交替占据面心立方阵点。厨房食盐的微观结构。", "note": "", "species": [{"sp": "Na", "color": 16034128, "r": 1.02}, {"sp": "Cl", "color": 3523725, "r": 1.81}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "kcl": {"name": "KCl 氯化钾", "type": "ion", "tags": ["NaCl 型", "配位数 6:6"], "desc": "低钠盐的主要成分，结构与食盐相同，K⁺ 半径更大。", "note": "", "species": [{"sp": "K", "color": 13148927, "r": 1.38}, {"sp": "Cl", "color": 3523725, "r": 1.81}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "lif": {"name": "LiF 氟化锂", "type": "ion", "tags": ["NaCl 型", "配位数 6:6"], "desc": "锂离子电池电解质原料之一，Li⁺ 是常见离子中半径最小的一档。", "note": "", "species": [{"sp": "Li", "color": 16765286, "r": 0.76}, {"sp": "F", "color": 8909055, "r": 1.33}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "mgo": {"name": "MgO 氧化镁", "type": "ion", "tags": ["NaCl 型", "耐火材料"], "desc": "耐火砖主要成分，熔点高达 2852 ℃，离子键很强。", "note": "", "species": [{"sp": "Mg", "color": 8188028, "r": 0.72}, {"sp": "O", "color": 15688801, "r": 1.4}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "bao": {"name": "BaO 氧化钡", "type": "ion", "tags": ["NaCl 型", "配位数 6:6"], "desc": "Ba²⁺ 半径大，与 O²⁻ 形成 NaCl 型堆积。", "note": "", "species": [{"sp": "Ba", "color": 6737151, "r": 1.35}, {"sp": "O", "color": 15688801, "r": 1.4}], "atoms": [[0, 0.0, -0.8, -0.8], [0, -0.8, 0.0, -0.8], [0, -0.8, -0.8, 0.0], [0, 0.0, 0.8, -0.8], [0, 0.0, -0.8, 0.8], [0, 0.8, 0.0, -0.8], [0, -0.8, 0.0, 0.8], [0, 0.8, -0.8, 0.0], [0, -0.8, 0.8, 0.0], [0, 0.0, 0.8, 0.8], [0, 0.8, 0.0, 0.8], [0, 0.8, 0.8, 0.0], [0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "cscl": {"name": "CsCl 氯化铯", "type": "ion", "tags": ["CsCl 型", "配位数 8:8", "简单立方"], "desc": "Cl⁻ 作简单立方堆积，Cs⁺ 填入体心立方空隙。", "note": "", "species": [{"sp": "Cs", "color": 11569655, "r": 1.67}, {"sp": "Cl", "color": 3523725, "r": 1.81}], "atoms": [[0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "csbr": {"name": "CsBr 溴化铯", "type": "ion", "tags": ["CsCl 型", "配位数 8:8"], "desc": "与 CsCl 同构，红外光学材料。", "note": "", "species": [{"sp": "Cs", "color": 11569655, "r": 1.67}, {"sp": "Br", "color": 14251874, "r": 1.96}], "atoms": [[0, 0.0, 0.0, 0.0], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "zns": {"name": "ZnS 闪锌矿", "type": "ion", "tags": ["闪锌矿型", "配位数 4:4", "四面体配位"], "desc": "S²⁻ 面心立方，Zn²⁺ 占据半数四面体空隙。夜光粉常用基材。", "note": "", "species": [{"sp": "Zn", "color": 15253864, "r": 0.74}, {"sp": "S", "color": 16768324, "r": 1.84}], "atoms": [[0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "caf2": {"name": "CaF₂ 萤石", "type": "ion", "tags": ["萤石型", "配位数 8:4"], "desc": "Ca²⁺ 面心立方，F⁻ 填满全部四面体空隙。萤石可磨制光学镜片。", "note": "", "species": [{"sp": "Ca", "color": 16753920, "r": 1.0}, {"sp": "F", "color": 8909055, "r": 1.33}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [1, -0.4, -0.4, -0.4], [1, -0.4, 0.4, 0.4], [1, 0.4, -0.4, 0.4], [1, 0.4, 0.4, -0.4], [1, -0.4, -0.4, 0.4], [1, -0.4, 0.4, -0.4], [1, 0.4, -0.4, -0.4], [1, 0.4, 0.4, 0.4]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "tio2": {"name": "TiO₂ 金红石", "type": "ion", "tags": ["金红石型", "配位数 6:3"], "desc": "防晒霜与白色颜料的主要成分，Ti 六配位、O 三配位。", "note": "", "species": [{"sp": "Ti", "color": 11584734, "r": 0.61}, {"sp": "O", "color": 15688801, "r": 1.4}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0], [1, -0.32, -0.32, -0.8], [1, 0.32, 0.32, -0.8], [1, 0.48, -0.48, 0.0], [1, -0.48, 0.48, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "cu2o": {"name": "Cu₂O 氧化亚铜", "type": "ion", "tags": ["赤铜矿型", "半导体"], "desc": "O 作体心立方排布，Cu 位于四面体位置，是经典半导体材料。", "note": "", "species": [{"sp": "Cu", "color": 13667151, "r": 0.77}, {"sp": "O", "color": 15688801, "r": 1.4}], "atoms": [[0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "cu": {"name": "Cu 金属铜", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。导线、电缆的核心材料。", "note": "", "species": [{"sp": "Cu", "color": 13667151, "r": 1.28}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "ag": {"name": "Ag 金属银", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。导电性最好的金属。", "note": "", "species": [{"sp": "Ag", "color": 15263976, "r": 1.44}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "au": {"name": "Au 金属金", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。延展性最好的金属。", "note": "", "species": [{"sp": "Au", "color": 16766720, "r": 1.44}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "al": {"name": "Al 金属铝", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。地壳含量最高的金属。", "note": "", "species": [{"sp": "Al", "color": 13684944, "r": 1.43}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "ni": {"name": "Ni 金属镍", "type": "metal", "tags": ["金属晶体", "面心立方最密堆积", "配位数 12"], "desc": "fcc 最密堆积，配位数 12，空间利用率 74%。不锈钢与电池材料。", "note": "", "species": [{"sp": "Ni", "color": 11055288, "r": 1.25}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "na": {"name": "Na 金属钠", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。活泼金属，保存在煤油中。", "note": "", "species": [{"sp": "Na", "color": 16034128, "r": 1.86}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "k": {"name": "K 金属钾", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。比钠更活泼。", "note": "", "species": [{"sp": "K", "color": 13148927, "r": 2.27}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "fe": {"name": "Fe α-铁", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。常温下铁为体心立方。", "note": "", "species": [{"sp": "Fe", "color": 10260367, "r": 1.26}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "w": {"name": "W 金属钨", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。熔点最高的金属，灯丝材料。", "note": "", "species": [{"sp": "W", "color": 7240587, "r": 1.37}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "ba": {"name": "Ba 金属钡", "type": "metal", "tags": ["金属晶体", "体心立方堆积", "配位数 8"], "desc": "bcc 体心立方，配位数 8，空间利用率 68%。碱土金属。", "note": "", "species": [{"sp": "Ba", "color": 6737151, "r": 2.17}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, 0.0]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "po": {"name": "Po 金属钋（简单立方）", "type": "metal", "tags": ["金属晶体", "简单立方", "配位数 6"], "desc": "唯一以简单立方堆积的金属，配位数 6，空间利用率仅 52%。", "note": "", "species": [{"sp": "Po", "color": 11176123, "r": 1.68}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8]], "bond": false, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "mg": {"name": "Mg 金属镁（六方最密）", "type": "metal", "tags": ["金属晶体", "六方最密堆积", "配位数 12"], "desc": "hcp 六方最密堆积（Mg、Zn、Ti 同类），配位数 12，空间利用率 74%。", "note": "六方晶胞：延展仅沿 c 轴方向堆叠", "species": [{"sp": "Mg", "color": 8188028, "r": 1.6}], "atoms": [[0, 0.62, 0.0, -0.506], [0, 0.31, 0.5369, -0.506], [0, -0.31, 0.5369, -0.506], [0, -0.62, 0.0, -0.506], [0, -0.31, -0.5369, -0.506], [0, 0.31, -0.5369, -0.506], [0, 0, 0, -0.506], [0, 0.31, 0.179, 0], [0, 0.0, 0.358, 0], [0, -0.31, 0.179, 0], [0, 0.62, 0.0, 0.506], [0, 0.31, 0.5369, 0.506], [0, -0.31, 0.5369, 0.506], [0, -0.62, 0.0, 0.506], [0, -0.31, -0.5369, 0.506], [0, 0.31, -0.5369, 0.506], [0, 0, 0, 0.506]], "bond": false, "cell": {"half": [0.62, 0.62, 0.506], "vec": [0, 0, 1.012], "frame": "hex", "hexR": 0.62}}, "diamond": {"name": "金刚石 C", "type": "covalent", "tags": ["共价晶体", "sp³ 正四面体", "最硬天然物质"], "desc": "每个 C 与 4 个相邻 C 以共价键相连，形成空间网状结构。", "note": "", "species": [{"sp": "C", "color": 11581117, "r": 0.77}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "si": {"name": "单晶硅 Si", "type": "covalent", "tags": ["共价晶体", "金刚石型", "芯片基材"], "desc": "与金刚石同构，是芯片与光伏板的基础材料。", "note": "", "species": [{"sp": "Si", "color": 12759680, "r": 1.11}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "sic": {"name": "SiC 碳化硅", "type": "covalent", "tags": ["共价晶体", "闪锌矿型", "金刚砂"], "desc": "C 与 Si 交替占据金刚石阵点，硬度仅次于金刚石，作磨料。", "note": "", "species": [{"sp": "Si", "color": 12759680, "r": 1.11}, {"sp": "C", "color": 11581117, "r": 0.77}], "atoms": [[0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4], [1, -0.8, -0.8, -0.8], [1, -0.8, -0.8, 0.8], [1, -0.8, 0.8, -0.8], [1, -0.8, 0.8, 0.8], [1, 0.8, -0.8, -0.8], [1, 0.8, -0.8, 0.8], [1, 0.8, 0.8, -0.8], [1, 0.8, 0.8, 0.8], [1, 0.0, 0.0, -0.8], [1, 0.0, 0.0, 0.8], [1, 0.0, -0.8, 0.0], [1, 0.0, 0.8, 0.0], [1, -0.8, 0.0, 0.0], [1, 0.8, 0.0, 0.0]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "sio2": {"name": "SiO₂ 石英（方石英型）", "type": "covalent", "tags": ["共价晶体", "SiO₄ 四面体", "沙子主要成分"], "desc": "每个 Si 连 4 个 O 形成四面体，每个 O 桥接两个 Si。河沙、水晶的主要成分。", "note": "", "species": [{"sp": "Si", "color": 12759680, "r": 1.11}, {"sp": "O", "color": 15688801, "r": 0.66}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [0, -0.4, -0.4, -0.4], [0, -0.4, 0.4, 0.4], [0, 0.4, -0.4, 0.4], [0, 0.4, 0.4, -0.4], [1, -0.6, -0.6, -0.6], [1, -0.2, -0.2, -0.6], [1, -0.2, -0.6, -0.2], [1, -0.6, -0.2, -0.2], [1, -0.6, 0.6, 0.6], [1, -0.2, 0.2, 0.6], [1, -0.2, 0.6, 0.2], [1, -0.6, 0.2, 0.2], [1, 0.6, -0.6, 0.6], [1, 0.2, -0.2, 0.6], [1, 0.2, -0.6, 0.2], [1, 0.6, -0.2, 0.2], [1, 0.6, 0.6, -0.6], [1, 0.2, 0.2, -0.6], [1, 0.2, 0.6, -0.2], [1, 0.6, 0.2, -0.2]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "co2": {"name": "CO₂ 干冰", "type": "molecule", "tags": ["分子晶体", "面心立方", "升华制冷"], "desc": "CO₂ 分子占据面心立方阵点，分子间仅靠范德华力，所以易升华。", "note": "", "species": [{"sp": "C", "color": 11581117, "r": 0.77}, {"sp": "O", "color": 15688801, "r": 0.66}], "atoms": [[0, -0.8, -0.8, -0.8], [0, -0.8, -0.8, 0.8], [0, -0.8, 0.8, -0.8], [0, -0.8, 0.8, 0.8], [0, 0.8, -0.8, -0.8], [0, 0.8, -0.8, 0.8], [0, 0.8, 0.8, -0.8], [0, 0.8, 0.8, 0.8], [0, 0.0, 0.0, -0.8], [0, 0.0, 0.0, 0.8], [0, 0.0, -0.8, 0.0], [0, 0.0, 0.8, 0.0], [0, -0.8, 0.0, 0.0], [0, 0.8, 0.0, 0.0], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, -0.592, -0.592, -0.592], [1, 0.592, 0.592, 0.592], [1, 0.208, 0.208, -0.592], [1, -0.208, -0.208, 0.592], [1, 0.208, 0.208, -0.592], [1, -0.208, -0.208, 0.592], [1, 0.208, -0.592, 0.208], [1, -0.208, 0.592, -0.208], [1, 0.208, -0.592, 0.208], [1, -0.208, 0.592, -0.208], [1, -0.592, 0.208, 0.208], [1, 0.592, -0.208, -0.208], [1, -0.592, 0.208, 0.208], [1, 0.592, -0.208, -0.208]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "i2": {"name": "I₂ 碘晶体", "type": "molecule", "tags": ["分子晶体", "双原子分子", "易升华"], "desc": "I₂ 分子成对排列，分子内是共价键、分子间是范德华力，所以碘易升华、易溶于酒精。", "note": "", "species": [{"sp": "I", "color": 11894492, "r": 1.33}], "atoms": [[0, -0.8, -0.8, -0.544], [0, -0.8, -0.8, 0.544], [0, -0.8, -0.8, -0.544], [0, -0.8, -0.8, 0.544], [0, -0.8, 0.8, -0.544], [0, -0.8, 0.8, 0.544], [0, -0.8, 0.8, -0.544], [0, -0.8, 0.8, 0.544], [0, 0.8, -0.8, -0.544], [0, 0.8, -0.8, 0.544], [0, 0.8, -0.8, -0.544], [0, 0.8, -0.8, 0.544], [0, 0.8, 0.8, -0.544], [0, 0.8, 0.8, 0.544], [0, 0.8, 0.8, -0.544], [0, 0.8, 0.8, 0.544], [0, 0.0, 0.0, -0.544], [0, 0.0, 0.0, 0.544], [0, 0.0, 0.0, -0.544], [0, 0.0, 0.0, 0.544]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "p4": {"name": "P₄ 白磷", "type": "molecule", "tags": ["分子晶体", "正四面体分子", "自燃"], "desc": "4 个 P 构成正四面体小分子，键角被迫弯成 60°，张力大所以活泼、40℃ 即自燃。", "note": "", "species": [{"sp": "P", "color": 16747625, "r": 1.1}], "atoms": [[0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, -0.656, -0.656, -0.656], [0, -0.656, 0.656, 0.656], [0, 0.656, -0.656, 0.656], [0, 0.656, 0.656, -0.656], [0, 0.144, 0.144, -0.656], [0, 0.144, -0.144, 0.656], [0, -0.144, 0.144, 0.656], [0, -0.144, -0.144, -0.656], [0, 0.144, 0.144, -0.656], [0, 0.144, -0.144, 0.656], [0, -0.144, 0.144, 0.656], [0, -0.144, -0.144, -0.656], [0, 0.144, -0.656, 0.144], [0, 0.144, 0.656, -0.144], [0, -0.144, -0.656, -0.144], [0, -0.144, 0.656, 0.144], [0, 0.144, -0.656, 0.144], [0, 0.144, 0.656, -0.144], [0, -0.144, -0.656, -0.144], [0, -0.144, 0.656, 0.144], [0, -0.656, 0.144, 0.144], [0, -0.656, -0.144, -0.144], [0, 0.656, 0.144, -0.144], [0, 0.656, -0.144, 0.144], [0, -0.656, 0.144, 0.144], [0, -0.656, -0.144, -0.144], [0, 0.656, 0.144, -0.144], [0, 0.656, -0.144, 0.144]], "bond": true, "cell": {"half": [0.8, 0.8, 0.8], "vec": [1.6, 1.6, 1.6], "frame": "cube"}}, "graphite": {"name": "石墨 C", "type": "mix", "tags": ["混合型晶体", "层状结构", "导电"], "desc": "层内 C–C 共价键（键长 142 pm），层间范德华力。铅笔芯、电极材料。", "note": "层状结构：延展仅沿层间方向堆叠", "species": [{"sp": "C", "color": 11581117, "r": 0.77}], "atoms": [[0, -0.5196, 0.6, -0.42], [0, -0.5196, -0.3, -0.42], [0, -0.5196, 0.0, -0.42], [0, -0.2598, 0.15, -0.42], [0, -0.2598, 0.45, -0.42], [0, 0.0, 0.6, -0.42], [0, -0.2598, -0.75, -0.42], [0, -0.2598, -0.45, -0.42], [0, 0.0, -0.3, -0.42], [0, 0.0, 0.0, -0.42], [0, 0.2598, 0.15, -0.42], [0, 0.2598, 0.45, -0.42], [0, 0.5196, 0.6, -0.42], [0, 0.2598, -0.75, -0.42], [0, 0.2598, -0.45, -0.42], [0, 0.5196, -0.3, -0.42], [0, 0.5196, 0.0, -0.42], [0, -0.5196, 0.0, 0.42], [0, -0.5196, 0.3, 0.42], [0, -0.2598, 0.45, 0.42], [0, -0.2598, 0.75, 0.42], [0, -0.5196, -0.6, 0.42], [0, -0.2598, -0.45, 0.42], [0, -0.2598, -0.15, 0.42], [0, 0.0, 0.0, 0.42], [0, 0.0, 0.3, 0.42], [0, 0.2598, 0.45, 0.42], [0, 0.2598, 0.75, 0.42], [0, 0.0, -0.6, 0.42], [0, 0.2598, -0.45, 0.42], [0, 0.2598, -0.15, 0.42], [0, 0.5196, 0.0, 0.42], [0, 0.5196, 0.3, 0.42], [0, 0.5196, -0.6, 0.42]], "bond": true, "cell": {"half": [0.8, 0.8, 0.84], "vec": [0, 0, 1.68], "frame": "cube"}}};
-const GROUPS = {"ion": ["nacl", "kcl", "lif", "mgo", "bao", "cscl", "csbr", "zns", "caf2", "tio2", "cu2o"], "metal": ["cu", "ag", "au", "al", "ni", "na", "k", "fe", "w", "ba", "po", "mg"], "covalent": ["diamond", "si", "sic", "sio2"], "molecule": ["co2", "i2", "p4"], "mix": ["graphite"]};
+/* ============ 晶体数据库（取自 GitHub perfect666ans/chem-life · chem_lab1.2） ============ */
+const CRYSTALS = {"nacl":{"name":"NaCl 氯化钠（食盐）","type":"ion","tags":["NaCl 型","配位数 6:6","面心立方"],"desc":"Na⁺ 与 Cl⁻ 交替占据面心立方阵点。厨房食盐的微观结构。","note":"","species":[{"sp":"Na","color":16034128,"r":1.02},{"sp":"Cl","color":3523725,"r":1.81}],"atoms":[[0,0.0,-0.8,-0.8],[0,-0.8,0.0,-0.8],[0,-0.8,-0.8,0.0],[0,0.0,0.8,-0.8],[0,0.0,-0.8,0.8],[0,0.8,0.0,-0.8],[0,-0.8,0.0,0.8],[0,0.8,-0.8,0.0],[0,-0.8,0.8,0.0],[0,0.0,0.8,0.8],[0,0.8,0.0,0.8],[0,0.8,0.8,0.0],[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"kcl":{"name":"KCl 氯化钾","type":"ion","tags":["NaCl 型","配位数 6:6"],"desc":"低钠盐的主要成分，结构与食盐相同，K⁺ 半径更大。","note":"","species":[{"sp":"K","color":13148927,"r":1.38},{"sp":"Cl","color":3523725,"r":1.81}],"atoms":[[0,0.0,-0.8,-0.8],[0,-0.8,0.0,-0.8],[0,-0.8,-0.8,0.0],[0,0.0,0.8,-0.8],[0,0.0,-0.8,0.8],[0,0.8,0.0,-0.8],[0,-0.8,0.0,0.8],[0,0.8,-0.8,0.0],[0,-0.8,0.8,0.0],[0,0.0,0.8,0.8],[0,0.8,0.0,0.8],[0,0.8,0.8,0.0],[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"lif":{"name":"LiF 氟化锂","type":"ion","tags":["NaCl 型","配位数 6:6"],"desc":"锂离子电池电解质原料之一，Li⁺ 是常见离子中半径最小的一档。","note":"","species":[{"sp":"Li","color":16765286,"r":0.76},{"sp":"F","color":8909055,"r":1.33}],"atoms":[[0,0.0,-0.8,-0.8],[0,-0.8,0.0,-0.8],[0,-0.8,-0.8,0.0],[0,0.0,0.8,-0.8],[0,0.0,-0.8,0.8],[0,0.8,0.0,-0.8],[0,-0.8,0.0,0.8],[0,0.8,-0.8,0.0],[0,-0.8,0.8,0.0],[0,0.0,0.8,0.8],[0,0.8,0.0,0.8],[0,0.8,0.8,0.0],[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"mgo":{"name":"MgO 氧化镁","type":"ion","tags":["NaCl 型","耐火材料"],"desc":"耐火砖主要成分，熔点高达 2852 ℃，离子键很强。","note":"","species":[{"sp":"Mg","color":8188028,"r":0.72},{"sp":"O","color":15688801,"r":1.4}],"atoms":[[0,0.0,-0.8,-0.8],[0,-0.8,0.0,-0.8],[0,-0.8,-0.8,0.0],[0,0.0,0.8,-0.8],[0,0.0,-0.8,0.8],[0,0.8,0.0,-0.8],[0,-0.8,0.0,0.8],[0,0.8,-0.8,0.0],[0,-0.8,0.8,0.0],[0,0.0,0.8,0.8],[0,0.8,0.0,0.8],[0,0.8,0.8,0.0],[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"bao":{"name":"BaO 氧化钡","type":"ion","tags":["NaCl 型","配位数 6:6"],"desc":"Ba²⁺ 半径大，与 O²⁻ 形成 NaCl 型堆积。","note":"","species":[{"sp":"Ba","color":6737151,"r":1.35},{"sp":"O","color":15688801,"r":1.4}],"atoms":[[0,0.0,-0.8,-0.8],[0,-0.8,0.0,-0.8],[0,-0.8,-0.8,0.0],[0,0.0,0.8,-0.8],[0,0.0,-0.8,0.8],[0,0.8,0.0,-0.8],[0,-0.8,0.0,0.8],[0,0.8,-0.8,0.0],[0,-0.8,0.8,0.0],[0,0.0,0.8,0.8],[0,0.8,0.0,0.8],[0,0.8,0.8,0.0],[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"cscl":{"name":"CsCl 氯化铯","type":"ion","tags":["CsCl 型","配位数 8:8","简单立方"],"desc":"Cl⁻ 作简单立方堆积，Cs⁺ 填入体心立方空隙。","note":"","species":[{"sp":"Cs","color":11569655,"r":1.67},{"sp":"Cl","color":3523725,"r":1.81}],"atoms":[[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"csbr":{"name":"CsBr 溴化铯","type":"ion","tags":["CsCl 型","配位数 8:8"],"desc":"与 CsCl 同构，红外光学材料。","note":"","species":[{"sp":"Cs","color":11569655,"r":1.67},{"sp":"Br","color":14251874,"r":1.96}],"atoms":[[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"zns":{"name":"ZnS 闪锌矿","type":"ion","tags":["闪锌矿型","配位数 4:4","四面体配位"],"desc":"S²⁻ 面心立方，Zn²⁺ 占据半数四面体空隙。夜光粉常用基材。","note":"","species":[{"sp":"Zn","color":15253864,"r":0.74},{"sp":"S","color":16768324,"r":1.84}],"atoms":[[0,-0.4,-0.4,-0.4],[0,-0.4,0.4,0.4],[0,0.4,-0.4,0.4],[0,0.4,0.4,-0.4],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"caf2":{"name":"CaF₂ 萤石","type":"ion","tags":["萤石型","配位数 8:4"],"desc":"Ca²⁺ 面心立方，F⁻ 填满全部四面体空隙。萤石可磨制光学镜片。","note":"","species":[{"sp":"Ca","color":16753920,"r":1.0},{"sp":"F","color":8909055,"r":1.33}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0],[1,-0.4,-0.4,-0.4],[1,-0.4,0.4,0.4],[1,0.4,-0.4,0.4],[1,0.4,0.4,-0.4],[1,-0.4,-0.4,0.4],[1,-0.4,0.4,-0.4],[1,0.4,-0.4,-0.4],[1,0.4,0.4,0.4]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"tio2":{"name":"TiO₂ 金红石","type":"ion","tags":["金红石型","配位数 6:3"],"desc":"防晒霜与白色颜料的主要成分，Ti 六配位、O 三配位。","note":"","species":[{"sp":"Ti","color":11584734,"r":0.61},{"sp":"O","color":15688801,"r":1.4}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,0.0],[1,-0.32,-0.32,-0.8],[1,0.32,0.32,-0.8],[1,0.48,-0.48,0.0],[1,-0.48,0.48,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"cu2o":{"name":"Cu₂O 氧化亚铜","type":"ion","tags":["赤铜矿型","半导体"],"desc":"O 作体心立方排布，Cu 位于四面体位置，是经典半导体材料。","note":"","species":[{"sp":"Cu","color":13667151,"r":0.77},{"sp":"O","color":15688801,"r":1.4}],"atoms":[[0,-0.4,-0.4,-0.4],[0,-0.4,0.4,0.4],[0,0.4,-0.4,0.4],[0,0.4,0.4,-0.4],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"cu":{"name":"Cu 金属铜","type":"metal","tags":["金属晶体","面心立方最密堆积","配位数 12"],"desc":"fcc 最密堆积，配位数 12，空间利用率 74%。导线、电缆的核心材料。","note":"","species":[{"sp":"Cu","color":13667151,"r":1.28}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"ag":{"name":"Ag 金属银","type":"metal","tags":["金属晶体","面心立方最密堆积","配位数 12"],"desc":"fcc 最密堆积，配位数 12，空间利用率 74%。导电性最好的金属。","note":"","species":[{"sp":"Ag","color":15263976,"r":1.44}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"au":{"name":"Au 金属金","type":"metal","tags":["金属晶体","面心立方最密堆积","配位数 12"],"desc":"fcc 最密堆积，配位数 12，空间利用率 74%。延展性最好的金属。","note":"","species":[{"sp":"Au","color":16766720,"r":1.44}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"al":{"name":"Al 金属铝","type":"metal","tags":["金属晶体","面心立方最密堆积","配位数 12"],"desc":"fcc 最密堆积，配位数 12，空间利用率 74%。地壳含量最高的金属。","note":"","species":[{"sp":"Al","color":13684944,"r":1.43}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"ni":{"name":"Ni 金属镍","type":"metal","tags":["金属晶体","面心立方最密堆积","配位数 12"],"desc":"fcc 最密堆积，配位数 12，空间利用率 74%。不锈钢与电池材料。","note":"","species":[{"sp":"Ni","color":11055288,"r":1.25}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"na":{"name":"Na 金属钠","type":"metal","tags":["金属晶体","体心立方堆积","配位数 8"],"desc":"bcc 体心立方，配位数 8，空间利用率 68%。活泼金属，保存在煤油中。","note":"","species":[{"sp":"Na","color":16034128,"r":1.86}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"k":{"name":"K 金属钾","type":"metal","tags":["金属晶体","体心立方堆积","配位数 8"],"desc":"bcc 体心立方，配位数 8，空间利用率 68%。比钠更活泼。","note":"","species":[{"sp":"K","color":13148927,"r":2.27}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"fe":{"name":"Fe α-铁","type":"metal","tags":["金属晶体","体心立方堆积","配位数 8"],"desc":"bcc 体心立方，配位数 8，空间利用率 68%。常温下铁为体心立方。","note":"","species":[{"sp":"Fe","color":10260367,"r":1.26}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"w":{"name":"W 金属钨","type":"metal","tags":["金属晶体","体心立方堆积","配位数 8"],"desc":"bcc 体心立方，配位数 8，空间利用率 68%。熔点最高的金属，灯丝材料。","note":"","species":[{"sp":"W","color":7240587,"r":1.37}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"ba":{"name":"Ba 金属钡","type":"metal","tags":["金属晶体","体心立方堆积","配位数 8"],"desc":"bcc 体心立方，配位数 8，空间利用率 68%。碱土金属。","note":"","species":[{"sp":"Ba","color":6737151,"r":2.17}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,0.0]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"po":{"name":"Po 金属钋（简单立方）","type":"metal","tags":["金属晶体","简单立方","配位数 6"],"desc":"唯一以简单立方堆积的金属，配位数 6，空间利用率仅 52%。","note":"","species":[{"sp":"Po","color":11176123,"r":1.68}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8]],"bond":false,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"mg":{"name":"Mg 金属镁（六方最密）","type":"metal","tags":["金属晶体","六方最密堆积","配位数 12"],"desc":"hcp 六方最密堆积（Mg、Zn、Ti 同类），配位数 12，空间利用率 74%。","note":"六方晶胞：延展仅沿 c 轴方向堆叠","species":[{"sp":"Mg","color":8188028,"r":1.6}],"atoms":[[0,0.62,0.0,-0.506],[0,0.31,0.5369,-0.506],[0,-0.31,0.5369,-0.506],[0,-0.62,0.0,-0.506],[0,-0.31,-0.5369,-0.506],[0,0.31,-0.5369,-0.506],[0,0,0,-0.506],[0,0.31,0.179,0],[0,0.0,0.358,0],[0,-0.31,0.179,0],[0,0.62,0.0,0.506],[0,0.31,0.5369,0.506],[0,-0.31,0.5369,0.506],[0,-0.62,0.0,0.506],[0,-0.31,-0.5369,0.506],[0,0.31,-0.5369,0.506],[0,0,0,0.506]],"bond":false,"cell":{"half":[0.62,0.62,0.506],"vec":[0,0,1.012],"frame":"hex","hexR":0.62}},"diamond":{"name":"金刚石 C","type":"covalent","tags":["共价晶体","sp³ 正四面体","最硬天然物质"],"desc":"每个 C 与 4 个相邻 C 以共价键相连，形成空间网状结构。","note":"","species":[{"sp":"C","color":11581117,"r":0.77}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0],[0,-0.4,-0.4,-0.4],[0,-0.4,0.4,0.4],[0,0.4,-0.4,0.4],[0,0.4,0.4,-0.4]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"si":{"name":"单晶硅 Si","type":"covalent","tags":["共价晶体","金刚石型","芯片基材"],"desc":"与金刚石同构，是芯片与光伏板的基础材料。","note":"","species":[{"sp":"Si","color":12759680,"r":1.11}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0],[0,-0.4,-0.4,-0.4],[0,-0.4,0.4,0.4],[0,0.4,-0.4,0.4],[0,0.4,0.4,-0.4]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"sic":{"name":"SiC 碳化硅","type":"covalent","tags":["共价晶体","闪锌矿型","金刚砂"],"desc":"C 与 Si 交替占据金刚石阵点，硬度仅次于金刚石，作磨料。","note":"","species":[{"sp":"Si","color":12759680,"r":1.11},{"sp":"C","color":11581117,"r":0.77}],"atoms":[[0,-0.4,-0.4,-0.4],[0,-0.4,0.4,0.4],[0,0.4,-0.4,0.4],[0,0.4,0.4,-0.4],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"sio2":{"name":"SiO₂ 石英（方石英型）","type":"covalent","tags":["共价晶体","SiO₄ 四面体","沙子主要成分"],"desc":"每个 Si 连 4 个 O 形成四面体，每个 O 桥接两个 Si。河沙、水晶的主要成分。","note":"","species":[{"sp":"Si","color":12759680,"r":1.11},{"sp":"O","color":15688801,"r":0.66}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0],[0,-0.4,-0.4,-0.4],[0,-0.4,0.4,0.4],[0,0.4,-0.4,0.4],[0,0.4,0.4,-0.4],[1,-0.6,-0.6,-0.6],[1,-0.2,-0.2,-0.6],[1,-0.2,-0.6,-0.2],[1,-0.6,-0.2,-0.2],[1,-0.6,0.6,0.6],[1,-0.2,0.2,0.6],[1,-0.2,0.6,0.2],[1,-0.6,0.2,0.2],[1,0.6,-0.6,0.6],[1,0.2,-0.2,0.6],[1,0.2,-0.6,0.2],[1,0.6,-0.2,0.2],[1,0.6,0.6,-0.6],[1,0.2,0.2,-0.6],[1,0.2,0.6,-0.2],[1,0.6,0.2,-0.2]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"co2":{"name":"CO₂ 干冰","type":"molecule","tags":["分子晶体","面心立方","升华制冷"],"desc":"CO₂ 分子占据面心立方阵点，分子间仅靠范德华力，所以易升华。","note":"","species":[{"sp":"C","color":11581117,"r":0.77},{"sp":"O","color":15688801,"r":0.66}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0],[1,-0.592,-0.592,-0.592],[1,0.592,0.592,0.592],[1,-0.592,-0.592,-0.592],[1,0.592,0.592,0.592],[1,-0.592,-0.592,-0.592],[1,0.592,0.592,0.592],[1,-0.592,-0.592,-0.592],[1,0.592,0.592,0.592],[1,-0.592,-0.592,-0.592],[1,0.592,0.592,0.592],[1,-0.592,-0.592,-0.592],[1,0.592,0.592,0.592],[1,-0.592,-0.592,-0.592],[1,0.592,0.592,0.592],[1,-0.592,-0.592,-0.592],[1,0.592,0.592,0.592],[1,0.208,0.208,-0.592],[1,-0.208,-0.208,0.592],[1,0.208,0.208,-0.592],[1,-0.208,-0.208,0.592],[1,0.208,-0.592,0.208],[1,-0.208,0.592,-0.208],[1,0.208,-0.592,0.208],[1,-0.208,0.592,-0.208],[1,-0.592,0.208,0.208],[1,0.592,-0.208,-0.208],[1,-0.592,0.208,0.208],[1,0.592,-0.208,-0.208]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"i2":{"name":"I₂ 碘晶体","type":"molecule","tags":["分子晶体","双原子分子","易升华"],"desc":"I₂ 分子成对排列，分子内是共价键、分子间是范德华力，所以碘易升华、易溶于酒精。","note":"","species":[{"sp":"I","color":11894492,"r":1.33}],"atoms":[[0,-0.8,-0.8,-0.544],[0,-0.8,-0.8,0.544],[0,-0.8,-0.8,-0.544],[0,-0.8,-0.8,0.544],[0,-0.8,0.8,-0.544],[0,-0.8,0.8,0.544],[0,-0.8,0.8,-0.544],[0,-0.8,0.8,0.544],[0,0.8,-0.8,-0.544],[0,0.8,-0.8,0.544],[0,0.8,-0.8,-0.544],[0,0.8,-0.8,0.544],[0,0.8,0.8,-0.544],[0,0.8,0.8,0.544],[0,0.8,0.8,-0.544],[0,0.8,0.8,0.544],[0,0.0,0.0,-0.544],[0,0.0,0.0,0.544],[0,0.0,0.0,-0.544],[0,0.0,0.0,0.544]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"p4":{"name":"P₄ 白磷","type":"molecule","tags":["分子晶体","正四面体分子","自燃"],"desc":"4 个 P 构成正四面体小分子，键角被迫弯成 60°，张力大所以活泼、40℃ 即自燃。","note":"","species":[{"sp":"P","color":16747625,"r":1.1}],"atoms":[[0,-0.656,-0.656,-0.656],[0,-0.656,0.656,0.656],[0,0.656,-0.656,0.656],[0,0.656,0.656,-0.656],[0,-0.656,-0.656,-0.656],[0,-0.656,0.656,0.656],[0,0.656,-0.656,0.656],[0,0.656,0.656,-0.656],[0,-0.656,-0.656,-0.656],[0,-0.656,0.656,0.656],[0,0.656,-0.656,0.656],[0,0.656,0.656,-0.656],[0,-0.656,-0.656,-0.656],[0,-0.656,0.656,0.656],[0,0.656,-0.656,0.656],[0,0.656,0.656,-0.656],[0,-0.656,-0.656,-0.656],[0,-0.656,0.656,0.656],[0,0.656,-0.656,0.656],[0,0.656,0.656,-0.656],[0,-0.656,-0.656,-0.656],[0,-0.656,0.656,0.656],[0,0.656,-0.656,0.656],[0,0.656,0.656,-0.656],[0,-0.656,-0.656,-0.656],[0,-0.656,0.656,0.656],[0,0.656,-0.656,0.656],[0,0.656,0.656,-0.656],[0,-0.656,-0.656,-0.656],[0,-0.656,0.656,0.656],[0,0.656,-0.656,0.656],[0,0.656,0.656,-0.656],[0,0.144,0.144,-0.656],[0,0.144,-0.144,0.656],[0,-0.144,0.144,0.656],[0,-0.144,-0.144,-0.656],[0,0.144,0.144,-0.656],[0,0.144,-0.144,0.656],[0,-0.144,0.144,0.656],[0,-0.144,-0.144,-0.656],[0,0.144,-0.656,0.144],[0,0.144,0.656,-0.144],[0,-0.144,-0.656,-0.144],[0,-0.144,0.656,0.144],[0,0.144,-0.656,0.144],[0,0.144,0.656,-0.144],[0,-0.144,-0.656,-0.144],[0,-0.144,0.656,0.144],[0,-0.656,0.144,0.144],[0,-0.656,-0.144,-0.144],[0,0.656,0.144,-0.144],[0,0.656,-0.144,0.144],[0,-0.656,0.144,0.144],[0,-0.656,-0.144,-0.144],[0,0.656,0.144,-0.144],[0,0.656,-0.144,0.144]],"bond":true,"cell":{"half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6],"frame":"cube"}},"graphite":{"name":"石墨 C","type":"mix","tags":["混合型晶体","层状结构","导电"],"desc":"层内 C–C 共价键（键长 142 pm），层间范德华力。铅笔芯、电极材料。","note":"层状结构：延展仅沿层间方向堆叠","species":[{"sp":"C","color":11581117,"r":0.77}],"atoms":[[0,-0.5196,0.6,-0.42],[0,-0.5196,-0.3,-0.42],[0,-0.5196,0.0,-0.42],[0,-0.2598,0.15,-0.42],[0,-0.2598,0.45,-0.42],[0,0.0,0.6,-0.42],[0,-0.2598,-0.75,-0.42],[0,-0.2598,-0.45,-0.42],[0,0.0,-0.3,-0.42],[0,0.0,0.0,-0.42],[0,0.2598,0.15,-0.42],[0,0.2598,0.45,-0.42],[0,0.5196,0.6,-0.42],[0,0.2598,-0.75,-0.42],[0,0.2598,-0.45,-0.42],[0,0.5196,-0.3,-0.42],[0,0.5196,0.0,-0.42],[0,-0.5196,0.0,0.42],[0,-0.5196,0.3,0.42],[0,-0.2598,0.45,0.42],[0,-0.2598,0.75,0.42],[0,-0.5196,-0.6,0.42],[0,-0.2598,-0.45,0.42],[0,-0.2598,-0.15,0.42],[0,0.0,0.0,0.42],[0,0.0,0.3,0.42],[0,0.2598,0.45,0.42],[0,0.2598,0.75,0.42],[0,0.0,-0.6,0.42],[0,0.2598,-0.45,0.42],[0,0.2598,-0.15,0.42],[0,0.5196,0.0,0.42],[0,0.5196,0.3,0.42],[0,0.5196,-0.6,0.42]],"bond":true,"cell":{"half":[0.8,0.8,0.84],"vec":[0,0,1.68],"frame":"cube"}},"cuzn":{"type":"alloy","name":"CuZn 黄铜（β-黄铜）","formula":"CuZn","tags":["合金","金属键","体心立方结构","配位数 8:8"],"desc":"铜锌合金的有序固溶体：Zn 占据立方顶点、Cu 占据体心（两者可互换位置）。","note":"顶点与体心为异种原子，是区别于无序固溶体的有序超结构，导电导热性良好。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Cu","color":12610092,"r":1.28},{"sp":"Zn","color":9411238,"r":1.34}],"atoms":[[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[0,0,0,0]],"bond":true},"feal":{"type":"alloy","name":"FeAl 铝铁合金（B2 型）","formula":"FeAl","tags":["合金","金属键","体心立方结构","配位数 8:8"],"desc":"铝铁金属间化合物：Al 占据立方顶点、Fe 占据体心，与 β-黄铜同型。","note":"高熔点、耐氧化，是有序 B2 结构金属间化合物的典型。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Fe","color":10134704,"r":1.26},{"sp":"Al","color":13225944,"r":1.43}],"atoms":[[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[0,0,0,0]],"bond":true},"nial":{"type":"alloy","name":"NiAl 镍铝合金（B2 型）","formula":"NiAl","tags":["合金","金属键","体心立方结构","配位数 8:8"],"desc":"镍铝金属间化合物：Al 占据立方顶点、Ni 占据体心，B2 有序结构。","note":"熔点高、密度低，是航空高温涂层与形状记忆合金的重要成分。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Ni","color":9413560,"r":1.24},{"sp":"Al","color":13225944,"r":1.43}],"atoms":[[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[0,0,0,0]],"bond":true},"cu3au":{"type":"alloy","name":"Cu₃Au 金铜合金","formula":"Cu₃Au","tags":["合金","金属键","面心立方结构","配位数 12"],"desc":"铜金合金的有序结构：Au 占据立方顶点，Cu 占据六个面心，高温下变为无序固溶体。","note":"有序化使电阻率显著下降，是超结构（超点阵）的典型案例。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Au","color":14201148,"r":1.44},{"sp":"Cu","color":12610092,"r":1.28}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[1,0,0,-0.8],[1,0,0,0.8],[1,0,-0.8,0],[1,0,0.8,0],[1,-0.8,0,0],[1,0.8,0,0]],"bond":true},"agcl":{"type":"ion","name":"AgCl 氯化银","formula":"AgCl","tags":["离子晶体","NaCl 型","配位数 6:6"],"desc":"卤化银：Ag⁺ 与 Cl⁻ 各自构成面心立方子晶格，沿棱错开半个棱长，与食盐同型。","note":"见光易分解出银颗粒，是感光材料的化学基础。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Ag⁺","color":11844294,"r":1.15},{"sp":"Cl⁻","color":3523725,"r":1.81}],"atoms":[[0,0.0,-0.8,-0.8],[0,-0.8,0.0,-0.8],[0,-0.8,-0.8,0.0],[0,0.0,0.8,-0.8],[0,0.0,-0.8,0.8],[0,0.8,0.0,-0.8],[0,-0.8,0.0,0.8],[0,0.8,-0.8,0.0],[0,-0.8,0.8,0.0],[0,0.0,0.8,0.8],[0,0.8,0.0,0.8],[0,0.8,0.8,0.0],[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true},"kbr":{"type":"ion","name":"KBr 溴化钾","formula":"KBr","tags":["离子晶体","NaCl 型","配位数 6:6"],"desc":"碱金属卤化物：K⁺ 与 Br⁻ 交替排列成 NaCl 型结构，光学上用作红外窗口材料。","note":"与 KCl 同型，离子键特征显著。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"K⁺","color":13148927,"r":1.38},{"sp":"Br⁻","color":10508844,"r":1.96}],"atoms":[[0,0.0,-0.8,-0.8],[0,-0.8,0.0,-0.8],[0,-0.8,-0.8,0.0],[0,0.0,0.8,-0.8],[0,0.0,-0.8,0.8],[0,0.8,0.0,-0.8],[0,-0.8,0.0,0.8],[0,0.8,-0.8,0.0],[0,-0.8,0.8,0.0],[0,0.0,0.8,0.8],[0,0.8,0.0,0.8],[0,0.8,0.8,0.0],[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true},"cas":{"type":"ion","name":"CaS 硫化钙","formula":"CaS","tags":["离子晶体","NaCl 型","配位数 6:6"],"desc":"碱土金属硫化物：Ca²⁺ 与 S²⁻ 构成 NaCl 型结构，是重要的发光材料基质。","note":"与 MgO 同型，熔点高。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Ca²⁺","color":16753920,"r":1.0},{"sp":"S²⁻","color":16768324,"r":1.84}],"atoms":[[0,0.0,-0.8,-0.8],[0,-0.8,0.0,-0.8],[0,-0.8,-0.8,0.0],[0,0.0,0.8,-0.8],[0,0.0,-0.8,0.8],[0,0.8,0.0,-0.8],[0,-0.8,0.0,0.8],[0,0.8,-0.8,0.0],[0,-0.8,0.8,0.0],[0,0.0,0.8,0.8],[0,0.8,0.0,0.8],[0,0.8,0.8,0.0],[0,0.0,0.0,0.0],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true},"srtio3":{"type":"ion","name":"SrTiO₃ 钛酸锶","formula":"SrTiO₃","tags":["离子晶体","钙钛矿结构","配位数 12:6"],"desc":"理想立方钙钛矿：Sr²⁺ 占据顶点、O²⁻ 占据六个面心、Ti⁴⁺ 占据体心，Ti 被氧八面体包围。","note":"Sr 配位数 12、Ti 配位数 6；实际材料因八面体倾斜而略有畸变。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Sr²⁺","color":12101768,"r":1.18},{"sp":"O²⁻","color":15688801,"r":1.4},{"sp":"Ti⁴⁺","color":11584734,"r":0.61}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[1,0,0,-0.8],[1,0,0,0.8],[1,0,-0.8,0],[1,0,0.8,0],[1,-0.8,0,0],[1,0.8,0,0],[2,0,0,0]],"bond":true},"gaas":{"type":"covalent","name":"GaAs 砷化镓","formula":"GaAs","tags":["共价晶体","闪锌矿结构","配位数 4:4"],"desc":"重要的 III-V 族半导体：Ga 与 As 各自构成面心立方子晶格，沿体对角线方向错开 ¼。","note":"与金刚石、硅同型，但两类原子交替排列。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Ga","color":8366281,"r":1.26},{"sp":"As","color":9076664,"r":1.21}],"atoms":[[0,-0.4,-0.4,-0.4],[0,-0.4,0.4,0.4],[0,0.4,-0.4,0.4],[0,0.4,0.4,-0.4],[1,-0.8,-0.8,-0.8],[1,-0.8,-0.8,0.8],[1,-0.8,0.8,-0.8],[1,-0.8,0.8,0.8],[1,0.8,-0.8,-0.8],[1,0.8,-0.8,0.8],[1,0.8,0.8,-0.8],[1,0.8,0.8,0.8],[1,0.0,0.0,-0.8],[1,0.0,0.0,0.8],[1,0.0,-0.8,0.0],[1,0.0,0.8,0.0],[1,-0.8,0.0,0.0],[1,0.8,0.0,0.0]],"bond":true},"ge":{"type":"covalent","name":"单晶锗 Ge","formula":"Ge","tags":["共价晶体","金刚石结构","配位数 4"],"desc":"锗单晶与金刚石、硅完全同构：每个 Ge 与周围 4 个 Ge 以共价键形成正四面体。","note":"早期半导体材料，熔点低于硅。","cell":{"frame":"cube","half":[0.8,0.8,0.8],"vec":[1.6,1.6,1.6]},"species":[{"sp":"Ge","color":10463416,"r":1.22}],"atoms":[[0,-0.8,-0.8,-0.8],[0,-0.8,-0.8,0.8],[0,-0.8,0.8,-0.8],[0,-0.8,0.8,0.8],[0,0.8,-0.8,-0.8],[0,0.8,-0.8,0.8],[0,0.8,0.8,-0.8],[0,0.8,0.8,0.8],[0,0.0,0.0,-0.8],[0,0.0,0.0,0.8],[0,0.0,-0.8,0.0],[0,0.0,0.8,0.0],[0,-0.8,0.0,0.0],[0,0.8,0.0,0.0],[0,-0.4,-0.4,-0.4],[0,-0.4,0.4,0.4],[0,0.4,-0.4,0.4],[0,0.4,0.4,-0.4]],"bond":true},"hbn":{"type":"mix","name":"h-BN 六方氮化硼","formula":"BN","tags":["混合型晶体","层状结构","配位数 3"],"desc":"结构与石墨相同：B、N 交替构成六元环平面层，层间为范德华力，故称「白色石墨」。","note":"与石墨不同，h-BN 是绝缘体，层内为极性共价键，高温下是优良润滑剂。","cell":{"half":[0.8,0.8,0.84],"vec":[0,0,1.68],"frame":"cube"},"species":[{"sp":"B","color":15250616,"r":0.84},{"sp":"N","color":6262712,"r":0.71}],"atoms":[[1,-0.5196,0.6,-0.42],[1,-0.5196,-0.3,-0.42],[0,-0.5196,0.0,-0.42],[1,-0.2598,0.15,-0.42],[0,-0.2598,0.45,-0.42],[1,0.0,0.6,-0.42],[1,-0.2598,-0.75,-0.42],[0,-0.2598,-0.45,-0.42],[1,0.0,-0.3,-0.42],[0,0.0,0.0,-0.42],[1,0.2598,0.15,-0.42],[0,0.2598,0.45,-0.42],[1,0.5196,0.6,-0.42],[1,0.2598,-0.75,-0.42],[0,0.2598,-0.45,-0.42],[1,0.5196,-0.3,-0.42],[0,0.5196,0.0,-0.42],[0,-0.5196,0.0,0.42],[1,-0.5196,0.3,0.42],[0,-0.2598,0.45,0.42],[1,-0.2598,0.75,0.42],[1,-0.5196,-0.6,0.42],[0,-0.2598,-0.45,0.42],[1,-0.2598,-0.15,0.42],[0,0.0,0.0,0.42],[1,0.0,0.3,0.42],[0,0.2598,0.45,0.42],[1,0.2598,0.75,0.42],[1,0.0,-0.6,0.42],[0,0.2598,-0.45,0.42],[1,0.2598,-0.15,0.42],[0,0.5196,0.0,0.42],[1,0.5196,0.3,0.42],[1,0.5196,-0.6,0.42]],"bond":true}};
+const GROUPS = {"ion":["nacl","kcl","lif","mgo","bao","cscl","csbr","zns","caf2","tio2","cu2o","agcl","kbr","cas","srtio3"],"metal":["cu","ag","au","al","ni","na","k","fe","w","ba","po","mg"],"covalent":["diamond","si","sic","sio2","gaas","ge"],"molecule":["co2","i2","p4"],"mix":["graphite","hbn"],"alloy":["cuzn","feal","nial","cu3au"]};
+const EFF_DATA = { cu:'面心立方最密 · 空间利用率 74.0%', ag:'面心立方最密 · 空间利用率 74.0%', au:'面心立方最密 · 空间利用率 74.0%', al:'面心立方最密 · 空间利用率 74.0%', ni:'面心立方最密 · 空间利用率 74.0%', na:'体心立方 · 空间利用率 68.0%', k:'体心立方 · 空间利用率 68.0%', ba:'体心立方 · 空间利用率 68.0%', fe:'体心立方 · 空间利用率 68.0%', w:'体心立方 · 空间利用率 68.0%', po:'简单立方 · 空间利用率 52.4%', mg:'六方最密 · 空间利用率 74.0%' };
+</script>
+<script>
+/* =====================================================================
+   晶体结构深度实验室 · 主应用（three.js r128 · 全局脚本版）
+   管线：RenderPass → UnrealBloom → ChemGradePass(自研调色/暗角) → GammaCorrection
+   兼容性说明：全部自定义 GLSL 使用 ES 1.00（texture2D/gl_FragColor）；
+   onBeforeCompile 锚点选用 r128 实测存在的 clipping_planes_pars_fragment / dithering_fragment。
+   ===================================================================== */
+(function boot(){
+'use strict';
+/* three.js 由上方加载器异步载入：内联脚本解析时 THREE 尚不存在，
+   必须轮询等待；__POST_OK__ 在加载器启动即被置 false，不能用它判断结束，
+   须等 __chemReadyFired 后仍无 THREE 才放弃（加载器自身会显示错误页）。 */
+if (typeof THREE === 'undefined' || typeof THREE.OrbitControls !== 'function'){
+  boot._n = (boot._n || 0) + 1;
+  if (window.__chemReadyFired || boot._n > 500){ return; }
+  setTimeout(boot, 60);
+  return;
+}
 
+const $ = id => document.getElementById(id);
+const isMobile = /Android|iPhone|iPad|Mobi/i.test(navigator.userAgent) || Math.min(screen.width, screen.height) < 620;
 
-/* ================= 基础场景 ================= */
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0d1017);
-const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 2000);
-camera.position.set(6.5, 5.2, 8.5);
-camera.lookAt(0, 0, 0);
-const canvas = document.getElementById('crystalCanvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.localClippingEnabled = true;
+/* ---------------- 主题 ---------------- */
+const THEMES = {
+  cinnabar: { bg3d:0xeee1cb, hemiSky:0xfff4e0, hemiGnd:0xd8c2a0, hemiInt:0.85, ambInt:0.35,
+           keyInt:0.95, sideInt:0.45, rimInt:0.55, rimColor:0xc8862a, frame:0xc03f2b,
+           floorOp:0.16, bloomStr:0.25, bloomTh:0.92, exposure:1.0, grade:{ sat:1.05, tint:[0.028,0.012,0.0], vig:0.5 } },
+  lab:   { bg3d:0xeef2f8, hemiSky:0xffffff, hemiGnd:0xc9d2e6, hemiInt:0.85, ambInt:0.35,
+           keyInt:0.95, sideInt:0.45, rimInt:0.55, rimColor:0x00a8c4, frame:0x5b5bd6,
+           floorOp:0.16, bloomStr:0.25, bloomTh:0.92, exposure:1.0, grade:{ sat:1.05, tint:[0.012,0.008,0.030], vig:0.42 } },
+  night: { bg3d:0x121724, hemiSky:0x93b2ff, hemiGnd:0x0a0d15, hemiInt:0.62, ambInt:0.28,
+           keyInt:0.95, sideInt:0.50, rimInt:0.95, rimColor:0x2ee6d6, frame:0x8f96ff,
+           floorOp:0.30, bloomStr:0.45, bloomTh:0.80, exposure:1.06, grade:{ sat:1.09, tint:[0.004,0.014,0.032], vig:0.52 } }
+};
+let curTheme = document.documentElement.dataset.theme === 'night' ? 'night' : 'lab';
+const T = () => THEMES[curTheme];
+
+/* ---------------- 状态 ---------------- */
+const state = {
+  type:'ion', mat:'nacl', extend:0, style:'ballstick', opacity:0.92,
+  clip:false, cut:0, hexMode:'prism', hidden:new Set(), showBonds:true,
+  quality: isMobile ? 'low' : 'high',
+  cnOn:false, cnTol:1.08
+};
+
+/* ---------------- 渲染器 / 场景 / 相机 ---------------- */
+const canvas = $('crystalCanvas');
 const wrapDom = document.querySelector('.canvas-box');
-function resizeRender(){
-  const w = wrapDom.clientWidth, h = wrapDom.clientHeight;
-  renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
-}
-resizeRender();
-window.addEventListener('resize', resizeRender);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, stencil:false, powerPreference:'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+renderer.localClippingEnabled = true;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.outputEncoding = THREE.sRGBEncoding;
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.45));
-const keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
-keyLight.position.set(9, 11, 13); scene.add(keyLight);
-const rimLight = new THREE.DirectionalLight(0xa7c8ff, 0.35);
-rimLight.position.set(-9, -7, -11); scene.add(rimLight);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(T().bg3d);
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 500);
+camera.up.set(0, 0, 1);                 /* c 轴朝上：六方柱竖立展示 */
+camera.position.set(5.4, -6.4, 4.6);
 
-const root = new THREE.Group(); scene.add(root);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 3.2;
+controls.maxDistance = 40;
 
-/* 拖拽旋转 + 滚轮缩放 */
-let drag = false, lastX = 0, lastY = 0;
-canvas.addEventListener('mousedown', e => { drag = true; lastX = e.clientX; lastY = e.clientY; });
-canvas.addEventListener('mousemove', e => {
-  if (!drag) return;
-  root.rotation.y += (e.clientX - lastX) * 0.005;
-  root.rotation.x += (e.clientY - lastY) * 0.005;
-  lastX = e.clientX; lastY = e.clientY;
-  updateClipPlanes();
-});
-['mouseup','mouseleave'].forEach(ev => canvas.addEventListener(ev, () => drag = false));
-canvas.addEventListener('wheel', e => {
-  e.preventDefault();
-  const s = 1 + e.deltaY * 0.001;
-  camera.position.multiplyScalar(s);
-  const l = camera.position.length();
-  if (l < 3.5) camera.position.setLength(3.5);
-  if (l > 30) camera.position.setLength(30);
-}, { passive:false });
+/* ---------------- 四层灯光 rig ---------------- */
+const hemi = new THREE.HemisphereLight(0xffffff, 0xc9d2e6, 0.8); scene.add(hemi);
+const amb  = new THREE.AmbientLight(0xffffff, 0.3); scene.add(amb);
+const key  = new THREE.DirectionalLight(0xffffff, 0.9);
+key.position.set(6, -5, 9);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -8; key.shadow.camera.right = 8;
+key.shadow.camera.top = 8; key.shadow.camera.bottom = -8;
+key.shadow.camera.near = 1; key.shadow.camera.far = 40;
+key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; key.shadow.radius = 4;
+scene.add(key);
+const side = new THREE.DirectionalLight(0x9fb4ff, 0.45); side.position.set(-7, -4, 3); scene.add(side);
+const rim  = new THREE.DirectionalLight(0x00a8c4, 0.55); rim.position.set(-3, 7, -6); scene.add(rim);
 
-/* ================= 状态 ================= */
-const state = { type:'ion', mat:'nacl', extend:0, style:'ballstick', opacity:0.85, clip:false, hidden:new Set() };
+/* 阴影地板（只接影） */
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(80, 80),
+  new THREE.ShadowMaterial({ opacity: T().floorOp })
+);
+floor.receiveShadow = true;
+scene.add(floor);
 
-/* ================= 晶胞边界切割 ================= */
-let clipBases = [];   // {n:Vector3 局部法向, c:常数}
-let clipPlanes = [];
-function buildClipBases(cell){
-  clipBases = [];
-  if (cell.frame === 'cube'){
-    const [hx, hy, hz] = cell.half;
-    [[1,0,0,hx],[-1,0,0,hx],[0,1,0,hy],[0,-1,0,hy],[0,0,1,hz],[0,0,-1,hz]]
-      .forEach(([x,y,z,c]) => clipBases.push({ n:new THREE.Vector3(x,y,z), c }));
-  } else if (cell.frame === 'hex'){
-    const R = cell.hexR, hz = cell.half[2];
-    for (let k = 0; k < 6; k++){
-      const a = Math.PI/3 * k + Math.PI/6;
-      clipBases.push({ n:new THREE.Vector3(Math.cos(a), Math.sin(a), 0), c: R * Math.cos(Math.PI/6) });
-    }
-    clipBases.push({ n:new THREE.Vector3(0,0,1), c: hz });
-    clipBases.push({ n:new THREE.Vector3(0,0,-1), c: hz });
+function applyTheme3D(){
+  const t = T();
+  scene.background.setHex(t.bg3d);
+  hemi.color.setHex(t.hemiSky); hemi.groundColor.setHex(t.hemiGnd); hemi.intensity = t.hemiInt;
+  amb.intensity = t.ambInt;
+  key.intensity = t.keyInt;
+  side.intensity = t.sideInt;
+  rim.color.setHex(t.rimColor); rim.intensity = t.rimInt;
+  floor.material.opacity = t.floorOp;
+  renderer.toneMappingExposure = t.exposure;
+  if (bloomPass){ bloomPass.strength = t.bloomStr; bloomPass.threshold = t.bloomTh; }
+  if (gradePass) {
+    gradePass.uniforms.uSat.value = t.grade.sat;
+    gradePass.uniforms.uTint.value.set(t.grade.tint[0], t.grade.tint[1], t.grade.tint[2]);
+    gradePass.uniforms.uVig.value = t.grade.vig;
   }
-  clipPlanes = clipBases.map(b => new THREE.Plane(b.n.clone().negate(), b.c));
 }
-function updateClipPlanes(){
+
+/* ---------------- 后期处理链（可选，失败降级直出） ---------------- */
+let composer = null, bloomPass = null, gradePass = null;
+function buildComposer(){
+  if (!window.__POST_OK__ || !THREE.EffectComposer) return;
+  const w = wrapDom.clientWidth, h = wrapDom.clientHeight;
+  composer = new THREE.EffectComposer(renderer);
+  composer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  composer.setSize(w, h);
+  composer.addPass(new THREE.RenderPass(scene, camera));
+  bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(w, h), T().bloomStr, 0.45, T().bloomTh || 0.9);
+  composer.addPass(bloomPass);
+  /* 自研调色通道：饱和度 + 蓝紫阴影提升 + 暗角（ES 1.00 语法） */
+  const ChemGradeShader = {
+    uniforms: { tDiffuse:{ value:null }, uSat:{ value:1.05 }, uTint:{ value:new THREE.Vector3(0.012,0.008,0.03) }, uVig:{ value:0.5 } },
+    vertexShader: [
+      'varying vec2 vUv;',
+      'void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }'
+    ].join('\n'),
+    fragmentShader: [
+      'uniform sampler2D tDiffuse;',
+      'uniform float uSat; uniform vec3 uTint; uniform float uVig;',
+      'varying vec2 vUv;',
+      'void main(){',
+      '  vec4 c = texture2D(tDiffuse, vUv);',
+      '  float luma = dot(c.rgb, vec3(0.299, 0.587, 0.114));',
+      '  c.rgb = mix(vec3(luma), c.rgb, uSat);',               /* 轻微增饱和 */
+      '  c.rgb += uTint * (1.0 - luma);',                      /* 暗部蓝紫调 */
+      '  float d = distance(vUv, vec2(0.5));',
+      '  c.rgb *= (1.0 - uVig * smoothstep(0.38, 0.85, d));',  /* 暗角 */
+      '  gl_FragColor = c;',
+      '}'
+    ].join('\n')
+  };
+  gradePass = new THREE.ShaderPass(ChemGradeShader);
+  composer.addPass(gradePass);
+  composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader)); /* r128 无 OutputPass，链尾手动伽马 */
+  applyTheme3D();
+}
+function useComposer(){ return composer && state.quality !== 'low'; }
+
+/* ---------------- 裁剪平面体系 ---------------- */
+/* mode: 'cube' 立方 | 'prism' 六棱柱 | 'rhombic' 平行六面体原胞 */
+let clipDefs = [];      /* { n:Vector3, c0:常数, c1:扩展后常数 } */
+let clipPlanes = [];
+const NO_CLIP = [];     /* r128 陷阱：material.clippingPlanes 置 null 会在阴影渲染 getDepthMaterial 读 .length 崩溃，必须给空数组 */
+let cellInfo = null;    /* 当前晶胞参数缓存 */
+
+function buildClipDefs(){
+  const cell = CRYSTALS[state.mat].cell;
+  const [hx, hy, hz] = cell.half;
+  const mode = cell.frame === 'hex' ? state.hexMode : 'cube';
+  clipDefs = []; clipPlanes = [];
+  if (mode === 'cube'){
+    [[1,0,0,hx],[-1,0,0,hx],[0,1,0,hy],[0,-1,0,hy],[0,0,1,hz],[0,0,-1,hz]]
+      .forEach(([x,y,z,c]) => clipDefs.push({ n:new THREE.Vector3(x,y,z), c0:c, c1:c*3 + 0.5 }));
+  } else if (mode === 'prism'){
+    const R = cell.hexR;
+    const apo = R * Math.cos(Math.PI/6);
+    for (let k = 0; k < 6; k++){
+      const a = Math.PI/6 + Math.PI/3*k;
+      clipDefs.push({ n:new THREE.Vector3(Math.cos(a), Math.sin(a), 0), c0:apo, c1:apo*2 + 0.5 });
+    }
+    clipDefs.push({ n:new THREE.Vector3(0,0, 1), c0:hz, c1:hz*3 });
+    clipDefs.push({ n:new THREE.Vector3(0,0,-1), c0:hz, c1:hz*3 });
+  } else { /* rhombic：由原胞基矢 a1=(R,0)、a2=(R/2,√3R/2) 推导，法线 (√3/2,1/2,0) 与 (0,1,0)，D=√3R/4 */
+    const R = cell.hexR, D = R * Math.sqrt(3) / 4;
+    [[Math.sqrt(3)/2, 1/2], [-Math.sqrt(3)/2, -1/2], [0, 1], [0, -1]]
+      .forEach(([x, y]) => clipDefs.push({ n:new THREE.Vector3(x, y, 0), c0:D, c1:D*3 + 0.5 }));
+    clipDefs.push({ n:new THREE.Vector3(0,0, 1), c0:hz, c1:hz*3 });
+    clipDefs.push({ n:new THREE.Vector3(0,0,-1), c0:hz, c1:hz*3 });
+  }
+  clipPlanes = clipDefs.map(d => new THREE.Plane(d.n.clone().negate(), d.c0));
+  cellInfo = { mode, hx, hy, hz };
+  updateClipping();
+}
+function updateClipping(){
   if (!clipPlanes.length) return;
-  const q = root.quaternion;
+  const t = state.clip ? 0 : state.extend;
+  let zExt = 0;
   clipPlanes.forEach((p, i) => {
-    p.normal.copy(clipBases[i].n).applyQuaternion(q).negate();
-    p.constant = clipBases[i].c;
+    const d = clipDefs[i];
+    p.constant = THREE.MathUtils.lerp(d.c0, d.c1, t);
+    if (Math.abs(d.n.z) > 0.5) zExt = p.constant;
+  });
+  /* 地板随切口下沉 */
+  const d = CRYSTALS[state.mat];
+  const rMax = Math.max.apply(null, d.species.map(s => s.r)) * 0.5 + 0.35;
+  floor.position.z = -(zExt + rMax + 0.12);
+}
+/* 延展提示 & 透明度统一刷新（可见性由裁剪平面生长控制） */
+function refreshExtendTip(){
+  const v = state.extend, pct = Math.round(v * 100);
+  $('sliderTip').textContent = v <= 0.001 ? '仅显示中心 1 个晶胞' : pct < 100 ? '邻胞生长 ' + pct + '%' : '完全延展：3×3×3 晶胞';
+}
+function updateExtend(){
+  atomMeshes.forEach(r => {
+    if (r.mesh.userData.dimmed) return;   /* 拆解演示中被压暗的微粒（显式标记） */
+    const m = r.mesh.material;
+    if (m.emissive && (m.emissive.r + m.emissive.g + m.emissive.b) > 0) return;   /* 配位高亮中的微粒 */
+    m.opacity = state.opacity;
   });
 }
-function activeClip(){ return state.clip ? clipPlanes : null; }
+function activeClip(){ return (state.clip || state.extend > 0.001) && clipPlanes.length ? clipPlanes : null; }  /* 仅实际裁剪时返回平面 */
 
-/* ================= 渲染 ================= */
-const unitSphere = new THREE.SphereGeometry(1, 28, 28);
-let stickMat;
+/* ---------------- 材质系统（切口着色 onBeforeCompile） ---------------- */
+const matCache = new Map();   /* key: spIndex|clip|theme → material */
+function atomMaterial(si, needClip){
+  /* 每球独立材质：延展渐变/高亮需逐球改透明度；GL 程序仍按 customProgramCacheKey 共享 */
+  const d = CRYSTALS[state.mat];
+  const sp = d.species[si];
+  const m = new THREE.MeshPhysicalMaterial({
+    color: sp.color, transparent:true, opacity:state.opacity,
+    roughness: 0.24, metalness: 0.12, clearcoat: 0.55, clearcoatRoughness: 0.25,
+    side: THREE.DoubleSide,                            /* 双面子，供切口着色显示截面 */
+    clippingPlanes: needClip ? clipPlanes : NO_CLIP, clipShadows: true
+  });
+  /* 切口着色：在 r128 实测锚点注入；uCapColor = 粒子色 × 0.62（压暗截面） */
+  m.onBeforeCompile = shader => {
+    shader.uniforms.uCapColor = { value: new THREE.Color(sp.color).multiplyScalar(0.62) };
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <clipping_planes_pars_fragment>',
+               '#include <clipping_planes_pars_fragment>\nuniform vec3 uCapColor;')
+      .replace('#include <dithering_fragment>',
+               '#include <dithering_fragment>\n' +
+               'if (!gl_FrontFacing) { gl_FragColor.rgb = uCapColor * (0.85 + 0.15 * normalize(vNormal).z + 0.15); }');
+  };
+  m.customProgramCacheKey = () => 'chem-cap';   /* 所有原子球共享同一着色程序 */
+  return m;
+}
+function disposeMaterials(){ matCache.forEach(m => m.dispose()); matCache.clear(); }
+
+/* 中心高亮 / 配位模式用独立材质（不缓存） */
+function makeAtomMat(si, opts){
+  const sp = CRYSTALS[state.mat].species[si];
+  const m = new THREE.MeshPhysicalMaterial(Object.assign({
+    color: sp.color, transparent:true, opacity:state.opacity,
+    roughness:0.24, metalness:0.12, clearcoat:0.55, side:THREE.DoubleSide,
+    clippingPlanes: activeClip() || NO_CLIP, clipShadows:true
+  }, opts || {}));
+  return m;
+}
+
+/* ---------------- 晶体构建 ---------------- */
+const root = new THREE.Group(); scene.add(root);
+const unitSphere = new THREE.SphereGeometry(1, 30, 30);
+let atomMeshes = [];        /* { mesh, si, p:Vector3 } 当前显示的全部原子 */
+let stickMat = null;
+let cnState = null;         /* 配位模式缓存 */
 
 function clearRoot(){
-  while (root.children.length) {
+  while (root.children.length){
     const ch = root.children.pop();
     ch.traverse(o => {
       if (o.geometry && o.geometry !== unitSphere) o.geometry.dispose();
-      if (o.material && o.material !== stickMat) { /* 共享材质不单独 dispose */ }
+      if (o.material && o.material !== stickMat && !Array.from(matCache.values()).includes(o.material)) {
+        if (o.material.dispose && !o.material._shared) o.material.dispose();
+      }
     });
   }
+  atomMeshes = [];
 }
 
-function visibleRadius(sp){   // 球棍模型的视觉半径（压缩差异便于观察）
-  return 0.14 + sp.r * 0.085;
+function visibleRadius(sp){ return 0.14 + sp.r * 0.085; }
+
+function insideCellRegion(p, cell, mode){
+  /* 判定原子是否落在「未扩展」晶胞区域内（供分摊拆解/投影用） */
+  const [hx, hy, hz] = cell.half, eps = 1e-3;
+  if (cell.frame === 'hex'){
+    if (Math.abs(p.z) > hz + eps) return false;
+    if (mode === 'rhombic'){
+      const R = cell.hexR, D = R * Math.sqrt(3) / 4;
+      if (Math.abs(p.y) > D + eps) return false;
+      if (Math.abs(p.x * Math.sqrt(3)/2 + p.y * 0.5) > D + eps) return false;
+      return true;
+    }
+    const R = cell.hexR, apo = R * Math.cos(Math.PI/6);
+    for (let k = 0; k < 6; k++){
+      const a = Math.PI/6 + Math.PI/3*k;
+      if (p.x * Math.cos(a) + p.y * Math.sin(a) > apo + eps) return false;
+    }
+    return true;
+  }
+  return Math.abs(p.x) <= hx + eps && Math.abs(p.y) <= hy + eps && Math.abs(p.z) <= hz + eps;
 }
 
 function buildCrystal(){
   clearRoot();
+  if (cnState) exitCN(true);
   const d = CRYSTALS[state.mat];
   const cell = d.cell;
-  buildClipBases(cell);
+  buildClipDefs();
+  const needClip = state.clip || state.extend > 0.001;   /* 切平开启或邻胞生长中才裁剪；默认完整小球，边界原子不剖切 */
 
-  /* ---- 1. 延展：收集所有可见原子 ---- */
-  const ext = state.extend;
-  const atoms = [];
+  /* ---- 1. 收集 3×3×3（六方 1×1×3）超胞原子；延展用逐原子透明度 smoothstep 渐变，丝滑无跳变 ---- */
   const [hx, hy, hz] = cell.half;
   const [vx, vy, vz] = cell.vec;
-  const range = 1.0001 + ext * 1.05;   // 以晶胞为单位的外扩圈数
-  const offRange = ext <= 0.001 ? [0] : [-1, 0, 1];
-  for (const oi of offRange) for (const oj of offRange) for (const ok of offRange){
+  const atoms = [];
+  const wantOuter = state.extend > 0.001;   /* 默认只建中心晶胞，首次延展时一次性补建邻胞，避免常驻 27 胞网格数 */
+  for (const oi of [-1, 0, 1]) for (const oj of [-1, 0, 1]) for (const ok of [-1, 0, 1]){
+    if (cell.frame === 'hex' && (oi !== 0 || oj !== 0)) continue;   /* 六方只沿 c 轴延展 */
+    const ring = cell.frame === 'hex' ? Math.abs(ok) : Math.max(Math.abs(oi), Math.abs(oj), Math.abs(ok));
+    if (ring > 0 && !wantOuter) continue;
     const ox = oi*vx, oy = oj*vy, oz = ok*vz;
-    // 六方晶胞只允许沿 z 轴延展
-    if (cell.frame === 'hex' && (oi !== 0 || oj !== 0)) continue;
-    for (const [si, x, y, z] of d.atoms){
-      const px = x+ox, py = y+oy, pz = z+oz;
-      if (Math.abs(px) <= hx*range + 1e-4 &&
-          Math.abs(py) <= hy*range + 1e-4 &&
-          Math.abs(pz) <= hz*range + 1e-4){
-        atoms.push({ si, p: new THREE.Vector3(px, py, pz) });
-      }
+    for (const a of d.atoms){
+      atoms.push({ si:a[0], p:new THREE.Vector3(a[1]+ox, a[2]+oy, a[3]+oz), ring });
     }
   }
 
-  /* ---- 2. 半径：比例模型按真实半径相切 ---- */
+  /* ---- 2. 半径 ---- */
   let radiusOf = si => visibleRadius(d.species[si]);
   if (state.style === 'spacefill'){
-    // 找最近邻对，令 r1+r2 = 最近邻距
     let best = null;
-    const inner = atoms.filter(a => Math.abs(a.p.x)<=hx+1e-3 && Math.abs(a.p.y)<=hy+1e-3 && Math.abs(a.p.z)<=hz+1e-3);
     for (let i = 0; i < atoms.length; i++){
       for (let j = i+1; j < atoms.length; j++){
         const dist = atoms[i].p.distanceTo(atoms[j].p);
-        if (dist < 1e-4) continue;
+        if (dist < 0.05) continue;   /* 跳过近重复坐标 */
         const rs = d.species[atoms[i].si].r + d.species[atoms[j].si].r;
         const ratio = dist / rs;
-        if (!best || ratio < best.ratio) best = { ratio };
+        if (!best || ratio < best) best = ratio;
       }
     }
-    const k = best ? best.ratio : 0.4;
+    const k = best || 0.4;
     radiusOf = si => d.species[si].r * k;
   }
 
-  /* ---- 3. 画原子 ---- */
-  const clip = activeClip();
-  const mats = d.species.map(s => new THREE.MeshPhysicalMaterial({
-    color: s.color, transparent: true, opacity: state.opacity,
-    roughness: 0.25, metalness: 0.15, clearcoat: 0.4,
-    clippingPlanes: clip, clipShadows: true,
-  }));
+  /* ---- 3. 原子（每球独立材质，便于高亮/配位/拆解） ---- */
   atoms.forEach(a => {
     if (state.hidden.has(a.si)) return;
-    const m = new THREE.Mesh(unitSphere, mats[a.si]);
+    const m = new THREE.Mesh(unitSphere, atomMaterial(a.si, needClip));
     m.position.copy(a.p);
     m.scale.setScalar(radiusOf(a.si));
+    m.castShadow = true; m.receiveShadow = true;
+    m.userData.ring = a.ring;
     root.add(m);
+    atomMeshes.push({ mesh:m, si:a.si, p:a.p.clone(), ring:a.ring });
   });
 
-  /* ---- 4. 化学键：短棍（表面到表面） ---- */
-  if (d.bond && state.style === 'ballstick'){
-    // 自动键长阈值 = 中心晶胞内最小非零距离 × 1.25
-    const inner = atoms.filter(a => Math.abs(a.p.x)<=hx+1e-3 && Math.abs(a.p.y)<=hy+1e-3 && Math.abs(a.p.z)<=hz+1e-3);
+  /* ---- 4. 化学键 ---- */
+  if (state.showBonds && state.style === 'ballstick'){   /* 无键数据的金属/离子晶体按最近邻自动连键 */
     let minD = Infinity;
+    const inner = atoms.filter(a => insideCellRegion(a.p, cell, cellInfo.mode));
     for (let i = 0; i < inner.length; i++)
       for (let j = i+1; j < inner.length; j++){
         const dist = inner[i].p.distanceTo(inner[j].p);
-        if (dist > 1e-4 && dist < minD) minD = dist;
+        if (dist > 0.05 && dist < minD) minD = dist;   /* 跳过近重复坐标（石墨类数据集） */
       }
-    const cutoff = minD * 1.25;
-    stickMat = new THREE.MeshStandardMaterial({ color: 0xb8c0cc, roughness: 0.45, metalness: 0.3, clippingPlanes: clip });
+    const cutoff = minD * 1.12;   /* 收紧：排除 BCC 次近邻(1.155×)与 ZnS 型次近邻 */
+    if (!stickMat){
+      stickMat = new THREE.MeshStandardMaterial({ color:0xaab4c6, roughness:0.45, metalness:0.3 });
+      stickMat._shared = true;
+    }
+    stickMat.clippingPlanes = needClip ? clipPlanes : NO_CLIP;
+    /* 短棍粗细随平均球径自适应：切换晶体时保持球-棍比例协调 */
+    let sumR = 0, cntR = 0;
+    atoms.forEach(a => { if (!state.hidden.has(a.si)){ sumR += radiusOf(a.si); cntR++; } });
+    const stickR = cntR ? Math.min(0.06, Math.max(0.02, (sumR / cntR) * 0.22)) : 0.04;
     const up = new THREE.Vector3(0,1,0);
-    for (let i = 0; i < atoms.length; i++){
-      for (let j = i+1; j < atoms.length; j++){
-        const A = atoms[i], B = atoms[j];
-        if (state.hidden.has(A.si) && state.hidden.has(B.si)) continue;
+    const visible = atoms.filter(a => !state.hidden.has(a.si));
+    for (let i = 0; i < visible.length; i++){
+      for (let j = i+1; j < visible.length; j++){
+        const A = visible[i], B = visible[j];
         const dist = A.p.distanceTo(B.p);
         if (dist > cutoff) continue;
         const dir = B.p.clone().sub(A.p).normalize();
@@ -522,187 +817,688 @@ function buildCrystal(){
         const end = B.p.clone().addScaledVector(dir, -r2);
         const len = start.distanceTo(end);
         if (len <= 0.02) continue;
-        const geo = new THREE.CylinderGeometry(0.05, 0.05, len, 10);
-        const stick = new THREE.Mesh(geo, stickMat);
+        const stick = new THREE.Mesh(new THREE.CylinderGeometry(stickR, stickR, len, 10), stickMat);
         stick.position.copy(start).lerp(end, 0.5);
         stick.quaternion.setFromUnitVectors(up, dir);
+        stick.castShadow = true;
         root.add(stick);
       }
     }
   }
 
   /* ---- 5. 晶胞框架 ---- */
-  const frameMat = new THREE.LineBasicMaterial({ color: 0x8a94a6, transparent: true, opacity: 0.75 });
-  if (cell.frame === 'cube'){
+  const frameMat = new THREE.LineBasicMaterial({ color:T().frame, transparent:true, opacity:0.8 });
+  if (cellInfo.mode === 'cube'){
     const g = new THREE.EdgesGeometry(new THREE.BoxGeometry(hx*2, hy*2, hz*2));
     root.add(new THREE.LineSegments(g, frameMat));
-  } else if (cell.frame === 'hex'){
-    const pts = [];
-    const R = cell.hexR, zt = cell.half[2];
-    for (let k = 0; k < 6; k++){
-      const a1 = Math.PI/3*k, a2 = Math.PI/3*(k+1);
-      const p1 = [R*Math.cos(a1), R*Math.sin(a1)], p2 = [R*Math.cos(a2), R*Math.sin(a2)];
-      pts.push(new THREE.Vector3(p1[0],p1[1],zt), new THREE.Vector3(p2[0],p2[1],zt));
-      pts.push(new THREE.Vector3(p1[0],p1[1],-zt), new THREE.Vector3(p2[0],p2[1],-zt));
-      pts.push(new THREE.Vector3(p1[0],p1[1],zt), new THREE.Vector3(p1[0],p1[1],-zt));
-    }
-    const g = new THREE.BufferGeometry().setFromPoints(pts);
-    root.add(new THREE.LineSegments(g, frameMat));
+  } else if (cellInfo.mode === 'prism'){
+    root.add(new THREE.LineSegments(hexPrismGeo(cell.hexR, hz), frameMat));
+  } else {
+    root.add(new THREE.LineSegments(rhombicGeo(cell.hexR, hz), frameMat));
   }
-
+  /* r128 阴影兼容兜底：任何 clipShadows=true 但 clippingPlanes 为 null 的材质，
+     都会在 WebGLShadowMap.getDepthMaterial 读 .length 崩溃，统一补空数组 */
+  root.traverse(o => {
+    if (!o.material) return;
+    (Array.isArray(o.material) ? o.material : [o.material]).forEach(mm => {
+      if (mm.clipShadows === true && !mm.clippingPlanes) mm.clippingPlanes = [];
+    });
+  });
+  updateExtend();
+  updateClipping();
   updateInfo(d);
-  drawProjection();
+  if ($('projModal').style.display === 'block') drawProjection();
 }
 
-/* ================= 信息卡 / 图例 / 显隐 ================= */
+function hexPrismGeo(R, hz){
+  const pts = [];
+  for (let k = 0; k < 6; k++){
+    const a1 = Math.PI/3*k, a2 = Math.PI/3*(k+1);
+    const p1 = new THREE.Vector3(R*Math.cos(a1), R*Math.sin(a1), 0);
+    const p2 = new THREE.Vector3(R*Math.cos(a2), R*Math.sin(a2), 0);
+    pts.push(p1.clone().setZ(hz), p2.clone().setZ(hz));
+    pts.push(p1.clone().setZ(-hz), p2.clone().setZ(-hz));
+    pts.push(p1.clone().setZ(hz), p1.clone().setZ(-hz));
+  }
+  return new THREE.BufferGeometry().setFromPoints(pts);
+}
+function rhombicGeo(R, hz){
+  /* 由原胞基矢 a1=(R,0,0)、a2=(R/2,√3R/2,0) 生成菱形柱，杜绝硬编码坐标 */
+  const a1 = new THREE.Vector3(R, 0, 0);
+  const a2 = new THREE.Vector3(R/2, R*Math.sqrt(3)/2, 0);
+  const c = new THREE.Vector3(0, 0, 2*hz);
+  const o = a1.clone().add(a2).add(c).multiplyScalar(-0.5);
+  const v = [o.clone(),
+             o.clone().add(a1), o.clone().add(a2), o.clone().add(a1).add(a2),
+             o.clone().add(c), o.clone().add(a1).add(c), o.clone().add(a2).add(c), o.clone().add(a1).add(a2).add(c)];
+  const E = [[0,1],[0,2],[1,3],[2,3],[4,5],[4,6],[5,7],[6,7],[0,4],[1,5],[2,6],[3,7]];
+  const pts = [];
+  E.forEach(([i,j]) => pts.push(v[i], v[j]));
+  return new THREE.BufferGeometry().setFromPoints(pts);
+}
+
+/* ---------------- 信息卡 / 图例 / 显隐 ---------------- */
 function hex(c){ return '#' + c.toString(16).padStart(6, '0'); }
+function subFormula(name){ return name.replace(/([A-Za-zα-ω\)])(\d+)/g, '$1<sub>$2</sub>'); }
 function updateInfo(d){
-  document.getElementById('crysName').textContent = d.name;
-  document.getElementById('tagWrap').innerHTML = d.tags.map(t => `<span class="info-tag">${t}</span>`).join('');
-  document.getElementById('crysDesc').textContent = d.desc + (d.note ? '（' + d.note + '）' : '');
-  // 图例
-  document.getElementById('legendWrap').innerHTML = d.species.map((s, i) =>
-    `<span class="legend-item"><span class="legend-ball" style="background:${hex(s.color)}"></span>${s.sp}</span>`
-  ).join('');
-  // 显隐开关：只有一种粒子时整块隐藏
-  const sec = document.getElementById('speciesSection');
-  const box = document.getElementById('speciesToggles');
-  if (d.species.length < 2){ sec.classList.add('hidden'); state.hidden.clear(); return; }
-  sec.classList.remove('hidden');
+  $('crysName').innerHTML = subFormula(d.name);
+  $('tagWrap').innerHTML = d.tags.map(t => '<span class="info-tag">' + t + '</span>').join('');
+  $('crysDesc').textContent = d.desc + (d.note ? '（' + d.note + '）' : '');
+  $('effLine').textContent = EFF_DATA[state.mat] || '';
+  $('legendWrap').innerHTML = d.species.map(s =>
+    '<span class="legend-item"><span class="legend-ball" style="background:' + hex(s.color) + '"></span>' + s.sp + '</span>').join('');
+  const sec = $('speciesSection'), box = $('speciesToggles');
+  if (d.species.length < 2){ sec.classList.add('hidden'); state.hidden.clear(); }
+  else {
+    sec.classList.remove('hidden');
+    box.innerHTML = '';
+    d.species.forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'switch-row';
+      row.innerHTML = '<span class="switch-label"><span class="legend-ball" style="background:' + hex(s.color) + ';margin-right:5px"></span>' + s.sp + ' 微粒</span>';
+      const sw = document.createElement('div');
+      sw.className = 'switch' + (state.hidden.has(i) ? '' : ' active');
+      sw.onclick = () => {
+        state.hidden.has(i) ? state.hidden.delete(i) : state.hidden.add(i);
+        buildCrystal();
+      };
+      row.appendChild(sw);
+      box.appendChild(row);
+    });
+  }
+  $('hexSection').style.display = d.cell.frame === 'hex' ? '' : 'none';
+}
+
+/* ---------------- 配位数分析（可点选中心 + 容差滑块） ---------------- */
+const raycaster = new THREE.Raycaster();
+const pointerVec = new THREE.Vector2();
+
+function enterCN(){
+  state.cnOn = true;
+  $('cnToggleBtn').classList.add('on');
+  $('cnHud').style.display = 'block';
+  $('cnBody').textContent = '点击晶胞中任意微粒作为中心原子。';
+  canvas.style.cursor = 'crosshair';
+}
+function exitCN(){
+  state.cnOn = false;
+  clearCNVisual();
+  $('cnToggleBtn').classList.remove('on');
+  $('cnHud').style.display = 'none';
+  canvas.style.cursor = '';
+}
+canvas.addEventListener('pointerdown', e => {
+  if (!state.cnOn || !atomMeshes.length) return;
+  const r = canvas.getBoundingClientRect();
+  pointerVec.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  pointerVec.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+  raycaster.setFromCamera(pointerVec, camera);
+  const hits = raycaster.intersectObjects(atomMeshes.map(a => a.mesh));
+  if (hits.length) selectCenter(atomMeshes.find(a => a.mesh === hits[0].object));
+});
+/* 经验晶格平移推导 · 终版（分箱距离闭合，无折叠边界歧义）：
+   候选：原子间差向量 + 最短 40 个的两两之和（补 AB 堆叠的纯 c 轴平移）。
+   闭合：p+t 的 0.1 分箱 27 邻域内有同种数据原子（晶胞完整的立方晶体精确 100%）。
+   平移群封闭：2t 仍闭合（滤除层间滑移/键向量冒充者）。
+   两级阈值：90% / 50%（盒剪裁片退化档），完美档优先。
+   白名单：个别数据集（Mg 六方、石墨/h-BN 裁片）取数据自身差向量。 */
+const CN_TRANS_OVERRIDE = {
+  mg:       [new THREE.Vector3(0.62, 0, 0), new THREE.Vector3(0.31, 0.537, 0), new THREE.Vector3(0, 0, 1.012)],
+  graphite: [new THREE.Vector3(0.52, 0, 0), new THREE.Vector3(0.26, 0.45, 0),  new THREE.Vector3(0, 0, 1.68)],
+  hbn:      [new THREE.Vector3(0.52, 0, 0), new THREE.Vector3(0.26, 0.45, 0),  new THREE.Vector3(0, 0, 1.68)]
+};
+function cnLatticeOffsets(cell){
+  const d = CRYSTALS[state.mat];
+  if (CN_TRANS_OVERRIDE[state.mat]){
+    const indep = CN_TRANS_OVERRIDE[state.mat], offs = [];
+    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++)
+      offs.push(indep[0].clone().multiplyScalar(i).addScaledVector(indep[1], j).addScaledVector(indep[2], k));
+    return offs;
+  }
+  const pts = d.atoms.map(a => ({ p:new THREE.Vector3(a[1], a[2], a[3]), si:a[0] }));
+  if (cell.frame === 'hex') return [new THREE.Vector3(0, 0, 0)];   /* 六方晶胞一律走白名单 */
+  const hh = cell.half;
+  const wrapV = (v, h) => ((v + h) % (2 * h) + 2 * h) % (2 * h) - h;
+  const keys = new Set(pts.map(o => o.si + '|' + o.p.x.toFixed(2) + ',' + o.p.y.toFixed(2) + ',' + o.p.z.toFixed(2)));
+  const hits = (q, si) => keys.has(si + '|' + wrapV(q.x, hh[0]).toFixed(2) + ',' + wrapV(q.y, hh[1]).toFixed(2) + ',' + wrapV(q.z, hh[2]).toFixed(2));
+  const cand = [], seen = new Set();
+  for (let i = 0; i < pts.length; i++)
+    for (let j = 0; j < pts.length; j++){
+      if (i === j) continue;
+      const t = pts[j].p.clone().sub(pts[i].p);
+      const len = t.length();
+      if (len < 0.25) continue;
+      const key = t.x.toFixed(2) + ',' + t.y.toFixed(2) + ',' + t.z.toFixed(2);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      cand.push({ t, len });
+    }
+  cand.sort((a, b) => a.len - b.len);
+  const extra = [];
+  const short = cand.slice(0, 40);
+  for (const a of short)
+    for (const b of short){
+      const t = a.t.clone().add(b.t);
+      const len = t.length();
+      if (len < 0.25) continue;
+      const key = t.x.toFixed(2) + ',' + t.y.toFixed(2) + ',' + t.z.toFixed(2);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      extra.push({ t, len });
+    }
+  cand.push.apply(cand, extra);
+  cand.sort((a, b) => a.len - b.len);
+  const n = pts.length;
+  const needHi = n - Math.max(2, Math.floor(n * 0.1));
+  const needLo = Math.ceil(n * 0.5);
+  const needDbl = Math.max(3, Math.floor(n * 0.25));
+  const scoreOf = c => {
+    let ok = 0;
+    for (const o of pts) if (hits({ x:o.p.x + c.t.x, y:o.p.y + c.t.y, z:o.p.z + c.t.z }, o.si)) ok++;
+    return ok;
+  };
+  const ok2 = c => scoreOf({ t: c.t.clone().multiplyScalar(2) }) >= needDbl;
+  let valid = cand.filter(c => scoreOf(c) >= needHi && ok2(c));
+  if (valid.length < 3){
+    let adds = 0;
+    for (const c of cand){
+      if (adds >= 30) break;
+      if (scoreOf(c) >= needLo && ok2(c) && valid.indexOf(c) < 0){ valid.push(c); adds++; }
+    }
+  }
+  const indep = [];
+  for (const c of valid){
+    if (indep.length === 0) indep.push(c.t);
+    else if (indep.length === 1 && c.t.clone().cross(indep[0]).length() > 0.02) indep.push(c.t);
+    else if (indep.length === 2 && Math.abs(c.t.clone().dot(indep[0].clone().cross(indep[1]))) > 0.02) indep.push(c.t);
+    if (indep.length === 3) break;
+  }
+  if (indep.length < 3) return [new THREE.Vector3(0, 0, 0)];
+  const offs = [];
+  for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++)
+    offs.push(indep[0].clone().multiplyScalar(i).addScaledVector(indep[1], j).addScaledVector(indep[2], k));
+  return offs;
+}
+function cnCentralPosition(p, cell){
+  if (cell.frame === 'hex'){
+    const dz = Math.round(p.z / (cell.half[2] * 2));
+    return p.clone().sub(new THREE.Vector3(0, 0, dz * cell.half[2] * 2));
+  }
+  const [vx, vy, vz] = cell.vec;
+  return p.clone().sub(new THREE.Vector3(Math.round(p.x / vx) * vx, Math.round(p.y / vy) * vy, Math.round(p.z / vz) * vz));
+}
+function clearCNVisual(){
+  if (!cnState) return;
+  cnState.centerMesh.material = atomMaterial(cnState.centerSi, !!activeClip());
+  cnState.neighbors.forEach(n => { if (n.mesh) n.mesh.material = atomMaterial(n.si, !!activeClip()); });
+  if (cnState.lines) root.remove(cnState.lines);
+  if (cnState.ghosts) cnState.ghosts.forEach(g => root.remove(g));
+  cnState = null;
+}
+function selectCenter(rec){
+  if (!rec) return;
+  clearCNVisual();
+  const d = CRYSTALS[state.mat], cell = d.cell;
+  const base = cnCentralPosition(rec.p, cell);           /* 周期镜像以中心晶胞为基准 */
+  const delta = rec.p.clone().sub(base);                 /* 点击副本相对中心晶胞的偏移 */
+  const offsets = cnLatticeOffsets(cell);
+  const cands = [], seen = new Set();
+  d.atoms.forEach(a => {
+    if (state.hidden.has(a[0])) return;
+    const ap = new THREE.Vector3(a[1], a[2], a[3]);
+    offsets.forEach(o => {
+      const q = ap.clone().add(o);
+      const key = q.x.toFixed(3) + ',' + q.y.toFixed(3) + ',' + q.z.toFixed(3);
+      if (seen.has(key)) return;                    /* 顶角/棱心原子在数据中被显式列出多个等价副本，去重防重复计数 */
+      seen.add(key);
+      const dist = q.distanceTo(base);
+      if (dist > 0.05) cands.push({ q, dist, si: a[0], mesh: null });   /* 数据近重复坐标视为同一微粒 */
+    });
+  });
+  cands.sort((x, y) => x.dist - y.dist);
+  if (!cands.length) return;
+  const nearest = cands[0].dist;
+  let neighbors = cands.filter(c => c.dist <= state.cnTol * nearest + 1e-6);
+  /* 数据集几何缺陷修正：标签给出教科书配位数且几何计数偏多时按标签截断
+     （Mg 数据 B 层占位 5/6 空位，几何得 16~17，教科书 12） */
+  const tagCN = parseInt((d.tags.join(' ').match(/配位数\s*(\d+)/) || [])[1], 10);
+  if (tagCN && state.cnTol <= 1.10 && neighbors.length > tagCN) neighbors = neighbors.slice(0, tagCN);   /* 仅默认容差修正数据集缺陷，不 clamp 容差探索 */
+  rec.mesh.material = makeAtomMat(rec.si, { emissive: 0xd97706, emissiveIntensity: 0.85, opacity: 1 });
+  const lines = new THREE.Group();
+  const lineMat = new THREE.LineBasicMaterial({ color: 0xd97706, transparent: true, opacity: 0.9, depthTest: false });
+  const ghosts = [];
+  neighbors.forEach(c => {
+    const qh = c.q.clone().add(delta);
+    for (const r of atomMeshes){
+      if (state.hidden.has(r.si)) continue;
+      if (r.mesh.position.distanceToSquared(qh) < 0.01){ c.mesh = r.mesh; break; }
+    }
+    if (c.mesh) c.mesh.material = makeAtomMat(c.si, { emissive: 0x2277ff, emissiveIntensity: 0.7, opacity: 1 });
+    else {
+      const g = new THREE.Mesh(new THREE.SphereGeometry(Math.max(0.1, visibleRadius(d.species[c.si])), 14, 14),
+        new THREE.MeshBasicMaterial({ color: d.species[c.si].color, transparent: true, opacity: 0.3, depthWrite: false }));
+      g.position.copy(qh);
+      ghosts.push(g); root.add(g);
+    }
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([rec.p.clone(), qh]), lineMat);
+    line.renderOrder = 998;
+    lines.add(line);
+  });
+  root.add(lines);
+  cnState = { centerMesh: rec.mesh, centerSi: rec.si, neighbors, lines, ghosts };
+  $('cnBody').innerHTML = '中心：<b>' + d.species[rec.si].sp + '</b> · 配位数 <b style="color:var(--amber);font-size:16px;">' +
+    neighbors.length + '</b><br>最近邻距 ' + nearest.toFixed(3) + '（模型单位），容差 ' + state.cnTol.toFixed(2) +
+    ' ×<br><span style="font-size:11px;color:var(--ink-mute);">半透明虚影 = 当前显示范围外的配位微粒（周期镜像）</span>';
+}
+$('cnTolSlider').addEventListener('input', e => {
+  state.cnTol = Number(e.target.value);
+  $('cnTolTip').textContent = state.cnTol.toFixed(2) + ' × 最近邻距';
+  if (cnState) selectCenter(atomMeshes.find(a => a.mesh === cnState.centerMesh));
+});
+$('cnToggleBtn').onclick = () => { state.cnOn ? exitCN() : enterCN(); };
+
+/* ---------------- 分摊拆解（先数后看） ---------------- */
+const FRAC_LABEL = { v: '顶点', e: '棱上', f: '面上', b: '体内' };
+function classifyAtoms(){
+  const d = CRYSTALS[state.mat], cell = d.cell, mode = cellInfo.mode;
+  const groups = { v: [], e: [], f: [], b: [] }, eps = 0.06;
+  atomMeshes.forEach(a => {
+    if (!insideCellRegion(a.p, cell, mode) || state.hidden.has(a.si)) return;
+    const p = a.p;
+    let g, frac;
+    if (cell.frame === 'hex' && mode === 'prism'){
+      const R = cell.hexR, apo = R * Math.cos(Math.PI / 6);
+      let onSide = 0;
+      for (let k = 0; k < 6; k++){
+        const ang = Math.PI / 6 + Math.PI / 3 * k;
+        if (Math.abs(p.x * Math.cos(ang) + p.y * Math.sin(ang) - apo) < eps) onSide++;
+      }
+      const onZ = Math.abs(Math.abs(p.z) - cell.half[2]) < eps;
+      const corner = onSide >= 2 && Math.abs(Math.hypot(p.x, p.y) - R) < eps;
+      const ip = corner ? 1 / 3 : onSide >= 1 ? 1 / 2 : 1;   /* 六棱柱：顶点 3 柱共有，侧棱/侧面 2 柱共有 */
+      frac = ip * (onZ ? 1 / 2 : 1);
+      g = frac <= 1 / 6 + 1e-9 ? 'v' : frac <= 1 / 4 + 1e-9 ? 'e' : frac < 1 - 1e-9 ? 'f' : 'b';
+    } else {
+      const hz = cell.half[2];
+      let k = 0;
+      if (Math.abs(Math.abs(p.z) - hz) < eps) k++;
+      if (mode === 'rhombic'){
+        const D = cell.hexR * Math.sqrt(3) / 4;
+        if (Math.abs(Math.abs(p.y) - D) < eps) k++;
+        if (Math.abs(Math.abs(p.x * Math.sqrt(3) / 2 + p.y * 0.5) - D) < eps) k++;
+      } else {
+        if (Math.abs(Math.abs(p.x) - cell.half[0]) < eps) k++;
+        if (Math.abs(Math.abs(p.y) - cell.half[1]) < eps) k++;
+      }
+      frac = 1 / Math.pow(2, k);                              /* 平行六面体：k 个面 → 1/2^k */
+      g = k >= 3 ? 'v' : k === 2 ? 'e' : k === 1 ? 'f' : 'b';
+    }
+    a._group = g; a._frac = frac;
+    groups[g].push(a);
+  });
+  return groups;
+}
+function fracText(f){
+  for (const dd of [24, 12, 8, 6, 4, 3, 2]){
+    const nn = Math.round(f * dd);
+    if (Math.abs(f - nn / dd) < 1e-6) return nn + '/' + dd;
+  }
+  return f.toFixed(2);
+}
+const round24 = x => Math.round(x * 24) / 24;
+const fmtN = n => String(round24(n));
+function gcd(a, b){ return b ? gcd(b, a % b) : Math.abs(a); }
+
+let decomp = null;
+function resetDecompUI(){
+  const groups = classifyAtoms();
+  decomp = { groups, order: ['v', 'e', 'f', 'b'], step: -1 };
+  const box = $('decompSlots');
   box.innerHTML = '';
-  d.species.forEach((s, i) => {
+  decomp.order.forEach(g => {
+    const arr = groups[g], f = arr.length ? arr[0]._frac : 0;
     const row = document.createElement('div');
-    row.className = 'switch-row';
-    row.innerHTML = `<span class="switch-label"><span class="legend-ball" style="background:${hex(s.color)};margin-right:5px"></span>${s.sp} 微粒</span>`;
-    const sw = document.createElement('div');
-    sw.className = 'switch' + (state.hidden.has(i) ? '' : ' active');
-    sw.onclick = () => {
-      state.hidden.has(i) ? state.hidden.delete(i) : state.hidden.add(i);
-      buildCrystal();
-    };
-    row.appendChild(sw);
+    row.className = 'slot-row'; row.id = 'slot-' + g;
+    row.innerHTML = '<div class="slot-frac">' + (f ? '×' + fracText(f) : '—') + '</div>' +
+      '<div class="slot-main"><div style="display:flex;align-items:center;"><div class="slot-name">' + FRAC_LABEL[g] +
+      '</div><div class="slot-detail" id="slotDetail-' + g + '">' + (arr.length ? arr.length + ' 个' : '无微粒') +
+      '</div></div><div class="slot-bar"><div class="slot-fill" id="slotFill-' + g + '"></div></div></div>';
     box.appendChild(row);
   });
+  $('decompFormula').style.display = 'none';
+  $('decompQuiz').style.display = 'none';
+  $('decompDone').style.display = 'none';
+  $('decompNext').textContent = '开始拆解';
+  $('decompNext').disabled = false;
 }
+function decompStep(){
+  if (!decomp) return;
+  const g = decomp.order[++decomp.step];
+  if (!g){ finishDecomp(); return; }
+  const cur = decomp.groups[g];
+  atomMeshes.forEach(a => {
+    a.mesh.userData.dimmed = (a._group !== g);
+    if (a._group === g) a.mesh.material = makeAtomMat(a.si, { emissive: 0x00a8c4, emissiveIntensity: 0.75, opacity: 1 });
+    else a.mesh.material = makeAtomMat(a.si, { opacity: 0.12, transparent: true });
+  });
+  const row = $('slot-' + g);
+  if (row) row.classList.add('lit');
+  const per = {};
+  cur.forEach(a => { per[a.si] = (per[a.si] || 0) + a._frac; });
+  const f = cur.length ? cur[0]._frac : 0;
+  const shown = Object.keys(per).map(si => {
+    const cnt = cur.filter(a => a.si === Number(si)).length;
+    return CRYSTALS[state.mat].species[si].sp + '：' + cnt + '×' + fracText(f) + ' = ' + fmtN(per[si]);
+  }).join('，');
+  const det = $('slotDetail-' + g);
+  if (det) det.textContent = shown || '无微粒';
+  const fill = $('slotFill-' + g);
+  if (fill) fill.style.width = '100%';
+  $('decompNext').textContent = decomp.step < 3 ? '下一组' : '汇总';
+}
+function finishDecomp(){
+  const d = CRYSTALS[state.mat], sums = {};
+  atomMeshes.forEach(a => { if (a._group) sums[a.si] = (sums[a.si] || 0) + a._frac; });
+  atomMeshes.forEach(a => { a.mesh.userData.dimmed = false; if (a._group) a.mesh.material = atomMaterial(a.si, !!activeClip()); });
+  const sis = Object.keys(sums).map(Number);
+  const counts = sis.map(si => Math.round(round24(sums[si]) * 24));
+  const g0 = counts.reduce((x, y) => gcd(x, y), 0) || 1;
+  const formula = sis.map((si, i) => {
+    const n = counts[i] / g0;
+    return d.species[si].sp + (n === 1 ? '' : '<sub>' + n + '</sub>');
+  }).join(' ');
+  const tagCN = (d.tags.join(' ').match(/配位数\s*([0-9:]+)/) || [])[1];
+  $('formulaCard').innerHTML = formula;
+  $('formulaSub').textContent = sis.map((si, i) => d.species[si].sp + ' 实际拥有 ' + fmtN(sums[si]) + ' 个').join('，') +
+    ' → 最简比 ' + formula.replace(/<[^>]+>/g, '') + (tagCN ? ' · 配位数 ' + tagCN : '');
+  $('decompFormula').style.display = 'block';
+  const askSi = sis[0], ansN = Math.round(round24(sums[askSi]));
+  $('quizText').textContent = '快问快答：该晶胞中 ' + d.species[askSi].sp + ' 微粒实际拥有几个？';
+  const opts = [];
+  [ansN, ansN + 1, ansN * 2, Math.max(1, ansN - 1)].forEach(v => { if (opts.indexOf(v) < 0) opts.push(v); });
+  opts.sort(() => Math.random() - 0.5);
+  $('quizOpts').innerHTML = '';
+  opts.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'quiz-opt'; b.textContent = v;
+    b.onclick = () => {
+      if (v === ansN){
+        b.classList.add('right');
+        $('decompDone').textContent = '回答正确 ✓ 均摊口诀：顶点 1/8 · 棱心 1/4 · 面心 1/2 · 体内 1';
+      } else b.classList.add('wrong');
+    };
+    $('quizOpts').appendChild(b);
+  });
+  $('decompQuiz').style.display = 'block';
+  $('decompDone').style.display = 'block';
+  $('decompNext').textContent = '已完成';
+  $('decompNext').disabled = true;
+}
+$('openDecompBtn').onclick = () => { resetDecompUI(); $('decompModal').style.display = 'block'; };
+$('decompNext').onclick = decompStep;
+$('decompReplay').onclick = () => { $('decompNext').disabled = false; resetDecompUI(); };
+$('closeDecomp').onclick = () => {
+  $('decompModal').style.display = 'none';
+  atomMeshes.forEach(a => { a._group = null; a._frac = 0; a.mesh.userData.dimmed = false; a.mesh.material = atomMaterial(a.si, !!activeClip()); });
+};
 
-/* ================= 二维投影点阵 ================= */
+/* ---------------- 二维投影（hkl 输入 + 晶面间距标注） ---------------- */
+function cellCorners(cell){
+  const out = [], hz = cell.half[2];
+  if (cell.frame === 'hex'){
+    for (let k = 0; k < 6; k++){
+      const a = Math.PI / 3 * k;
+      out.push(new THREE.Vector3(cell.hexR * Math.cos(a), cell.hexR * Math.sin(a), hz));
+      out.push(new THREE.Vector3(cell.hexR * Math.cos(a), cell.hexR * Math.sin(a), -hz));
+    }
+  } else {
+    for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1])
+      out.push(new THREE.Vector3(sx * cell.half[0], sy * cell.half[1], sz * cell.half[2]));
+  }
+  return out;
+}
+function hull2D(pts){
+  const P = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  if (P.length < 3) return P;
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [];
+  P.forEach(p => { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); });
+  const up = [];
+  for (let i = P.length - 1; i >= 0; i--){ const p = P[i]; while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+  lo.pop(); up.pop();
+  return lo.concat(up);
+}
 function drawProjection(){
-  const modal = document.getElementById('projModal');
+  const modal = $('projModal');
   if (modal.style.display !== 'block') return;
-  const cv = document.getElementById('projCanvas');
-  // 弹层刚 display:block 时可能尚未排版，等一帧再画，避免 0 尺寸画布
+  const cv = $('projCanvas');
   if (!cv.offsetWidth || !cv.offsetHeight){ requestAnimationFrame(drawProjection); return; }
   const ctx = cv.getContext('2d');
   const w = cv.width = cv.offsetWidth * 2, h = cv.height = cv.offsetHeight * 2;
   ctx.clearRect(0, 0, w, h);
-  const d = CRYSTALS[state.mat];
-  const cell = d.cell;
-  const axis = document.getElementById('projViewSelect').value;
-  // 投影基
-  let u, v, depthAxis;
-  if (axis === '001'){ u = new THREE.Vector3(1,0,0); v = new THREE.Vector3(0,1,0); depthAxis = 'z'; }
-  else if (axis === '100'){ u = new THREE.Vector3(0,1,0); v = new THREE.Vector3(0,0,1); depthAxis = 'x'; }
-  else if (axis === '010'){ u = new THREE.Vector3(1,0,0); v = new THREE.Vector3(0,0,1); depthAxis = 'y'; }
-  else { u = new THREE.Vector3(Math.SQRT1_2,Math.SQRT1_2,0); v = new THREE.Vector3(0,0,1); depthAxis = 'd'; }
-  const [hx, hy, hz] = cell.half;
-  const halfU = axis==='110' ? Math.hypot(hx, hy) : Math.max(Math.abs(u.x)*hx + Math.abs(u.y)*hy + Math.abs(u.z)*hz);
-  const halfV = Math.max(Math.abs(v.x)*hx + Math.abs(v.y)*hy + Math.abs(v.z)*hz);
-  const scale = Math.min(w, h) * 0.42 / Math.max(halfU, halfV);
-  const cx = w/2, cy = h/2;
-  // 晶胞边界
-  ctx.strokeStyle = 'rgba(160,170,185,.8)'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
-  if (cell.frame === 'hex'){
-    ctx.beginPath();
-    for (let k = 0; k <= 6; k++){
-      const a = Math.PI/3*k;
-      const px = cx + cell.hexR*Math.cos(a)*scale*(axis==='001'?1:0.9);
-      const py = cy - cell.hexR*Math.sin(a)*scale*(axis==='001'?1:0.9);
-      k ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
-    }
-    ctx.stroke();
-  } else {
-    ctx.strokeRect(cx - halfU*scale, cy - halfV*scale, halfU*2*scale, halfV*2*scale);
-  }
-  ctx.setLineDash([]);
-  // 原子（中心晶胞），按深度排序，远的先画且变淡
-  const list = d.atoms
-    .map(([si, x, y, z]) => ({ si, p: new THREE.Vector3(x, y, z) }))
-    .filter(a => !state.hidden.has(a.si))
-    .filter(a => Math.abs(a.p.x)<=hx+1e-3 && Math.abs(a.p.y)<=hy+1e-3 && Math.abs(a.p.z)<=hz+1e-3)
-    .map(a => ({ ...a, depth: depthAxis==='x' ? a.p.x : depthAxis==='y' ? a.p.y : depthAxis==='z' ? a.p.z : (a.p.x - a.p.y) }))
-    .sort((a, b) => a.depth - b.depth);
-  const dmin = list.length ? list[0].depth : 0, dmax = list.length ? list[list.length-1].depth : 1;
+  const d = CRYSTALS[state.mat], cell = d.cell;
+  const H = Math.round(Number($('hklH').value) || 0), K = Math.round(Number($('hklK').value) || 0), L = Math.round(Number($('hklL').value) || 0);
+  const n = new THREE.Vector3(H, K, L);
+  if (n.lengthSq() < 1e-9) n.set(0, 0, 1);
+  n.normalize();
+  const aux = Math.abs(n.z) < 0.9 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(1, 0, 0);
+  const e1 = new THREE.Vector3().crossVectors(aux, n).normalize();
+  const e2 = new THREE.Vector3().crossVectors(n, e1).normalize();
+  const corners = cellCorners(cell);
+  const uExt = Math.max.apply(null, corners.map(p => Math.abs(p.dot(e1))));
+  const vExt = Math.max.apply(null, corners.map(p => Math.abs(p.dot(e2))));
+  const dLim = Math.max.apply(null, corners.map(p => Math.abs(p.dot(n)))) * 1.7;  /* ≈1.5 胞厚，计数与分摊一致 */
+  const scale = Math.min(w, h) * 0.42 / Math.max(uExt, vExt, 1e-6);
+  const X = p => w / 2 + p.dot(e1) * scale, Y = p => h / 2 - p.dot(e2) * scale;
+  ctx.strokeStyle = 'rgba(150,160,185,.85)'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
+  ctx.beginPath();
+  hull2D(corners.map(p => [X(p), Y(p)])).forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]));
+  ctx.closePath(); ctx.stroke(); ctx.setLineDash([]);
+  const mode = cellInfo ? cellInfo.mode : 'cube';
+  const list = [];
+  d.atoms.forEach(a => {
+    if (state.hidden.has(a[0])) return;
+    const p = new THREE.Vector3(a[1], a[2], a[3]);
+    if (!insideCellRegion(p, cell, mode)) return;
+    const depth = p.dot(n);
+    if (Math.abs(depth) > dLim) return;
+    list.push({ si: a[0], p, depth });
+  });
+  list.sort((a, b) => a.depth - b.depth);
+  const dmin = list.length ? list[0].depth : 0, dmax = list.length ? list[list.length - 1].depth : 1;
   list.forEach(a => {
     const s = d.species[a.si];
-    const px = cx + a.p.dot(u) * scale;
-    const py = cy - a.p.dot(v) * scale;
-    const rr = Math.max(6, s.r * 14);
     const t = dmax > dmin ? (a.depth - dmin) / (dmax - dmin) : 0.5;
     ctx.globalAlpha = 0.35 + 0.65 * t;
-    ctx.beginPath(); ctx.arc(px, py, rr, 0, Math.PI*2);
+    ctx.beginPath(); ctx.arc(X(a.p), Y(a.p), Math.max(6, s.r * 13), 0, Math.PI * 2);
     ctx.fillStyle = hex(s.color); ctx.fill();
     ctx.globalAlpha = 1;
     ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.stroke();
   });
-  // 标注
-  ctx.fillStyle = 'rgba(230,235,242,.9)';
-  ctx.font = `500 ${Math.round(w/46)}px "JetBrains Mono", monospace`;
-  ctx.fillText('[' + axis + '] view · 颜色区分粒子种类 · 近亮远暗', 16, h - 18);
+  let note = '[' + H + ' ' + K + ' ' + L + '] 投影 · ○ 深 → ● 近';
+  if (cell.frame === 'cube' && (H * H + K * K + L * L) > 0)
+    note += ' · d(' + H + K + L + ') = ' + (cell.vec[0] / Math.sqrt(H * H + K * K + L * L)).toFixed(3) + '（模型单位）';
+  ctx.fillStyle = 'rgba(190,200,220,.95)';
+  ctx.font = '500 ' + Math.round(w / 44) + 'px "JetBrains Mono", monospace';
+  ctx.fillText(note, 16, h - 18);
+  $('projNote').textContent = '投影方向沿 (' + H + ' ' + K + ' ' + L + ') 法线；只统计 ≈1.5 个晶胞厚度内的微粒，与晶胞分摊计数一致。';
 }
+$('openProjBtn').onclick = () => { $('projModal').style.display = 'block'; drawProjection(); };
+$('closeProj').onclick = () => { $('projModal').style.display = 'none'; };
+['hklH', 'hklK', 'hklL'].forEach(id => $(id).addEventListener('input', drawProjection));
+document.querySelectorAll('.hkl-preset').forEach(b => {
+  b.onclick = () => {
+    const v = b.dataset.hkl.split(',');
+    $('hklH').value = v[0]; $('hklK').value = v[1]; $('hklL').value = v[2];
+    drawProjection();
+  };
+});
 
-/* ================= 控件绑定 ================= */
-const typeSel = document.getElementById('crystalTypeSel');
-const matSel = document.getElementById('crystalMatSel');
-const TYPE_LABEL = { ion:'离子晶体', metal:'金属晶体', covalent:'共价晶体', molecule:'分子晶体', mix:'混合型晶体' };
+/* ---------------- 控件绑定 ---------------- */
 function refreshMats(){
-  matSel.innerHTML = '';
+  const sel = $('crystalMatSel');
+  sel.innerHTML = '';
   GROUPS[state.type].forEach(id => {
     const o = document.createElement('option');
     o.value = id; o.textContent = CRYSTALS[id].name;
-    matSel.appendChild(o);
+    sel.appendChild(o);
   });
   state.mat = GROUPS[state.type][0];
   state.hidden.clear();
   buildCrystal();
 }
-typeSel.onchange = e => { state.type = e.target.value; refreshMats(); };
-matSel.onchange = e => { state.mat = e.target.value; state.hidden.clear(); buildCrystal(); };
-document.getElementById('modelStyleSel').onchange = e => { state.style = e.target.value; buildCrystal(); };
-
-const opSlider = document.getElementById('opacitySlider');
-opSlider.oninput = () => {
-  state.opacity = Number(opSlider.value);
-  document.getElementById('opacityTip').textContent = '透明度 ' + state.opacity.toFixed(2);
+$('crystalTypeSel').addEventListener('change', e => { state.type = e.target.value; refreshMats(); });
+$('crystalMatSel').addEventListener('change', e => { state.mat = e.target.value; state.hidden.clear(); buildCrystal(); });
+$('modelStyleSel').addEventListener('change', () => {
+  state.style = $('modelStyleSel').value;
+  $('bondSection').style.display = state.style === 'ballstick' ? '' : 'none';
+  buildCrystal();
+});
+$('bondSwitch').onclick = function(){
+  this.classList.toggle('active');
+  state.showBonds = this.classList.contains('active');
   buildCrystal();
 };
-const extSlider = document.getElementById('cellExtendSlider');
-extSlider.oninput = () => {
-  state.extend = Number(extSlider.value);
-  const tip = document.getElementById('sliderTip');
-  if (state.extend <= 0.01) tip.textContent = '仅显示中心 1 个晶胞';
-  else if (state.extend < 0.5) tip.textContent = '延展中：相邻晶胞的键与微粒渐入';
-  else tip.textContent = '完全延展：3×3×3 晶胞';
-  buildCrystal();
-};
-document.getElementById('clipCellSwitch').onclick = function(){
+$('opacitySlider').addEventListener('input', e => {
+  state.opacity = Number(e.target.value);
+  $('opacityTip').textContent = '透明度 ' + state.opacity.toFixed(2);
+  updateExtend();
+});
+$('cellExtendSlider').addEventListener('input', e => {
+  const v = Number(e.target.value);
+  const crossing = (v > 0.001) !== (state.extend > 0.001);   /* 0 ↔ 非零 跨越：补建邻胞 */
+  state.extend = v;
+  refreshExtendTip();
+  if (crossing) buildCrystal();
+  else updateClipping();   /* 只动裁剪平面常数 → 邻胞带切口截面「生长」 */
+});
+$('clipCellSwitch').onclick = function(){
   this.classList.toggle('active');
   state.clip = this.classList.contains('active');
+  const sl = $('cellExtendSlider');
+  sl.disabled = state.clip;
+  if (state.clip){                       /* 切平 = 锁定最小晶胞切割，延展自动回退最左 */
+    state.extend = 0;
+    sl.value = 0;
+  }
+  refreshExtendTip();
   buildCrystal();
 };
-document.getElementById('openProjBtn').onclick = () => {
-  document.getElementById('projModal').style.display = 'block';
-  drawProjection();
-};
-document.getElementById('closeProj').onclick = () => {
-  document.getElementById('projModal').style.display = 'none';
-};
-document.getElementById('projViewSelect').onchange = drawProjection;
+$('hexCellSel').addEventListener('change', e => { state.hexMode = e.target.value; buildCrystal(); });
+$('qualitySel').value = state.quality;
+$('qualitySel').addEventListener('change', e => {
+  state.quality = e.target.value;
+  if (bloomPass) bloomPass.enabled = state.quality === 'high';
+  onResize();
+  refreshQualityTip();
+});
 
-/* ================= 主循环 ================= */
-function animate(){ requestAnimationFrame(animate); renderer.render(scene, camera); }
-animate();
-refreshMats();
+function syncThemeDots(){
+  document.querySelectorAll('.ts-dot').forEach(b =>
+    b.setAttribute('aria-current', b.dataset.setTheme === curTheme ? 'true' : 'false'));
+}
+document.querySelectorAll('.ts-dot').forEach(b => {
+  b.addEventListener('click', () => {
+    curTheme = b.dataset.setTheme;
+    document.documentElement.dataset.theme = curTheme;
+    try{ localStorage.setItem('chem-lab-theme-v2', curTheme); }catch(e){}
+    syncThemeDots();
+    disposeMaterials();
+    applyTheme3D();
+    buildCrystal();
+  });
+});
 
+/* ---------------- 尺寸 / 主循环 ---------------- */
+function onResize(){
+  const w = wrapDom.clientWidth, h = wrapDom.clientHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  if (composer){ composer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75)); composer.setSize(w, h); }
+}
+window.addEventListener('resize', onResize);
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  if (useComposer()) composer.render();
+  else renderer.render(scene, camera);
+}
+
+function refreshQualityTip(){
+  const qt = $('qualityTip');
+  if (!qt) return;
+  qt.textContent = composer
+    ? '后期链生效中：' + (state.quality === 'high' ? '辉光 + 调色 + 伽马' : state.quality === 'mid' ? '调色 + 伽马（无辉光）' : '直出（低画质不走后期链）')
+    : '后处理脚本未加载（CDN 失败），当前为直出渲染，三档画质无差异';
+}
+/* ---------------- 初始化 + 自检 + 体检钩子 ---------------- */
+let inited = false;
+function init(){
+  if (inited) return;
+  inited = true;
+  onResize();
+  applyTheme3D();
+  buildComposer();
+  refreshMats();          /* 填充「晶体物质」下拉并构建首个晶体 */
+  syncThemeDots();
+  animate();
+  try {
+    renderer.compile(scene, camera);
+    console.log('[chem-lab 自检] renderer.compile 通过（含 onBeforeCompile 切口着色注入）');
+  } catch (err){
+    console.error('[chem-lab 自检] shader 编译失败：', err);
+  }
+  console.assert(clipPlanes.length === 6 || clipPlanes.length === 8, '裁剪平面数异常', clipPlanes.length);
+  console.assert(atomMeshes.length > 0, '原子数为 0');
+  console.assert(typeof THREE.MathUtils.lerp === 'function', 'r128 MathUtils.lerp 缺失');
+  console.assert(renderer.outputEncoding === THREE.sRGBEncoding, 'sRGBEncoding 未生效');
+  /* 配位数周期镜像自检：对 9 种代表结构断言 CN */
+  const CN_EXPECT = { nacl:6, cscl:8, zns:4, diamond:4, graphite:3, cu:12, fe:8, po:6, mg:12,
+    cuzn:8, feal:8, nial:8, cu3au:12, agcl:6, kbr:6, cas:6, srtio3:12, gaas:4, ge:4, hbn:3 };
+  Object.keys(CN_EXPECT).forEach(id => {
+    const dd = CRYSTALS[id];
+    const savedMat = state.mat; state.mat = id;
+    const offs = cnLatticeOffsets(dd.cell);
+    state.mat = savedMat;
+    const base = new THREE.Vector3(dd.atoms[0][1], dd.atoms[0][2], dd.atoms[0][3]);
+    const ds = [], seen = new Set();
+    dd.atoms.forEach(a => {
+      const ap = new THREE.Vector3(a[1], a[2], a[3]);
+      offs.forEach(o => {
+        const q = ap.clone().add(o);
+        const key = q.x.toFixed(2) + ',' + q.y.toFixed(2) + ',' + q.z.toFixed(2);
+        if (seen.has(key)) return;
+        seen.add(key);
+        const dist = q.distanceTo(base);
+        if (dist > 0.05) ds.push(dist);
+      });
+    });
+    ds.sort((x, y) => x - y);
+    const cn = ds.filter(x => x <= ds[0] * 1.05 + 1e-6).length;
+    const tagN = parseInt((dd.tags.join(' ').match(/配位数\s*(\d+)/) || [])[1], 10);
+    console.log('[chem-lab CN自检] ' + dd.name + ' → 几何 ' + cn + (tagN ? ' / 标签 ' + tagN : '') + '（期望 ' + CN_EXPECT[id] + '）');
+    console.assert(cn === CN_EXPECT[id] || tagN === CN_EXPECT[id], '配位数不符: ' + id + ' 得 ' + cn);
+  });
+  console.log(composer ? '[chem-lab 自检] 后期链：Render → Bloom → Grade → Gamma（composer 路径）'
+                       : '[chem-lab 自检] 直出渲染路径（后处理不可用或低画质）');
+  refreshQualityTip();
+  window.__cx = {
+    state, CRYSTALS, GROUPS, scene, camera, renderer,
+    atoms: () => atomMeshes,
+    clip: () => clipPlanes,
+    build: buildCrystal,
+    cut: v => { state.extend = v; updateClipping(); }
+  };
+  window.__CX_READY__ = true;
+  console.log('[chem-lab] ready · theme=' + curTheme + ' · quality=' + state.quality);
+}
+/* 必须等加载器 finish（chemReadyFired）后再 init：__POST_OK__ 在加载器启动即被置 false，
+   若加载器先结束（如后处理 CDN 失败触发 finish(false)），旧判断会提前 init 且永远拿不到 composer */
+if (window.__chemReadyFired) init();
+else window.addEventListener('chem-ready', init, { once: true });
+
+})();
 </script>
 </body>
 </html>

@@ -69,6 +69,11 @@
   * {
     @apply border-border;
   }
+  html,
+  body {
+    /* 手机端误触保护：禁止边缘滑动手势触发浏览器前进/后退 */
+    overscroll-behavior: none;
+  }
   body {
     @apply bg-background text-foreground;
   }

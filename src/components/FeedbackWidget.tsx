@@ -1,6 +1,8 @@
-// 右下角「反馈」悬浮按钮 + 留言弹窗（全站挂载，主题色）
+// 右下角「反馈」悬浮小球 + 留言弹窗（主题色）
+// 电脑端全站显示；手机端仅在「我的」(/profile) 页显示，避免遮挡内容
 // 留言进后端留言箱，仅本人（登录时）与管理员可见，不公开
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router'
 import { MessageSquareText, Send, X } from 'lucide-react'
 import { sendFeedback } from '../lib/forum'
 
@@ -10,6 +12,18 @@ export default function FeedbackWidget() {
   const [contact, setContact] = useState('')
   const [busy, setBusy] = useState(false)
   const [tip, setTip] = useState<{ text: string; ok: boolean } | null>(null)
+  const { pathname } = useLocation()
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 768px)').matches)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)')
+    const fn = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', fn)
+    return () => mq.removeEventListener('change', fn)
+  }, [])
+
+  // 手机端只在「我的」页出现
+  if (isMobile && pathname !== '/profile') return null
 
   const submit = async () => {
     if (busy) return
@@ -38,19 +52,21 @@ export default function FeedbackWidget() {
       <button
         onClick={() => setOpen(true)}
         title="意见反馈"
+        aria-label="意见反馈"
         style={{
-          position: 'fixed', right: 20, bottom: 76, zIndex: 60,
-          padding: '10px 14px', borderRadius: 999, border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: '#4f46e5', color: '#fff', fontSize: 13, fontWeight: 500,
-          boxShadow: '0 8px 24px rgba(79,70,229,.4)',
+          position: 'fixed', right: 14, bottom: 70, zIndex: 60,
+          width: 40, height: 40, borderRadius: '50%', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(255,255,255,.75)', color: '#64748b',
+          border: '1px solid rgba(100,116,139,.25)',
+          backdropFilter: 'blur(6px)',
+          boxShadow: '0 4px 14px rgba(15,23,42,.12)',
           transition: 'transform .1s',
         }}
-        onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(.93)')}
+        onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(.9)')}
         onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
       >
-        <MessageSquareText style={{ width: 16, height: 16 }} />
-        反馈
+        <MessageSquareText style={{ width: 17, height: 17 }} />
       </button>
 
       {open && (
