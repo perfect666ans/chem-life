@@ -13,7 +13,7 @@ import {
   refresh,
   type InviteState,
 } from '../lib/auth'
-import { banUser, getBanList } from '../lib/forum'
+import { banUser, delFeedback, fmtTime, getBanList, getFeedbackList } from '../lib/forum'
 import UserAvatar, { isImageAvatar } from '../components/UserAvatar'
 
 // 轻提示 toast：小弹窗居中顶部，成功 1.2s 自动消失，错误 2.5s
@@ -163,6 +163,11 @@ export default function ProfilePage() {
   // 管理员禁言名单
   const [banList, setBanList] = useState<{ username: string; nickname: string; avatar: string }[]>([])
 
+  // 管理员留言箱
+  const [fbList, setFbList] = useState<
+    { id: string; content: string; contact: string; page: string; username: string; nickname: string; createdAt: number }[]
+  >([])
+
   // 保存确认弹窗 + 头像上传
   const [confirmSave, setConfirmSave] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -188,6 +193,7 @@ export default function ProfilePage() {
     if (user.isAdmin) {
       void getInvite().then((r) => r.ok && setInv(r.invite))
       void getBanList().then((r) => r.ok && setBanList(r.banned))
+      void getFeedbackList().then((r) => r.ok && setFbList(r.items))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
@@ -390,6 +396,39 @@ export default function ProfilePage() {
                     <ShieldOff className="h-3.5 w-3.5" />
                     解除禁言
                   </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+      )}
+
+      {/* 管理员：留言箱（右下角「反馈」收到的留言） */}
+      {user.isAdmin && (
+        <Section title={`留言箱（仅管理员可见 · ${fbList.length} 条）`}>
+          {fbList.length === 0 ? (
+            <p className="text-sm text-slate-400">还没有留言。用户点页面右下角「反馈」即可留言。</p>
+          ) : (
+            <div className="space-y-2">
+              {fbList.map((f) => (
+                <div key={f.id} className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <span className="font-medium text-slate-600">{f.nickname}</span>
+                    {f.contact && <span>· {f.contact}</span>}
+                    {f.page && <span className="font-mono">· {f.page}</span>}
+                    <span className="ml-auto">{fmtTime(f.createdAt)}</span>
+                    <button
+                      onClick={async () => {
+                        const r = await delFeedback(f.id)
+                        if (r.ok) { setFbList((l) => l.filter((x) => x.id !== f.id)); flash('留言已删除') }
+                        else flash('', r.error)
+                      }}
+                      className="text-rose-400 transition hover:text-rose-600 active:scale-95"
+                    >
+                      删除
+                    </button>
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{f.content}</p>
                 </div>
               ))}
             </div>

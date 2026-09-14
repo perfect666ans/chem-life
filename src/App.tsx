@@ -1,7 +1,8 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route } from 'react-router'
+import { Routes, Route, useLocation } from 'react-router'
 import Home from './pages/HomeRedesign'
 import NavChrome from './components/NavChrome'
+import FeedbackWidget from './components/FeedbackWidget'
 import LifeHall from './pages/LifeHall'
 
 // 路由级代码分割：非首页按需加载，降低首屏体积
@@ -23,6 +24,7 @@ const PageLoading = () => (
 )
 
 export default function App() {
+  const { pathname } = useLocation()
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <Suspense fallback={<PageLoading />}>
@@ -42,9 +44,20 @@ export default function App() {
           <Route path="/leaderboard" element={<LeaderboardPage />} />
         </Routes>
       </Suspense>
-      <footer className="border-t bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-slate-400">
-          生活中的化学 · 面向高中化学生活情境教学 · 内容为科普整理，涉及危险品操作请以产品说明与法规为准
+      <FeedbackWidget />
+      <footer className="border-t bg-slate-50">
+        <div className="mx-auto max-w-3xl px-4 py-10">
+          {pathname === '/' && (
+            <div className="rounded-2xl bg-slate-900 px-6 py-8 text-center shadow-lg">
+              <div className="text-[11px] tracking-[0.3em] text-amber-400/90">COMMUNITY · 关注拾焰集</div>
+              <div className="mt-3 text-sm leading-7 text-slate-200">微信视频号 · 公众号 搜索：【拾焰集】或【拾焰集手记】</div>
+              <div className="mt-1 text-xs text-slate-400">公众号 ID：shiyanjishouji · 获取更多化学灵感与更新动态</div>
+            </div>
+          )}
+          <div className="mt-6 flex flex-col items-center justify-between gap-2 text-xs text-slate-400 sm:flex-row">
+            <span>© 2026 早晨. ALL RIGHTS RESERVED.</span>
+            <a href="https://beian.miit.gov.cn" target="_blank" rel="noreferrer" className="hover:text-slate-600">湘ICP备2026039674号-1</a>
+          </div>
         </div>
       </footer>
     </div>

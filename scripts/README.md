@@ -17,9 +17,9 @@
 
 | 脚本 | 产物 | 页面 |
 |---|---|---|
-| build_vsepr_lab.py | chem_lab1.1.html | VSEPR 分子构型实验室 |
+| ~~build_vsepr_lab.py~~ | chem_lab1.1.html | VSEPR 分子构型实验室（2026-09-14 起改为单文件直维护，脚本已归档舍弃） |
 | build_crystal_lab.py | chem_lab1.2.html | 晶体结构深度实验室 |
-| build_electron_lab.py | chem_lab1.3.html | 核外电子排布实验室 |
+| ~~build_electron_lab.py~~ | chem_lab1.3.html | 核外电子排布实验室（2026-09-14 起换代为 r128 单文件版，脚本已归档舍弃） |
 | build_knowledge_map.py | chem_lab2.1.html | 知识球 · 知识地图 |
 | build_flashcards.py | chem_lab2.2.html | 化学闪卡复习 |
 | build_challengetree.py | chem_lab2.3.html | 知识挑战树 |
@@ -40,7 +40,8 @@
 
 ## 没有生成脚本的页面
 
-- `chem_lab1.2.html` 的最初版本曾是"外壳母版"（build_vsepr_lab.py 从它提取 CSS 和主题 JS）；现有 build_crystal_lab.py 是它的全量生成器
+- `chem_lab1.1.html`（VSEPR）与 `chem_lab1.3.html`（核外电子排布）：2026-09-14 起改为**单文件直接维护**（交付包整页覆盖），原 build_vsepr_lab.py / build_electron_lab.py 已归档到本机「过渡文件已舍弃」文件夹并从仓库删除
+- `chem_lab1.2.html` 的最初版本曾是"外壳母版"；现有 build_crystal_lab.py 是它的全量生成器
 - `chem_lab7.1 / 7.2 / 7.3`（链式星蛇 / 元素熔炉 / 轨道之门，2026-09-08 交付包新增）：**无生成脚本**，由交付包直接维护 HTML，改它们就手工改文件
 
 ## 依赖

@@ -50,6 +50,7 @@ export type UsageRow = { username: string; nickname: string; avatar: string; tot
 
 export type UserCardData = {
   username: string
+  realUsername?: string // 仅管理员请求时附带，用于禁言等管理操作
   nickname: string
   avatar: string
   bio: string
@@ -101,6 +102,15 @@ export const banUser = (username: string, banned: boolean) =>
 /** 管理员：禁言名单 */
 export const getBanList = () =>
   api<{ banned: { username: string; nickname: string; avatar: string }[] }>('banList')
+
+/** 访客留言（免登录，按 IP 限频） */
+export const sendFeedback = (content: string, contact: string, page: string) =>
+  api<{ id: string }>('feedback', { content, contact, page })
+
+/** 管理员：留言箱 */
+export const getFeedbackList = () =>
+  api<{ items: { id: string; content: string; contact: string; page: string; username: string; nickname: string; createdAt: number }[] }>('feedbackList')
+export const delFeedback = (id: string) => api('feedbackDel', { id })
 
 export const getBoard = (game: string) =>
   api<{ rows: BoardRow[]; total: number; me: BoardMe }>('board', { game })

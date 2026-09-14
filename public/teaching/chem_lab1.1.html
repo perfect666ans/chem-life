@@ -317,6 +317,22 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
   #info-title{font-size:22px}
   #site-header nav{display:none}
 }
+
+/* ---------- 手机端适配：控制面板下移到底部并缩小，电脑端不变 ---------- */
+@media (max-width: 768px){
+  #site-header{height:44px;padding:0 10px;gap:8px}
+  #site-header nav a{padding:4px 8px;font-size:11px}
+  #site-header .crumb{display:none}
+  #site-header .logo{font-size:14px}
+  #ui-panel{
+    top:auto;bottom:8px;left:8px;right:8px;width:auto;
+    max-height:34vh;padding:10px 12px 8px;border-radius:10px;
+    font-size:12px;
+  }
+  #ui-panel h1{font-size:14px;margin:0 56px 6px 0;padding-bottom:6px}
+  #ui-panel .ctl-label{font-size:11px;margin:8px 0 4px}
+  #canvas-hint{font-size:11px;top:auto;bottom:calc(34vh + 14px)}
+}
 </style>
 </head>
 <body>

@@ -36,6 +36,7 @@ export default function ForumPage() {
   const [content, setContent] = useState('')
   const [tag, setTag] = useState(POST_TAGS[0])
   const [reply, setReply] = useState('')
+  const [posting, setPosting] = useState(false)
 
   const load = async (offset = 0, append = false, kw = q) => {
     const r = await listPosts(kw, offset)
@@ -54,17 +55,34 @@ export default function ForumPage() {
 
   const submitPost = async () => {
     setErr('')
+    setPosting(true)
     const r = await createPost(title, content, tag)
+    setPosting(false)
     if (!r.ok) return setErr(r.error || '发帖失败')
     setTitle(''); setContent('')
     void reload()
   }
 
   const submitReply = async () => {
-    if (!open) return
-    const r = await replyPost(open.id, reply)
-    if (!r.ok) return setErr(r.error || '回复失败')
-    setOpen(r.post); setReply('')
+    if (!open || posting) return
+    const content = reply
+    if (!content.trim()) return
+    // 乐观更新：先本地显示，再发请求确认，消除"没发出去"的延迟感
+    setReply('')
+    setPosting(true)
+    if (user) {
+      setOpen({
+        ...open,
+        replies: [...open.replies, {
+          id: 'local-' + Date.now(), content, createdAt: Date.now(),
+          author: { username: user.username, nickname: user.nickname, avatar: user.avatar },
+        }],
+      })
+    }
+    const r = await replyPost(open.id, content)
+    setPosting(false)
+    if (!r.ok) { setErr(r.error || '回复失败'); void openPost(open.id); return }
+    setOpen(r.post)
     void reload()
   }
 
@@ -97,9 +115,9 @@ export default function ForumPage() {
           </div>
           <input className={inputCls} placeholder="标题（2-60 字）" value={title} onChange={(e) => setTitle(e.target.value)} />
           <textarea className={`${inputCls} mt-2 h-24 resize-y`} placeholder="内容（2-2000 字）" value={content} onChange={(e) => setContent(e.target.value)} />
-          <button onClick={submitPost}
-            className="mt-3 flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-            <Send className="h-4 w-4" /> 发布
+          <button onClick={submitPost} disabled={posting}
+            className="mt-3 flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 active:scale-95 disabled:opacity-50">
+            <Send className="h-4 w-4" /> {posting ? '发布中…' : '发布'}
           </button>
         </section>
       ) : (
@@ -185,10 +203,18 @@ export default function ForumPage() {
               <button
                 onClick={async () => {
                   if (!user) return setErr('请先登录再点赞')
+                  // 乐观更新：先改本地数字，请求失败再回滚
+                  const liked = (open.likes || []).includes(user.username)
+                  setOpen({
+                    ...open,
+                    likes: liked
+                      ? open.likes.filter((x) => x !== user.username)
+                      : [...(open.likes || []), user.username],
+                  })
                   const r = await likePost(open.id)
-                  if (r.ok) { void openPost(open.id); void reload() }
+                  if (r.ok) { void reload() } else { void openPost(open.id) }
                 }}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:border-rose-300 hover:text-rose-600">
+                className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 transition hover:border-rose-300 hover:text-rose-600 active:scale-95">
                 <Heart className="h-4 w-4" /> {(open.likes || []).length}
               </button>
               {user?.isAdmin && (
@@ -235,8 +261,10 @@ export default function ForumPage() {
             {user ? (
               <div className="mt-4 flex gap-2">
                 <input className={inputCls} placeholder="写下你的回复…" value={reply} onChange={(e) => setReply(e.target.value)} />
-                <button onClick={submitReply}
-                  className="shrink-0 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700">回复</button>
+                <button onClick={submitReply} disabled={posting}
+                  className="shrink-0 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-700 active:scale-95 disabled:opacity-50">
+                  {posting ? '发送中…' : '回复'}
+                </button>
               </div>
             ) : (
               <p className="mt-4 text-sm text-slate-400">登录后可回复。</p>

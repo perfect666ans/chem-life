@@ -72,6 +72,18 @@ const brief = (p) => ({
 
 const PAGE = 20
 
+/* 隐私脱敏：昵称与登录账号相同（即用户没改过名）且账号像手机号/数字串时，
+   对外只显示前 3 位 + 后 4 位，中间打码（如 156****1582） */
+function maskName(nickname, username) {
+  const name = nickname || username
+  if (name === username && /^\d{6,}$/.test(username)) {
+    return username.slice(0, 3) + '****' + username.slice(-4)
+  }
+  return name
+}
+const maskAccount = (username) =>
+  /^\d{6,}$/.test(username) ? username.slice(0, 3) + '****' + username.slice(-4) : username
+
 /* 读取时同步作者信息：帖子/榜单里存的是发帖当时的昵称头像，
    用户改资料后这里实时用 CHEM_AUTH 里的最新值覆盖展示（修「古早名字」） */
 async function resolveAuthors(env, authors) {
@@ -79,10 +91,11 @@ async function resolveAuthors(env, authors) {
   const cache = {}
   for (const n of names) {
     const u = await getJSON(env.CHEM_AUTH, 'user:' + n)
-    if (u) cache[n] = { nickname: u.nickname || n, avatar: u.avatar || '🧪' }
+    if (u) cache[n] = { nickname: maskName(u.nickname, n), avatar: u.avatar || '🧪' }
   }
   for (const a of authors) {
     if (a && cache[a.username]) Object.assign(a, cache[a.username])
+    else if (a) a.nickname = maskName(a.nickname, a.username) // 用户已删号等兜底也脱敏
   }
 }
 
@@ -91,8 +104,8 @@ async function buildUserCard(env, username) {
   const u = await getJSON(env.CHEM_AUTH, 'user:' + username)
   if (!u) return null
   const card = {
-    username: u.username,
-    nickname: u.nickname || u.username,
+    username: maskAccount(u.username),
+    nickname: maskName(u.nickname, u.username),
     avatar: u.avatar || '🧪',
     bio: u.bio || '',
     tags: u.tags || [],
@@ -172,12 +185,14 @@ export async function onRequestPost(context) {
       return ok({ rows, total: Object.keys(board).length, me })
     }
 
-    /* 公开个人名片：论坛/排行榜点击昵称弹出 */
+    /* 公开个人名片：论坛/排行榜点击昵称弹出（账号已脱敏；管理员带 token 时可取真实账号用于管理操作） */
     if (action === 'userCard') {
       const username = clip(body.username, 40)
       if (!username) return fail('缺少用户名')
       const card = await buildUserCard(env, username)
       if (!card) return fail('用户不存在', 404)
+      const requester = await userByToken(env, body.token)
+      if (requester && requester.isAdmin) card.realUsername = username
       return ok({ card })
     }
 
@@ -192,16 +207,60 @@ export async function onRequestPost(context) {
         if (!u || !u.showUsage) continue
         const uu = (await getJSON(env.CHEM_AUTH, 'usage:' + uname)) || {}
         const total = Object.values(uu).reduce((a, b) => a + b, 0)
-        if (total > 0) rows.push({ username: uname, nickname: u.nickname || uname, avatar: u.avatar || '🧪', total })
+        if (total > 0) rows.push({ username: uname, nickname: maskName(u.nickname, uname), avatar: u.avatar || '🧪', total })
       }
       rows.sort((a, b) => b.total - a.total)
       return ok({ rows: rows.slice(0, 20) })
+    }
+
+    /* 访客留言（右下角反馈）：免登录可留，按 IP 限频 5 条/小时；登录用户附带身份 */
+    if (action === 'feedback') {
+      const content = clip(body.content, 500)
+      const contact = clip(body.contact, 60)
+      const page = clip(body.page, 80)
+      if (content.length < 2) return fail('留言至少 2 个字')
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown'
+      const rlKey = 'rl:fb:' + ip
+      const rl = (await getJSON(env.CHEM_FORUM, rlKey)) || { count: 0, resetAt: now() + 3600e3 }
+      if (now() > rl.resetAt) { rl.count = 0; rl.resetAt = now() + 3600e3 }
+      rl.count += 1
+      await setJSON(env.CHEM_FORUM, rlKey, rl)
+      if (rl.count > 5) return fail('留言太频繁，请一小时后再试', 429)
+      const guest = await userByToken(env, body.token)
+      const fb = {
+        id: now().toString(36) + rand(4),
+        content, contact, page,
+        username: guest ? guest.username : '',
+        nickname: guest ? maskName(guest.nickname, guest.username) : '访客',
+        createdAt: now(),
+      }
+      await setJSON(env.CHEM_FORUM, 'fb:' + fb.id, fb)
+      return ok({ id: fb.id })
     }
 
     /* ---------- 以下需登录 ---------- */
     const u = await userByToken(env, body.token)
     if (!u) return fail('请先登录', 401)
 
+    /* 管理员：留言箱（最新 50 条，新→旧） */
+    if (action === 'feedbackList') {
+      if (!u.isAdmin) return fail('仅管理员可查看', 403)
+      const { keys } = await env.CHEM_FORUM.list({ prefix: 'fb:' })
+      const items = []
+      for (const k of keys) {
+        const f = await getJSON(env.CHEM_FORUM, k.name)
+        if (f) items.push(f)
+      }
+      items.sort((a, b) => b.createdAt - a.createdAt)
+      return ok({ items: items.slice(0, 50) })
+    }
+
+    /* 管理员：删除留言 */
+    if (action === 'feedbackDel') {
+      if (!u.isAdmin) return fail('仅管理员可删除', 403)
+      await env.CHEM_FORUM.delete('fb:' + clip(body.id, 40))
+      return ok({})
+    }
     /* 管理员：一键禁言/解禁（被禁言者无法发帖/回复/点赞/上报成绩，历史内容保留） */
     if (action === 'ban') {
       if (!u.isAdmin) return fail('仅管理员可禁言', 403)

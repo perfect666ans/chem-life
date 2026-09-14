@@ -51,7 +51,7 @@ export default function UserCard({
   const toggleBan = async () => {
     if (!card || banBusy) return
     setBanBusy(true)
-    const r = await banUser(card.username, !card.banned)
+    const r = await banUser(card.realUsername ?? card.username, !card.banned)
     setBanBusy(false)
     if (r.ok) void load()
     else setErr(r.error || '操作失败')
@@ -165,7 +165,7 @@ export default function UserCard({
               </>
             )}
 
-            {user?.isAdmin && user.username !== card.username && (
+            {user?.isAdmin && card.realUsername && user.username !== card.realUsername && (
               <button
                 onClick={() => void toggleBan()}
                 disabled={banBusy}
