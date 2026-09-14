@@ -1,0 +1,653 @@
+# -*- coding: utf-8 -*-
+"""
+按 tk-chem.cc 设计系统重做两个 3D 实验室的外壳：
+保留原 <script>（Three.js 逻辑）原样，替换 <style> 与 HTML 结构。
+所有 JS 依赖的 id/class 钩子在新模板中逐一保留。
+"""
+import re, pathlib
+
+PROJ = pathlib.Path(r"C:\Users\风逝\Documents\kimi\tasks\2026-08-31\06-27-38-247a26cf\chem-life-main\public\teaching")
+
+def extract_script(text):
+    """提取最后一个无 src 的 <script>...</script> 块"""
+    blocks = re.findall(r'<script>(.*?)</script>', text, re.S)
+    assert blocks, "no inline script found"
+    return blocks[-1].strip()
+
+# ============ tk-chem 设计系统公共 CSS ============
+COMMON_CSS = r"""
+/* =========================================================
+   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
+   ========================================================= */
+:root{
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --display-en:"Shippori Mincho","Noto Serif SC",serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+:root,:root[data-theme="washi"]{
+  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
+  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
+  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
+  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
+  --inset:rgba(26,24,23,.045);
+  --topnav-bg:rgba(247,244,236,.88);
+  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
+  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
+  --canvas-bg:#0d1017;
+  --noise-mode:multiply; --noise-alpha:.045;
+}
+:root[data-theme="sumi"]{
+  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
+  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(13,13,15,.86);
+  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+:root[data-theme="ai"]{
+  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
+  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
+  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
+  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
+  --inset:rgba(0,0,0,.30);
+  --topnav-bg:rgba(10,14,21,.86);
+  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
+  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
+  --canvas-bg:#0d1017;
+  --noise-mode:overlay; --noise-alpha:.03;
+}
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
+}
+body{
+  font-family:var(--sans-cn);
+  background:var(--bg-void); color:var(--ink);
+  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+/* ---- 顶栏 ---- */
+.topnav{
+  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px); gap:14px;
+  background:var(--topnav-bg); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .badge{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:26px;height:26px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+}
+:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
+.brand h1{
+  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand .lecture-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
+}
+.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
+  transition:all .25s;white-space:nowrap;
+}
+.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+.nav-btn .arr{font-family:var(--mono);}
+/* 主题切换 */
+.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
+.ts-dot{
+  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
+}
+.ts-dot:hover{color:var(--ink-dim);}
+.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
+.ts-swatch{
+  width:13px;height:13px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+  border:1px solid rgba(128,128,128,.4);
+}
+@media (max-width:900px){
+  .brand .lecture-tag{display:none;}
+  .ts-dot .ts-name{display:none;}
+}
+
+/* ---- 主体三栏 ---- */
+.main-wrap{display:flex;height:calc(100vh - 61px);}
+.side{
+  background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-section{margin-bottom:22px;}
+.panel-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+/* 开关 */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.switch-label{font-size:13px;color:var(--ink-dim);}
+.switch{
+  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
+  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
+}
+.switch::after{
+  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
+  border-radius:50%;top:3px;left:3px;transition:.3s;
+}
+.switch.active{background:var(--accent);border-color:var(--accent);}
+.switch.active::after{left:23px;background:#fff;}
+/* 滑块 */
+.slider-wrap input[type="range"]{
+  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.slider-wrap input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.slider-value,.slider-tip{
+  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
+  color:var(--ink-mute);margin-top:8px;
+}
+/* 下拉 */
+.select-box,.proj-select{
+  width:100%;padding:8px 10px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
+}
+.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
+/* 功能按钮 */
+.func-btn{
+  width:100%;padding:9px 0;background:var(--accent-soft);
+  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
+  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
+}
+.func-btn:hover{background:var(--accent);color:#fff;}
+"""
+
+# ============ 主题切换 JS（两页共用） ============
+THEME_JS = r"""
+/* ========= 主题切换 washi / sumi / ai ========= */
+(function(){
+  const root=document.documentElement, KEY='ch-theme-lab';
+  const valid=['washi','sumi','ai'];
+  const saved=localStorage.getItem(KEY);
+  root.dataset.theme=valid.includes(saved)?saved:'washi';
+  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
+  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
+  sync();
+})();
+"""
+
+FONT_LINKS = """<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;800&family=Noto+Serif+SC:wght@400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">"""
+
+THEME_DOTS = """<div class="theme-switch" role="group" aria-label="主题切换">
+  <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
+  <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
+  <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
+</div>"""
+
+# ============================================================
+# 实验室一：VSEPR 分子构型
+# ============================================================
+LAB1_CSS = r"""
+/* ---- VSEPR 布局 ---- */
+.left-nav{width:230px;border-right:1px solid var(--line);padding:14px 0;}
+.chapter-title{
+  padding:11px 18px;cursor:pointer;font-family:var(--serif-cn);font-weight:700;
+  font-size:14px;letter-spacing:1px;color:var(--ink-dim);
+  display:flex;justify-content:space-between;align-items:center;
+  border-left:3px solid transparent;user-select:none;
+}
+.chapter-title .arrow{font-family:var(--mono);font-size:10px;transition:.3s;color:var(--ink-mute);}
+.chapter-title.open{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);}
+.chapter-title.open .arrow{transform:rotate(90deg);}
+.mol-list{display:none;padding:4px 0 8px;}
+.mol-list.show{display:block;}
+.mol-item{
+  padding:9px 18px 9px 34px;cursor:pointer;font-size:13px;color:var(--ink-dim);
+  border-left:3px solid transparent;transition:.2s;
+}
+.mol-item:hover{background:var(--inset);color:var(--ink);}
+.mol-item.active{background:var(--accent-soft);color:var(--accent);border-left-color:var(--accent);}
+.center-canvas{flex:1;position:relative;background:var(--canvas-bg);}
+#molCanvas{width:100%;height:100%;display:block;}
+.info-card{
+  position:absolute;bottom:22px;left:22px;
+  background:var(--topnav-bg);backdrop-filter:blur(16px);
+  border:1px solid var(--line);border-radius:12px;
+  padding:18px 22px;max-width:340px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:22px;letter-spacing:1px;margin-bottom:10px;}
+.info-card .tag-box{margin-bottom:10px;}
+.info-card .tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 10px;border-radius:999px;
+  font-size:12px;margin:0 6px 6px 0;
+}
+.info-card .tag.lone{background:var(--lone-soft);color:var(--lone);border-color:var(--lone);}
+.info-card .tag.pi{background:var(--accent-soft);color:var(--cat-1);border-color:var(--cat-1);}
+.info-card p{font-size:13px;color:var(--ink-dim);line-height:1.7;}
+.right-panel{width:260px;border-left:1px solid var(--line);padding:20px;}
+.view-btns{display:flex;gap:8px;}
+.view-btn{
+  flex:1;padding:9px 6px;border:1px solid var(--line);background:var(--surface-2);
+  color:var(--ink-dim);cursor:pointer;border-radius:8px;font-size:13px;
+  font-family:var(--sans-cn);transition:.25s;
+}
+.view-btn.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
+/* 弹窗 */
+.modal{
+  display:none;position:fixed;inset:0;background:rgba(10,10,12,.55);
+  backdrop-filter:blur(6px);z-index:300;justify-content:center;align-items:center;
+}
+.modal-content{
+  background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:28px;max-width:92%;max-height:86%;overflow:auto;position:relative;
+  min-width:min(780px,92vw);box-shadow:0 24px 70px rgba(0,0,0,.35);
+}
+.modal-close{
+  position:absolute;top:14px;right:18px;font-size:22px;cursor:pointer;
+  color:var(--ink-mute);background:none;border:none;transition:.2s;
+}
+.modal-close:hover{color:var(--accent);}
+.modal-title{
+  font-family:var(--serif-cn);font-weight:800;font-size:20px;letter-spacing:1px;
+  margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--accent);
+  display:inline-block;
+}
+.vsepr-table{width:100%;border-collapse:collapse;font-size:13px;}
+.vsepr-table th,.vsepr-table td{border:1px solid var(--line);padding:9px 12px;text-align:center;}
+.vsepr-table th{
+  background:var(--surface-2);font-family:var(--serif-cn);font-weight:700;
+  color:var(--ink);letter-spacing:1px;
+}
+.vsepr-table td{color:var(--ink-dim);}
+.vsepr-table tr:hover td{background:var(--inset);}
+.feedback-form textarea{
+  width:100%;height:120px;padding:12px;border:1px solid var(--line);border-radius:8px;
+  background:var(--surface-2);color:var(--ink);resize:none;font-size:14px;
+  margin-bottom:14px;font-family:var(--sans-cn);
+}
+.feedback-form input{
+  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+  background:var(--surface-2);color:var(--ink);font-size:14px;margin-bottom:14px;
+  font-family:var(--sans-cn);
+}
+.feedback-form button{
+  width:100%;padding:12px;background:var(--accent);color:#fff;border:none;
+  border-radius:8px;cursor:pointer;font-size:14px;font-family:var(--sans-cn);
+  letter-spacing:2px;transition:.25s;
+}
+.feedback-form button:hover{opacity:.88;}
+"""
+
+LAB1_BODY = r"""
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">分</span>
+    <h1>VSEPR 分子构型实验室</h1>
+    <span class="lecture-tag">STRUCTURE · LAB 01</span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" id="openVseprTable">VSEPR 数据表</button>
+    <button class="nav-btn" id="openFeedback">反馈</button>
+    <button class="nav-btn back-btn" id="backHome"><span class="arr">←</span> 返回门户</button>
+    __THEME_DOTS__
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-nav">
+    <div class="nav-chapter">
+      <div class="chapter-title open">
+        <span>第二章 · 分子结构</span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="mol-list show">
+        <div class="mol-item active" data-mol="ch4">CH₄ 甲烷</div>
+        <div class="mol-item" data-mol="nh3">NH₃ 氨气</div>
+        <div class="mol-item" data-mol="h2o">H₂O 水</div>
+        <div class="mol-item" data-mol="co2">CO₂ 二氧化碳</div>
+        <div class="mol-item" data-mol="bf3">BF₃ 三氟化硼</div>
+      </div>
+    </div>
+    <div class="nav-chapter">
+      <div class="chapter-title">
+        <span>有机化学基础</span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="mol-list">
+        <div class="mol-item" data-mol="c2h6">C₂H₆ 乙烷</div>
+        <div class="mol-item" data-mol="c2h4">C₂H₄ 乙烯</div>
+        <div class="mol-item">乙炔（建设中）</div>
+        <div class="mol-item">苯（建设中）</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="center-canvas" id="canvasBox">
+    <canvas id="molCanvas"></canvas>
+    <div class="info-card">
+      <h2>CH₄ 甲烷</h2>
+      <div class="tag-box">
+        <span class="tag">正四面体</span>
+        <span class="tag">sp³杂化</span>
+      </div>
+      <p>中心C原子sp³杂化，4个σ键，0对孤电子对，键角109°28'。</p>
+    </div>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">模型控制</div>
+      <div class="switch-row">
+        <span class="switch-label">自动旋转</span>
+        <div class="switch" id="rotateSwitch"></div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">视角模式</div>
+      <div class="view-btns">
+        <button class="view-btn active">杂化轨道</button>
+        <button class="view-btn">成键状态</button>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">成键演化</div>
+      <div class="slider-wrap">
+        <input type="range" id="evolveSlider" min="0" max="100" value="100">
+        <div class="slider-value" id="sliderValue">阶段四：稳定成键</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="tableModal">
+  <div class="modal-content">
+    <button class="modal-close" data-modal="tableModal">×</button>
+    <h3 class="modal-title">VSEPR 模型数据总表</h3>
+    <table class="vsepr-table">
+      <thead>
+        <tr><th>通式</th><th>价层电子对数</th><th>成键对数</th><th>孤电子对</th><th>空间构型</th><th>杂化类型</th><th>键角</th><th>实例</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>AX₂</td><td>2</td><td>2</td><td>0</td><td>直线形</td><td>sp</td><td>180°</td><td>CO₂、BeCl₂、C₂H₂</td></tr>
+        <tr><td>AX₃</td><td>3</td><td>3</td><td>0</td><td>平面三角形</td><td>sp²</td><td>120°</td><td>BF₃、SO₃、C₂H₄</td></tr>
+        <tr><td>AX₂E</td><td>3</td><td>2</td><td>1</td><td>V形（角形）</td><td>sp²</td><td>≈117°</td><td>SO₂、O₃、NO₂⁻</td></tr>
+        <tr><td>AX₄</td><td>4</td><td>4</td><td>0</td><td>正四面体形</td><td>sp³</td><td>109°28'</td><td>CH₄、CCl₄、NH₄⁺</td></tr>
+        <tr><td>AX₃E</td><td>4</td><td>3</td><td>1</td><td>三角锥形</td><td>sp³</td><td>≈107°</td><td>NH₃、PCl₃、H₃O⁺</td></tr>
+        <tr><td>AX₂E₂</td><td>4</td><td>2</td><td>2</td><td>V形（角形）</td><td>sp³</td><td>≈104.5°</td><td>H₂O、H₂S、OF₂</td></tr>
+        <tr><td>AX₅</td><td>5</td><td>5</td><td>0</td><td>三角双锥形</td><td>sp³d</td><td>90°/120°/180°</td><td>PCl₅、PF₅</td></tr>
+        <tr><td>AX₄E</td><td>5</td><td>4</td><td>1</td><td>变形四面体（跷跷板形）</td><td>sp³d</td><td>&lt;90°/&lt;120°</td><td>SF₄、TeCl₄</td></tr>
+        <tr><td>AX₃E₂</td><td>5</td><td>3</td><td>2</td><td>T形</td><td>sp³d</td><td>&lt;90°</td><td>ClF₃、BrF₃</td></tr>
+        <tr><td>AX₂E₃</td><td>5</td><td>2</td><td>3</td><td>直线形</td><td>sp³d</td><td>180°</td><td>XeF₂、I₃⁻</td></tr>
+        <tr><td>AX₆</td><td>6</td><td>6</td><td>0</td><td>正八面体形</td><td>sp³d²</td><td>90°/180°</td><td>SF₆、SiF₆²⁻</td></tr>
+        <tr><td>AX₅E</td><td>6</td><td>5</td><td>1</td><td>四方锥形</td><td>sp³d²</td><td>&lt;90°</td><td>BrF₅、IF₅</td></tr>
+        <tr><td>AX₄E₂</td><td>6</td><td>4</td><td>2</td><td>平面正方形</td><td>sp³d²</td><td>90°</td><td>XeF₄、ICl₄⁻</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal" id="feedbackModal">
+  <div class="modal-content" style="min-width:min(420px,92vw);">
+    <button class="modal-close" data-modal="feedbackModal">×</button>
+    <h3 class="modal-title">意见反馈</h3>
+    <div class="feedback-form">
+      <textarea id="feedbackContent" placeholder="请描述您遇到的问题或建议..."></textarea>
+      <input type="text" id="feedbackContact" placeholder="联系方式（选填）">
+      <button id="sendFeedbackBtn">提交反馈</button>
+    </div>
+  </div>
+</div>
+"""
+
+# ============================================================
+# 实验室二：晶体结构
+# ============================================================
+LAB2_CSS = r"""
+/* ---- 晶体实验室布局 ---- */
+.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
+.info-card{
+  border:1px solid var(--line);border-radius:12px;padding:16px;
+  background:var(--paper);margin-bottom:18px;
+}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{
+  display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
+  font-size:11px;margin:0 5px 5px 0;
+}
+.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
+#crystalCanvas{width:100%;height:100%;display:block;}
+.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
+/* 二维投影浮层 */
+.proj-modal{
+  display:none;position:absolute;top:18px;right:18px;z-index:60;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.proj-modal h3{
+  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+}
+.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
+.proj-close:hover{color:var(--accent);}
+.proj-canvas{
+  width:100%;height:300px;background:var(--canvas-bg);
+  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+}
+"""
+
+LAB2_BODY = r"""
+<nav class="topnav">
+  <div class="brand">
+    <span class="badge">晶</span>
+    <h1>晶体结构深度实验室</h1>
+    <span class="lecture-tag">STRUCTURE · LAB 02</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-btn" id="openVseprPage" href="chem_lab1.1.html">切换 VSEPR 分子模型 <span class="arr">→</span></a>
+    <button class="nav-btn back-btn" id="backHome" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
+    __THEME_DOTS__
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="side left-panel">
+    <div class="info-card" id="crystalInfoBox">
+      <h2>NaCl 氯化钠</h2>
+      <div class="tag-wrap" id="tagWrap">
+        <span class="info-tag">离子晶体</span>
+        <span class="info-tag">配位数6:6</span>
+        <span class="info-tag">a=1.6nm</span>
+      </div>
+      <p class="info-desc">晶胞中心坐标系原点(0,0,0)，坐标范围 -0.8 ~ +0.8，拖拽画布以晶胞中心为支点旋转</p>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">微粒透明度</div>
+      <div class="slider-wrap">
+        <input type="range" id="opacitySlider" min="0.05" max="1.0" step="0.01" value="0.4">
+        <div class="slider-tip" id="opacityTip">透明度：0.4（默认中点）</div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">晶胞延展范围</div>
+      <div class="slider-wrap">
+        <input type="range" id="cellExtendSlider" min="0" max="1" step="0.001" value="0">
+        <div class="slider-tip" id="sliderTip">仅显示中心1个最小晶胞</div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">粒子图例</div>
+      <div class="legend-row" id="legendWrap"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">晶胞边界切割</div>
+      <div class="switch-row">
+        <span class="switch-label">开启立方体切割</span>
+        <div class="switch" id="clipCellSwitch"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-box">
+    <canvas id="crystalCanvas"></canvas>
+    <div class="proj-modal" id="projModal">
+      <h3>二维投影点阵图 <button class="proj-close" id="closeProj">×</button></h3>
+      <select class="proj-select" id="projViewSelect">
+        <option value="001">俯视c轴 [001]</option>
+        <option value="100">俯视a轴 [100]</option>
+        <option value="010">俯视b轴 [010]</option>
+      </select>
+      <canvas class="proj-canvas" id="projCanvas"></canvas>
+    </div>
+  </div>
+
+  <div class="side right-panel">
+    <div class="panel-section">
+      <div class="panel-title">晶体大类</div>
+      <select class="select-box" id="crystalTypeSel">
+        <option value="ion">离子晶体</option>
+        <option value="metal">金属晶体</option>
+        <option value="covalent">共价晶体</option>
+        <option value="molecule">分子晶体</option>
+        <option value="mix">混合晶体</option>
+      </select>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">晶体物质</div>
+      <select class="select-box" id="crystalMatSel"></select>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">显示样式</div>
+      <select class="select-box" id="modelStyleSel">
+        <option value="ballstick">球棍模型</option>
+        <option value="spacefill">空间填充（原子相切）</option>
+      </select>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">微粒显隐</div>
+      <div class="switch-row">
+        <span class="switch-label">显示粒子A</span>
+        <div class="switch active" id="showAtom1Switch"></div>
+      </div>
+      <div class="switch-row">
+        <span class="switch-label">显示粒子B</span>
+        <div class="switch active" id="showAtom2Switch"></div>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">点阵投影分析</div>
+      <button class="func-btn" id="openProjBtn">打开二维投影面板</button>
+    </div>
+  </div>
+</div>
+"""
+
+# ============================================================
+# 组装
+# ============================================================
+# 晶体实验室补丁：切换物质时同步更新信息卡（原版遗漏）
+LAB2_PATCH_JS = r"""
+/* ========= 信息卡同步补丁 ========= */
+(function(){
+  // 碳原子原配色 #333 在深色画布上几乎不可见，调亮
+  ATOM_COLOR_MAP.C = 0x9aa0a6;
+  function upd(){
+    const d = crystalDataLib[config.material];
+    if(!d) return;
+    document.querySelector('#crystalInfoBox h2').textContent = d.name;
+    document.getElementById('tagWrap').innerHTML =
+      d.tag.map(t=>'<span class="info-tag">'+t+'</span>').join('');
+    document.querySelector('#crystalInfoBox .info-desc').textContent =
+      d.desc + ' · 拖拽旋转，滚轮缩放';
+  }
+  document.getElementById('crystalMatSel').addEventListener('change', upd);
+  document.getElementById('crystalTypeSel').addEventListener('change', function(){ setTimeout(upd, 0); });
+  upd();
+  renderCrystal();
+})();
+"""
+
+TEMPLATE = """<!DOCTYPE html>
+<html lang="zh-CN" data-theme="washi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__</title>
+__FONTS__
+<script src="__THREE_CDN__"></script>
+<style>
+__COMMON_CSS__
+__LAB_CSS__
+</style>
+</head>
+<body>
+__BODY__
+<script>
+__THEME_JS__
+__SCRIPT__
+</script>
+</body>
+</html>
+"""
+
+WS = pathlib.Path(r"C:\Users\风逝\Documents\kimi\tasks\2026-08-31\07-18-32-e4826c65")
+
+def build(src_name, out_name, title, three_cdn, lab_css, lab_body, patch_js=""):
+    src = (WS / src_name).read_text(encoding="utf-8")
+    script = extract_script(src)
+    # 修复原脚本的返回链接
+    script = script.replace('window.location.href="chem_lab.html";', 'window.location.href="/teaching";')
+    html = (TEMPLATE
+            .replace("__TITLE__", title)
+            .replace("__FONTS__", FONT_LINKS)
+            .replace("__THREE_CDN__", three_cdn)
+            .replace("__COMMON_CSS__", COMMON_CSS)
+            .replace("__LAB_CSS__", lab_css)
+            .replace("__BODY__", lab_body.replace("__THEME_DOTS__", THEME_DOTS))
+            .replace("__THEME_JS__", THEME_JS)
+            .replace("__SCRIPT__", script + "\n" + patch_js))
+    (PROJ / out_name).write_text(html, encoding="utf-8")
+    print(f"{out_name}: {len(html)} bytes, script {len(script)} bytes")
+
+build("章节一1.1.txt", "chem_lab1.1.html",
+      "VSEPR 分子构型实验室 | 生活中的化学 · 教学实验室",
+      "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js",
+      LAB1_CSS, LAB1_BODY)
+
+build("章节一1.2.txt", "chem_lab1.2.html",
+      "晶体结构深度实验室 | 生活中的化学 · 教学实验室",
+      "https://unpkg.com/three@0.160.0/build/three.min.js",
+      LAB2_CSS, LAB2_BODY, patch_js=LAB2_PATCH_JS)
+print("done")

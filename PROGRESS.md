@@ -7,9 +7,9 @@
 
 - 名称：chem-life（化学生活网站）
 - 技术栈：React 19 + TypeScript + Vite + Tailwind CSS + shadcn/ui
-- 线上地址：https://huaxue-shenghuo.netlify.app/
+- 线上地址：https://huaxue-shenghuo.pages.dev/（互动社区）｜ https://zao-chem.com（正式主站，2026-09-09 上线）
 - 仓库：https://github.com/perfect666ans/chem-life （**私有**，2026-08-31 由公开转为私密）
-- 部署：Netlify，`npm run build` → `dist/`；`/api/pubchem/*` 由 Netlify Function 中转代理
+- 部署：Cloudflare Pages，`npm run build` → `dist/`；登录/论坛/化合物代理由 Cloudflare Pages Functions（`functions/api/`）+ KV 承载（2026-09-03 迁移完成，六项验收全过）；Netlify 已废弃，netlify/ 目录与 netlify.toml 已于 2026-09-14 删除（历史遗留）
 
 ## 页面结构（src/pages/）
 
@@ -41,8 +41,7 @@
 
 - [ ] 复习板块（知识球/闪卡/挑战树）、有机三大模块、反应原理四大模块、游戏板块：目前均为门户占位
 - [ ] 交流论坛、排行榜/统计（依赖登录系统统计接口，当前仅有 showUsage/showGameTime 开关字段）
-- [ ] 登录系统线上激活（**额度恢复后自动完成，无需手动操作**）：BLOBS_TOKEN 已配置好且实测有效，但 2026-09-01 账户免费构建额度耗尽（"Account credit usage exceeded"），生产部署被阻断；额度按账单月重置，恢复后任意 push 或 `netlify api createSiteBuild` 触发一次部署即全线生效。届时用 curl 测 `POST /api/auth {action:'inviteStatus'}`
-- [ ] 部署积压：commit 610700b（移除 debugEnv 调试代码）本地已提交，因 GitHub 直连超时+额度阻断**尚未上线**；恢复后 push 即可
+- [x] ✅ 登录/论坛/化合物代理已迁移至 Cloudflare Pages Functions（2026-09-03 完成，六项验收全过）；netlify/ 为历史遗留，已于 2026-09-14 删除
 - [ ] 论坛/排行需要新增 Blobs 表（帖子、积分）
 
 ## 双设备工作流约定
@@ -50,14 +49,14 @@
 1. 开始工作：`git pull`
 2. 结束工作：更新本文件 → `git add -A && git commit && git push`
 3. 不要把私钥、`.env` 等敏感文件放进仓库
-4. 换设备首次：`npm install`；Netlify CLI 与 GitHub 凭据需各自登录一次
+4. 换设备首次：`npm install`；GitHub 凭据需登录一次（Netlify CLI 已不需要）
 
 ## 环境备注
 
 - 设备 A（风逝台式机）：GitHub 直连偶发超时，push 失败多重试几次即可；npm/node 不在 PATH，构建用 `%APPDATA%\kimi-desktop\daimon-share\daimon\command-process-owner\bin\npm.cmd`
 - **不要 `taskkill /F /IM node.exe`**——会误杀 Kimi 自身运行时导致断连；停 dev server 用 `netstat -ano | grep :端口` 找 PID 再按 PID 杀
 - 教学实验室依赖 Three.js CDN（jsdelivr / unpkg），离线环境会加载失败
-- 本地 vite dev 没有 Netlify 函数，`/api/pubchem/*` 与 `/api/auth` 在本地 404（氨基酸键线式图有直连回退）；线上正常
+- 本地 vite dev 没有 Pages Functions，`/api/pubchem/*` 与 `/api/auth` 在本地 404（氨基酸键线式图有直连回退）；线上由 Cloudflare Pages Functions 提供，正常
 - 两个实验室均由工作区 Python 生成器组装：`build_crystal_lab.py`（晶体，31 种数据+JS 模板）、`build_vsepr_lab.py`（分子，184 种+几何引擎）。**改分子/晶体数据请改生成器再运行，不要直接手改 HTML**
 - 2026-09-01 化学闪卡复习完成（chem_lab2.2.html，门户 Ⅱ-02 点亮）：10 章 150 张精编卡（必修一二+选必 1-3）；Leitner 记忆盒（认识/模糊/不认识 → 盒 0-5，间隔 1/2/4/7/15 天，localStorage `chem-fc-progress-v1`）；智能复习（到期+新卡优先）/顺序/随机三模式；章节筛选、关键词查找、连胜计数、清空进度。生成脚本：工作区 `build_flashcards.py`
 - 2026-09-01 化学反应的热效应完成（chem_lab4.1.html，门户 Ⅳ-01 点亮）：键能法 ΔH 计算器（8 预设反应，数值与教材一致：H₂+Cl₂ −183、CH₄ −802、合成氨 −92 等）；断键/成键清单自由增删改（键能可改）；能量-反应进程 Canvas 图（活化能垒+ΔH 箭头+吸放热底色）；盖斯定律演示（拖中间态能量，两段之和恒等于直接路径，实测 −250+(−144)=−394）。生成脚本：工作区 `build_thermo_lab.py`
@@ -86,3 +85,4 @@
 - 2026-09-08 c11 总批 + 面包屑上线（commit 3151b61）：① 11 文件覆盖：forum.js 新增 snake/merge/aufbau 三分榜（上限 999999/9999999/59）+ usageBoard 使用时长榜（仅统计公开用户）；auth.js 新增 bindPhone/resetPassword；Login 加「忘记密码」页签、Profile 加「账号安全」区、Leaderboard 加时长榜 Tab、NavChrome 加 W-06 使用时长心跳（20s/次，页面可见时）。修复包内 Profile.tsx 漏导入 refresh（第 92 行用到）。② 包内三个游戏更新版覆盖了之前注入的返回按钮，已重新注入 ⌂（线上确认 7.1/7.2/7.3 均在）。③ 面包屑导航（主人参考 tk-chem 提出，要求不动布局）：NavChrome 新增左上角面包屑胶囊「首页 › 生活探究馆 › 厨房化学」式层级，滚动 >240px 才出现以免遮挡页首标题，纯悬浮零布局改动；本地 vite preview 实测渲染文本正确（截图受面板限制未拍）。④ 线上验收：snake/merge/aufbau 三榜接口在线（空榜待命）、usageBoard 在线、忘记密码/账号安全/时长榜各分包在线、未登录上报被拒。注意：主人已自改密码，需登录的实测流程（玩一局上榜/绑手机/找回密码）待主人自行点击验收；WORK-EXTRA 的 16 页注入昨天已做（且同步改了生成脚本），本包不再重复
 - 2026-09-09 zao-chem.com 正式上线（宝塔/阿里云轻量 139.224.71.129）：B+ 变体构建——临时改 HomeRedesign 顶栏（隐藏 排行榜/论坛/我的，加朱砂胶囊「互动社区 ↗」外链 pages.dev）+ App.tsx 页脚换拾焰集社区卡片（视频号/公众号引导 + © 2026 石早晨 + 湘ICP备2026039674号-1 链 beian.miit.gov.cn）+ 19 个静态实验页同款页脚注入；构建打 zip 后 git checkout 还原主线（部署变体不入库）。宝塔上传解压至 /www/wwwroot/zao-chem.com/；伪静态 `location / { try_files $uri /index.html; }`（不可写 $uri/，否则 /teaching 类路由 403）；Let's Encrypt 双域名证书（面板 bug：逐勾两域只签主域，勾「全选」一次签成，有效期至 2026-12-08 自动续签）+ 强制HTTPS。验收 7 项全过：http 双域 301→https、https 双域 200、SPA 路由 200、静态实验页 200、页脚备案号/拾焰集在线、互动社区按钮外链正确。详细记录见 D:\我的AI\化学网站-2026-08-31\zao-chem上线部署记录.md（凭据不入库）。待办：主人 9/30 前办公安联网备案
 - 2026-09-09 说明书入库：《AI使用须知.md》第 7 版（新增第七节「交付包工作法」+ 第八节「部署案例 zao-chem」）同步至 docs/AI使用须知.md，与 D:\我的AI\ 下 md/xlsx 三方一致
+- 2026-09-14 仓库修路（交付包 chem-life修路-2026-09-14 按需求文档执行）：① patched/ 两个实验室页覆盖 public/teaching/（chem_lab1.1/1.2 删除被国内屏蔽的 Google Fonts 外链，全目录 grep 零残留）② 删除 3 个误导文件：根目录 AminoAcids.tsx（旧导航栏残骸）、根目录 App.tsx（氨基酸数据副本）、src/App.tsx.bak；删前核对 src/data/aminoAcids.ts 为 20 种氨基酸正式版（name/formula/structure 字段完整）③ 概况部署信息改为 Cloudflare Pages + zao-chem.com 双站；删除 netlify/ 目录与 netlify.toml（平台废弃）；待办区两条 Netlify 遗留项替换为迁移完成记录 ④ 实验室生成脚本抢救入库 scripts/labs/（16 个 build_*.py + rebuild_labs.py，来自本机工作区，从未入库）+ scripts/README.md 写清管线（脚本自足含数据、硬编码绝对路径需改、7.1-7.3 无脚本手工维护）⑤ 线上版本存档标签 zao-bplus-20260909 → e43efcc（B+ 变体构建基点）已推送。两次构建（删文件后/最终）均通过
