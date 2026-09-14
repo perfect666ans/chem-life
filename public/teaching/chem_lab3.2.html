@@ -1,444 +1,2408 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="washi">
+<html lang="zh-CN" data-theme="night">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>有机系统命名中心 · 化学生活教学中心</title>
+<title>有机命名实验室 · 化学视界 · v32</title>
 <style>
 
-/* =========================================================
-   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
-   ========================================================= */
-:root{
-  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
-  --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
-  --display-en:"Shippori Mincho","Noto Serif SC",serif;
-  --mono:"JetBrains Mono","IBM Plex Mono",monospace;
+/* ============ 化学视界 · 赛博朋克霓虹 ============ */
+:root[data-theme="night"]{
+  --bg:#04050d; --bg2:#0a0e22; --panel:#0d1233; --panel2:#141c4e;
+  --ink:#eaf6ff; --muted:#7f8fc9; --line:#27327a;
+  --accent:#00e5ff; --accent2:#ff2d95; --danger:#ff3860; --warn:#ffe74c;
+  --node:#00e5ff; --btn-shadow:#01020a; --chip:#0a0f2c;
 }
-:root,:root[data-theme="washi"]{
-  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
-  --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
-  --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
-  --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
-  --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
-  --inset:rgba(26,24,23,.045);
-  --topnav-bg:rgba(247,244,236,.88);
-  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
-  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
-  --canvas-bg:#0d1017;
-  --noise-mode:multiply; --noise-alpha:.045;
+:root[data-theme="dawn"]{
+  --bg:#170409; --bg2:#240812; --panel:#2b0a1a; --panel2:#3f1128;
+  --ink:#ffeef6; --muted:#d68fb4; --line:#5e1e42;
+  --accent:#ff2d95; --accent2:#ff8a00; --danger:#ff5c5c; --warn:#ffe74c;
+  --node:#ff8ac2; --btn-shadow:#0c0105; --chip:#22060f;
 }
-:root[data-theme="sumi"]{
-  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
-  --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
-  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
-  --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
-  --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
-  --inset:rgba(0,0,0,.30);
-  --topnav-bg:rgba(13,13,15,.86);
-  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
-  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
-  --canvas-bg:#0d1017;
-  --noise-mode:overlay; --noise-alpha:.03;
+:root[data-theme="washi"]{
+  --bg:#060b0d; --bg2:#0b1518; --panel:#0e1c20; --panel2:#143037;
+  --ink:#eafff6; --muted:#7fb8a8; --line:#1e4a4a;
+  --accent:#00ffa3; --accent2:#b967ff; --danger:#ff5c7a; --warn:#ffe74c;
+  --node:#5cffd6; --btn-shadow:#010806; --chip:#0a1a18;
 }
-:root[data-theme="ai"]{
-  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
-  --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
-  --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
-  --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
-  --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
-  --inset:rgba(0,0,0,.30);
-  --topnav-bg:rgba(10,14,21,.86);
-  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
-  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
-  --canvas-bg:#0d1017;
-  --noise-mode:overlay; --noise-alpha:.03;
-}
-*,*::before,*::after{
-  box-sizing:border-box;margin:0;padding:0;
-  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
-}
+*{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
 body{
-  font-family:var(--sans-cn);
-  background:var(--bg-void); color:var(--ink);
-  overflow:hidden; line-height:1.7; position:relative; height:100vh;
+  background:var(--bg); color:var(--ink);
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  transition:background .35s,color .35s; overflow-x:hidden;
 }
-body::after{
-  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
+body::before{
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:46px 46px; opacity:.4;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 22%,#000 12%,transparent 80%);
+  mask-image:radial-gradient(ellipse at 50% 22%,#000 12%,transparent 80%);
 }
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+body.dmg::after{
+  content:''; position:fixed; inset:0; z-index:60; pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 42%,rgba(255,45,100,.32));
+  animation:dmgfade .5s forwards;
+}
+@keyframes dmgfade{from{opacity:1}to{opacity:0}}
+#app::after{
+  content:''; position:fixed; inset:0; z-index:2; pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);
+}
+#bgfx{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.7;}
+#app{position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column;}
+.wrap{max-width:1100px; width:100%; margin:0 auto; padding:0 16px; flex:1; position:relative; z-index:1;}
 
-/* ---- 顶栏 ---- */
-.topnav{
-  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
-  padding:0 clamp(14px,2.5vw,28px); gap:14px;
-  background:var(--topnav-bg); backdrop-filter:blur(18px);
-  border-bottom:1px solid var(--line); position:relative; z-index:50;
+/* ============ 头部 ============ */
+header.top{padding:20px 0 8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+.brand{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+.brand .logo{
+  font-size:28px; font-weight:900; letter-spacing:2px;
+  background:linear-gradient(92deg,var(--accent) 15%,#fff 50%,var(--accent2) 85%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 14px color-mix(in srgb,var(--accent) 55%,transparent));
 }
-.brand{display:flex;align-items:center;gap:12px;min-width:0;}
-.brand .badge{
-  display:inline-flex;align-items:center;justify-content:center;flex:none;
-  width:26px;height:26px;background:var(--accent);
-  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
+.brand .logo em{font-style:normal;}
+.brand .tag{font-size:11px; color:var(--muted); letter-spacing:2px; border:1px solid var(--line); border-radius:999px; padding:3px 10px; box-shadow:0 0 10px color-mix(in srgb,var(--line) 80%,transparent);}
+.themes{display:flex; gap:8px;}
+.tbtn{
+  border:2px solid var(--line); background:var(--panel); color:var(--ink);
+  border-radius:999px; padding:6px 14px; font-size:13px; cursor:pointer; font-weight:700;
+  box-shadow:0 4px 0 var(--btn-shadow); transition:transform .08s, box-shadow .08s;
 }
-:root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
-.brand h1{
-  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.brand .lecture-tag{
-  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
-  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
-}
-.nav-right{display:flex;align-items:center;gap:10px;flex:none;}
-.nav-btn{
-  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
-  font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
-  border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
-  transition:all .25s;white-space:nowrap;
-}
-.nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
-.nav-btn .arr{font-family:var(--mono);}
-/* 主题切换 */
-.theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
-.ts-dot{
-  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
-  display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
-  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
-}
-.ts-dot:hover{color:var(--ink-dim);}
-.ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
-.ts-swatch{
-  width:13px;height:13px;border-radius:50%;flex:none;
-  background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
-  border:1px solid rgba(128,128,128,.4);
-}
-@media (max-width:900px){
-  .brand .lecture-tag{display:none;}
-  .ts-dot .ts-name{display:none;}
-}
+.tbtn:active{transform:translateY(4px); box-shadow:0 0 0 var(--btn-shadow);}
+.tbtn.on{border-color:var(--accent); color:var(--accent); box-shadow:0 4px 0 var(--btn-shadow),0 0 16px var(--accent);}
 
-/* ---- 主体三栏 ---- */
-.main-wrap{display:flex;height:calc(100vh - 61px);}
-.side{
-  background:var(--surface);overflow-y:auto;flex:none;
-  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+/* ============ Tab 栏 ============ */
+nav.tabs{display:flex; gap:10px; margin:16px 0 20px; overflow-x:auto; padding-bottom:6px;}
+.tab{
+  flex:0 0 auto; border:2px solid var(--line); background:var(--panel); color:var(--ink);
+  padding:10px 20px; border-radius:14px; font-size:15px; cursor:pointer; white-space:nowrap; font-weight:700;
+  box-shadow:0 5px 0 var(--btn-shadow); transition:transform .08s, box-shadow .08s, border-color .2s;
 }
-.panel-section{margin-bottom:22px;}
-.panel-title{
-  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
-  border-bottom:1px solid var(--line);
-}
-/* 开关 */
-.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
-.switch-label{font-size:13px;color:var(--ink-dim);}
-.switch{
-  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
-  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
-}
-.switch::after{
-  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
-  border-radius:50%;top:3px;left:3px;transition:.3s;
-}
-.switch.active{background:var(--accent);border-color:var(--accent);}
-.switch.active::after{left:23px;background:#fff;}
-/* 滑块 */
-.slider-wrap input[type="range"]{
-  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
-  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
-}
-.slider-wrap input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
-  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
-  box-shadow:0 1px 6px rgba(0,0,0,.25);
-}
-.slider-value,.slider-tip{
-  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
-  color:var(--ink-mute);margin-top:8px;
-}
-/* 下拉 */
-.select-box,.proj-select{
-  width:100%;padding:8px 10px;background:var(--surface-2);
-  border:1px solid var(--line);color:var(--ink);border-radius:8px;
-  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
-}
-.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
-/* 功能按钮 */
-.func-btn{
-  width:100%;padding:9px 0;background:var(--accent-soft);
-  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
-  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
-}
-.func-btn:hover{background:var(--accent);color:#fff;}
-
-
-/* ---- 晶体实验室布局 ---- */
-.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
-.info-card{
-  border:1px solid var(--line);border-radius:12px;padding:16px;
-  background:var(--paper);margin-bottom:18px;
-}
-.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
-.tag-wrap{margin-bottom:10px;}
-.info-tag{
-  display:inline-block;background:var(--accent-soft);color:var(--accent);
-  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
-  font-size:11px;margin:0 5px 5px 0;
-}
-.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
-.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
-.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
-.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
-.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
-#crystalCanvas{width:100%;height:100%;display:block;}
-.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
-/* 二维投影浮层 */
-.proj-modal{
-  display:none;position:absolute;top:18px;right:18px;z-index:60;
-  background:var(--paper);border:1px solid var(--line);border-radius:12px;
-  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
-}
-.proj-modal h3{
-  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
-  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
-}
-.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
-.proj-close:hover{color:var(--accent);}
-.proj-canvas{
-  width:100%;height:300px;background:var(--canvas-bg);
-  border-radius:8px;border:1px solid var(--line);margin-top:10px;
+.tab:active{transform:translateY(5px); box-shadow:0 0 0 var(--btn-shadow);}
+.tab.on{
+  border-color:transparent; color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 5px 0 var(--btn-shadow),0 0 22px color-mix(in srgb,var(--accent) 60%,transparent);
+  text-shadow:0 1px 3px rgba(0,0,0,.5);
 }
 
+/* ============ 卡片与按钮 ============ */
+.card{
+  background:linear-gradient(160deg,var(--panel),var(--panel2));
+  border:2px solid var(--line); border-radius:16px; padding:20px; margin-bottom:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.4);
+}
+.hbtn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  border:2px solid var(--line); background:linear-gradient(160deg,var(--panel2),var(--panel)); color:var(--ink);
+  border-radius:14px; padding:11px 20px; font-size:15px; cursor:pointer; font-weight:800;
+  box-shadow:0 6px 0 var(--btn-shadow); transition:transform .08s, box-shadow .08s, filter .15s;
+  user-select:none; text-shadow:0 1px 0 rgba(0,0,0,.35);
+}
+.hbtn:hover{filter:brightness(1.15);}
+.hbtn:active{transform:translateY(6px); box-shadow:0 0 0 var(--btn-shadow);}
+.hbtn.primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-color:transparent; color:#fff;
+  box-shadow:0 6px 0 var(--btn-shadow),0 0 22px color-mix(in srgb,var(--accent) 55%,transparent);
+}
+.hbtn.good{background:linear-gradient(135deg,var(--accent2),color-mix(in srgb,var(--accent2) 55%,#fff)); border-color:transparent; color:#14000c;}
+.hbtn.bad{background:linear-gradient(135deg,var(--danger),color-mix(in srgb,var(--danger) 60%,#fff)); border-color:transparent; color:#fff;}
+.hbtn.ghost{background:transparent;}
+.hbtn:disabled{opacity:.4; cursor:not-allowed;}
+.hbtn.sm{padding:7px 13px; font-size:13px; border-radius:11px; box-shadow:0 4px 0 var(--btn-shadow);}
+.hbtn.sm:active{transform:translateY(4px); box-shadow:0 0 0 var(--btn-shadow);}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+.muted{color:var(--muted);}
+h1{
+  font-size:32px; font-weight:900; letter-spacing:2px; margin-bottom:6px;
+  background:linear-gradient(90deg,var(--accent),#fff,var(--accent2));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 12px color-mix(in srgb,var(--accent) 40%,transparent));
+}
+h2{font-size:20px; margin-bottom:10px; font-weight:800;}
+.sub{color:var(--muted); font-size:14px; margin-bottom:16px;}
+
+/* ============ 菜单 / 模式 ============ */
+.modes{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px;}
+.mode{cursor:pointer; text-align:left; position:relative; overflow:hidden; transition:transform .15s, box-shadow .2s;}
+.mode:hover{transform:translateY(-3px); box-shadow:0 16px 34px rgba(0,0,0,.5),0 0 24px color-mix(in srgb,var(--accent) 25%,transparent); border-color:var(--accent);}
+.mode::after{
+  content:''; position:absolute; top:0; left:-80%; width:55%; height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);
+  transform:skewX(-20deg); transition:left .55s;
+}
+.mode:hover::after{left:135%;}
+.mode .mt{font-size:19px; font-weight:900; margin-bottom:6px;}
+.mode .md{font-size:13px; color:var(--muted); line-height:1.6;}
+.statline{font-size:13px; color:var(--muted); margin-top:14px;}
+
+/* ============ 进度点 ============ */
+.dots{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+.dot{width:16px; height:16px; border-radius:50%; border:2px solid var(--line); background:var(--panel2);}
+.dot.cur{border-color:var(--accent); background:var(--accent); box-shadow:0 0 12px var(--accent);}
+.dot.ok{background:var(--accent2); border-color:var(--accent2); box-shadow:0 0 12px var(--accent2); animation:dotpulse .5s;}
+.dot.no{background:var(--danger); border-color:var(--danger); box-shadow:0 0 12px var(--danger);}
+@keyframes dotpulse{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(1)}}
+
+/* ============ 题目卡 ============ */
+.qcard{
+  background:linear-gradient(160deg,var(--panel2),var(--panel));
+  border:2px solid var(--line); border-radius:16px; padding:18px; margin-bottom:16px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 0 30px rgba(0,0,0,.25);
+}
+.qname{
+  font-size:26px; font-weight:900; letter-spacing:1px; color:var(--accent);
+  text-shadow:0 0 16px color-mix(in srgb,var(--accent) 65%,transparent),0 0 40px color-mix(in srgb,var(--accent) 30%,transparent);
+}
+.qwrong{font-size:21px; font-weight:800; color:var(--danger); text-decoration:line-through; text-decoration-thickness:3px; text-shadow:0 0 12px color-mix(in srgb,var(--danger) 60%,transparent);}
+.hint{margin-top:12px; font-size:13px; color:var(--warn); background:var(--chip); border:1px dashed color-mix(in srgb,var(--warn) 60%,transparent); border-radius:10px; padding:9px 12px;}
+
+/* ============ 分子画布 ============ */
+.molwrap{
+  background:radial-gradient(ellipse at 50% 42%,color-mix(in srgb,var(--bg2) 80%,var(--accent) 6%),var(--bg) 88%);
+  border:2px solid var(--line); border-radius:16px;
+  overflow:hidden; position:relative; touch-action:none; cursor:grab;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.55),0 8px 26px rgba(0,0,0,.4),0 0 24px color-mix(in srgb,var(--line) 70%,transparent);
+}
+.molwrap:active{cursor:grabbing;}
+.molwrap svg{display:block; width:100%; height:340px;}
+.molwrap line{filter:drop-shadow(0 0 3px color-mix(in srgb,var(--node) 80%,transparent));}
+.molhint{position:absolute; left:10px; bottom:8px; font-size:12px; color:var(--muted); pointer-events:none;}
+.glowring{animation:ringpulse 1.8s ease-in-out infinite;}
+@keyframes ringpulse{0%,100%{opacity:.35}50%{opacity:.95}}
+.bond-new{animation:bondin .4s cubic-bezier(.2,1.6,.4,1);}
+@keyframes bondin{0%{stroke-width:10;opacity:0}55%{stroke-width:7;opacity:1}100%{stroke-width:3.5;opacity:1}}
+.node-pop{animation:nodein .35s cubic-bezier(.2,1.6,.4,1); transform-box:fill-box; transform-origin:center;}
+@keyframes nodein{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+
+/* ============ 拼字键盘 ============ */
+.tiles{display:flex; gap:9px; flex-wrap:wrap; min-height:50px; background:var(--chip);
+  border:2px dashed var(--line); border-radius:14px; padding:10px; margin-bottom:14px; align-items:center;}
+.tile{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff; border-radius:10px; padding:8px 12px;
+  font-size:16px; font-weight:900; cursor:pointer;
+  box-shadow:0 4px 0 var(--btn-shadow),0 0 16px color-mix(in srgb,var(--accent) 55%,transparent);
+  transition:transform .08s, box-shadow .08s; animation:pop .18s ease;
+  text-shadow:0 1px 3px rgba(0,0,0,.5);
+}
+.tile:nth-child(odd){transform:rotate(-2deg);}
+.tile:nth-child(even){transform:rotate(2deg);}
+.tile:active{transform:translateY(4px) rotate(0)!important; box-shadow:0 0 0 var(--btn-shadow);}
+.tiles .ph{color:var(--muted); font-size:13px;}
+.kgroup{margin-bottom:12px;}
+.klabel{font-size:12px; color:var(--muted); margin-bottom:7px; letter-spacing:2px; font-weight:700;}
+.krow{display:flex; gap:9px; flex-wrap:wrap;}
+.key{
+  background:linear-gradient(160deg,var(--panel2),var(--panel)); border:2px solid var(--line); color:var(--ink);
+  border-radius:12px; padding:9px 14px; font-size:15px; font-weight:800; cursor:pointer;
+  box-shadow:0 5px 0 var(--btn-shadow),inset 0 2px 0 rgba(255,255,255,.08),0 0 10px rgba(0,0,0,.3);
+  transition:transform .08s, box-shadow .08s, filter .12s;
+}
+.key:hover{filter:brightness(1.2); transform:translateY(-1px); box-shadow:0 6px 0 var(--btn-shadow),0 0 16px color-mix(in srgb,var(--accent) 35%,transparent);}
+.key:active{transform:translateY(5px); box-shadow:0 0 0 var(--btn-shadow);}
+.key.wide{padding:9px 18px;}
+
+/* ============ 反馈弹窗 ============ */
+.overlay{position:fixed; inset:0; background:rgba(2,3,10,.65); backdrop-filter:blur(5px); z-index:50;
+  display:flex; align-items:center; justify-content:center; padding:20px;}
+.fbcard{
+  background:linear-gradient(165deg,var(--panel),var(--panel2));
+  border:3px solid var(--line); border-radius:24px;
+  padding:30px 32px; max-width:430px; width:100%; text-align:center; position:relative;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);
+  animation:pop .32s cubic-bezier(.2,1.4,.4,1);
+}
+.fbcard.ok{border-color:var(--accent2); box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 44px color-mix(in srgb,var(--accent2) 55%,transparent);}
+.fbcard.no{border-color:var(--danger); box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 44px color-mix(in srgb,var(--danger) 50%,transparent);}
+.confetti{position:absolute; inset:0; pointer-events:none; overflow:visible;}
+.confetti i{position:absolute; top:-8px; width:9px; height:13px; background:var(--c); opacity:0;
+  animation:conf 1.15s ease-in forwards; animation-delay:var(--d); border-radius:2px;
+  box-shadow:0 0 8px var(--c);}
+@keyframes conf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),270px) rotate(var(--r))}}
+.fbemoji{font-size:56px; line-height:1; margin-bottom:10px; filter:drop-shadow(0 0 14px rgba(255,255,255,.35));}
+.fbtitle{font-size:24px; font-weight:900; margin-bottom:10px;}
+.fbmsg{font-size:15px; color:var(--muted); line-height:1.7; margin-bottom:20px; word-break:break-all;}
+.fbmsg b{color:var(--accent);}
+@keyframes pop{0%{transform:scale(.5) rotate(-5deg); opacity:0;} 60%{transform:scale(1.08) rotate(2deg);} 100%{transform:scale(1) rotate(0); opacity:1;}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+.shake{animation:shake .25s ease 2;}
+
+/* ============ 结果 ============ */
+.bigscore{
+  font-size:68px; font-weight:900; text-align:center; margin:12px 0; color:var(--accent);
+  text-shadow:0 0 18px color-mix(in srgb,var(--accent) 70%,transparent),0 0 50px color-mix(in srgb,var(--accent) 35%,transparent);
+  animation:bigpop .55s cubic-bezier(.2,1.5,.4,1);
+}
+@keyframes bigpop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+.center{text-align:center;}
+
+footer{padding:28px 0 36px; text-align:center; color:var(--muted); font-size:12px; letter-spacing:1px; line-height:1.9;}
+.badge{display:inline-block; background:var(--accent2); color:#fff; border-radius:999px; padding:3px 12px; font-size:12px; font-weight:700; margin-left:8px;}
+@media (max-width:640px){ .qname{font-size:21px;} .molwrap svg{height:280px;} h1{font-size:25px;} .bigscore{font-size:52px;} }
 
 
+/* ============ v5: 修复与新增 ============ */
+.mode{color:var(--ink);}
+.mode .mt{color:var(--ink);}
+.atom-ic{position:relative;display:inline-flex;width:38px;height:38px;vertical-align:-12px;margin-right:10px;perspective:90px;align-items:center;justify-content:center;}
+.atom-ic b{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#eaffff,var(--accent) 62%,transparent 140%);box-shadow:0 0 16px var(--accent);}
+.atom-ic i{position:absolute;inset:1px;border-radius:50%;border:1.6px solid color-mix(in srgb,var(--accent) 70%,transparent);}
+.atom-ic .r1{animation:orbA 3.6s linear infinite;}
+.atom-ic .r2{animation:orbB 4.4s linear infinite;}
+.atom-ic.mag b{background:radial-gradient(circle at 35% 30%,#ffe6f4,var(--accent2) 62%,transparent 140%);box-shadow:0 0 16px var(--accent2);}
+.atom-ic.mag i{border-color:color-mix(in srgb,var(--accent2) 70%,transparent);}
+@keyframes orbA{from{transform:rotateX(62deg) rotateZ(0)}to{transform:rotateX(62deg) rotateZ(360deg)}}
+@keyframes orbB{from{transform:rotateX(-62deg) rotateZ(360deg)}to{transform:rotateX(-62deg) rotateZ(0)}}
+.elbtn{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 0 var(--btn-shadow);transition:transform .08s,box-shadow .08s;font-family:inherit;}
+.elbtn i{width:12px;height:12px;border-radius:50%;box-shadow:0 0 8px currentColor;}
+.elbtn:active{transform:translateY(4px);box-shadow:0 0 0 var(--btn-shadow);}
+.elbtn.on{border-color:var(--accent);color:var(--accent);box-shadow:0 4px 0 var(--btn-shadow),0 0 14px var(--accent);}
 
-
-
-
-
-/* ===== 命名中心专用 ===== */
-.nm-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:auto}
-.nm-card{width:min(600px,94%);border:1px solid var(--line);border-radius:14px;padding:26px 30px;
- background:var(--paper);box-shadow:0 8px 30px rgba(0,0,0,.10)}
-.nm-svg-wrap{display:flex;justify-content:center;margin:10px 0 4px}
-.nm-opt{display:block;width:100%;text-align:left;border:1px solid var(--line-strong);background:transparent;
- color:var(--ink);border-radius:8px;padding:11px 16px;font-size:14px;margin:8px 0;cursor:pointer;
- font-family:Georgia,"Noto Serif SC",serif;transition:all .15s}
-.nm-opt:hover{border-color:var(--accent);color:var(--accent)}
-.nm-opt.right{border-color:#2e7d4f;color:#2e7d4f;background:rgba(46,125,79,.08)}
-.nm-opt.wrong{border-color:#c0392b;color:#c0392b;background:rgba(192,57,43,.08)}
-.nm-score{display:flex;gap:14px;justify-content:center;font-size:12.5px;color:var(--ink-dim);margin-bottom:8px}
-.nm-score b{color:var(--accent);font-family:Georgia,serif;font-size:16px}
-.rule-table{width:100%;font-size:12px;border-collapse:collapse;color:var(--ink-dim)}
-.rule-table td{border:1px solid var(--line);padding:6px 8px;line-height:1.7;vertical-align:top}
-.rule-table td:first-child{white-space:nowrap;color:var(--accent);font-weight:700}
-.nm-feedback{min-height:22px;text-align:center;font-size:13px;margin-top:4px}
+/* ============ 选中水波纹 ============ */
+.ripple{transform-box:fill-box;transform-origin:center;opacity:0;animation:ripple 2.2s cubic-bezier(.2,.6,.4,1) infinite;}
+.ripple.r1{animation-delay:.73s;}
+.ripple.r2{animation-delay:1.46s;}
+@keyframes ripple{0%{transform:scale(.55);opacity:.85;}100%{transform:scale(3);opacity:0;}}
 </style>
 <style>html,body{overscroll-behavior:none;}</style>
 </head>
 <body>
-<nav class="topnav">
-  <div class="brand">
-    <span class="badge">名</span>
-    <h1 style="white-space:nowrap">有机系统命名中心</h1>
-    <span class="lecture-tag">ORGANIC · LAB 02</span>
-  </div>
-  <div class="nav-right">
-    <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
-    <button class="nav-btn" onclick="location.href='/'"><span class="arr">⌂</span> 返回首页</button>
-    <div class="theme-switch" role="group" aria-label="主题切换">
-      <button class="ts-dot" data-set-theme="washi" aria-label="和紙"><span class="ts-swatch" style="--a:#efebe0;--b:#c8102e"></span><span class="ts-name">和紙</span></button>
-      <button class="ts-dot" data-set-theme="sumi" aria-label="墨朱"><span class="ts-swatch" style="--a:#0d0d0f;--b:#d23838"></span><span class="ts-name">墨朱</span></button>
-      <button class="ts-dot" data-set-theme="ai" aria-label="藍"><span class="ts-swatch" style="--a:#0a0e15;--b:#4a93d4"></span><span class="ts-name">藍</span></button>
-    </div>
-  </div>
-</nav>
+<div id="bgfx"></div>
+<div id="app"></div>
+<footer class="wrap">化学视界 · 生活中的化学 —— 早晨老师的化学可视化趣味平台<br>CHEMISTRY IN DAILY LIFE · 有机命名实验室 · <b style="color:var(--accent)">v32 · 2026-09-14 09:05</b></footer>
 
-<div class="main-wrap">
-  <div class="side left-panel">
-    <div class="info-card">
-      <h2>命名闯关</h2>
-      <p class="info-desc">随机生成带支链的烷烃键线式（顶点与端点都是碳原子，氢省略），选出正确的系统名称。答错进错题本，连胜刷新纪录。</p>
-      <button class="func-btn" id="btnWrongBook">查看错题本</button>
-    </div>
-    <div class="panel-section">
-      <div class="panel-title">系统命名规则</div>
-      <table class="rule-table" id="ruleTable"></table>
-    </div>
-  </div>
+<script src="../vendor/three.r128.min.js"></script>
+<script src="../vendor/react.production.min.js"></script>
+<script src="../vendor/react-dom.production.min.js"></script>
 
-  <div class="canvas-box" style="background:var(--bg-deep)">
-    <div class="nm-stage" id="stage"></div>
-  </div>
-
-  <div class="side right-panel">
-    <div class="panel-section">
-      <div class="panel-title">常见官能团速查</div>
-      <table class="rule-table" id="funcTable"></table>
-    </div>
-    <div class="panel-section">
-      <div class="panel-title">读键线式三步</div>
-      <p class="info-desc">① 找最长碳链作主链；② 从离支链最近的一端编号（比较位次和）；③ 位次-基团名 + 主链名，相同基团合并，甲基在前。</p>
-    </div>
-  </div>
-</div>
-
-<script>window.__NAMING__ = {"rules": [["选主链", "选含碳原子最多、取代基最多的碳链作主链，按碳数称「某烷」（甲乙丙丁戊己庚辛壬癸，>10 用汉字数字）。"], ["编号", "从离取代基最近的一端开始编号；两端等近时，使各取代基位次之和最小；仍相同则让简单基团位次小。"], ["书写", "取代基位次-名称写在主链名称前；相同基团合并用「二、三」表示个数，位次间用逗号；简单基团（甲基）在前，复杂基团（乙基）在后。"], ["烯炔", "选含双键/三键的最长链，从离不饱和键最近端编号，标出不饱和键位次：如 CH₃CH=CHCH₂CH₃ 为 2-戊烯。"], ["含氧", "醇：选含 —OH 最长链，标羟基位次（2-丙醇）；醛基/羧基必在 1 号位不标注（丙醛、丙酸）；酯命名「某酸某酯」（乙酸乙酯）。"]], "func": [["羟基 —OH", "醇 / 酚", "乙醇 CH₃CH₂OH、苯酚 C₆H₅OH"], ["醛基 —CHO", "醛", "乙醛 CH₃CHO（银镜反应）"], ["羧基 —COOH", "羧酸", "乙酸 CH₃COOH（弱酸性）"], ["酯基 —COO—", "酯", "乙酸乙酯 CH₃COOCH₂CH₃"], ["碳碳双键 C=C", "烯烃", "乙烯 CH₂=CH₂（加成、加聚）"], ["碳碳三键 C≡C", "炔烃", "乙炔 CH≡CH"], ["卤原子 —X", "卤代烃", "溴乙烷 CH₃CH₂Br（水解/消去）"], ["氨基 —NH₂", "胺 / 氨基酸", "甘氨酸 H₂NCH₂COOH"]]};</script>
 <script>
-/* ===== 有机系统命名中心 ===== */
-const D = window.__NAMING__;
-const $ = (id) => document.getElementById(id);
-const CN_NUM = "零一二三四五六七八九十";
-const CHAIN = ["","甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-let streak = 0, best = +(localStorage.getItem("chem-naming-best")||0), wrongBook = JSON.parse(localStorage.getItem("chem-naming-wrong")||"[]");
-let curQ = null, answered = false;
+/* ================================================================
+ * 有机命名实验室 · 核心引擎（纯 JS，无依赖）
+ * 图模型: graph = { nodes:[{id,el:'C'|'O',arom,x,y}], edges:[{a,b,order}] }
+ * ================================================================ */
+(function(){
+"use strict";
+var NL = window.NL = {};
 
-/* ---- 随机生成分子：主链 n 碳（5~9），k 个支链（甲基/乙基），保证主链仍最长 ---- */
-function genMolecule(){
-  const n = 5 + Math.floor(Math.random()*5);          // 主链 5-9
-  const k = 1 + Math.floor(Math.random()*Math.min(3, n-3));
-  const posAvail = [];
-  for (let i = 2; i <= n-1; i++) posAvail.push(i);    // 支链不在端位
-  const subs = [];
-  const used = new Set();
-  let guard = 0;
-  while (subs.length < k && guard++ < 50){
-    const p = posAvail[Math.floor(Math.random()*posAvail.length)];
-    if (used.has(p)) continue;
-    // 严格保证主链最长：甲基需 max(p-1,n-p)+2 < n；乙基需 max(p-1,n-p)+3 < n
-    const canMe = Math.max(p-1, n-p) + 2 < n;
-    const canEt = Math.max(p-1, n-p) + 3 < n;
-    if (!canMe) continue;
-    const kind = (Math.random() < 0.7 || !canEt) ? "甲基" : "乙基";
-    used.add(p); subs.push({p, kind});
-  }
-  return {n, subs};
+/* ---------- 工具 ---------- */
+NL.norm = function(s){
+  return String(s==null?'':s).replace(/\s+/g,'')
+    .replace(/，/g,',').replace(/[、·]/g,',').replace(/[–—－]/g,'-')
+    .replace(/（/g,'(').replace(/）/g,')');
+};
+NL.shuffle = function(arr){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+};
+NL.pick = function(arr,n){ return NL.shuffle(arr).slice(0,n); };
+
+/* ---------- 构图 ---------- */
+var __nid=0;
+function nid(p){ return p+(++__nid); }
+function newG(){ return {nodes:[],edges:[]}; }
+function addC(g,arom){ var id=nid('c'); g.nodes.push({id:id,el:'C',arom:!!arom}); return id; }
+function addO(g){ var id=nid('o'); g.nodes.push({id:id,el:'O'}); return id; }
+function bond(g,a,b,order){ g.edges.push({a:a,b:b,order:order||1}); }
+function attach(g,at,kind){
+  if(kind==='methyl'){ bond(g,at,addC(g)); }
+  else if(kind==='ethyl'){ var a=addC(g),b=addC(g); bond(g,at,a); bond(g,a,b); }
+  else if(kind==='propyl'){ var a=addC(g),b=addC(g),c=addC(g); bond(g,at,a); bond(g,a,b); bond(g,b,c); }
+  else if(kind==='butyl'){ var a=addC(g),b=addC(g),c=addC(g),d=addC(g); bond(g,at,a); bond(g,a,b); bond(g,b,c); bond(g,c,d); }
+  else if(kind==='isopropyl'){ var c=addC(g); bond(g,at,c); bond(g,c,addC(g)); bond(g,c,addC(g)); }
+  else if(kind==='isobutyl'){ var a=addC(g),m=addC(g); bond(g,at,a); bond(g,a,m); bond(g,m,addC(g)); bond(g,m,addC(g)); }
 }
-/* ---- 命名 ---- */
-function nameMolecule(m){
-  // 从两端编号，按「最低位次组」规则：排序后逐位比较（字典序），而不是简单求和
-  const f = m.subs.map(s => s.p).sort((a,b)=>a-b), b = m.subs.map(s => m.n + 1 - s.p).sort((a,b)=>a-b);
-  let useF = true;
-  for (let i = 0; i < f.length; i++){ if (f[i] !== b[i]){ useF = f[i] < b[i]; break; } }
-  const list = m.subs.map(s => ({p: useF ? s.p : m.n+1-s.p, kind: s.kind}));
-  // 合并相同基团；甲基在前乙基在后
-  list.sort((x,y) => (x.kind===y.kind ? x.p - y.p : x.kind==="甲基" ? -1 : 1));
-  const groups = [];
-  for (const s of list){
-    const g = groups.find(g => g.kind===s.kind);
-    if (g) g.ps.push(s.p); else groups.push({kind:s.kind, ps:[s.p]});
+function chain(g,n){ var ids=[]; for(var i=0;i<n;i++) ids.push(addC(g)); for(i=0;i<n-1;i++) bond(g,ids[i],ids[i+1]); return ids; }
+function addSubs(g,ids,subs){ (subs||[]).forEach(function(s){ attach(g,ids[s.pos-1],s.kind); }); }
+
+NL.buildGraph = function(family,spec){
+  __nid=0; var g=newG(),ids;
+  switch(family){
+    case 'alkane': ids=chain(g,spec.n); addSubs(g,ids,spec.subs); break;
+    case 'alkene':
+      ids=chain(g,spec.n); addSubs(g,ids,spec.subs);
+      bond(g,ids[spec.d-1],ids[spec.d],2); break;
+    case 'alcohol':
+      ids=chain(g,spec.n); addSubs(g,ids,spec.subs);
+      bond(g,ids[spec.oh-1],addO(g)); break;
+    case 'aldehyde':
+      ids=chain(g,spec.n); addSubs(g,ids,spec.subs);
+      bond(g,ids[0],addO(g),2); break;
+    case 'ketone':
+      ids=chain(g,spec.n); addSubs(g,ids,spec.subs);
+      bond(g,ids[spec.k-1],addO(g),2); break;
+    case 'acid':
+      ids=chain(g,spec.n); addSubs(g,ids,spec.subs);
+      bond(g,ids[0],addO(g),2); bond(g,ids[0],addO(g)); break;
+    case 'ester':{
+      var c0=addC(g); bond(g,c0,addO(g),2);
+      var oo=addO(g); bond(g,c0,oo);
+      var prev=oo;
+      for(var i=0;i<spec.r;i++){ var c=addC(g); bond(g,prev,c); prev=c; }
+      prev=c0;
+      for(i=1;i<spec.a;i++){ c=addC(g); bond(g,prev,c); prev=c; }
+      break; }
+    case 'aromatic':{
+      var ring=[];
+      for(var i=0;i<6;i++) ring.push(addC(g,true));
+      for(i=0;i<6;i++){ bond(g,ring[i],ring[(i+1)%6]);
+        var ang=Math.PI/6*2*i; g.nodes[g.nodes.length-6+i].x=260*Math.cos(ang); g.nodes[g.nodes.length-6+i].y=260*Math.sin(ang); }
+      (spec.subs||[]).forEach(function(s){ attach(g,ring[s.pos-1],s.kind); });
+      break; }
   }
-  const parts = groups.map(g => g.ps.join(",") + "-" +
-    (g.ps.length>1 ? CN_NUM[g.ps.length] : "") + g.kind);
-  return parts.join("") + CHAIN[m.n] + "烷";
+  return g;
+};
+
+/* ---------- 命名表 ---------- */
+var ALKANE=['','甲烷','乙烷','丙烷','丁烷','戊烷','己烷','庚烷','辛烷','壬烷','癸烷'];
+var ALKENE=['','','乙烯','丙烯','丁烯','戊烯','己烯','庚烯','辛烯','壬烯','癸烯'];
+var ALCOHOL=['','甲醇','乙醇','丙醇','丁醇','戊醇','己醇','庚醇','辛醇','壬醇','癸醇'];
+var ALDEHYDE=['','甲醛','乙醛','丙醛','丁醛','戊醛','己醛','庚醛','辛醛','壬醛','癸醛'];
+var KETONE=['','','','丙酮','丁酮','戊酮','己酮','庚酮','辛酮','壬酮','癸酮'];
+var ACID=['','甲酸','乙酸','丙酸','丁酸','戊酸','己酸','庚酸','辛酸','壬酸','癸酸'];
+var ROOT1=['','甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+var CNT=['','','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十'];
+var SUBEN={methyl:'methyl',ethyl:'ethyl',propyl:'propyl',butyl:'butyl',isopropyl:'isopropyl',isobutyl:'isobutyl',fluoro:'fluoro',chloro:'chloro',bromo:'bromo',iodo:'iodo',hydroxy:'hydroxy',amino:'amino',mercapto:'mercapto'};
+var SUBCN={methyl:'甲基',ethyl:'乙基',propyl:'丙基',butyl:'丁基',isopropyl:'异丙基',isobutyl:'异丁基',fluoro:'氟',chloro:'氯',bromo:'溴',iodo:'碘',hydroxy:'羟基',amino:'氨基',mercapto:'巯基'};
+
+/* ---------- 图算法 ---------- */
+function buildAdj(g){
+  var adj={};
+  g.nodes.forEach(function(n){ adj[n.id]=[]; });
+  g.edges.forEach(function(e){
+    if(adj[e.a]&&adj[e.b]){ adj[e.a].push({id:e.b,order:e.order}); adj[e.b].push({id:e.a,order:e.order}); }
+  });
+  return adj;
 }
-function distractors(m, correct){
-  const outs = new Set([correct]);
-  const tries = [];
-  // 1. 反向编号错误
-  const back = m.subs.map(s => ({p: m.n+1-s.p, kind: s.kind}));
-  tries.push(nameMolecule({n:m.n, subs:m.subs.map(s=>({p:m.n+1-s.p, kind:s.kind}))}));
-  // 2. 主链选错（±1 碳）
-  tries.push(nameMolecule({n: m.n-1, subs: m.subs.map(s=>({p:s.p,kind:s.kind}))}) + "");
-  tries.push(nameMolecule({n: m.n+1, subs: m.subs.map(s=>({p:s.p,kind:s.kind}))}) + "");
-  // 3. 位次 ±1
-  if (m.subs.length) tries.push(nameMolecule({n:m.n, subs: m.subs.map((s,i)=> i===0 ? {p: Math.min(m.n-1, s.p+1), kind:s.kind} : s)}));
-  // 4. 不合并基团（拆分写法错误版）——直接用不同主链名混淆
-  tries.push(nameMolecule({n:m.n, subs:[...m.subs, {p:2,kind:"甲基"}]}));
-  const res = [];
-  for (const t of tries){
-    if (!outs.has(t) && res.length < 3 && /烷$/.test(t)){ outs.add(t); res.push(t); }
+function carbonSet(g){ var s={}; g.nodes.forEach(function(n){ if(n.el==='C') s[n.id]=1; }); return s; }
+function connected(g){
+  if(!g.nodes.length) return false;
+  var adj=buildAdj(g), seen={}, q=[g.nodes[0].id], head=0; seen[q[0]]=1;
+  while(head<q.length){ var cur=q[head++]; (adj[cur]||[]).forEach(function(e){ if(!seen[e.id]){ seen[e.id]=1; q.push(e.id); } }); }
+  return q.length===g.nodes.length;
+}
+
+/* 枚举以 start 出发的所有简单路径(仅碳) */
+function enumPaths(adj,C,start){
+  var paths=[];
+  (function dfs(path,vis){
+    var last=path[path.length-1], ext=false;
+    var es=adj[last]||[];
+    for(var i=0;i<es.length;i++){
+      var e=es[i];
+      if(vis[e.id]||!C[e.id]) continue;
+      ext=true; vis[e.id]=1; path.push(e.id);
+      dfs(path,vis);
+      path.pop(); delete vis[e.id];
+    }
+    if(!ext) paths.push(path.slice());
+  })([start],(function(){var o={};o[start]=1;return o;})());
+  return paths;
+}
+
+/* 主链外取代基提取: path 为主链(节点id数组), 返回 [{locant,name,en}] */
+function extractSubs(g,path,skip){
+  var adj=buildAdj(g), inP={}, i;
+  path.forEach(function(p){ inP[p]=1; });
+  var off={}; g.nodes.forEach(function(n){ if(n.el==='C'&&!inP[n.id]) off[n.id]=1; });
+  var res=[], seen={};
+  for(var pi=0;pi<path.length;pi++){
+    var pid=path[pi];
+    var es=adj[pid]||[];
+    for(var k=0;k<es.length;k++){
+      var nid2=es[k].id;
+      if(inP[nid2]||!off[nid2]||seen[nid2]) continue;
+      // 该取代基区域内最长简单路径
+      var best=[nid2];
+      (function dfs(p,vis){
+        if(p.length>best.length) best=p.slice();
+        var last=p[p.length-1], es2=adj[last]||[];
+        for(var j=0;j<es2.length;j++){
+          var e2=es2[j];
+          if(!off[e2.id]||inP[e2.id]||vis[e2.id]) continue;
+          vis[e2.id]=1; p.push(e2.id); dfs(p,vis); p.pop(); delete vis[e2.id];
+        }
+      })([nid2],(function(){var o={};o[nid2]=1;return o;})());
+      best.forEach(function(id){ seen[id]=1; });
+      // 支链碳: 区域内不在 best 上的节点
+      var bp={}; best.forEach(function(id){ bp[id]=1; });
+      var branch=0, attachIdx=-1;
+      var q=[nid2], vq={}; vq[nid2]=1;
+      while(q.length){
+        var x=q.pop();
+        (adj[x]||[]).forEach(function(e2){
+          if(!off[e2.id]||inP[e2.id]||vq[e2.id]) return;
+          vq[e2.id]=1;
+          if(!bp[e2.id]){ branch++; var bi=best.indexOf(x); if(attachIdx<0||bi<attachIdx) attachIdx=bi; }
+          q.push(e2.id);
+        });
+      }
+      var kk=best.length, name;
+      if(kk===2&&branch===1&&attachIdx===0) name='isopropyl';
+      else if(kk===3&&branch===1&&attachIdx===1) name='isobutyl';
+      else name=['','methyl','ethyl','propyl','butyl','pentyl','hexyl'][kk]||'hexyl';
+      res.push({locant:pi+1,name:name,en:SUBEN[name]||name});
+    }
   }
-  while (res.length < 3) res.push(correct.replace(CHAIN[m.n]+"烷", CHAIN[Math.max(4, m.n-2)] + "烷") + "");
+  /* 杂原子取代基：卤素 + 羟基/氨基/巯基（skip 中的是母体官能团，不作前缀） */
+  var PRE={O:'hydroxy',N:'amino',S:'mercapto'};
+  for(var ph=0;ph<path.length;ph++){
+    var esh=adj[path[ph]]||[];
+    for(var kh=0;kh<esh.length;kh++){
+      var hid=esh[kh].id;
+      if(inP[hid]||(skip&&skip[hid])) continue;
+      var hnode=g.nodes.filter(function(n){return n.id===hid;})[0];
+      if(!hnode) continue;
+      var nm2=HAL[hnode.el]||PRE[hnode.el];
+      if(nm2) res.push({locant:ph+1,name:nm2,en:nm2});
+    }
+  }
   return res;
 }
-/* ---- SVG 键线式 ---- */
-function drawMol(m){
-  const dw = 64, dh = 34, x0 = 60, y0 = 90;
-  let pts = [];
-  for (let i = 0; i < m.n; i++) pts.push([x0 + i*dw, y0 + (i%2 ? -dh : 0)]);
-  let svg = "";
-  for (let i = 0; i < m.n-1; i++)
-    svg += `<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[i+1][0]}" y2="${pts[i+1][1]}" stroke="currentColor" stroke-width="2"/>`;
-  // 端点与拐点标记碳数
-  pts.forEach((p,i) => {
-    svg += `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="currentColor"/>`;
+
+/* 评分: path + 方向 → 排序键 */
+function orientKey(g,path,dir,feat,skip){
+  var p = dir>0 ? path : path.slice().reverse();
+  var featLoc=0;
+  if(feat&&feat.type==='alkene'){
+    var i1=p.indexOf(feat.c1), i2=p.indexOf(feat.c2);
+    featLoc=Math.min(i1,i2)+1;
+  }else if(feat&&(feat.type==='oh'||feat.type==='carbonyl')){
+    featLoc=p.indexOf(feat.c)+1;
+  }
+  var subs=extractSubs(g,p,skip);
+  var locs=subs.map(function(s){return s.locant;}).sort(function(a,b){return a-b;});
+  var key=[featLoc].concat(locs);
+  var byEn=subs.slice().sort(function(a,b){ return a.en<b.en?-1:(a.en>b.en?1:0); });
+  var key2 = byEn.length ? byEn[0].locant : 0;
+  return {key:key,key2:key2,subs:subs,featLoc:featLoc,chain:p};
+}
+
+function cmpKey(a,b){
+  for(var i=0;i<Math.min(a.length,b.length);i++){ if(a[i]!==b[i]) return a[i]-b[i]; }
+  return a.length-b.length;
+}
+
+/* 最长主链: mustStart=必须从该碳出发, mustIn=必须包含的碳集合, feat=特征 */
+function bestChain(g,mustStart,mustIn,feat,skip){
+  var adj=buildAdj(g), C=carbonSet(g);
+  var starts = mustStart ? [mustStart] : Object.keys(C);
+  var best=null;
+  starts.forEach(function(s){
+    enumPaths(adj,C,s).forEach(function(path){
+      if(mustIn){
+        for(var i=0;i<mustIn.length;i++) if(path.indexOf(mustIn[i])<0) return;
+      }
+      var o1=orientKey(g,path,1,feat,skip), o2=orientKey(g,path,-1,feat,skip);
+      var c12=cmpKey(o1.key,o2.key);
+      var o = c12<0 ? o1 : (c12>0 ? o2 : (o1.key2<=o2.key2 ? o1 : o2));
+      var cand={len:path.length,key:o.key,key2:o.key2,subs:o.subs,featLoc:o.featLoc,chain:o.chain};
+      if(!best || cand.len>best.len ||
+         (cand.len===best.len && (cmpKey(cand.key,best.key)<0 ||
+           (cmpKey(cand.key,best.key)===0 && cand.key2<best.key2)))) best=cand;
+    });
   });
-  for (const s of m.subs){
-    const [x,y] = pts[s.p-1];
-    const dir = (s.p-1)%2 ? 1 : -1;     // 与主链折线相反方向
-    const ey = y + dir*44;
-    svg += `<line x1="${x}" y1="${y}" x2="${x}" y2="${ey}" stroke="currentColor" stroke-width="2"/>`;
-    if (s.kind === "乙基"){
-      const ey2 = ey + dir*30;
-      svg += `<line x1="${x}" y1="${ey}" x2="${x+34}" y2="${ey2}" stroke="currentColor" stroke-width="2"/>`;
-      svg += `<circle cx="${x+34}" cy="${ey2}" r="3" fill="currentColor"/>`;
+  return best;
+}
+
+function assemble(subs,featLoc,parentName){
+  var groups={};
+  subs.forEach(function(s){ (groups[s.name]=groups[s.name]||[]).push(s.locant); });
+  var names=Object.keys(groups);
+  names.sort(function(a,b){ return SUBEN[a]<SUBEN[b]?-1:(SUBEN[a]>SUBEN[b]?1:0); });
+  var parts=names.map(function(nm){
+    var ls=groups[nm].sort(function(a,b){return a-b;});
+    var cn = ls.length>1 ? CNT[ls.length]+SUBCN[nm] : SUBCN[nm];
+    return ls.join(',')+'-'+cn;
+  });
+  // 母体带位次时用“-”连接，否则取代基直接连母体（如 2-甲基己烷）
+  if(featLoc>0){ parts.push(featLoc+'-'+parentName); return parts.join('-'); }
+  return parts.join('-')+parentName;
+}
+
+/* ---------- 特征检测 ---------- */
+function findCarbonyl(g){
+  for(var i=0;i<g.edges.length;i++){
+    var e=g.edges[i];
+    if(e.order!==2) continue;
+    var a=g.nodes.filter(function(n){return n.id===e.a;})[0];
+    var b=g.nodes.filter(function(n){return n.id===e.b;})[0];
+    if(!a||!b) continue;
+    if(a.el==='C'&&b.el==='O') return {c:a.id,o:b.id};
+    if(b.el==='C'&&a.el==='O') return {c:b.id,o:a.id};
+  }
+  return null;
+}
+function neighbors(g,id){
+  var adj=buildAdj(g), res=[];
+  (adj[id]||[]).forEach(function(e){ res.push({id:e.id,order:e.order}); });
+  return res;
+}
+function elOf(g,id){ var n=g.nodes.filter(function(x){return x.id===id;})[0]; return n?n.el:''; }
+
+var HAL={F:'fluoro',Cl:'chloro',Br:'bromo',I:'iodo'};
+function findRing(g){
+  if(g.nodes.length>60) return null;
+  var adj=buildAdj(g), best=null;
+  g.nodes.forEach(function(st){
+    (function dfs(cur,parent,path,vis){
+      if(path.length>40) return;
+      var es=adj[cur]||[];
+      for(var i=0;i<es.length;i++){
+        var nid=es[i].id;
+        if(nid===parent) continue;
+        if(vis[nid]){
+          if(nid===st.id&&path.length>=3&&(!best||path.length>best.length)) best=path.slice();
+          continue;
+        }
+        vis[nid]=1; path.push(nid);
+        dfs(nid,cur,path,vis);
+        path.pop(); delete vis[nid];
+      }
+    })(st.id,null,[st.id],(function(){var o={};o[st.id]=1;return o;})());
+  });
+  return best;
+}
+/* 最小环查找：优先 ≥5 元的最小环（十氢萘式稠环按两个六元环处理） */
+function findRingMin(g){
+  if(g.nodes.length>60) return null;
+  var adj=buildAdj(g), best5=null, bestAny=null;
+  g.nodes.forEach(function(st){
+    (function dfs(cur,parent,path,vis){
+      if(path.length>40) return;
+      var es=adj[cur]||[];
+      for(var i=0;i<es.length;i++){
+        var nid=es[i].id;
+        if(nid===parent) continue;
+        if(vis[nid]){
+          if(nid===st.id&&path.length>=3){
+            if(!bestAny||path.length<bestAny.length) bestAny=path.slice();
+            if(path.length>=5&&(!best5||path.length<best5.length)) best5=path.slice();
+          }
+          continue;
+        }
+        vis[nid]=1; path.push(nid);
+        dfs(nid,cur,path,vis);
+        path.pop(); delete vis[nid];
+      }
+    })(st.id,null,[st.id],(function(){var o={};o[st.id]=1;return o;})());
+  });
+  return best5||bestAny;
+}
+/* ---------- 主命名入口 ---------- */
+NL.nameMolecule = function(g){
+  if(!g||!g.nodes.length||!connected(g)) return null;
+  var arom=g.nodes.filter(function(n){return n.arom;});
+  if(arom.length) return nameAromatic(g);
+
+  /* 环状烃：纯环(环烷/环烯) 或 简单烷基/卤素取代的饱和环 */
+  var cycR=findRing(g);
+  if(cycR&&cycR.length>=3){
+    var m=cycR.length;
+    var inC={}; cycR.forEach(function(id){inC[id]=1;});
+    var adjR=buildAdj(g);
+    var subs=[], okR=true, prinL=null;
+    for(var ri=0;ri<m&&okR;ri++){
+      var es=adjR[cycR[ri]]||[];
+      for(var ki=0;ki<es.length&&okR;ki++){
+        var nb=es[ki].id;
+        if(inC[nb]) continue;
+        var nd=g.nodes.filter(function(n){return n.id===nb;})[0];
+        if(!nd){ okR=false; break; }
+        if(HAL[nd.el]){ subs.push({ri:ri,name:HAL[nd.el]}); continue; }
+        if(nd.el==='O'||nd.el==='S'||nd.el==='N'){ if(prinL) okR=false; else prinL={ri:ri,el:nd.el}; continue; }
+        if(nd.el!=='C'){ okR=false; break; }
+        var region={};
+        (function collect(x,from){
+          region[x]=1;
+          (adjR[x]||[]).forEach(function(e2){
+            var y=e2.id;
+            if(inC[y]||y===from||region[y]) return;
+            var yn=g.nodes.filter(function(n){return n.id===y;})[0];
+            if(yn&&yn.el==='C') collect(y,x);
+          });
+        })(nb,cycR[ri]);
+        var rNodes=Object.keys(region);
+        var degOK=rNodes.every(function(x){
+          var c=0;
+          (adjR[x]||[]).forEach(function(e2){ if(region[e2.id]) c++; });
+          return c<=2;
+        });
+        if(!degOK){ okR=false; break; }
+        subs.push({ri:ri,len:rNodes.length});
+      }
     }
-    svg += `<circle cx="${x}" cy="${ey}" r="3" fill="currentColor"/>`;
+    if(okR){
+      var dblR=0;
+      g.edges.forEach(function(e){ if(e.order===2&&inC[e.a]&&inC[e.b]) dblR++; });
+      var ALKY=['','methyl','ethyl','propyl','butyl','pentyl','hexyl'];
+      var KINDS={O:'醇',S:'硫醇',N:'胺'};
+      if(!subs.length&&!prinL){
+        if(dblR===1&&ALKENE[m]) return '环'+ALKENE[m];
+        if(!dblR) return '环'+(ALKANE[m]||('碳'+m+'烷'));
+      }else if(!dblR){
+        var base='环'+(ALKANE[m]||('碳'+m+'烷')).replace(/烷$/, prinL?KINDS[prinL.el]:'烷');
+        var bestN=null;
+        if(prinL){
+          for(var d2=-1;d2<=1;d2+=2){
+            var pl2=subs.map(function(sb){
+              var p=((sb.ri-prinL.ri)*d2)%m; if(p<0)p+=m;
+              return {loc:p+1,sb:sb};
+            });
+            var locs2=pl2.map(function(x){return x.loc;}).sort(function(a,b){return a-b;});
+            var fe2s=pl2.slice().sort(function(a,b){
+              var ea=a.sb.en||SUBEN[ALKY[a.sb.len]]||'z', eb=b.sb.en||SUBEN[ALKY[b.sb.len]]||'z';
+              return ea<eb?-1:(ea>eb?1:0);
+            });
+            var firstEn2=fe2s.length?fe2s[0].loc:0;
+            if(!bestN||cmpKey(locs2,bestN.locs)<0||(cmpKey(locs2,bestN.locs)===0&&firstEn2<bestN.firstEn))
+              bestN={s:prinL.ri,d:d2,locs:locs2,firstEn:firstEn2};
+          }
+        }else{
+        for(var s=0;s<m;s++){
+          for(var d=-1;d<=1;d+=2){
+            var pl=subs.map(function(sb){
+              var p=((sb.ri-s)*d)%m; if(p<0)p+=m;
+              return {loc:p+1,sb:sb};
+            });
+            var locs=pl.map(function(x){return x.loc;}).sort(function(a,b){return a-b;});
+            var fe1s=pl.slice().sort(function(a,b){
+              var ea=a.sb.en||SUBEN[ALKY[a.sb.len]]||'z', eb=b.sb.en||SUBEN[ALKY[b.sb.len]]||'z';
+              return ea<eb?-1:(ea>eb?1:0);
+            });
+            var firstEn=fe1s.length?fe1s[0].loc:0;
+            if(!bestN||cmpKey(locs,bestN.locs)<0||(cmpKey(locs,bestN.locs)===0&&firstEn<bestN.firstEn))
+              bestN={s:s,d:d,locs:locs,firstEn:firstEn};
+          }
+        }
+        }
+        var placed=subs.map(function(sb){
+          var p=((sb.ri-bestN.s)*bestN.d)%m; if(p<0)p+=m;
+          return {loc:p+1,sb:sb};
+        });
+        placed.sort(function(a,b){
+          var ea=a.sb.en||SUBEN[ALKY[a.sb.len]]||'z', eb=b.sb.en||SUBEN[ALKY[b.sb.len]]||'z';
+          return ea<eb?-1:(ea>eb?1:0);
+        });
+        var groups={};
+        placed.forEach(function(x){
+          var key=x.sb.name||ALKY[x.sb.len];
+          (groups[key]=groups[key]||[]).push(x.loc);
+        });
+        var gks=Object.keys(groups).sort(function(a,b){return SUBEN[a]<SUBEN[b]?-1:1;});
+        var parts=gks.map(function(k){
+          var ls=groups[k].sort(function(a,b){return a-b;});
+          return ls.join(',')+'-'+(ls.length>1?CNT[ls.length]:'')+SUBCN[k];
+        });
+        return parts.join('-')+base;
+      }else if(dblR===1&&ALKENE[m]&&subs.length){
+        /* 环烯+取代基：双键碳固定 1,2 号，取代基位次最小 */
+        var dblAt=[];
+        g.edges.forEach(function(e){ if(e.order===2&&inC[e.a]&&inC[e.b]){ dblAt=[cycR.indexOf(e.a),cycR.indexOf(e.b)]; } });
+        var bestE=null;
+        for(var se=0;se<m;se++){
+          for(var de=-1;de<=1;de+=2){
+            var dl=dblAt.map(function(x){ var p=((x-se)*de)%m; if(p<0)p+=m; return p+1; }).sort(function(a,b){return a-b;});
+            if(dl[0]!==1||dl[1]!==2) continue;
+            var ple=subs.map(function(sb){
+              var p=((sb.ri-se)*de)%m; if(p<0)p+=m;
+              return {loc:p+1,sb:sb};
+            });
+            var locse=ple.map(function(x){return x.loc;}).sort(function(a,b){return a-b;});
+            var feE=ple.slice().sort(function(a,b){
+              var ea=a.sb.en||SUBEN[['','methyl','ethyl','propyl','butyl','pentyl'][a.sb.len]]||'z';
+              var eb=b.sb.en||SUBEN[['','methyl','ethyl','propyl','butyl','pentyl'][b.sb.len]]||'z';
+              return ea<eb?-1:(ea>eb?1:0);
+            });
+            var firstE=feE.length?feE[0].loc:0;
+            if(!bestE||cmpKey(locse,bestE.locs)<0||(cmpKey(locse,bestE.locs)===0&&firstE<bestE.firstLoc))
+              bestE={s:se,d:de,locs:locse,firstLoc:firstE};
+          }
+        }
+        if(bestE){
+          var ple2=subs.map(function(sb){
+            var p=((sb.ri-bestE.s)*bestE.d)%m; if(p<0)p+=m;
+            return {loc:p+1,sb:sb};
+          });
+          ple2.sort(function(a,b){
+            var ea=a.sb.en||SUBEN[['','methyl','ethyl','propyl','butyl','pentyl'][a.sb.len]]||'z';
+            var eb=b.sb.en||SUBEN[['','methyl','ethyl','propyl','butyl','pentyl'][b.sb.len]]||'z';
+            return ea<eb?-1:(ea>eb?1:0);
+          });
+          var groups2={};
+          ple2.forEach(function(x){
+            var key=x.sb.name||['','methyl','ethyl','propyl','butyl','pentyl'][x.sb.len];
+            (groups2[key]=groups2[key]||[]).push(x.loc);
+          });
+          var gks2=Object.keys(groups2).sort(function(a,b){return SUBEN[a]<SUBEN[b]?-1:1;});
+          var parts2b=gks2.map(function(k){
+            var ls=groups2[k].sort(function(a,b){return a-b;});
+            return ls.join(',')+'-'+(ls.length>1?CNT[ls.length]:'')+SUBCN[k];
+          });
+          return parts2b.join('-')+'环'+ALKENE[m];
+        }
+      }
+    }
   }
-  const W = x0 + (m.n-1)*dw + 90, H = 190;
-  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="max-width:100%;color:var(--ink)">${svg}</svg>`;
-}
 
-/* ---- 出题流程 ---- */
-function newQuestion(){
-  answered = false;
-  const m = genMolecule();
-  const correct = nameMolecule(m);
-  const opts = [correct, ...distractors(m, correct)];
-  for (let i = opts.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
-  curQ = {m, correct, opts};
-  $("stage").innerHTML = `
-    <div class="nm-card">
-      <div class="nm-score"><span>连胜 <b>${streak}</b></span><span>最高 <b>${best}</b></span><span>错题本 <b>${wrongBook.length}</b></span></div>
-      <div style="text-align:center;font-size:13px;color:var(--ink-dim)">请写出该有机物的系统名称</div>
-      <div class="nm-svg-wrap">${drawMol(m)}</div>
-      ${opts.map((o,i) => `<button class="nm-opt" data-o="${o}">${String.fromCharCode(65+i)}. ${o}</button>`).join("")}
-      <div class="nm-feedback" id="fb"></div>
-    </div>`;
-  $("stage").querySelectorAll(".nm-opt").forEach(b => b.onclick = () => answer(b));
-}
-function answer(btn){
-  if (answered) return; answered = true;
-  const pick = btn.dataset.o, right = pick === curQ.correct;
-  $("stage").querySelectorAll(".nm-opt").forEach(b => {
-    if (b.dataset.o === curQ.correct) b.classList.add("right");
-    else if (b === btn) b.classList.add("wrong");
-  });
-  const m = curQ.m;
-  const locTxt = m.subs.map(s => `${s.p} 位 ${s.kind}`).join("、");
-  if (right){ streak++; if (streak > best){ best = streak; localStorage.setItem("chem-naming-best", best); }
-    $("fb").innerHTML = `<span style="color:#2e7d4f">✓ 正确！主链 ${m.n} 碳（${CHAIN[m.n]}烷），${locTxt}</span>`;
-  } else {
-    streak = 0;
-    wrongBook.push({svg:null, correct: curQ.correct, pick, t: Date.now()});
-    localStorage.setItem("chem-naming-wrong", JSON.stringify(wrongBook.slice(-30)));
-    $("fb").innerHTML = `<span style="color:#c0392b">✗ 应为「${curQ.correct}」：主链 ${m.n} 碳，${locTxt}；编号取位次和最小</span>`;
+  /* 酯: C(=O)-O-C */
+  var cb=findCarbonyl(g);
+  if(cb){
+    var nb=neighbors(g,cb.c).filter(function(e){return e.order===1&&elOf(g,e.id)==='O';});
+    for(var i=0;i<nb.length;i++){
+      var o2=nb[i].id, nb2=neighbors(g,o2).filter(function(e){return e.id!==cb.c;});
+      if(nb2.length===1&&elOf(g,nb2[0].id)==='C'){
+        var acyl=bestChain(g,cb.c,[cb.c],null);
+        var alkyl=bestChain(g,nb2[0].id,[nb2[0].id],null);
+        if(acyl&&alkyl)
+          return ROOT1[acyl.len]+'酸'+ROOT1[alkyl.len]+'酯';
+      }
+    }
+    /* 羧酸: C(=O)-O(H) */
+    for(i=0;i<nb.length;i++){
+      o2=nb[i].id; nb2=neighbors(g,o2).filter(function(e){return e.id!==cb.c;});
+      if(nb2.length===0){
+        var ch=bestChain(g,cb.c,[cb.c],{type:'carbonyl',c:cb.c},{[cb.o]:1});
+        if(ch) return assemble(ch.subs,0,ACID[ch.len]||('碳'+ch.len+'酸'));
+      }
+    }
+    /* 醛: 羰基碳只有一个碳邻居(0 个 = 甲醛) */
+    var cn=neighbors(g,cb.c).filter(function(e){return elOf(g,e.id)==='C';});
+    if(cn.length<=1){
+      ch=bestChain(g,cb.c,[cb.c],{type:'carbonyl',c:cb.c},{[cb.o]:1});
+      if(ch) return assemble(ch.subs,0,ALDEHYDE[ch.len]||('碳'+ch.len+'醛'));
+    }
+    /* 酮 */
+    if(cn.length===2){
+      ch=bestChain(g,null,[cb.c],{type:'carbonyl',c:cb.c},{[cb.o]:1});
+      if(ch){
+        var kn=KETONE[ch.len]||('碳'+ch.len+'酮');
+        var kl=ch.len<=3?0:ch.featLoc;
+        return assemble(ch.subs,kl,kn);
+      }
+    }
   }
-  setTimeout(newQuestion, right ? 1300 : 3000);
-}
-
-$("ruleTable").innerHTML = D.rules.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
-$("funcTable").innerHTML = D.func.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
-$("btnWrongBook").onclick = () => {
-  if (!wrongBook.length) return alert("错题本是空的，去做几题吧！");
-  alert("最近错题（答案）：\n" + wrongBook.slice(-10).map((w,i) => `${i+1}. ${w.correct}（你选了 ${w.pick}）`).join("\n"));
+  /* 醇 */
+  var ohs=g.nodes.filter(function(n){return n.el==='O';});
+  for(i=0;i<ohs.length;i++){
+    var on=neighbors(g,ohs[i].id).filter(function(e){return e.order===1;});
+    var hasDbl=g.edges.some(function(e){return (e.a===ohs[i].id||e.b===ohs[i].id)&&e.order===2;});
+    if(on.length===1&&!hasDbl){
+      var oc=on[0].id;
+      ch=bestChain(g,null,[oc],{type:'oh',c:oc},{[ohs[i].id]:1});
+      if(ch){
+        var pn=ALCOHOL[ch.len]||('碳'+ch.len+'醇');
+        var fl=ch.len<=2?0:ch.featLoc;
+        return assemble(ch.subs,fl,pn);
+      }
+    }
+  }
+  /* 含硫：硫醇(S连1碳) / 硫醚(S连2碳) */
+  var sn2=g.nodes.filter(function(n){return n.el==='S';})[0];
+  if(sn2){
+    var scn=neighbors(g,sn2.id).filter(function(e){return elOf(g,e.id)==='C';});
+    if(scn.length===1){
+      ch=bestChain(g,null,[scn[0].id],null,{[sn2.id]:1});
+      if(ch) return assemble(ch.subs,0,(ALKANE[ch.len]||('碳'+ch.len+'烷')).replace(/烷$/,'硫醇'));
+    }else if(scn.length===2){
+      var sa1=bestChain(g,scn[0].id,[scn[0].id],null);
+      var sa2=bestChain(g,scn[1].id,[scn[1].id],null);
+      if(sa1&&sa2){
+        if(sa1.len===sa2.len) return '二'+ROOT1[sa1.len]+'硫醚';
+        var sab=[sa1.len,sa2.len].sort(function(a,b){return a-b;});
+        return ROOT1[sab[0]]+ROOT1[sab[1]]+'硫醚';
+      }
+    }
+  }
+  /* 含氮：胺(N连1~3碳) */
+  var nn2=g.nodes.filter(function(n){return n.el==='N';})[0];
+  if(nn2){
+    var ncn=neighbors(g,nn2.id).filter(function(e){return elOf(g,e.id)==='C';});
+    if(ncn.length===1){
+      ch=bestChain(g,null,[ncn[0].id],null,{[nn2.id]:1});
+      if(ch) return assemble(ch.subs,0,(ALKANE[ch.len]||('碳'+ch.len+'烷')).replace(/烷$/,'胺'));
+    }else if(ncn.length>=2){
+      var arms=ncn.map(function(e){ return bestChain(g,e.id,[e.id],null); });
+      if(arms.every(function(a){return !!a;})){
+        var lens=arms.map(function(a){return a.len;}).sort(function(a,b){return a-b;});
+        var allEq=lens.every(function(L){return L===lens[0];});
+        if(allEq) return CNT[lens.length]+ROOT1[lens[0]]+'胺';
+        return lens.map(function(L){return ROOT1[L];}).join('')+'胺';
+      }
+    }
+  }
+  /* 烯 */
+  var dbl=null;
+  for(i=0;i<g.edges.length;i++){
+    var e=g.edges[i];
+    if(e.order===2&&elOf(g,e.a)==='C'&&elOf(g,e.b)==='C'){ dbl={c1:e.a,c2:e.b}; break; }
+  }
+  if(dbl){
+    ch=bestChain(g,null,[dbl.c1,dbl.c2],{type:'alkene',c1:dbl.c1,c2:dbl.c2});
+    if(ch){
+      var en=ALKENE[ch.len]||('碳'+ch.len+'烯');
+      var el2=ch.len<=3?0:ch.featLoc;
+      return assemble(ch.subs,el2,en);
+    }
+  }
+  /* 烷 */
+  ch=bestChain(g,null,null,null);
+  if(ch) return assemble(ch.subs,0,ALKANE[ch.len]||('碳'+ch.len+'烷'));
+  return null;
 };
-newQuestion();
+
+/* ---------- 芳香烃命名 ---------- */
+function nameAromatic(g){
+  var ring=g.nodes.filter(function(n){return n.arom;}).map(function(n){return n.id;});
+  if(ring.length!==6) return null;
+  var adj=buildAdj(g), rs={};
+  ring.forEach(function(r){ rs[r]=1; });
+  // 环排序
+  var order=[ring[0]], prev=null, cur=ring[0];
+  while(order.length<6){
+    var nx=null, es=adj[cur]||[];
+    for(var i=0;i<es.length;i++){
+      if(rs[es[i].id]&&es[i].id!==prev&&order.indexOf(es[i].id)<0){ nx=es[i].id; break; }
+    }
+    if(!nx) return null;
+    prev=cur; cur=nx; order.push(cur);
+  }
+  /* 每个环碳的取代基：卤素叶 / 烷基区域（异丙基、叔丁基、复合支链） */
+  var subs=[];
+  var HALE={F:'fluoro',Cl:'chloro',Br:'bromo',I:'iodo'};
+  var ALKE=['','methyl','ethyl','propyl','butyl','pentyl','hexyl','heptyl','octyl','nonyl','decyl'];
+  for(i=0;i<6;i++){
+    var es2=adj[order[i]]||[];
+    for(var k=0;k<es2.length;k++){
+      var nb2=es2[k].id;
+      if(rs[nb2]) continue;
+      var nd=g.nodes.filter(function(n){return n.id===nb2;})[0];
+      if(!nd) continue;
+      if(HALE[nd.el]){ subs.push({ri:i,cn:SUBCN[HALE[nd.el]],key:HALE[nd.el],kind:'hal'}); continue; }
+      if(nd.el==='O'||nd.el==='N'||nd.el==='S'){ var pk={O:'hydroxy',N:'amino',S:'mercapto'}[nd.el]; subs.push({ri:i,cn:SUBCN[pk],key:pk,kind:'pre'}); continue; }
+      if(nd.el!=='C') continue;
+      var region={};
+      (function collect(x,from){
+        region[x]=1;
+        (adj[x]||[]).forEach(function(e2){
+          var y=e2.id;
+          if(rs[y]||y===from||region[y]) return;
+          var yn=g.nodes.filter(function(n){return n.id===y;})[0];
+          if(yn&&yn.el==='C') collect(y,x);
+        });
+      })(nb2,order[i]);
+      var rN=Object.keys(region);
+      var aDeg=(adj[nb2]||[]).filter(function(e2){return region[e2.id];}).length;
+      if(rN.length===3&&aDeg===2){ subs.push({ri:i,cn:'异丙基',key:'isopropyl',kind:'iso'}); continue; }
+      if(rN.length===4&&aDeg===3){ subs.push({ri:i,cn:'叔丁基',key:'tertbutyl',kind:'tert'}); continue; }
+      var best=[nb2];
+      (function dfs(p,vis){
+        if(p.length>best.length) best=p.slice();
+        var es3=adj[p[p.length-1]]||[];
+        for(var j=0;j<es3.length;j++){
+          var e3=es3[j];
+          if(!region[e3.id]||vis[e3.id]) continue;
+          vis[e3.id]=1; p.push(e3.id); dfs(p,vis); p.pop(); delete vis[e3.id];
+        }
+      })([nb2],(function(){var o={};o[nb2]=1;return o;})());
+      var bp={}; best.forEach(function(id){bp[id]=1;});
+      var extra=rN.filter(function(id){return !bp[id];});
+      if(best.length===1&&!extra.length){
+        subs.push({ri:i,cn:'甲基',key:'methyl',kind:'alk1'});
+        continue;
+      }
+      /* 复合取代基：路径卤素 + 一层支链 */
+      var items=[];
+      best.forEach(function(pp,j){
+        (adj[pp]||[]).forEach(function(e2){
+          if(rs[e2.id]||region[e2.id]||bp[e2.id]) return;
+          var yn=g.nodes.filter(function(n){return n.id===e2.id;})[0];
+          if(yn&&HALE[yn.el]) items.push({loc:j+1,en:HALE[yn.el],cn:SUBCN[HALE[yn.el]]});
+          else if(yn&&(yn.el==='O'||yn.el==='N'||yn.el==='S')){ var pk2={O:'hydroxy',N:'amino',S:'mercapto'}[yn.el]; items.push({loc:j+1,en:pk2,cn:SUBCN[pk2]}); }
+        });
+      });
+      var brOK=true;
+      extra.forEach(function(id){
+        var c=0, host=-1;
+        (adj[id]||[]).forEach(function(e2){ if(region[e2.id]&&bp[e2.id]){ c++; host=best.indexOf(e2.id); } });
+        if(c!==1){ brOK=false; return; }
+        var bl=1;
+        (function dfs2(p,vis){
+          if(p.length>bl) bl=p.length;
+          (adj[p[p.length-1]]||[]).forEach(function(e2){
+            if(extra.indexOf(e2.id)<0||vis[e2.id]) return;
+            vis[e2.id]=1; p.push(e2.id); dfs2(p,vis); p.pop(); delete vis[e2.id];
+          });
+        })([id],(function(){var o={};o[id]=1;return o;})());
+        var ben=ALKE[bl]||('alk'+bl);
+        items.push({loc:host+1,en:ben,cn:SUBCN[ben]||ROOT1[bl]+'基'});
+      });
+      var cn;
+      var baseEn=ALKE[best.length]||'hexyl';
+      if(!brOK||!items.length){ cn=ROOT1[best.length]+'基'; }
+      else{
+        items.sort(function(a,b){return a.en<b.en?-1:(a.en>b.en?1:0);});
+        var seen={}, parts2=[];
+        items.forEach(function(it){
+          if(seen[it.en]) return; seen[it.en]=1;
+          var same=items.filter(function(x){return x.en===it.en;}).map(function(x){return x.loc;}).sort(function(a,b){return a-b;});
+          parts2.push(same.join(',')+'-'+(same.length>1?CNT[same.length]:'')+it.cn);
+        });
+        cn=parts2.join('-')+ROOT1[best.length]+'基';
+      }
+      subs.push({ri:i,cn:cn,key:(items.length?items[0].en+'.':'')+baseEn,kind:'gen'});
+    }
+  }
+  if(!subs.length) return '苯';
+  var bestNum=null;
+  for(var s=0;s<6;s++){
+    for(var d=-1;d<=1;d+=2){
+      var pl=subs.map(function(sb){
+        var p=((sb.ri-s)*d)%6; if(p<0)p+=6; return {loc:p+1,sb:sb};
+      });
+      var locs=pl.map(function(x){return x.loc;}).sort(function(a,b){return a-b;});
+      var fk=pl.slice().sort(function(a,b){return a.sb.key<b.sb.key?-1:(a.sb.key>b.sb.key?1:0);})[0];
+      var firstLoc=fk?fk.loc:0;
+      if(!bestNum||cmpKey(locs,bestNum.locs)<0||(cmpKey(locs,bestNum.locs)===0&&firstLoc<bestNum.firstLoc))
+        bestNum={s:s,d:d,locs:locs,firstLoc:firstLoc};
+    }
+  }
+  var placed=subs.map(function(sb){
+    var p=((sb.ri-bestNum.s)*bestNum.d)%6; if(p<0)p+=6;
+    return {loc:p+1,sb:sb};
+  });
+  placed.sort(function(a,b){return a.sb.key<b.sb.key?-1:(a.sb.key>b.sb.key?1:0);});
+  var allMethyl=placed.every(function(p){return p.sb.kind==='alk1';});
+  var locStr=placed.map(function(p){return p.loc;}).sort(function(a,b){return a-b;}).join(',');
+  if(placed.length===1){
+    var p0=placed[0];
+    if(p0.sb.kind==='pre') return {amino:'苯胺',hydroxy:'苯酚',mercapto:'苯硫酚'}[p0.sb.key]||p0.sb.cn+'苯';
+    if(p0.sb.kind==='hal') return p0.sb.cn+'苯';
+    if(p0.sb.kind==='alk1') return '甲苯';
+    if(p0.sb.kind==='iso') return '异丙苯';
+    if(p0.sb.cn==='乙基') return '乙苯';
+    return p0.sb.cn+'苯';
+  }
+  if(placed.length===2&&allMethyl){
+    var pair=placed.map(function(p){return p.loc;}).sort(function(a,b){return a-b;});
+    if(pair[0]===1&&pair[1]===2) return '邻二甲苯';
+    if(pair[0]===1&&pair[1]===3) return '间二甲苯';
+    if(pair[0]===1&&pair[1]===4) return '对二甲苯';
+    return locStr+'-二甲苯';
+  }
+  if(allMethyl&&placed.length>=3) return locStr+'-'+CNT[placed.length]+'甲苯';
+  var groups={};
+  placed.forEach(function(p){ (groups[p.sb.key]=groups[p.sb.key]||{sb:p.sb,locs:[]}).locs.push(p.loc); });
+  var gks=Object.keys(groups).sort(function(a,b){return a<b?-1:1;});
+  var parts=gks.map(function(k){
+    var ls=groups[k].locs.sort(function(a,b){return a-b;});
+    var cn=groups[k].sb.cn;
+    if(ls.length>1){
+      if(cn.indexOf('-')>=0||cn.indexOf(',')>=0) return ls.join(',')+'-'+CNT[ls.length]+'('+cn+')';
+      return ls.join(',')+'-'+CNT[ls.length]+cn;
+    }
+    return ls.join(',')+'-'+cn;
+  });
+  return parts.join('-')+'苯';
+}
+
+/* ---------- 自动布局: BFS 扇形展开, 保留旧坐标防跳变 ---------- */
+NL.layoutGraph = function(g,prev){
+  prev=prev||{};
+  var pos={};
+  var adj=buildAdj(g), L=96;
+
+  /* ---------- 环枚举：所有简单环(3~10) → 诱导面 + 新边贡献贪心 ---------- */
+  var allCycles=[];
+  (function(){
+    var seenC={};
+    g.nodes.forEach(function(st){
+      (function dfs(cur,parent,path,vis){
+        if(path.length>10) return;
+        var es=adj[cur]||[];
+        for(var i=0;i<es.length;i++){
+          var nid=es[i].id;
+          if(nid===parent) continue;
+          if(vis[nid]){
+            if(nid===st.id&&path.length>=3){
+              var key=path.slice().sort().join('|');
+              if(!seenC[key]){ seenC[key]=1; allCycles.push(path.slice()); }
+            }
+            continue;
+          }
+          vis[nid]=1; path.push(nid);
+          dfs(nid,cur,path,vis);
+          path.pop(); delete vis[nid];
+        }
+      })(st.id,null,[st.id],(function(){var o={};o[st.id]=1;return o;})());
+    });
+  })();
+  allCycles.sort(function(a,b){ return a.length-b.length; });
+  var rings=[], covE={};
+  allCycles.forEach(function(c){
+    var n=c.length;
+    var cset={}; c.forEach(function(id){cset[id]=1;});
+    for(var i=0;i<n;i++){
+      var es=adj[c[i]]||[];
+      for(var j=0;j<es.length;j++){
+        var o=es[j].id;
+        if(cset[o]&&o!==c[(i+1)%n]&&o!==c[(i-1+n)%n]) return;
+      }
+    }
+    var novel=false;
+    for(var i2=0;i2<n;i2++){ var a=c[i2], b=c[(i2+1)%n]; if(!covE[a+'|'+b]&&!covE[b+'|'+a]){ novel=true; break; } }
+    if(!novel&&rings.length) return;
+    rings.push(c);
+    for(var i3=0;i3<n;i3++){ var a3=c[i3], b3=c[(i3+1)%n]; covE[a3+'|'+b3]=1; covE[b3+'|'+a3]=1; }
+  });
+
+  /* ---------- 模板工具 ---------- */
+  function tplAngle(n,j){ return -Math.PI/2+j*2*Math.PI/n; }
+  function tplR(n){ return L/(2*Math.sin(Math.PI/n)); }
+
+  /* 以公共键(或公共顶点对)为基准放置正多边形：exact=true 时精确重合 */
+  function placeOnPair(cids, aid, bid, side){
+    var n=cids.length, R=tplR(n);
+    var A=pos[aid], B=pos[bid];
+    var mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+    var dx=B.x-A.x, dy=B.y-A.y;
+    var dl=Math.sqrt(dx*dx+dy*dy)||1;
+    var px=-dy/dl, py=dx/dl;
+    /* 模板中两点间步数 k：使弦长最接近 dl */
+    var k=1;
+    if(n>3){
+      var best=1e9;
+      for(var kk=1;kk<n;kk++){ var ch=2*R*Math.sin(Math.PI*kk/n); if(Math.abs(ch-dl)<best){ best=Math.abs(ch-dl); k=kk; } }
+    }
+    var hh=Math.sqrt(Math.max(R*R-(dl/2)*(dl/2),0));
+    var C={x:mx+px*hh*side, y:my+py*hh*side};
+    var j0=cids.indexOf(aid), j1=cids.indexOf(bid);
+    var thA=Math.atan2(A.y-C.y, A.x-C.x);
+    var thB=Math.atan2(B.y-C.y, B.x-C.x);
+    var nrm=function(x){ while(x>Math.PI)x-=2*Math.PI; while(x<-Math.PI)x+=2*Math.PI; return x; };
+    var r1=nrm(tplAngle(n,j1)-tplAngle(n,j0));
+    var t1=nrm(thB-thA);
+    var mir=(r1*t1>=0)?1:-1;
+    for(var q=0;q<n;q++){
+      var rel=nrm(tplAngle(n,q)-tplAngle(n,j0));
+      var ang=thA+mir*rel;
+      pos[cids[q]]={x:C.x+R*Math.cos(ang), y:C.y+R*Math.sin(ang)};
+    }
+  }
+  function placeSpiro(cids, pinId, outward){
+    var n=cids.length, R=tplR(n);
+    var P=pos[pinId];
+    var j0=cids.indexOf(pinId);
+    var bestC=null;
+    for(var chir=0;chir<2;chir++){
+      var dir=chir?-1:1;
+      var base=tplAngle(n,j0);
+      var rot=Math.atan2(outward.y,outward.x)-base+Math.PI; /* 质心在 -dir0 侧 */
+      var cx=P.x-Math.cos(base+rot)*R, cy=P.y-Math.sin(base+rot)*R;
+      var ox=cx-P.x, oy=cy-P.y;
+      var ol=Math.sqrt(ox*ox+oy*oy)||1;
+      var dot=(ox/ol)*outward.x+(oy/ol)*outward.y;
+      if(!bestC||dot>bestC.dot) bestC={dot:dot,rot:rot};
+    }
+    var rot=bestC.rot;
+    var cx=P.x-Math.cos(tplAngle(n,j0)+rot)*R, cy=P.y-Math.sin(tplAngle(n,j0)+rot)*R;
+    for(var q=0;q<n;q++){
+      var ang=tplAngle(n,q)+rot;
+      pos[cids[q]]={x:cx+R*Math.cos(ang), y:cy+R*Math.sin(ang)};
+    }
+  }
+
+  /* ---------- 环系分组（共享原子并查） ---------- */
+  var rparent=rings.map(function(_,i){return i;});
+  function rfind(x){ while(rparent[x]!==x){ rparent[x]=rparent[rparent[x]]; x=rparent[x]; } return x; }
+  for(var i=0;i<rings.length;i++) for(var j=i+1;j<rings.length;j++){
+    var share=rings[i].some(function(id){ return rings[j].indexOf(id)>=0; });
+    if(share) rparent[rfind(j)]=rfind(i);
+  }
+  var systems={};
+  rings.forEach(function(rc,idx){ var r=rfind(idx); (systems[r]=systems[r]||[]).push(rc); });
+
+  /* ---------- 逐环系刚性放置 ---------- */
+  var sysOffset=0, sysRight=null;
+  var sysOf={};
+  Object.keys(systems).forEach(function(key){
+    var sys=systems[key];
+    if(sysRight!==null){
+      /* 到已放置原子的最短路径边数 → 链隙 = 边数 × L，保证桥键全长 96 */
+      var dist={}, q=[], head=0, best=-1;
+      sys.forEach(function(rc){ rc.forEach(function(id){ if(dist[id]==null){ dist[id]=0; q.push(id); } }); });
+      while(head<q.length){
+        var x=q[head++];
+        if(dist[x]>0&&pos[x]){ best=dist[x]; break; }
+        (adj[x]||[]).forEach(function(e){ if(dist[e.id]==null){ dist[e.id]=dist[x]+1; q.push(e.id); } });
+      }
+      if(best<1) best=1;
+      var n0=sys[0].length;
+      sysOffset=sysRight+best*L+(L/(2*Math.sin(Math.PI/n0)));
+    }
+    var placed=[];
+    sys.forEach(function(rc){
+      if(!placed.length){
+        /* 首环：原点模板 */
+        var n=rc.length, R=tplR(n);
+        rc.forEach(function(id,q){
+          var ang=tplAngle(n,q);
+          pos[id]={x:sysOffset+R*Math.cos(ang), y:R*Math.sin(ang)};
+        });
+        placed.push(rc);
+        return;
+      }
+      /* 找已放置环中共享最多的 */
+      var host=null, hostShared=[];
+      placed.forEach(function(pc){
+        var sh=rc.filter(function(id){ return pc.indexOf(id)>=0; });
+        if(!host||sh.length>hostShared.length){ host=pc; hostShared=sh; }
+      });
+      if(hostShared.length>=2){
+        /* 公共键：取在 rc 中相邻的一对 */
+        var pair=null;
+        for(var q=0;q<rc.length;q++){
+          var a=rc[q], b=rc[(q+1)%rc.length];
+          if(hostShared.indexOf(a)>=0&&hostShared.indexOf(b)>=0){ pair=[a,b]; break; }
+        }
+        if(pair){
+          /* host 环质心侧 */
+          var Mx=(pos[pair[0]].x+pos[pair[1]].x)/2, My=(pos[pair[0]].y+pos[pair[1]].y)/2;
+          var hx=0,hy=0,hn=0;
+          host.forEach(function(id){ hx+=pos[id].x; hy+=pos[id].y; hn++; });
+          hx/=hn; hy/=hn;
+          var ux=pos[pair[1]].x-pos[pair[0]].x, uy=pos[pair[1]].y-pos[pair[0]].y;
+          var s1=(((hx-Mx)*(-uy)+(hy-My)*ux))>=0?1:-1;
+          /* 新环放对侧；若 host 环因公共键被移动需归位——模板边长恒为 L，天然精确 */
+          placeOnPair(rc, pair[0], pair[1], -s1);
+        }else{
+          placeOnPair(rc, hostShared[0], hostShared[1], -1);
+        }
+      }else if(hostShared.length===1){
+        var pin=hostShared[0];
+        var hx2=0,hy2=0,hn2=0;
+        host.forEach(function(id){ hx2+=pos[id].x; hy2+=pos[id].y; hn2++; });
+        hx2/=hn2; hy2/=hn2;
+        var ox=pos[pin].x-hx2, oy=pos[pin].y-hy2;
+        var ol=Math.sqrt(ox*ox+oy*oy)||1;
+        placeSpiro(rc, pin, {x:ox/ol, y:oy/ol});
+      }else{
+        /* 无共享（不该发生）：放远处 */
+        var n2=rc.length, R2=tplR(n2);
+        rc.forEach(function(id,q){ var ang=tplAngle(n2,q); pos[id]={x:sysOffset+300+R2*Math.cos(ang), y:R2*Math.sin(ang)}; });
+      }
+      placed.push(rc);
+    });
+    sys.forEach(function(rc){ rc.forEach(function(id){ sysOf[id]=key; }); });
+    var mnx=1e9,mxx=-1e9;
+    sys.forEach(function(rc){ rc.forEach(function(id){ if(pos[id]){ mnx=Math.min(mnx,pos[id].x); mxx=Math.max(mxx,pos[id].x); } }); });
+    sysRight=mxx;
+  });
+
+  /* ---------- 链与支链：BFS 最大空隙 ---------- */
+  if(!Object.keys(pos).length&&g.nodes.length){ pos[g.nodes[0].id]={x:0,y:0}; }
+  var queue=Object.keys(pos).slice(), head=0, inq={}, depth={};
+  queue.forEach(function(q){ inq[q]=1; depth[q]=0; });
+  while(head<queue.length){
+    var cur=queue[head++];
+    var kids=[];
+    (adj[cur]||[]).forEach(function(e){ if(!pos[e.id]&&!inq[e.id]){ kids.push(e.id); inq[e.id]=1; depth[e.id]=depth[cur]+1; } });
+    if(!kids.length) continue;
+    var nbs=[];
+    (adj[cur]||[]).forEach(function(e){ if(pos[e.id]&&e.id!==cur) nbs.push(e.id); });
+    var from,gap,off,angs=null;
+    if(!nbs.length){
+      /* 种子：两个孩子=链的两端(反向伸直)，三个=120°扇形 */
+      if(kids.length===2) angs=[0, Math.PI];
+      else if(kids.length===3) angs=[0, 2*Math.PI/3, -2*Math.PI/3];
+      else { from=0; gap=Math.PI/3; off=0; }
+    }
+    else if(kids.length===1 && (adj[cur]||[]).length<=2){
+      /* 末端延长：沿最深邻居方向直线外推；直前方拥挤则退到最大空隙 */
+      var bestN=nbs[0];
+      nbs.forEach(function(nid){ if(depth[nid]>depth[bestN]) bestN=nid; });
+      var st=Math.atan2(pos[bestN].y-pos[cur].y, pos[bestN].x-pos[cur].x)+Math.PI;
+      var nrmA=function(x){ while(x>Math.PI)x-=2*Math.PI; while(x<-Math.PI)x+=2*Math.PI; return x; };
+      var crowd=false;
+      g.nodes.forEach(function(n){
+        if(pos[n.id]&&n.id!==cur&&nbs.indexOf(n.id)<0){
+          var da=Math.abs(nrmA(Math.atan2(pos[n.id].y-pos[cur].y,pos[n.id].x-pos[cur].x)-st));
+          if(da<0.7) crowd=true;
+        }
+      });
+      if(!crowd){ from=st; gap=0; off=0; }
+      else{
+        var nb=nbs.map(function(nid){ return Math.atan2(pos[nid].y-pos[cur].y,pos[nid].x-pos[cur].x); });
+        nb.sort(function(a,b){return a-b;});
+        var bg=-1,bs=0;
+        for(var ai=0;ai<nb.length;ai++){
+          var a1=nb[ai], a2=(ai+1<nb.length)?nb[ai+1]:nb[0]+Math.PI*2;
+          if(a2-a1>bg){ bg=a2-a1; bs=a1; }
+        }
+        from=bs; gap=bg/2; off=gap;
+      }
+    }
+    else if(nbs.length===1 && kids.length===1 && (adj[cur]||[]).length>2){
+      /* 中间原子新键=支链：垂直于链方向 */
+      var base2=Math.atan2(pos[nbs[0]].y-pos[cur].y, pos[nbs[0]].x-pos[cur].x)+Math.PI;
+      angs=[base2+Math.PI/2, base2-Math.PI/2];
+    }
+    else if(nbs.length===1){
+      /* 只有一个已定位邻居：第一个孩子笔直前伸，其余 ±120° 分支 */
+      var base=Math.atan2(pos[nbs[0]].y-pos[cur].y, pos[nbs[0]].x-pos[cur].x)+Math.PI;
+      var offs=[0, 2*Math.PI/3, -2*Math.PI/3];
+      angs=kids.map(function(kid,idx){ return base+(offs[idx]||0); });
+    }
+    else{
+      var nb=nbs.map(function(nid){ return Math.atan2(pos[nid].y-pos[cur].y,pos[nid].x-pos[cur].x); });
+      nb.sort(function(a,b){return a-b;});
+      var bg=-1,bs=0;
+      for(var ai=0;ai<nb.length;ai++){
+        var a1=nb[ai], a2=(ai+1<nb.length)?nb[ai+1]:nb[0]+Math.PI*2;
+        if(a2-a1>bg){ bg=a2-a1; bs=a1; }
+      }
+      from=bs; gap=bg/(kids.length+1); off=gap;
+    }
+    kids.forEach(function(kid,idx){
+      var ang=angs&&angs[idx]!=null?angs[idx]:(from+off+gap*idx);
+      pos[kid]={x:pos[cur].x+L*Math.cos(ang), y:pos[cur].y+L*Math.sin(ang)};
+      queue.push(kid);
+    });
+  }
+
+  /* 孤立碎片：横向排列 */
+  var isoX=-400;
+  g.nodes.forEach(function(n){
+    if(!pos[n.id]){ pos[n.id]={x:isoX,y:260}; isoX+=140; }
+  });
+
+  /* 链原子防挤压：环保刚，链原子互推/被环推（防止链自叠成"假连接"） */
+  var ringA={};
+  rings.forEach(function(rc){ rc.forEach(function(id){ ringA[id]=1; }); });
+  var ids3=Object.keys(pos);
+  for(var it2=0;it2<90;it2++){
+    var mv2=false;
+    for(var i=0;i<ids3.length;i++){
+      for(var j=i+1;j<ids3.length;j++){
+        var A=pos[ids3[i]], B=pos[ids3[j]];
+        var fi=ringA[ids3[i]]?1:0, fj=ringA[ids3[j]]?1:0;
+        if(fi&&fj) continue;
+        var dx=B.x-A.x, dy=B.y-A.y;
+        var d=Math.sqrt(dx*dx+dy*dy)||0.01;
+        if(d<50){
+          var push=(50-d)*0.5;
+          var ux=dx/d, uy=dy/d;
+          if(fi){ B.x+=ux*push; B.y+=uy*push; }
+          else if(fj){ A.x-=ux*push; A.y-=uy*push; }
+          else{ A.x-=ux*push*0.5; A.y-=uy*push*0.5; B.x+=ux*push*0.5; B.y+=uy*push*0.5; }
+          mv2=true;
+        }
+      }
+    }
+    if(!mv2) break;
+  }
+
+  /* 长键修复：断开该键后含环原子的一侧整体刚性平移，把 >1.5L 的键收回 L */
+  var ringAtom={};
+  rings.forEach(function(rc){ rc.forEach(function(id){ ringAtom[id]=1; }); });
+  for(var rp=0;rp<8;rp++){
+    var any=false;
+    g.edges.forEach(function(e){
+      var a=pos[e.a], b=pos[e.b];
+      if(!a||!b) return;
+      var dx=b.x-a.x, dy=b.y-a.y;
+      var d=Math.hypot(dx,dy)||1;
+      if(d>1.5*L){
+        var seen={}, q=[e.b], hasRing=false, comp=[];
+        seen[e.b]=1;
+        while(q.length){
+          var x=q.pop(); comp.push(x);
+          if(ringAtom[x]) hasRing=true;
+          (adj[x]||[]).forEach(function(ed){
+            var y=ed.id;
+            if(y!==e.a&&!seen[y]&&pos[y]){ seen[y]=1; q.push(y); }
+          });
+        }
+        if(hasRing&&comp.length<60){
+          var ux=dx/d, uy=dy/d, shift=d-L;
+          comp.forEach(function(id){ pos[id]={x:pos[id].x-ux*shift, y:pos[id].y-uy*shift}; });
+        }
+        any=true;
+      }
+    });
+    if(!any) break;
+  }
+
+  /* 质心居中 */
+  var ids2=Object.keys(pos);
+  if(ids2.length){
+    var cx=0,cy=0;
+    ids2.forEach(function(k){ cx+=pos[k].x; cy+=pos[k].y; });
+    cx/=ids2.length; cy/=ids2.length;
+    ids2.forEach(function(k){ pos[k]={x:pos[k].x-cx, y:pos[k].y-cy}; });
+  }
+  return pos;
+};
+})();
 </script>
-<script>/* ========= 主题切换 washi / sumi / ai ========= */
+
+<script>
+/* ================================================================
+ * 题库 · 拼字键盘配置 · 进度存储
+ * 结构名称全部运行期由命名引擎推导，保证与判定一致
+ * ================================================================ */
 (function(){
-  const root=document.documentElement, KEY='ch-theme-lab';
-  const valid=['washi','sumi','ai'];
-  const saved=localStorage.getItem(KEY);
-  root.dataset.theme=valid.includes(saved)?saved:'washi';
-  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
-  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
-  document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
-  sync();
-})();</script>
+"use strict";
+function Q(t,kind,spec,hint,wrong){ return {t:t,kind:kind,spec:spec,hint:hint,wrong:wrong}; }
+var M='methyl',E='ethyl',P='propyl',IP='isopropyl',B='butyl',IB='isobutyl';
+function S(pos,kind){ return {pos:pos,kind:kind}; }
+
+window.POOLS = {
+alkane:{
+beginner:[
+ Q('build','alkane',{n:4,subs:[S(2,M)]},'主链 4 个碳，2 号位挂一个甲基。'),
+ Q('name','alkane',{n:5,subs:[S(2,M)]},'最长链是戊烷，甲基在 2 号位。'),
+ Q('name','alkane',{n:5,subs:[S(3,M)]},'注意：从哪一端编号，位次更小？'),
+ Q('build','alkane',{n:3,subs:[S(2,M),S(2,M)]},'中心碳连着四个甲基，主链是丙烷。'),
+ Q('judge','alkane',{n:6,subs:[S(3,M)]},'编号方向决定了甲基的位次。','4-甲基己烷'),
+ Q('build','alkane',{n:7,subs:[S(3,M)]},'庚烷主链，3 号位一个甲基。')
+],
+intermediate:[
+ Q('name','alkane',{n:4,subs:[S(2,M),S(2,M)]},'两个甲基挤在同一个碳上。'),
+ Q('build','alkane',{n:5,subs:[S(3,E)]},'3 号位挂的是乙基，主链还是戊烷。'),
+ Q('name','alkane',{n:5,subs:[S(2,M),S(3,M)]},'从靠近取代基的一端开始数。'),
+ Q('name','alkane',{n:7,subs:[S(4,M)]},'庚烷：无论从哪头数，甲基都在正中。'),
+ Q('build','alkane',{n:6,subs:[S(2,M),S(4,M)]},'己烷主链，2、4 位各一个甲基。'),
+ Q('judge','alkane',{n:6,subs:[S(3,M),S(5,M)]},'把碳链掉个头再数一遍。','3,5-二甲基己烷')
+],
+advanced:[
+ Q('name','alkane',{n:6,subs:[S(3,E),S(2,M)]},'取代基书写有固定顺序：乙基排在甲基前面。'),
+ Q('build','alkane',{n:6,subs:[S(3,IP),S(2,M)]},'3 号位那个 Y 形分支是异丙基。'),
+ Q('name','alkane',{n:4,subs:[S(2,M),S(2,M),S(3,M)]},'三个甲基：2 号位两个，3 号位一个。'),
+ Q('build','alkane',{n:5,subs:[S(3,E),S(2,M),S(2,M)]},'乙基在前，两个甲基在后。'),
+ Q('judge','alkane',{n:6,subs:[S(2,M),S(4,E)]},'先定编号方向，再按字母序列取代基。','2-甲基-4-乙基己烷'),
+ Q('name','alkane',{n:8,subs:[S(3,M),S(5,M)]},'辛烷主链，两个甲基分居 3、5 位。')
+],
+hell:[
+ Q('name','alkane',{n:7,subs:[S(3,E),S(4,M)]},'位次同为 3、4 时，让乙基拿小编号。'),
+ Q('judge','alkane',{n:5,subs:[S(3,M),S(4,M)]},'2,3 和 3,4，哪组位次更低？','3,4-二甲基戊烷'),
+ Q('build','alkane',{n:6,subs:[S(2,M),S(4,E)]},'编号方向 + 书写顺序，双重陷阱。'),
+ Q('judge','alkane',{n:8,subs:[S(4,M),S(6,M)]},'最低位次组：先看第一处差异。','4,6-二甲基辛烷'),
+ Q('name','alkane',{n:5,subs:[S(3,E),S(3,M)]},'同一个碳上同时挂着乙基和甲基。'),
+ Q('build','alkane',{n:4,subs:[S(2,M),S(2,M),S(3,M)]},'三甲基丁烷，搭的时候别手抖。'),
+ Q('judge','alkane',{n:9,subs:[S(2,M),S(7,M)]},'壬烷两头数，2,7 完胜 3,8。','3,8-二甲基壬烷'),
+ Q('name','alkane',{n:6,subs:[S(2,M),S(2,M),S(5,M)]},'三个甲基：2 号位两个，5 号位一个。')
+]},
+alkene:{
+beginner:[
+ Q('build','alkene',{n:3,d:1},'三个碳，双键在 1 号位。'),
+ Q('name','alkene',{n:4,d:1},'双键在端位的丁烯。'),
+ Q('name','alkene',{n:4,d:2},'双键居中，编号无所谓？再想想。'),
+ Q('build','alkene',{n:3,d:1,subs:[S(2,M)]},'丙烯骨架，2 号位一个甲基。'),
+ Q('judge','alkene',{n:5,d:2},'双键的位次也要取最小。','3-戊烯')
+],
+intermediate:[
+ Q('name','alkene',{n:4,d:1,subs:[S(2,M)]},'丁烯主链，2 号位甲基。'),
+ Q('build','alkene',{n:5,d:1,subs:[S(3,M)]},'戊烯主链，3 号位甲基。'),
+ Q('name','alkene',{n:5,d:2},'双键 2 位的戊烯。'),
+ Q('judge','alkene',{n:5,d:2,subs:[S(4,M)]},'双键优先于甲基拿小编号。','2-甲基-3-戊烯'),
+ Q('build','alkene',{n:4,d:2,subs:[S(2,M),S(3,M)]},'四碳主链，2、3 位各一个甲基。'),
+ Q('name','alkene',{n:6,d:2,subs:[S(3,M)]},'己烯主链，3 号位甲基。')
+],
+advanced:[
+ Q('name','alkene',{n:5,d:1,subs:[S(2,M),S(3,M)]},'双键 1 位，两个甲基在 2、3 位。'),
+ Q('build','alkene',{n:6,d:2,subs:[S(2,M)]},'双键 2 位的己烯，2 号位甲基。'),
+ Q('judge','alkene',{n:5,d:1,subs:[S(2,E)]},'主链必须包含双键，而且碳数要尽可能多。','2-乙基-1-丁烯'),
+ Q('name','alkene',{n:5,d:2,subs:[S(2,M),S(4,M)]},'两个甲基，2 位和 4 位。'),
+ Q('build','alkene',{n:7,d:3,subs:[S(2,M)]},'庚烯主链，双键 3 位，甲基 2 位。'),
+ Q('name','alkene',{n:6,d:1,subs:[S(4,M)]},'端位双键，4 号位甲基。')
+],
+hell:[
+ Q('judge','alkene',{n:6,d:3,subs:[S(5,M)]},'双键两端编号同为 3 时，让甲基拿小数字。','5-甲基-3-己烯'),
+ Q('build','alkene',{n:4,d:1,subs:[S(2,M)]},'最常见的错题原型，搭一遍就懂了。'),
+ Q('judge','alkene',{n:5,d:1,subs:[S(2,E)]},'别被乙基骗了，主链有 5 个碳。','4-乙基-1-戊烯'),
+ Q('build','alkene',{n:6,d:2,subs:[S(3,M),S(5,M)]},'双键 2 位，甲基 3、5 位。'),
+ Q('name','alkene',{n:5,d:2,subs:[S(4,M),S(4,M)]},'4 号位一口气挂两个甲基。'),
+ Q('judge','alkene',{n:7,d:3,subs:[S(6,M)]},'双键位次优先，甲基只能认命。','2-甲基-4-庚烯'),
+ Q('name','alkene',{n:4,d:1,subs:[S(2,M),S(2,M)]},'端位双键，2 号位两个甲基。')
+]},
+oxygen:{
+beginner:[
+ Q('build','alcohol',{n:2,oh:1},'两个碳，羟基挂在端头。'),
+ Q('name','alcohol',{n:3,oh:1},'羟基在 1 号位的丙醇。'),
+ Q('name','alcohol',{n:3,oh:2},'羟基在 2 号位的丙醇。'),
+ Q('build','alcohol',{n:4,oh:1},'丁醇，羟基在端位。'),
+ Q('judge','ketone',{n:4,k:2},'酮的编号从靠近羰基的一端开始。','3-丁酮'),
+ Q('name','aldehyde',{n:2},'最简单的醛：两个碳。')
+],
+intermediate:[
+ Q('name','alcohol',{n:4,oh:2},'羟基 2 位的丁醇。'),
+ Q('build','alcohol',{n:3,oh:1,subs:[S(2,M)]},'丙醇主链，2 号位甲基。'),
+ Q('name','alcohol',{n:5,oh:2},'戊醇，羟基 2 位。'),
+ Q('build','ketone',{n:3,k:2},'最小的酮，三个碳。'),
+ Q('name','aldehyde',{n:4,subs:[S(3,M)]},'丁醛骨架，3 号位甲基。'),
+ Q('judge','alcohol',{n:5,oh:3,subs:[S(4,M)]},'羟基位次优先于甲基。','4-甲基-3-戊醇'),
+ Q('build','acid',{n:2},'羧基两个氧，一个双键一个单键。')
+],
+advanced:[
+ Q('name','alcohol',{n:3,oh:1,subs:[S(2,M),S(2,M)]},'丙醇主链，2 号位两个甲基。'),
+ Q('build','alcohol',{n:4,oh:2,subs:[S(3,M)]},'丁醇主链，羟基 2 位，甲基 3 位。'),
+ Q('name','alcohol',{n:3,oh:2,subs:[S(2,M),S(2,M)]},'叔丁醇的学名。'),
+ Q('judge','ketone',{n:5,k:2,subs:[S(4,M)]},'羰基 2 位，不是 3 位。','4-甲基-3-戊酮'),
+ Q('build','alcohol',{n:5,oh:2,subs:[S(4,M)]},'戊醇主链，羟基 2 位，甲基 4 位。'),
+ Q('name','acid',{n:3,subs:[S(2,M)]},'丙酸骨架，2 号位甲基。')
+],
+hell:[
+ Q('build','alcohol',{n:5,oh:3,subs:[S(4,M)]},'羟基 3 位，甲基 2 位——编号有讲究。'),
+ Q('judge','ketone',{n:5,k:3},'对称的酮，编号也要取小。','2-戊酮'),
+ Q('name','alcohol',{n:6,oh:2,subs:[S(5,M)]},'己醇主链，羟基 2 位，甲基 5 位。'),
+ Q('name','acid',{n:4,subs:[S(3,M)]},'丁酸骨架，3 号位甲基。'),
+ Q('build','ketone',{n:6,k:3,subs:[S(5,M)]},'羰基 3 位，甲基 5 位。'),
+ Q('build','aldehyde',{n:4,subs:[S(2,M)]},'醛基碳永远是 1 号。'),
+ Q('name','alcohol',{n:4,oh:2,subs:[S(2,M)]},'叔丁醇的同系物，搭出来看看。')
+]},
+ester:{
+beginner:[
+ Q('build','ester',{a:1,r:1},'羰基碳 + 氧 + 甲基：甲酸甲酯。'),
+ Q('name','ester',{a:2,r:1},'乙酸段 + 甲醇段。'),
+ Q('name','ester',{a:1,r:2},'甲酸段 + 乙醇段。'),
+ Q('build','ester',{a:2,r:2},'最出名的酯，搭一个乙酸乙酯。'),
+ Q('judge','ester',{a:1,r:3},'酸段只有 1 个碳，别数错。','丙酸甲酯')
+],
+intermediate:[
+ Q('name','ester',{a:3,r:1},'丙酸甲酯。'),
+ Q('build','ester',{a:2,r:3},'乙酸段 + 丙醇段。'),
+ Q('name','ester',{a:4,r:1},'丁酸甲酯。'),
+ Q('build','ester',{a:3,r:2},'丙酸乙酯。'),
+ Q('name','ester',{a:2,r:4},'乙酸丁酯。'),
+ Q('judge','ester',{a:2,r:3},'羰基那侧才是酸段。','丙酸乙酯')
+],
+advanced:[
+ Q('name','ester',{a:3,r:3},'丙酸丙酯。'),
+ Q('build','ester',{a:5,r:1},'戊酸甲酯。'),
+ Q('name','ester',{a:4,r:2},'丁酸乙酯。'),
+ Q('build','ester',{a:1,r:4},'甲酸丁酯。'),
+ Q('judge','ester',{a:3,r:1},'酸段比乙酸多一个碳。','乙酸甲酯'),
+ Q('name','ester',{a:4,r:3},'丁酸丙酯。')
+],
+hell:[
+ Q('judge','ester',{a:3,r:2},'酸段 3 碳、醇段 2 碳，别对调。','乙酸丙酯'),
+ Q('build','ester',{a:1,r:3},'甲酸丙酯。'),
+ Q('judge','ester',{a:4,r:1},'数数羰基碳那一侧的碳。','丙酸乙酯'),
+ Q('name','ester',{a:2,r:4},'乙酸丁酯。'),
+ Q('build','ester',{a:5,r:2},'戊酸乙酯。'),
+ Q('judge','ester',{a:1,r:1},'两边都是甲，可名字不是乙酸甲酯。','乙酸甲酯'),
+ Q('build','ester',{a:3,r:3},'丙酸丙酯。')
+]},
+aromatic:{
+beginner:[
+ Q('build','aromatic',{subs:[S(1,M)]},'一个甲基挂在苯环上。'),
+ Q('name','aromatic',{subs:[S(1,E)]},'乙基苯有专用简称。'),
+ Q('name','aromatic',{subs:[S(1,P)]},'丙基苯。'),
+ Q('build','aromatic',{subs:[S(1,B)]},'丁基苯。'),
+ Q('judge','aromatic',{subs:[S(1,M),S(2,M)]},'相邻两个甲基叫邻二甲苯。','间二甲苯')
+],
+intermediate:[
+ Q('name','aromatic',{subs:[S(1,M),S(2,M)]},'相邻的两个甲基。'),
+ Q('build','aromatic',{subs:[S(1,M),S(3,M)]},'隔一个碳的两个甲基。'),
+ Q('name','aromatic',{subs:[S(1,M),S(4,M)]},'对角的两个甲基。'),
+ Q('judge','aromatic',{subs:[S(1,E),S(2,M)]},'书写顺序：乙基在前，甲基在后。','1-甲基-2-乙基苯'),
+ Q('build','aromatic',{subs:[S(1,M),S(2,M),S(3,M)]},'三个甲基连着排。'),
+ Q('name','aromatic',{subs:[S(1,M),S(2,M),S(4,M)]},'三个甲基的不对称排法。')
+],
+advanced:[
+ Q('build','aromatic',{subs:[S(1,M),S(3,M),S(5,M)]},'三个甲基均匀分布。'),
+ Q('name','aromatic',{subs:[S(1,E),S(2,M)]},'乙基 1 位，甲基 2 位。'),
+ Q('judge','aromatic',{subs:[S(1,E),S(4,M)]},'对位二取代，顺序依然是乙基先。','1-甲基-4-乙基苯'),
+ Q('build','aromatic',{subs:[S(1,M),S(2,M),S(3,M),S(4,M)]},'四个甲基连着排。'),
+ Q('name','aromatic',{subs:[S(1,M),S(2,M),S(4,M),S(5,M)]},'四个甲基的对称排法。'),
+ Q('judge','aromatic',{subs:[S(1,M),S(2,M),S(3,M),S(5,M)]},'编号不同，名字完全不同。','1,2,3,4-四甲苯')
+],
+hell:[
+ Q('build','aromatic',{subs:[S(1,E),S(2,M)]},'邻位二取代的经典考法。'),
+ Q('name','aromatic',{subs:[S(1,P),S(4,M)]},'对位：丙基和甲基。'),
+ Q('judge','aromatic',{subs:[S(1,M),S(2,M),S(3,M)]},'连三甲苯的编号只有一种最小。','1,2,4-三甲苯'),
+ Q('name','aromatic',{subs:[S(1,E),S(3,M)]},'间位：乙基和甲基。'),
+ Q('build','aromatic',{subs:[S(1,B),S(4,M)]},'对位：丁基和甲基。'),
+ Q('judge','aromatic',{subs:[S(1,M),S(2,M),S(4,M)]},'1,2,4 与 1,2,3 只差一个位次。','1,2,3-三甲苯'),
+ Q('name','aromatic',{subs:[S(1,E),S(2,E)]},'两个乙基相邻。')
+]}
+};
+
+/* ---------- 拼字键盘 ---------- */
+window.KEYS={
+ digits:['1','2','3','4','5','6','7','8','9','10'],
+ syms:['-',','],
+ counts:['二','三','四','五','六'],
+ subs:['甲基','乙基','丙基','异丙基','丁基','异丁基'],
+ alkane:['甲烷','乙烷','丙烷','丁烷','戊烷','己烷','庚烷','辛烷','壬烷','癸烷'],
+ alkene:['乙烯','丙烯','丁烯','戊烯','己烯','庚烯','辛烯'],
+ oxygen:['甲醇','乙醇','丙醇','丁醇','戊醇','己醇','甲醛','乙醛','丙醛','丁醛','戊醛','丙酮','丁酮','戊酮','己酮','甲酸','乙酸','丙酸','丁酸','戊酸'],
+ ester:['甲酸','乙酸','丙酸','丁酸','戊酸','甲酯','乙酯','丙酯','丁酯','戊酯'],
+ aromatic:['苯','甲苯','乙苯','丙苯','丁苯','邻二甲苯','间二甲苯','对二甲苯','三甲苯','四甲苯']
+};
+window.keyGroups=function(fam){
+  return [
+    {label:'位 次', keys:window.KEYS.digits},
+    {label:'符 号', keys:window.KEYS.syms},
+    {label:'数 量', keys:window.KEYS.counts},
+    {label:'取代基', keys:window.KEYS.subs},
+    {label:'母 体', keys:window.KEYS[fam]}
+  ];
+};
+
+/* ---------- 进度存储 ---------- */
+window.STORE={
+ load:function(){ try{ return JSON.parse(localStorage.getItem('zao-nl-progress-v1')||'{}'); }catch(e){ return {}; } },
+ save:function(d){ try{ localStorage.setItem('zao-nl-progress-v1',JSON.stringify(d)); }catch(e){} }
+};
+})();
+</script>
+
+<script>
+/* ================================================================
+ * three.js r128 背景：漂浮粒子场（GLSL1 语法，兼容 r128 API）
+ * 手动核对: BufferGeometry.setAttribute / ShaderMaterial uniforms /
+ * OrthographicCamera / Clock 均为 r128 可用接口；着色器使用
+ * attribute/varying/gl_FragColor，无 WebGL2 专属语法
+ * ================================================================ */
+(function(){
+"use strict";
+if(!window.THREE) return;
+var holder=document.getElementById('bgfx');
+if(!holder) return;
+var renderer;
+try{ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); }
+catch(e){ return; }
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setClearColor(0x000000,0);
+holder.appendChild(renderer.domElement);
+var scene=new THREE.Scene();
+var cam=new THREE.OrthographicCamera(-1,1,1,-1,-100,100);
+cam.position.z=50;
+var N=100;
+var pos=new Float32Array(N*3), sc=new Float32Array(N), ph=new Float32Array(N);
+for(var i=0;i<N;i++){
+  pos[i*3]=(Math.random()*2-1)*760;
+  pos[i*3+1]=(Math.random()*2-1)*430;
+  pos[i*3+2]=Math.random()*30-15;
+  sc[i]=2.5+Math.random()*5.5;
+  ph[i]=Math.random()*6.283;
+}
+var geo=new THREE.BufferGeometry();
+geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+geo.setAttribute('aScale',new THREE.BufferAttribute(sc,1));
+geo.setAttribute('aPhase',new THREE.BufferAttribute(ph,1));
+var mat=new THREE.ShaderMaterial({
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+  uniforms:{
+    uTime:{value:0},
+    uColor:{value:new THREE.Color('#00e5ff')},
+    uColor2:{value:new THREE.Color('#ff2d95')}
+  },
+  vertexShader:[
+    'attribute float aScale;',
+    'attribute float aPhase;',
+    'varying float vA;',
+    'uniform float uTime;',
+    'void main(){',
+    '  vec3 p=position;',
+    '  p.x+=sin(uTime*0.22+aPhase)*16.0;',
+    '  p.y+=cos(uTime*0.17+aPhase*1.7)*13.0;',
+    '  vec4 mv=modelViewMatrix*vec4(p,1.0);',
+    '  gl_PointSize=aScale*(300.0/max(1.0,-mv.z))*0.55;',
+    '  vA=0.30+0.28*sin(uTime*0.5+aPhase*2.3);',
+    '  gl_Position=projectionMatrix*mv;',
+    '}'
+  ].join('\n'),
+  fragmentShader:[
+    'varying float vA;',
+    'uniform vec3 uColor;',
+    'uniform vec3 uColor2;',
+    'void main(){',
+    '  vec2 uv=gl_PointCoord-vec2(0.5);',
+    '  float d=length(uv);',
+    '  if(d>0.5) discard;',
+    '  float a=smoothstep(0.5,0.06,d)*vA;',
+    '  vec3 c=mix(uColor2,uColor,smoothstep(0.0,0.5,d));',
+    '  gl_FragColor=vec4(c,a);',
+    '}'
+  ].join('\n')
+});
+scene.add(new THREE.Points(geo,mat));
+function resize(){
+  var w=window.innerWidth,h=window.innerHeight;
+  renderer.setSize(w,h);
+  var hh=470, ww=hh*(w/Math.max(1,h));
+  cam.left=-ww/2; cam.right=ww/2; cam.top=hh/2; cam.bottom=-hh/2;
+  cam.updateProjectionMatrix();
+}
+window.addEventListener('resize',resize);
+resize();
+var clock=new THREE.Clock();
+(function loop(){
+  requestAnimationFrame(loop);
+  mat.uniforms.uTime.value=clock.getElapsedTime();
+  renderer.render(scene,cam);
+})();
+window.__setBgTheme=function(a,b){
+  mat.uniforms.uColor.value.set(a);
+  mat.uniforms.uColor2.value.set(b);
+};
+})();
+</script>
+
+<script>
+/* ============ WebAudio 合成音效（零音频文件） ============ */
+window.SFX=(function(){
+  var ctx=null, muted=false;
+  function ac(){ try{ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==='suspended') ctx.resume(); }catch(e){} return ctx; }
+  function env(g,t0,a,peak,d){ g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(peak,t0+a); g.gain.exponentialRampToValueAtTime(0.0001,t0+a+d); }
+  function tone(f0,f1,dur,type,vol,delay){
+    if(muted) return; var c=ac(); if(!c) return;
+    var t0=c.currentTime+(delay||0);
+    var o=c.createOscillator(), g=c.createGain();
+    o.type=type||'sine';
+    o.frequency.setValueAtTime(f0,t0);
+    o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t0+dur);
+    env(g,t0,0.008,vol||0.4,dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(t0); o.stop(t0+dur+0.06);
+  }
+  function noise(dur,vol,freq,delay){
+    if(muted) return; var c=ac(); if(!c) return;
+    var t0=c.currentTime+(delay||0);
+    var len=Math.floor(c.sampleRate*dur);
+    var buf=c.createBuffer(1,len,c.sampleRate);
+    var d=buf.getChannelData(0);
+    for(var i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+    var src=c.createBufferSource(); src.buffer=buf;
+    var f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=freq||1200;
+    var g=c.createGain(); env(g,t0,0.004,vol||0.3,dur);
+    src.connect(f); f.connect(g); g.connect(c.destination);
+    src.start(t0);
+  }
+  return {
+    setMuted:function(m){ muted=!!m; },
+    pop:function(){ tone(320,780,0.07,'sine',0.32); },
+    bond:function(){ tone(420,1500,0.08,'sine',0.45); tone(1500,980,0.05,'triangle',0.16,0.075); noise(0.05,0.26,2600,0.055); tone(240,70,0.13,'triangle',0.4,0.06); },
+    tick:function(){ tone(220,140,0.05,'square',0.13); },
+    good:function(){ tone(660,660,0.1,'sine',0.4); tone(880,880,0.12,'sine',0.4,0.09); tone(1318,1318,0.18,'sine',0.3,0.18); noise(0.22,0.1,6000,0.18); },
+    bad:function(){ tone(170,90,0.3,'sawtooth',0.28); noise(0.18,0.18,500); }
+  };
+})();
+</script>
+
+<script>
+/* ================================================================
+ * React SPA（无 JSX，h() 直连 createElement，免 Babel 编译更稳定）
+ * ================================================================ */
+(function(){
+"use strict";
+var h=function(tag,props){
+  var kids=[];
+  for(var i=2;i<arguments.length;i++){
+    var k=arguments[i];
+    if(k==null||k===false||k===true) continue;
+    if(Array.isArray(k)) for(var j=0;j<k.length;j++){ var kk=k[j]; if(kk!=null&&kk!==false&&kk!==true) kids.push(kk); }
+    else kids.push(k);
+  }
+  return React.createElement.apply(null,[tag,props].concat(kids));
+};
+
+/* ---------- 分子画布(SVG): 平移/缩放/点选, BFS 布局保留旧坐标 ---------- */
+function MoleculeView(props){
+  var graph=props.graph||{nodes:[],edges:[]};
+  var onNodeClick=props.onNodeClick, sel=props.sel||[];
+  var posSt=React.useState({}); var pos=posSt[0], setPos=posSt[1];
+  var viewSt=React.useState({x:0,y:0,k:1.7}); var view=viewSt[0], setView=viewSt[1];
+  var vbSt=React.useState({w:1000,h:700}); var vb=vbSt[0], setVb=vbSt[1];
+  var rsSt=React.useState(1); var rs=rsSt[0], setRs=rsSt[1];
+  var dragRef=React.useRef(null), svgRef=React.useRef(null), lastReset=React.useRef(null), edgeRef=React.useRef(null), focRef=React.useRef(false), posRef=React.useRef({});
+  var freshSt=React.useState({nodes:{},bonds:{}}); var fresh=freshSt[0], setFresh=freshSt[1];
+  var ELC={
+    C:['#eaffff','#00b8e0','#0a2f8f','#0a1230','#eef3ff'],
+    O:['#fff3d6','#ff8a00','#a3124e','#3d0f04','#ffffff'],
+    N:['#dfe6ff','#3f6fe0','#16277a','#0a0f30','#ffffff'],
+    S:['#fff8c9','#d9c53a','#7a6510','#241d02','#241d02'],
+    H:['#ffffff','#c9d4ee','#8a97b8','#20263a','#20263a'],
+    F:['#e8fff4','#2fd98a','#0a6e42','#02281a','#ffffff'],
+    Cl:['#e9ffe0','#5ad144','#1e7a12','#0a2e06','#0a2e06'],
+    Br:['#ffe9d2','#c47a3a','#6e3410','#2a1204','#2a1204'],
+    I:['#f2e2ff','#8a4de0','#43187a','#190a30','#ffffff']
+  };
+
+  React.useEffect(function(){
+    var pb={},fn={},fb={},k,old=edgeRef.current;
+    (graph.edges||[]).forEach(function(e){ pb[e.a+'|'+e.b+'|'+e.order]=1; });
+    if(old){
+      (graph.nodes||[]).forEach(function(n){ if(!old.nodes[n.id]) fn[n.id]=1; });
+      (graph.edges||[]).forEach(function(e){ k=e.a+'|'+e.b+'|'+e.order; if(!old.bonds[k]) fb[k]=1; });
+    }
+    var nn={}; (graph.nodes||[]).forEach(function(n){ nn[n.id]=1; });
+    edgeRef.current={nodes:nn,bonds:pb};
+    if(Object.keys(fn).length||Object.keys(fb).length) setFresh({nodes:fn,bonds:fb});
+    var newPos;
+    if(lastReset.current!==props.resetKey){
+      lastReset.current=props.resetKey;
+      newPos=NL.layoutGraph(graph,{});
+    }else{
+      newPos=NL.layoutGraph(graph,posRef.current||{});
+    }
+    posRef.current=newPos;
+    setPos(newPos);
+    (function(){
+      var ks=Object.keys(newPos||{}); var md=1e9;
+      for(var i=0;i<ks.length;i++){ for(var j=i+1;j<ks.length;j++){
+        var dx=Math.abs(newPos[ks[j]].x-newPos[ks[i]].x), dy=Math.abs(newPos[ks[j]].y-newPos[ks[i]].y);
+        var d=Math.sqrt(dx*dx+dy*dy); if(d<md) md=d;
+      } }
+      setRs(md<34?0.7:(md<46?0.84:1));
+    })();
+    if(newPos&&Object.keys(newPos).length){
+      var mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9,ct=0;
+      Object.keys(newPos).forEach(function(kk){
+        var pp=newPos[kk];
+        mnx=Math.min(mnx,pp.x); mxx=Math.max(mxx,pp.x);
+        mny=Math.min(mny,pp.y); mxy=Math.max(mxy,pp.y); ct++;
+      });
+      if(ct){
+        var bw=Math.max(120,mxx-mnx+150), bh=Math.max(120,mxy-mny+150);
+        var vw=vb.w||1000;
+        var fk=Math.min(vw*0.86/bw,700*0.86/bh,2.1);
+        fk=Math.max(0.55,Math.round(fk*100)/100);
+        setView({x:0,y:0,k:fk});
+      }
+    }
+  },[graph,props.resetKey,vb.w]);
+
+  React.useEffect(function(){
+    var el=svgRef.current; if(!el) return;
+    function wh(e){
+      if(!focRef.current) return;
+      e.preventDefault();
+      setView(function(v){
+        var dk=Math.exp(-(e.deltaY||0)*0.0012);
+        return {x:v.x,y:v.y,k:Math.min(3.4,Math.max(0.5,v.k*dk))};
+      });
+    }
+    el.addEventListener('wheel',wh,{passive:false});
+    return function(){ el.removeEventListener('wheel',wh); };
+  },[]);
+  React.useEffect(function(){
+    function rs(){
+      var el=svgRef.current; if(!el) return;
+      var w=el.clientWidth||800, h=el.clientHeight||340;
+      setVb({w:Math.max(600,Math.round(700*w/h)), h:700});
+    }
+    rs();
+    window.addEventListener('resize',rs);
+    return function(){ window.removeEventListener('resize',rs); };
+  },[]);
+
+  function onPointerDown(e){
+    if(e.button!==undefined&&e.button!==0) return;
+    focRef.current=true;
+    dragRef.current={x:e.clientX,y:e.clientY,moved:false,vx:view.x,vy:view.y,k:view.k,vb:vb.w,
+      rc:svgRef.current?svgRef.current.getBoundingClientRect():null};
+    window.addEventListener('pointermove',onWinMove);
+    window.addEventListener('pointerup',onWinUp,{once:true});
+    window.addEventListener('pointercancel',onWinCancel,{once:true});
+  }
+  function onWinCancel(){
+    window.removeEventListener('pointermove',onWinMove);
+    dragRef.current=null;
+  }
+  function onWinMove(e){
+    var d=dragRef.current; if(!d) return;
+    var dx=e.clientX-d.x, dy=e.clientY-d.y;
+    if(Math.abs(dx)+Math.abs(dy)>4) d.moved=true;
+    if(d.moved) setView({x:d.vx+dx,y:d.vy+dy,k:d.k});
+  }
+  function onWinUp(e){
+    var d=dragRef.current;
+    window.removeEventListener('pointermove',onWinMove);
+    dragRef.current=null;
+    if(!d||d.moved) return;
+    var t=e.target;
+    while(t&&t&&t.getAttribute){
+      var nid=t.getAttribute('data-nid');
+      if(nid){ if(onNodeClick) onNodeClick(nid); return; }
+      t=t.parentNode;
+    }
+    if(props.onCanvasClick&&d.rc){
+      var sx=(e.clientX-d.rc.left)/d.rc.width*d.vb;
+      var sy=(e.clientY-d.rc.top)/d.rc.height*700;
+      props.onCanvasClick((sx-(d.vb/2)-d.vx)/d.k,(sy-350-d.vy)/d.k);
+    }
+  }
+
+  var aromNodes=graph.nodes.filter(function(n){return n.arom;});
+  var aromCircs=[];
+  if(aromNodes.length>=3){
+    var apos={}, aadj={};
+    aromNodes.forEach(function(n){ if(pos[n.id]) apos[n.id]=1; });
+    aromNodes.forEach(function(n){ aadj[n.id]=[]; });
+    graph.edges.forEach(function(e){
+      if(apos[e.a]&&apos[e.b]){ aadj[e.a].push(e.b); aadj[e.b].push(e.a); }
+    });
+    function smallRing(nodesArr, edgesArr){
+      var adj2={}; nodesArr.forEach(function(n){ adj2[n.id]=[]; });
+      edgesArr.forEach(function(e){ if(adj2[e.a]&&adj2[e.b]){ adj2[e.a].push(e.b); adj2[e.b].push(e.a); } });
+      var best=null;
+      nodesArr.forEach(function(st){
+        (function dfs(cur,parent,path,vis){
+          if(path.length>10) return;
+          var es=adj2[cur]||[];
+          for(var i=0;i<es.length;i++){
+            var nid=es[i];
+            if(nid===parent) continue;
+            if(vis[nid]){
+              if(nid===st.id&&path.length>=5&&(!best||path.length>best.length)) best=path.slice();
+              continue;
+            }
+            vis[nid]=1; path.push(nid);
+            dfs(nid,cur,path,vis);
+            path.pop(); delete vis[nid];
+          }
+        })(st.id,null,[st.id],(function(){var o={};o[st.id]=1;return o;})());
+      });
+      return best;
+    }
+    var aromEdges=graph.edges.filter(function(e){ return apos[e.a]&&apos[e.b]; });
+    for(var ri3=0; ri3<8; ri3++){
+      var rc=smallRing(graph.nodes.filter(function(n){return apos[n.id];}), aromEdges);
+      if(!rc) break;
+      var cx=0,cy=0;
+      rc.forEach(function(id){ cx+=pos[id].x; cy+=pos[id].y; });
+      cx/=rc.length; cy/=rc.length;
+      var rad2=0;
+      rc.forEach(function(id){ rad2+=Math.hypot(pos[id].x-cx,pos[id].y-cy); });
+      rad2/=rc.length;
+      aromCircs.push({cx:cx,cy:cy,r:rad2*0.62});
+      var rset={}; rc.forEach(function(id){ rset[id]=1; });
+      aromEdges=aromEdges.filter(function(e){ return !(rset[e.a]&&rset[e.b]); });
+    }
+  }
+  var rad={}; graph.nodes.forEach(function(n){ rad[n.id]=(n.el==='H'?11:16)*(rs||1); });
+  var edges=graph.edges.map(function(e,i){
+    var p1=pos[e.a],p2=pos[e.b];
+    if(!p1||!p2) return null;
+    var bk=e.a+'|'+e.b+'|'+e.order, isNew=fresh.bonds[bk]?true:false;
+    var dx=p2.x-p1.x,dy=p2.y-p1.y,Ln=Math.hypot(dx,dy)||1,ux=dx/Ln,uy=dy/Ln,ox=-uy,oy=ux;
+    var s0={x:p1.x+ux*(rad[e.a]+1),y:p1.y+uy*(rad[e.a]+1)};
+    var t0={x:p2.x-ux*(rad[e.b]+1),y:p2.y-uy*(rad[e.b]+1)};
+    var seg=function(off,w,key){
+      return h('line',{key:key,className:isNew?'bond-new':'',
+        x1:s0.x+ox*off,y1:s0.y+oy*off,x2:t0.x+ox*off,y2:t0.y+oy*off,
+        stroke:'var(--node)','stroke-width':w,'stroke-linecap':'round'});
+    };
+    if(e.order===2) return h('g',{key:i},seg(-3.2,4,i+'a'),seg(3.2,4,i+'b'));
+    if(e.order===3) return h('g',{key:i},seg(-4.8,3.4,i+'a'),seg(0,3.4,i+'b'),seg(4.8,3.4,i+'c'));
+    return seg(0,5,i);
+  });
+  var nodes=graph.nodes.map(function(n){
+    var p=pos[n.id]; if(!p) return null;
+    var isSel=sel.indexOf(n.id)>=0;
+    var ncls='vnode'+(fresh.nodes[n.id]?' node-pop':'');
+    var st=ELC[n.el]||ELC.C;
+    var R=(n.el==='H'?11:16)*(rs||1);
+    var two=n.el.length>1;
+    return h('g',{key:n.id,'data-nid':n.id,className:ncls,style:{cursor:onNodeClick?'pointer':'default'}},
+      h('circle',{cx:p.x,cy:p.y,r:R+3.5,fill:'none',stroke:isSel?'var(--accent)':st[1],'stroke-width':isSel?2.5:1.1,className:'glowring',opacity:isSel?1:.55}),
+      h('circle',{cx:p.x,cy:p.y,r:R,fill:'url(#g'+n.el+')',stroke:st[3],'stroke-width':1.5}),
+      h('ellipse',{cx:p.x-R*0.31,cy:p.y-R*0.38,rx:R*0.33,ry:R*0.2,fill:'rgba(255,255,255,.5)',style:{pointerEvents:'none'}}),
+      h('text',{x:p.x,y:p.y+(two?3.8:4.8),'text-anchor':'middle',fill:st[4],'font-size':(two?10.5:13)*(rs<1?0.92:1),'font-weight':900,style:{pointerEvents:'none'}},n.el),
+      (isSel&&props.rippleSel)?h('g',{key:'rp',style:{pointerEvents:'none'}},
+        [0,1,2].map(function(rk){
+          return h('circle',{key:rk,cx:p.x,cy:p.y,r:R+2,className:'ripple r'+rk,fill:'none',stroke:'var(--accent)'});
+        })):null);
+  });
+  return h('div',{className:'molwrap'},
+    h('svg',{ref:svgRef,viewBox:'0 0 '+vb.w+' '+vb.h,preserveAspectRatio:'xMidYMid meet',
+        onPointerDown:onPointerDown,onPointerLeave:function(){ focRef.current=false; }},
+      h('g',{transform:'translate('+((vb.w/2)+view.x)+' '+(350+view.y)+') scale('+view.k+')'},
+        h('defs',null,Object.keys(ELC).map(function(el){
+          return h('radialGradient',{key:el,id:'g'+el,cx:'35%',cy:'28%',r:'80%'},
+            h('stop',{offset:'0%','stop-color':ELC[el][0]}),
+            h('stop',{offset:'40%','stop-color':ELC[el][1]}),
+            h('stop',{offset:'100%','stop-color':ELC[el][2]}));
+        })),
+        aromCircs.map(function(ac,aci){ return h('circle',{key:'ac'+aci,cx:ac.cx,cy:ac.cy,r:ac.r,fill:'none',stroke:'var(--node)','stroke-width':2,'stroke-dasharray':'5 5'}); }),
+        edges,nodes)),
+    h('div',{className:'molhint'},props.hintText||(onNodeClick?'点击原子生长 · 拖拽平移 · 点击后滚轮缩放':'拖拽平移 · 点击后滚轮缩放')));
+}
+
+/* ---------- 拼字键盘(全页无输入框) ---------- */
+function TileKeyboard(props){
+  return h('div',null,
+    h('div',{className:'tiles'},
+      props.tiles.length
+        ? props.tiles.map(function(t,i){ return h('span',{key:i,className:'tile',onClick:function(){ props.onDel(i); }},t); })
+        : h('span',{className:'ph'},'点下方按键拼出名称 · 点上方字块删除')),
+    props.groups.map(function(g,gi){
+      return h('div',{className:'kgroup',key:gi},
+        h('div',{className:'klabel'},g.label),
+        h('div',{className:'krow'},
+          g.keys.map(function(t,ki){
+            return h('button',{key:ki,className:'key'+(t.length>2?' wide':''),onClick:function(){ props.onAdd(t); }},t);
+          }),
+          gi===props.groups.length-1?h('button',{className:'key',onClick:props.onClear},'清空'):null));
+    }));
+}
+
+/* ---------- 反馈弹窗 ---------- */
+function Feedback(props){
+  if(!props.open) return null;
+  var bits=[];
+  if(props.ok){
+    var cols=['#7ee0a3','#6ea8ff','#ffd166','#ff8fa3','#9be7ff'];
+    for(var ci=0;ci<24;ci++){
+      bits.push({l:(Math.random()*100).toFixed(1)+'%',d:(Math.random()*0.35).toFixed(2)+'s',
+        dx:(Math.random()*180-90).toFixed(0)+'px',c:cols[ci%5],r:(Math.random()*540).toFixed(0)+'deg'});
+    }
+  }
+  return h('div',{className:'overlay'},
+    h('div',{className:'fbcard '+(props.ok?'ok':'no')},
+      props.ok?h('div',{className:'confetti'},bits.map(function(b,bi){ return h('i',{key:bi,style:{left:b.l,animationDelay:b.d,'--dx':b.dx,'--c':b.c,'--r':b.r}}); })):null,
+      h('div',{className:'fbemoji'},props.ok?'🎉':'🧪'),
+      h('div',{className:'fbtitle'},props.ok?'答对了！':'还不对哦'),
+      h('div',{className:'fbmsg'},props.msg),
+      h('div',{className:'row',style:{justifyContent:'center'}},
+        props.ok
+          ? h('button',{className:'hbtn primary',onClick:props.onNext},'继续 ➜')
+          : [
+              h('button',{key:'r',className:'hbtn',onClick:props.onClose},'再试一次'),
+              h('button',{key:'s',className:'hbtn ghost',onClick:props.onSkip},'跳过')
+            ])));
+}
+
+/* ---------- 结构搭建工具栏 ---------- */
+var uid=0;
+function BuilderTools(props){
+  var S=props.S, app=props.app;
+  function addNode(el){
+    var g=JSON.parse(JSON.stringify(S.bgraph));
+    var id='u'+(++uid);
+    g.nodes.push({id:id,el:el});
+    var sel=S.sel, linked=false;
+    if(sel.length===1){ g.edges.push({a:sel[0],b:id,order:1}); sel=[id]; linked=true; }
+    else sel=[id];
+    props.patch({bgraph:g,sel:sel});
+    if(window.SFX){ SFX.pop(); if(linked) SFX.bond(); }
+  }
+  function addBenzene(){
+    var g=JSON.parse(JSON.stringify(S.bgraph));
+    var anchor=(S.sel&&S.sel.length===1)?S.sel[0]:null;
+    if(!anchor&&S.lastA&&S.bgraph.nodes.some(function(n){return n.id===S.lastA;})) anchor=S.lastA;
+    if(!anchor&&S.bgraph.nodes.length) anchor=S.bgraph.nodes[S.bgraph.nodes.length-1].id;
+    var ids=[];
+    for(var i=0;i<6;i++){
+      var id='u'+(++uid);
+      var ang=Math.PI/3*i-Math.PI/6;
+      var bc=Math.floor(S.bgraph.nodes.filter(function(n){return n.arom;}).length/6);
+      g.nodes.push({id:id,el:'C',arom:true,x:anchor?null:(370+bc*320+105*Math.cos(ang)),y:anchor?null:105*Math.sin(ang)});
+      ids.push(id);
+    }
+    for(i=0;i<6;i++) g.edges.push({a:ids[i],b:ids[(i+1)%6],order:1});
+    if(anchor){ g.edges.push({a:anchor,b:ids[0],order:1}); }
+    props.patch({bgraph:g,sel:[]});
+    if(window.SFX){ SFX.pop(); if(anchor) SFX.bond(); }
+  }
+  function bondSel(order){
+    if(S.sel.length!==2) return;
+    var a=S.sel[0],b=S.sel[1];
+    var exists=S.bgraph.edges.some(function(e){ return (e.a===a&&e.b===b)||(e.a===b&&e.b===a); });
+    if(exists) return;
+    var g=JSON.parse(JSON.stringify(S.bgraph));
+    g.edges.push({a:a,b:b,order:order});
+    props.patch({bgraph:g});
+    if(window.SFX) SFX.bond();
+  }
+  function delSel(){
+    if(!S.sel.length) return;
+    var rm={}; S.sel.forEach(function(id){ rm[id]=1; });
+    var g=JSON.parse(JSON.stringify(S.bgraph));
+    g.nodes=g.nodes.filter(function(n){ return !rm[n.id]; });
+    g.edges=g.edges.filter(function(e){ return !rm[e.a]&&!rm[e.b]; });
+    props.patch({bgraph:g,sel:[]});
+    if(window.SFX) SFX.tick();
+  }
+  var T=app.tools;
+  var ELS=[['C','碳','#00b8e0'],['O','氧','#ff8a00'],['N','氮','#3f6fe0'],['S','硫','#d9c53a'],['H','氢','#c9d4ee'],['F','氟','#2fd98a'],['Cl','氯','#5ad144'],['Br','溴','#c47a3a'],['I','碘','#8a4de0']];
+  return h('div',{className:'card',style:{padding:12}},
+    h('div',{className:'klabel'},'元 素 · 第一个原子点画布空白，之后点已有原子向外生长'),
+    h('div',{className:'row',style:{marginBottom:10}},
+      ELS.map(function(ed){
+        return h('button',{key:ed[0],className:'elbtn'+(S.curEl===ed[0]?' on':''),onClick:function(){ props.patch({curEl:ed[0]}); }},
+          h('i',{style:{background:ed[2]}}),ed[1]);
+      })),
+    h('div',{className:'row',style:{marginBottom:10}},
+      [['1','单键'],['2','双键'],['3','三键']].map(function(od){
+        return h('button',{key:od[0],className:'elbtn'+(String(S.curOrd||1)===od[0]?' on':''),onClick:function(){ props.patch({curOrd:parseInt(od[0],10)}); }},od[1]);
+      })),
+    h('div',{className:'row'},
+      T.indexOf('R')>=0?h('button',{className:'hbtn sm',onClick:addBenzene},'＋ 苯环'):null,
+      h('button',{className:'hbtn sm',onClick:function(){ bondSel(1); }},'单键连接'),
+      h('button',{className:'hbtn sm',onClick:function(){ bondSel(2); }},'双键连接'),
+      h('button',{className:'hbtn sm'+(S.pick?' primary':''),onClick:function(){ props.patch({pick:!S.pick,sel:[]}); }},'☝ 选择模式'),
+      h('button',{className:'hbtn sm bad',onClick:delSel},'删除选中'),
+      h('button',{className:'hbtn sm ghost',onClick:function(){ if(props.onUndo) props.onUndo(); }},'↩ 回退')),
+    h('div',{className:'muted',style:{marginTop:8,fontSize:12}},
+      S.pick?'选择模式：点选 1~2 个原子，再使用单键 / 双键 / 删除。':'生长模式：只有第一个原子能点画布空白放置；之后点已有原子按所选「单/双/三键」生长。价位上限：C4 · N3 · O2 · S2 · H/卤素1，超价拒绝（红闪+低音）。'));
+}
+
+/* ---------- 闯关游戏 ---------- */
+function GameApp(props){
+  var app=props.app;
+  var st=React.useState({phase:'menu',mode:null,qs:[],idx:0,score:0,res:[],tiles:[],bgraph:{nodes:[],edges:[]},sel:[],fb:null,curEl:'C',curOrd:1,pick:false,past:[],lastA:null});
+  var S=st[0];
+  function patch(o){ st[1](function(prev){
+    var skip=o.skipHist;
+    var n=Object.assign({},prev,o);
+    if(skip) delete n.skipHist;
+    if(o.bgraph&&prev.bgraph&&!skip) n.past=(prev.past||[]).concat([prev.bgraph]).slice(-30);
+    return n;
+  }); }
+  function undo(){
+    if(!S.past||!S.past.length){ if(window.SFX) SFX.tick(); return; }
+    var past=S.past.slice();
+    var last=past.pop();
+    patch({bgraph:last,past:past,sel:[],skipHist:true});
+    if(window.SFX) SFX.tick();
+  }
+
+  function start(mode){
+    var pool=window.POOLS[app.id];
+    var list;
+    if(mode==='hell') list=NL.pick(pool.hell,6);
+    else list=NL.shuffle(NL.pick(pool.beginner,3).concat(NL.pick(pool.intermediate,4),NL.pick(pool.advanced,3)));
+    var qs=list.map(function(q){
+      var g=NL.buildGraph(q.kind,q.spec);
+      return {t:q.t,kind:q.kind,hint:q.hint,wrong:q.wrong,graph:g,target:NL.nameMolecule(g)};
+    });
+    patch({phase:'play',mode:mode,qs:qs,idx:0,score:0,res:[],tiles:[],bgraph:{nodes:[],edges:[]},sel:[],fb:null,past:[],skipHist:true});
+  }
+  function save(){
+    var d=window.STORE.load();
+    var rec=d[app.id]||(d[app.id]={});
+    var m=S.mode==='hell'?'hell':'std';
+    rec[m+'Plays']=(rec[m+'Plays']||0)+1;
+    rec[m+'Best']=Math.max(rec[m+'Best']||0,S.score);
+    window.STORE.save(d);
+  }
+  function check(){
+    var q=S.qs[S.idx];
+    var ok,msg;
+    if(q.t==='build'){
+      var derived=NL.nameMolecule(S.bgraph);
+      ok=!!derived&&NL.norm(derived)===NL.norm(q.target);
+      msg= ok
+        ? '你搭的结构正是 「'+q.target+'」，图同构校验通过！'
+        : (derived
+            ? '你搭的结构会被命名为 「'+derived+'」，题目要求 「'+q.target+'」。对照差异再改改。'
+            : '结构还没有连成一体：碳骨架必须连通，氧要用双键表达羰基。');
+    }else{
+      var ans=S.tiles.join('');
+      ok=NL.norm(ans)===NL.norm(q.target);
+      msg= ok
+        ? (q.t==='judge'?'纠错成功！正确名称是 「'+q.target+'」。':'命名正确：「'+q.target+'」。')
+        : '你拼的是 「'+(ans||'（空）')+'」。正确答案是 「'+q.target+'」。回想一下：最长链怎么选、从哪头编号、取代基按什么顺序写。';
+    }
+    if(window.SFX){
+      if(ok) SFX.good();
+      else { SFX.bad(); document.body.classList.add('dmg'); setTimeout(function(){ document.body.classList.remove('dmg'); },520); }
+    }
+    var res=S.res.slice(); res[S.idx]=ok;
+    patch({fb:{open:true,ok:ok,msg:msg},res:res,score:ok?S.score+1:S.score});
+  }
+  function next(){
+    if(S.idx+1>=S.qs.length){ save(); patch({phase:'result',fb:null}); return; }
+    patch({idx:S.idx+1,fb:null,tiles:[],bgraph:{nodes:[],edges:[]},sel:[],skipHist:true});
+  }
+  function skip(){
+    var res=S.res.slice(); res[S.idx]=false;
+    var o={res:res,fb:null,tiles:[],bgraph:{nodes:[],edges:[]},sel:[],skipHist:true};
+    if(S.idx+1>=S.qs.length){ save(); o.phase='result'; }
+    else o.idx=S.idx+1;
+    patch(o);
+  }
+  var VALC={C:4,N:3,O:2,S:2,H:1,F:1,Cl:1,Br:1,I:1};
+  function valUsed(g,id){ var t=0; g.edges.forEach(function(e){ if(e.a===id||e.b===id) t+=e.order; }); return t; }
+  function refuse(){ if(window.SFX) SFX.bad(); document.body.classList.add('dmg'); setTimeout(function(){ document.body.classList.remove('dmg'); },420); }
+  function spawnAt(el,anchor,x,y){
+    var g=JSON.parse(JSON.stringify(S.bgraph));
+    var ord=S.curOrd||1;
+    if(anchor){
+      var ae=(g.nodes.filter(function(n){return n.id===anchor;})[0]||{}).el||'C';
+      if(valUsed(g,anchor)+ord>(VALC[ae]||4) || ord>(VALC[el]||4)){ refuse(); return; }
+    }
+    var id='u'+(++uid);
+    var node={id:id,el:el};
+    if(x!=null){ node.x=x; node.y=y; }
+    g.nodes.push(node);
+    var anchored=false;
+    if(anchor){ g.edges.push({a:anchor,b:id,order:ord}); anchored=true; }
+    patch({bgraph:g,sel:[id]});
+    if(window.SFX){ SFX.pop(); if(anchored) SFX.bond(); }
+  }
+  function onNodeClick(id){
+    if(!S.pick){ patch({lastA:id}); spawnAt(S.curEl||'C',id); return; }
+    var s=S.sel.slice();
+    var i=s.indexOf(id);
+    if(i>=0) s.splice(i,1);
+    else { s.push(id); if(s.length>2) s.shift(); }
+    patch({sel:s});
+  }
+  function onCanvasClick(x,y){
+    if(S.pick) return;
+    if(S.bgraph.nodes.length){ if(window.SFX) SFX.tick(); return; }
+    spawnAt(S.curEl||'C',null,x,y);
+  }
+
+  /* ----- 菜单 ----- */
+  if(S.phase==='menu'){
+    var d=window.STORE.load(), rec=d[app.id]||{};
+    return h('div',null,
+      h('h1',null,app.name),
+      h('div',{className:'sub'},app.desc),
+      h('div',{className:'modes'},
+        h('button',{className:'card mode',onClick:function(){ start('std'); }},
+          h('div',{className:'mt'},h('span',{className:'atom-ic'},h('i',{className:'r1'}),h('i',{className:'r2'}),h('b')),'标准闯关'),
+          h('div',{className:'md'},'初、中、高三个难度共 10 题。答错不惩罚，随时跳过，进度本地保存。'),
+          h('div',{className:'statline'},'已完成 '+(rec.stdPlays||0)+' 次 · 最佳 '+(rec.stdBest||0)+'/10')),
+        h('button',{className:'card mode',onClick:function(){ start('hell'); }},
+          h('div',{className:'mt'},h('span',{className:'atom-ic mag'},h('i',{className:'r1'}),h('i',{className:'r2'}),h('b')),'地狱挑战'),
+          h('div',{className:'md'},'6 道陷阱题：编号方向、书写顺序、最长链拐弯……专治各种"我觉得对了"。'),
+          h('div',{className:'statline'},'已完成 '+(rec.hellPlays||0)+' 次 · 最佳 '+(rec.hellBest||0)+'/6'))),
+      h('div',{className:'statline'},'本模块不强制答题、不用登录，关掉页面进度也在。'));
+  }
+
+  /* ----- 结算 ----- */
+  if(S.phase==='result'){
+    var total=S.qs.length, ratio=S.score/total;
+    var word=ratio>=1?'完美！命名大师就是你':ratio>=0.8?'非常棒，陷阱都拦不住你':ratio>=0.6?'不错，再刷一遍冲满分':'别灰心，地狱模式本来就是硬骨头';
+    return h('div',null,
+      h('div',{className:'card center'},
+        h('h2',null,app.name+' · '+(S.mode==='hell'?'地狱挑战':'标准闯关')),
+        h('div',{className:'bigscore'},S.score+' / '+total),
+        h('div',{className:'muted'},word),
+        h('div',{className:'row',style:{justifyContent:'center',marginTop:16}},
+          h('button',{className:'hbtn primary',onClick:function(){ start(S.mode); }},'再来一局'),
+          h('button',{className:'hbtn',onClick:function(){ patch({phase:'menu'}); }},'返回菜单'))));
+  }
+
+  /* ----- 答题 ----- */
+  var q=S.qs[S.idx];
+  var TYPE_TXT={build:'搭建结构',name:'拼出名称',judge:'纠错命名'};
+  return h('div',null,
+    h('div',{className:'dots'},S.qs.map(function(_,i){
+      return h('span',{key:i,className:'dot'+(i===S.idx?' cur':(S.res[i]===true?' ok':(S.res[i]===false?' no':'')))});
+    })),
+    h('div',{className:'qcard'},
+      h('div',{className:'muted',style:{fontSize:12,marginBottom:6}},'第 '+(S.idx+1)+' / '+S.qs.length+' 题 · '+TYPE_TXT[q.t]+' · 得分 '+S.score),
+      q.t==='build'
+        ? h('div',{className:'qname'},'请搭建：'+q.target)
+        : (q.t==='name'
+            ? h('div',null,h('div',{style:{fontSize:15,fontWeight:700}},'看结构，拼出它的系统命名：'))
+            : h('div',null,
+                h('div',{style:{fontSize:15,fontWeight:700}},'某同学把它叫作：'),
+                h('div',{className:'qwrong'},q.wrong),
+                h('div',{style:{fontSize:14,marginTop:6}},'这个名字有问题，请拼出正确名称：'))),
+      q.hint?h('div',{className:'hint'},'💡 '+q.hint):null),
+    q.t==='build'
+      ? h('div',null,
+          h(MoleculeView,{graph:S.bgraph,sel:S.sel,onNodeClick:onNodeClick,onCanvasClick:onCanvasClick,rippleSel:S.pick,resetKey:'b'+S.idx}),
+          h('div',{style:{height:10}}),
+          h(BuilderTools,{S:S,app:app,patch:patch,onUndo:undo}))
+      : h('div',null,
+          h(MoleculeView,{graph:q.graph,resetKey:'v'+S.idx}),
+          h('div',{style:{height:10}}),
+          h(TileKeyboard,{groups:window.keyGroups(app.family),tiles:S.tiles,
+            onAdd:function(t){ patch({tiles:S.tiles.concat([t])}); },
+            onDel:function(i){ var t=S.tiles.slice(); t.splice(i,1); patch({tiles:t}); },
+            onClear:function(){ patch({tiles:[]}); }})),
+    h('div',{className:'row',style:{marginTop:14}},
+      h('button',{className:'hbtn primary',onClick:check},'✓ 检查答案'),
+      q.t==='build'
+        ? h('button',{className:'hbtn',onClick:function(){ patch({bgraph:{nodes:[],edges:[]},sel:[]}); }},'清空重搭')
+        : h('button',{className:'hbtn',onClick:function(){ patch({tiles:[]}); }},'清空'),
+      h('button',{className:'hbtn ghost',onClick:skip},'跳过 ➜')),
+    h(Feedback,{open:S.fb&&S.fb.open,ok:S.fb&&S.fb.ok,msg:S.fb?S.fb.msg:'',
+      onClose:function(){ patch({fb:null}); },
+      onSkip:skip,onNext:next}));
+}
+
+/* ---------- 命名生成器 ---------- */
+function GeneratorApp(props){
+  var app=props.app;
+  var st=React.useState({graph:{nodes:[],edges:[]},sel:[],resetKey:0,copied:false,curEl:'C',curOrd:1,pick:false,past:[],lastA:null});
+  var S=st[0];
+  function patch(o){ st[1](function(prev){
+    var skip=o.skipHist;
+    var n=Object.assign({},prev,o);
+    if(skip) delete n.skipHist;
+    if(o.graph&&prev.graph&&!skip) n.past=(prev.past||[]).concat([prev.graph]).slice(-30);
+    return n;
+  }); }
+  function undo(){
+    if(!S.past||!S.past.length){ if(window.SFX) SFX.tick(); return; }
+    var past=S.past.slice();
+    var last=past.pop();
+    patch({graph:last,past:past,sel:[],skipHist:true});
+    if(window.SFX) SFX.tick();
+  }
+  var name=NL.nameMolecule(S.graph);
+  var VALC={C:4,N:3,O:2,S:2,H:1,F:1,Cl:1,Br:1,I:1};
+  function valUsed(g,id){ var t=0; g.edges.forEach(function(e){ if(e.a===id||e.b===id) t+=e.order; }); return t; }
+  function refuse(){ if(window.SFX) SFX.bad(); document.body.classList.add('dmg'); setTimeout(function(){ document.body.classList.remove('dmg'); },420); }
+  function spawnAt(el,anchor,x,y){
+    var g=JSON.parse(JSON.stringify(S.graph));
+    var ord=S.curOrd||1;
+    if(anchor){
+      var ae=(g.nodes.filter(function(n){return n.id===anchor;})[0]||{}).el||'C';
+      if(valUsed(g,anchor)+ord>(VALC[ae]||4) || ord>(VALC[el]||4)){ refuse(); return; }
+    }
+    var id='u'+(++uid);
+    var node={id:id,el:el};
+    if(x!=null){ node.x=x; node.y=y; }
+    g.nodes.push(node);
+    var anchored=false;
+    if(anchor){ g.edges.push({a:anchor,b:id,order:ord}); anchored=true; }
+    patch({graph:g,sel:[id]});
+    if(window.SFX){ SFX.pop(); if(anchored) SFX.bond(); }
+  }
+  function onNodeClick(id){
+    if(!S.pick){ patch({lastA:id}); spawnAt(S.curEl||'C',id); return; }
+    var s=S.sel.slice();
+    var i=s.indexOf(id);
+    if(i>=0) s.splice(i,1);
+    else { s.push(id); if(s.length>2) s.shift(); }
+    patch({sel:s});
+  }
+  function onCanvasClick(x,y){
+    if(S.pick) return;
+    if(S.graph.nodes.length){ if(window.SFX) SFX.tick(); return; }
+    spawnAt(S.curEl||'C',null,x,y);
+  }
+  function randomSample(){
+    var fams=['alkane','alkene','oxygen','ester','aromatic'];
+    var fam=fams[Math.floor(Math.random()*fams.length)];
+    var pool=window.POOLS[fam];
+    var lvl=['beginner','intermediate','advanced'][Math.floor(Math.random()*3)];
+    var arr=pool[lvl];
+    var q=arr[Math.floor(Math.random()*arr.length)];
+    patch({graph:NL.buildGraph(q.kind,q.spec),sel:[],resetKey:S.resetKey+1,copied:false});
+  }
+  function copyName(){
+    if(!name) return;
+    function done(){ patch({copied:true}); setTimeout(function(){ patch({copied:false}); },1500); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(name).then(done,function(){ fallback(); });
+    }else fallback();
+    function fallback(){
+      var ta=document.createElement('textarea');
+      ta.value=name; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta); done();
+    }
+  }
+  return h('div',null,
+    h('h1',null,'命名生成器'),
+    h('div',{className:'sub'},'自由搭建分子结构，命名引擎实时推导中文系统名。搭错了也会告诉你它"其实是什么"。'),
+    h(MoleculeView,{graph:S.graph,sel:S.sel,onNodeClick:onNodeClick,onCanvasClick:onCanvasClick,rippleSel:S.pick,resetKey:'g'+S.resetKey,hintText:'点空白放原子 · 点原子生长 · 试试搭烷/烯/醇/醛/酮/酸/酯'}),
+    h('div',{style:{height:10}}),
+    h(BuilderTools,{S:{bgraph:S.graph,sel:S.sel,curEl:S.curEl,curOrd:S.curOrd,pick:S.pick,lastA:S.lastA},app:app,patch:function(o){
+      var n={};
+      if(o.bgraph) n.graph=o.bgraph;
+      if(o.sel) n.sel=o.sel;
+      if(o.curEl) n.curEl=o.curEl;
+      if(o.curOrd) n.curOrd=o.curOrd;
+      if(o.pick!=null) n.pick=o.pick;
+      patch(n);
+    },onUndo:undo}),
+    h('div',{className:'qcard',style:{marginTop:14}},
+      h('div',{className:'muted',style:{fontSize:12,marginBottom:6}},'结构名称'),
+      h('div',{className:'qname',style:{fontSize:22}},name?name:'—— 无法命名：请搭一个连通的完整结构 ——'),
+      h('div',{className:'row',style:{marginTop:12}},
+        h('button',{className:'hbtn primary',onClick:copyName,disabled:!name},S.copied?'✓ 已复制':'复制名称'),
+        h('button',{className:'hbtn',onClick:randomSample},'随机来一题'),
+        h('button',{className:'hbtn ghost',onClick:function(){ patch({graph:{nodes:[],edges:[]},sel:[],resetKey:S.resetKey+1}); }},'清空'))));
+}
+
+/* ---------- 外壳: 品牌 + 三色调 + Tab 路由 ---------- */
+var APPS=[
+ {id:'alkane',name:'烷烃命名',family:'alkane',desc:'最长碳链 · 最低位次组 · 取代基按字母序书写',tools:'C'},
+ {id:'alkene',name:'烯烃命名',family:'alkene',desc:'双键必须进主链，双键位次先于取代基',tools:'C'},
+ {id:'oxygen',name:'含氧衍生物',family:'oxygen',desc:'醇 · 醛 · 酮 · 羧酸，官能团决定母体',tools:'CO'},
+ {id:'ester',name:'酯的命名',family:'ester',desc:'羰基一侧是酸段，另一侧是醇段：某酸某酯',tools:'CO'},
+ {id:'aromatic',name:'芳香烃',family:'aromatic',desc:'苯环编号 · 邻间对 · 多取代基顺序',tools:'CR'},
+ {id:'generator',name:'命名生成器',family:'any',desc:'自由搭建结构，实时生成中文系统名',tools:'COR'}
+];
+var THEMES={
+ night:{label:'夜幕',bg:['#00e5ff','#ff2d95']},
+ dawn:{label:'曙',bg:['#ff8a00','#ff2d95']},
+ washi:{label:'和纸',bg:['#00ffa3','#b967ff']}
+};
+function Shell(){
+  var tabSt=React.useState(function(){
+    var h0=location.hash.replace('#','');
+    return APPS.some(function(a){return a.id===h0;})?h0:'alkane';
+  });
+  var tab=tabSt[0], setTab=tabSt[1];
+  var thSt=React.useState(function(){
+    var t=localStorage.getItem('zao-nl-theme');
+    return THEMES[t]?t:'night';
+  });
+  var theme=thSt[0], setTheme=thSt[1];
+  var sfxSt=React.useState(function(){ return localStorage.getItem('zao-nl-sfx')!=='0'; });
+  var sfxOn=sfxSt[0], setSfxOn=sfxSt[1];
+  React.useEffect(function(){
+    if(window.SFX) SFX.setMuted(!sfxOn);
+    try{ localStorage.setItem('zao-nl-sfx',sfxOn?'1':'0'); }catch(e){}
+  },[sfxOn]);
+
+  React.useEffect(function(){
+    function onHash(){ var h0=location.hash.replace('#',''); if(APPS.some(function(a){return a.id===h0;})) setTab(h0); }
+    window.addEventListener('hashchange',onHash);
+    return function(){ window.removeEventListener('hashchange',onHash); };
+  },[]);
+  React.useEffect(function(){
+    document.documentElement.setAttribute('data-theme',theme);
+    try{ localStorage.setItem('zao-nl-theme',theme); }catch(e){}
+    if(window.__setBgTheme) window.__setBgTheme(THEMES[theme].bg[0],THEMES[theme].bg[1]);
+  },[theme]);
+
+  var app=APPS.filter(function(a){return a.id===tab;})[0];
+  return h('div',{className:'wrap'},
+    h('header',{className:'top'},
+      h('div',{className:'brand'},
+        h('span',{className:'logo'},h('em',null,'化学视界'),' · 有机命名实验室'),
+        h('span',{className:'tag'},'CHEMISTRY IN DAILY LIFE'),
+        h('span',{className:'tag',style:{color:'var(--accent)',borderColor:'var(--accent)',fontWeight:900}},'v32 · 09:05')),
+      h('div',{className:'themes'},
+        Object.keys(THEMES).map(function(k){
+          return h('button',{key:k,className:'tbtn'+(k===theme?' on':''),onClick:function(){ setTheme(k); }},THEMES[k].label);
+        }),
+        h('button',{className:'tbtn',title:'音效开关',onClick:function(){ setSfxOn(!sfxOn); }},sfxOn?'🔊':'🔇'),h('a',{className:'tbtn',href:'/teaching',style:{textDecoration:'none'}},'← 门户'),h('a',{className:'tbtn',href:'/',style:{textDecoration:'none'}},'⌂ 首页'))),
+    h('nav',{className:'tabs'},
+      APPS.map(function(a){
+        return h('button',{key:a.id,className:'tab'+(a.id===tab?' on':''),onClick:function(){ location.hash=a.id; }},a.name);
+      })),
+    app.id==='generator'?h(GeneratorApp,{app:app}):h(GameApp,{key:app.id,app:app}),
+    h('div',{style:{height:20}}));
+}
+
+/* ---------- 启动 ---------- */
+var rootEl=document.getElementById('app');
+if(ReactDOM.createRoot) ReactDOM.createRoot(rootEl).render(h(Shell));
+else ReactDOM.render(h(Shell),rootEl);
+})();
+</script>
 </body>
 </html>
