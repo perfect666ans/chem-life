@@ -213,6 +213,18 @@ export async function onRequestPost(context) {
       return ok({ username: target.username, banned: target.banned })
     }
 
+    /* 管理员：禁言名单（个人中心集中管理） */
+    if (action === 'banList') {
+      if (!u.isAdmin) return fail('仅管理员可查看', 403)
+      const all = await env.CHEM_AUTH.list({ prefix: 'user:' })
+      const banned = []
+      for (const k of all.keys) {
+        const t = await getJSON(env.CHEM_AUTH, k.name)
+        if (t && t.banned) banned.push({ username: t.username, nickname: t.nickname || t.username, avatar: t.avatar || '🧪' })
+      }
+      return ok({ banned })
+    }
+
     // 禁言检查：ban 动作本身在上面已处理，其余写操作一律拦截
     if (u.banned) return fail('你已被禁言，暂时无法发言或上榜，如有疑问请联系站长', 403)
 

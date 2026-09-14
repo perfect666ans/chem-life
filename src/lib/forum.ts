@@ -98,6 +98,10 @@ export const getUserCard = (username: string) =>
 export const banUser = (username: string, banned: boolean) =>
   api<{ username: string; banned: boolean }>('ban', { username, banned })
 
+/** 管理员：禁言名单 */
+export const getBanList = () =>
+  api<{ banned: { username: string; nickname: string; avatar: string }[] }>('banList')
+
 export const getBoard = (game: string) =>
   api<{ rows: BoardRow[]; total: number; me: BoardMe }>('board', { game })
 

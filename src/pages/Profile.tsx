@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Check, ImagePlus, KeyRound, LogOut, Plus, ShieldCheck, UserRound } from 'lucide-react'
+import { Check, ImagePlus, KeyRound, LogOut, Plus, ShieldCheck, ShieldOff, UserRound } from 'lucide-react'
 import {
   bindPhone,
   changePassword,
@@ -13,7 +13,11 @@ import {
   refresh,
   type InviteState,
 } from '../lib/auth'
+import { banUser, getBanList } from '../lib/forum'
 import UserAvatar, { isImageAvatar } from '../components/UserAvatar'
+
+// 轻提示 toast：小弹窗居中顶部，成功 1.2s 自动消失，错误 2.5s
+type Toast = { text: string; kind: 'ok' | 'err' } | null
 
 const AVATARS = ['🧪', '⚗️', '🔬', '🧫', '🧬', '💊', '🧂', '🔥', '💧', '❄️', '⚡', '🌡️',
   '🍋', '🍇', '🥛', '🍯', '🧅', '🥕', '🌽', '🍞', '🧀', '🥚', '🧊', '🍵']
@@ -127,14 +131,23 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('')
   const [ok, setOk] = useState('')
 
+  // 轻提示 toast（小弹窗，成功 1.2s 自动消失）
+  const [toast, setToast] = useState<Toast>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const showToast = (text: string, kind: 'ok' | 'err' = 'ok') => {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    setToast({ text, kind })
+    toastTimer.current = setTimeout(() => setToast(null), kind === 'ok' ? 1200 : 2600)
+  }
+
   // 资料表单
   const [nickname, setNickname] = useState('')
   const [avatar, setAvatar] = useState('🧪')
   const [bio, setBio] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [customTag, setCustomTag] = useState('')
-  const [showUsage, setShowUsage] = useState(false)
-  const [showGameTime, setShowGameTime] = useState(false)
+  const [showUsage, setShowUsage] = useState(true)
+  const [showGameTime, setShowGameTime] = useState(true)
 
   // 改密
   const [oldPw, setOldPw] = useState('')
@@ -146,6 +159,9 @@ export default function ProfilePage() {
   const [invPw, setInvPw] = useState('')
   const [invMin, setInvMin] = useState(60)
   const [invMax, setInvMax] = useState(10)
+
+  // 管理员禁言名单
+  const [banList, setBanList] = useState<{ username: string; nickname: string; avatar: string }[]>([])
 
   // 保存确认弹窗 + 头像上传
   const [confirmSave, setConfirmSave] = useState(false)
@@ -169,7 +185,10 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!user) return
     resetForm(user)
-    if (user.isAdmin) void getInvite().then((r) => r.ok && setInv(r.invite))
+    if (user.isAdmin) {
+      void getInvite().then((r) => r.ok && setInv(r.invite))
+      void getBanList().then((r) => r.ok && setBanList(r.banned))
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
@@ -180,6 +199,8 @@ export default function ProfilePage() {
       setOk('')
       setMsg('')
     }, 4000)
+    // 同步弹轻提示：操作必须有按下即知的反馈
+    showToast(err ?? okMsg, err ? 'err' : 'ok')
   }
 
   // 保存资料：先弹确认框；确认→真正保存并提示；放弃→还原成原设置
@@ -204,6 +225,13 @@ export default function ProfilePage() {
     } catch (e) {
       flash('', e instanceof Error ? e.message : '图片处理失败')
     }
+  }
+  const unban = async (username: string) => {
+    const r = await banUser(username, false)
+    if (r.ok) {
+      setBanList((l) => l.filter((x) => x.username !== username))
+      flash(`已解除 ${username} 的禁言`)
+    } else flash('', r.error)
   }
   const savePw = async () => {
     const r = await changePassword(oldPw, newPw)
@@ -322,7 +350,7 @@ export default function ProfilePage() {
           <div className="mt-4 flex gap-2">
             <button
               onClick={() => void openInvite()}
-              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 active:scale-95"
             >
               <ShieldCheck className="h-4 w-4" />
               开启 / 重置开放
@@ -330,12 +358,42 @@ export default function ProfilePage() {
             {inviteLive && (
               <button
                 onClick={() => void shutInvite()}
-                className="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                className="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 transition hover:bg-red-50 active:scale-95"
               >
                 立即关闭
               </button>
             )}
           </div>
+        </Section>
+      )}
+
+      {/* 管理员：禁言名单 */}
+      {user.isAdmin && (
+        <Section title="禁言名单（仅管理员可见）">
+          {banList.length === 0 ? (
+            <p className="text-sm text-slate-400">
+              当前没有被禁言的用户。在论坛或排行榜点击对方昵称 → 名片底部「一键禁言」即可加入名单。
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {banList.map((b) => (
+                <div key={b.username} className="flex items-center gap-3 rounded-lg border border-rose-100 bg-rose-50/50 px-4 py-2.5">
+                  <UserAvatar value={b.avatar} imgClassName="h-8 w-8" />
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-slate-800">{b.nickname}</div>
+                    <div className="text-xs text-slate-400">@{b.username}</div>
+                  </div>
+                  <button
+                    onClick={() => void unban(b.username)}
+                    className="ml-auto flex shrink-0 items-center gap-1 rounded-lg border border-emerald-300 px-3 py-1.5 text-xs text-emerald-600 transition hover:bg-emerald-50 active:scale-95"
+                  >
+                    <ShieldOff className="h-3.5 w-3.5" />
+                    解除禁言
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </Section>
       )}
 
@@ -470,7 +528,7 @@ export default function ProfilePage() {
         </div>
         <button
           onClick={() => setConfirmSave(true)}
-          className="mt-4 flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="mt-4 flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 active:scale-95"
         >
           <UserRound className="h-4 w-4" />
           保存资料
@@ -489,14 +547,14 @@ export default function ProfilePage() {
               <button
                 onClick={() => void doSaveProfile()}
                 disabled={saving}
-                className="flex-1 rounded-lg bg-indigo-600 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                className="flex-1 rounded-lg bg-indigo-600 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
               >
                 {saving ? '保存中…' : '保存'}
               </button>
               <button
                 onClick={discardProfile}
                 disabled={saving}
-                className="flex-1 rounded-lg border border-slate-300 py-2.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                className="flex-1 rounded-lg border border-slate-300 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50 active:scale-95 disabled:opacity-50"
               >
                 放弃
               </button>
@@ -520,10 +578,10 @@ export default function ProfilePage() {
               disabled={phone.length !== 11}
               onClick={async () => {
                 const r = await bindPhone(phone)
-                if (r.ok) { setMsg('手机号已绑定'); setPhone(''); void refresh() }
-                else setMsg(r.error || '绑定失败')
+                if (r.ok) { flash('绑定成功 ✓'); setPhone(''); void refresh() }
+                else flash('', r.error || '绑定失败')
               }}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 active:scale-95 disabled:opacity-40"
             >
               绑定 / 换绑
             </button>
@@ -566,12 +624,25 @@ export default function ProfilePage() {
         <button
           onClick={() => void savePw()}
           disabled={!oldPw || newPw.length < 6}
-          className="mt-3 flex items-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          className="mt-3 flex items-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50 active:scale-95 disabled:opacity-50"
         >
           <KeyRound className="h-4 w-4" />
           确认修改
         </button>
       </Section>
+
+      {/* 轻提示 toast：小弹窗，成功 1.2s / 失败 2.6s 自动消失 */}
+      {toast && (
+        <div className="pointer-events-none fixed left-1/2 top-16 z-[90] -translate-x-1/2">
+          <div
+            className={`rounded-full px-5 py-2.5 text-sm font-medium text-white shadow-xl ${
+              toast.kind === 'ok' ? 'bg-slate-800' : 'bg-rose-600'
+            }`}
+          >
+            {toast.text}
+          </div>
+        </div>
+      )}
     </main>
   )
 }

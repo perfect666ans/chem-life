@@ -127,7 +127,8 @@ export async function onRequestPost(context) {
       const user = {
         username, salt, hash: await hashPw(String(password), salt), isAdmin: false,
         nickname: username, avatar: '⚗️', bio: '', tags: [],
-        showUsage: false, showGameTime: false, createdAt: now(), mustChangePw: true,
+        // 默认公开时长/战绩（本人可随时关；关闭期间数据照存，重新公开即同步榜单）
+        showUsage: true, showGameTime: true, createdAt: now(), mustChangePw: true,
       }
       await setJSON(env, 'user:' + username, user)
       inv.used = [...(inv.used || []), username]
