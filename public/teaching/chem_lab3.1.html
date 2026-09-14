@@ -3,248 +3,236 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>有机反应机理库 · 化学生活教学中心</title>
+<title>反应机理库 · 生活中的化学</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="../vendor/three.r128.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<script>window.THREE||document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"><\/script>')</script>
 <style>
-
-/* =========================================================
-   tk-chem 风格 · 和紙 washi / 墨朱 sumi / 藍 ai 三主题
-   ========================================================= */
 :root{
-  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC","Hiragino Sans GB",serif;
+  --serif-cn:"Noto Serif SC","Source Han Serif SC","Songti SC",serif;
   --sans-cn:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
-  --display-en:"Shippori Mincho","Noto Serif SC",serif;
   --mono:"JetBrains Mono","IBM Plex Mono",monospace;
 }
 :root,:root[data-theme="washi"]{
-  --bg-void:#efebe0; --bg-deep:#e8e3d4; --bg-mid:#ddd6c3;
+  --bg-void:#efebe0; --bg-deep:#e8e3d4;
   --surface:#f7f4ec; --surface-2:#efebe0; --paper:#ffffff;
   --line:rgba(26,24,23,.12); --line-strong:rgba(26,24,23,.26);
   --ink:#1a1817; --ink-dim:#5a5550; --ink-mute:#9a948a;
   --accent:#c8102e; --accent-soft:rgba(200,16,46,.10);
-  --inset:rgba(26,24,23,.045);
+  --ok:#2e7d4f; --ok-soft:rgba(46,125,79,.12);
   --topnav-bg:rgba(247,244,236,.88);
-  --cat-1:#c8102e; --cat-2:#2a5d9f; --cat-3:#6b8e4e; --cat-4:#c89028;
-  --lone:#7a4fb0; --lone-soft:rgba(122,79,176,.10);
   --canvas-bg:#0d1017;
   --noise-mode:multiply; --noise-alpha:.045;
+  --pair:#e8452c; --hook:#2bb3a3;
 }
 :root[data-theme="sumi"]{
-  --bg-void:#0d0d0f; --bg-deep:#141416; --bg-mid:#1a1a1d;
+  --bg-void:#0d0d0f; --bg-deep:#141416;
   --surface:#1f1f23; --surface-2:#2a2a2f; --paper:#1f1f23;
   --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
   --ink:#f0eee8; --ink-dim:#a7a7ab; --ink-mute:#6e6e72;
   --accent:#d23838; --accent-soft:rgba(210,56,56,.16);
-  --inset:rgba(0,0,0,.30);
+  --ok:#7bc08f; --ok-soft:rgba(123,192,143,.14);
   --topnav-bg:rgba(13,13,15,.86);
-  --cat-1:#d65a5a; --cat-2:#5c95cc; --cat-3:#8fb27a; --cat-4:#e8c168;
-  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
   --canvas-bg:#0d1017;
   --noise-mode:overlay; --noise-alpha:.03;
+  --pair:#e8604c; --hook:#3ec9b8;
 }
 :root[data-theme="ai"]{
-  --bg-void:#0a0e15; --bg-deep:#11161f; --bg-mid:#181f2c;
+  --bg-void:#0a0e15; --bg-deep:#11161f;
   --surface:#1e2532; --surface-2:#28303f; --paper:#1e2532;
   --line:rgba(200,215,235,.11); --line-strong:rgba(200,215,235,.24);
   --ink:#e6ebf2; --ink-dim:#9aa6b6; --ink-mute:#5e6a80;
   --accent:#4a93d4; --accent-soft:rgba(74,147,212,.18);
-  --inset:rgba(0,0,0,.30);
+  --ok:#8fd0a5; --ok-soft:rgba(143,208,165,.14);
   --topnav-bg:rgba(10,14,21,.86);
-  --cat-1:#d65a5a; --cat-2:#4a93d4; --cat-3:#8fb27a; --cat-4:#e8c168;
-  --lone:#b89ae8; --lone-soft:rgba(184,154,232,.14);
   --canvas-bg:#0d1017;
   --noise-mode:overlay; --noise-alpha:.03;
+  --pair:#e8604c; --hook:#3ec9b8;
 }
-*,*::before,*::after{
-  box-sizing:border-box;margin:0;padding:0;
-  transition:background-color .35s ease,color .35s ease,border-color .35s ease;
-}
-body{
-  font-family:var(--sans-cn);
-  background:var(--bg-void); color:var(--ink);
-  overflow:hidden; line-height:1.7; position:relative; height:100vh;
-}
-body::after{
-  content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease;}
+body{font-family:var(--sans-cn);background:var(--bg-void);color:var(--ink);
+  overflow:hidden;line-height:1.7;height:100vh;position:relative;}
+body::after{content:"";position:fixed;inset:0;z-index:200;pointer-events:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-  mix-blend-mode:var(--noise-mode); opacity:var(--noise-alpha);
-}
+  mix-blend-mode:var(--noise-mode);opacity:var(--noise-alpha);}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 /* ---- 顶栏 ---- */
-.topnav{
-  height:60px; flex:none; display:flex; align-items:center; justify-content:space-between;
-  padding:0 clamp(14px,2.5vw,28px); gap:14px;
-  background:var(--topnav-bg); backdrop-filter:blur(18px);
-  border-bottom:1px solid var(--line); position:relative; z-index:50;
-}
+.topnav{height:60px;flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(14px,2.5vw,28px);gap:14px;
+  background:var(--topnav-bg);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);position:relative;z-index:50;}
 .brand{display:flex;align-items:center;gap:12px;min-width:0;}
-.brand .badge{
-  display:inline-flex;align-items:center;justify-content:center;flex:none;
-  width:26px;height:26px;background:var(--accent);
-  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:14px;
-}
+.brand .badge{display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:28px;height:28px;background:var(--accent);
+  font-family:var(--serif-cn);font-weight:800;color:#fff;font-size:15px;}
 :root[data-theme="washi"] .brand .badge{color:#f7f4ec;}
-.brand h1{
-  font-family:var(--serif-cn);font-weight:800;font-size:16px;letter-spacing:1.5px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.brand .lecture-tag{
-  font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
-  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;
-}
+.brand h1{font-family:var(--serif-cn);font-weight:800;font-size:17px;letter-spacing:1.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.brand .lecture-tag{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink-mute);
+  border-left:1px solid var(--line);padding-left:12px;white-space:nowrap;}
 .nav-right{display:flex;align-items:center;gap:10px;flex:none;}
-.nav-btn{
-  display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
+.nav-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;
   font-family:var(--sans-cn);font-size:13px;font-weight:500;color:var(--ink-dim);
   border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:transparent;
-  transition:all .25s;white-space:nowrap;
-}
+  transition:all .25s;white-space:nowrap;}
 .nav-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
-.nav-btn .arr{font-family:var(--mono);}
-/* 主题切换 */
 .theme-switch{display:flex;align-items:center;gap:2px;padding-left:12px;border-left:1px solid var(--line);}
-.ts-dot{
-  background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
+.ts-dot{background:none;border:1px solid transparent;border-radius:999px;cursor:pointer;
   display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
-  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;
-}
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);transition:all .2s;}
 .ts-dot:hover{color:var(--ink-dim);}
 .ts-dot[aria-current="true"]{border-color:var(--line-strong);color:var(--ink);}
-.ts-swatch{
-  width:13px;height:13px;border-radius:50%;flex:none;
+.ts-swatch{width:13px;height:13px;border-radius:50%;flex:none;
   background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
-  border:1px solid rgba(128,128,128,.4);
-}
-@media (max-width:900px){
-  .brand .lecture-tag{display:none;}
-  .ts-dot .ts-name{display:none;}
-}
+  border:1px solid rgba(128,128,128,.4);}
+@media (max-width:900px){.brand .lecture-tag{display:none;}.ts-dot .ts-name{display:none;}}
 
 /* ---- 主体三栏 ---- */
-.main-wrap{display:flex;height:calc(100vh - 61px);}
-.side{
-  background:var(--surface);overflow-y:auto;flex:none;
-  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
-}
-.panel-section{margin-bottom:22px;}
-.panel-title{
-  font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;
-  border-bottom:1px solid var(--line);
-}
-/* 开关 */
-.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
-.switch-label{font-size:13px;color:var(--ink-dim);}
-.switch{
-  width:44px;height:24px;background:var(--bg-mid);border:1px solid var(--line);
-  border-radius:12px;position:relative;cursor:pointer;transition:.3s;flex:none;
-}
-.switch::after{
-  content:'';position:absolute;width:16px;height:16px;background:var(--ink-mute);
-  border-radius:50%;top:3px;left:3px;transition:.3s;
-}
-.switch.active{background:var(--accent);border-color:var(--accent);}
-.switch.active::after{left:23px;background:#fff;}
-/* 滑块 */
-.slider-wrap input[type="range"]{
-  width:100%;height:4px;border-radius:2px;background:var(--bg-mid);
-  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
-}
-.slider-wrap input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
-  background:var(--accent);cursor:pointer;border:2px solid var(--paper);
-  box-shadow:0 1px 6px rgba(0,0,0,.25);
-}
-.slider-value,.slider-tip{
-  text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:1px;
-  color:var(--ink-mute);margin-top:8px;
-}
-/* 下拉 */
-.select-box,.proj-select{
-  width:100%;padding:8px 10px;background:var(--surface-2);
-  border:1px solid var(--line);color:var(--ink);border-radius:8px;
-  font-size:13px;cursor:pointer;font-family:var(--sans-cn);
-}
-.select-box:focus,.proj-select:focus{border-color:var(--accent);outline:none;}
-/* 功能按钮 */
-.func-btn{
-  width:100%;padding:9px 0;background:var(--accent-soft);
-  border:1px solid var(--accent);color:var(--accent);border-radius:8px;
-  cursor:pointer;font-size:13px;transition:.25s;font-family:var(--sans-cn);
-}
+.main-wrap{display:flex;height:calc(100vh - 61px);position:relative;}
+.side{background:var(--surface);overflow-y:auto;flex:none;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;}
+.left-panel{width:270px;border-right:1px solid var(--line);padding:16px 14px;}
+.panel-section{margin-bottom:20px;}
+.panel-title{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line);}
+.search-input{width:100%;padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;font-size:12.5px;color:var(--ink);font-family:var(--sans-cn);outline:none;margin-bottom:10px;}
+.search-input:focus{border-color:var(--accent);}
+.rx-cat{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-mute);
+  margin:12px 4px 5px;text-transform:uppercase;}
+.rx-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 10px;
+  border:1px solid transparent;border-radius:8px;background:none;color:var(--ink-dim);
+  font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s;position:relative;}
+.rx-item:hover{border-color:var(--line);color:var(--ink);}
+.rx-item.cur{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:600;}
+.rx-item .seal{flex:none;width:20px;height:20px;border-radius:5px;display:inline-flex;align-items:center;
+  justify-content:center;font-size:11px;font-family:var(--serif-cn);font-weight:700;
+  border:1px solid var(--line-strong);color:var(--ink-mute);}
+.rx-item.cur .seal{background:var(--accent);border-color:var(--accent);color:#fff;}
+.rx-item .done{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  font-size:11px;color:var(--ok);font-weight:700;opacity:0;}
+.rx-item.passed .done{opacity:1;}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px 14px;}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
+
+/* ---- 中央画布 ---- */
+.canvas-box{flex:1;position:relative;background:var(--canvas-bg);min-width:0;}
+#mechCanvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab;}
+#mechCanvas:active{cursor:grabbing;}
+.canvas-hint{position:absolute;left:14px;bottom:64px;font-family:var(--mono);font-size:10px;
+  letter-spacing:1.5px;color:rgba(230,235,242,.45);pointer-events:none;}
+#glFallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  color:#e6ebf2;font-size:14px;text-align:center;padding:30px;line-height:2;}
+#rxToggle{display:none;position:absolute;left:14px;top:14px;z-index:40;
+  padding:7px 14px;border-radius:999px;border:1px solid var(--accent);
+  background:var(--accent-soft);color:var(--accent);font-size:12.5px;cursor:pointer;font-family:var(--sans-cn);}
+
+/* 播放控制条 */
+.playbar{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:12px;
+  padding:10px 16px;background:rgba(13,16,23,.82);backdrop-filter:blur(10px);
+  border-top:1px solid rgba(255,255,255,.08);}
+.play-btn{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--accent);
+  background:var(--accent-soft);color:var(--accent);font-size:14px;cursor:pointer;transition:.2s;}
+.play-btn:hover{background:var(--accent);color:#fff;}
+.speed-sel{flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+  color:#f0eee8;border-radius:999px;padding:5px 8px;font-family:var(--mono);font-size:11.5px;
+  cursor:pointer;outline:none;}
+.speed-sel option{background:#14171f;color:#e6ebf2;}
+.mode-check{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--ink-dim);
+  cursor:pointer;line-height:1.5;}
+.mode-check input{margin-top:3px;accent-color:var(--accent);cursor:pointer;}
+.mode-check small{display:block;color:var(--ink-mute);font-size:11px;margin-left:22px;margin-top:-14px;}
+#tSlider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+  background:rgba(255,255,255,.18);outline:none;cursor:pointer;}
+#tSlider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);border:2px solid #0d1017;box-shadow:0 0 8px rgba(200,16,46,.6);cursor:pointer;}
+#tSlider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);
+  border:2px solid #0d1017;cursor:pointer;}
+.tlabel{flex:none;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:rgba(230,235,242,.6);
+  min-width:44px;text-align:right;}
+.stepchip{flex:none;max-width:32%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:12px;color:#f0eee8;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;padding:5px 12px;}
+
+/* 预测产物覆盖层 */
+.quiz-mask{position:absolute;inset:0;z-index:30;display:none;align-items:center;justify-content:center;
+  background:rgba(10,13,20,.66);backdrop-filter:blur(6px);padding:18px;}
+.quiz-mask.show{display:flex;}
+.quiz-card{width:min(560px,94%);background:var(--paper);border:1px solid var(--line);
+  border-radius:16px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.45);}
+.quiz-k{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:6px;}
+.quiz-q{font-family:var(--serif-cn);font-weight:800;font-size:17px;margin-bottom:4px;}
+.quiz-sub{font-size:12.5px;color:var(--ink-dim);margin-bottom:14px;}
+.quiz-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.quiz-opt{border:1.5px solid var(--line-strong);background:var(--surface);border-radius:12px;
+  padding:14px 8px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:13px;
+  color:var(--ink);transition:all .2s;line-height:1.6;}
+.quiz-opt small{display:block;font-family:var(--sans-cn);font-size:11px;color:var(--ink-mute);margin-top:4px;}
+.quiz-opt:hover{border-color:var(--accent);transform:translateY(-2px);}
+.quiz-opt.ok{border-color:var(--ok);background:var(--ok-soft);}
+.quiz-opt.no{border-color:var(--accent);background:var(--accent-soft);opacity:.65;}
+.quiz-fb{min-height:24px;font-size:12.5px;color:var(--ink-dim);margin-bottom:10px;}
+.quiz-fb.good{color:var(--ok);}
+.quiz-fb.bad{color:var(--accent);}
+.quiz-foot{display:flex;justify-content:space-between;align-items:center;}
+.quiz-tip{font-size:11.5px;color:var(--ink-mute);}
+.quiz-skip{border:none;background:none;color:var(--ink-mute);font-size:12.5px;cursor:pointer;
+  text-decoration:underline;font-family:inherit;}
+.quiz-skip:hover{color:var(--accent);}
+
+/* ---- 右栏 ---- */
+.right-panel{width:310px;border-left:1px solid var(--line);padding:16px;}
+.info-card{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--paper);margin-bottom:16px;}
+.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:20px;letter-spacing:1px;margin-bottom:6px;}
+.info-en{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;color:var(--ink-mute);
+  text-transform:uppercase;margin-bottom:10px;}
+.tag-wrap{margin-bottom:10px;}
+.info-tag{display:inline-block;background:var(--accent-soft);color:var(--accent);
+  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;font-size:11px;margin:0 5px 5px 0;}
+.info-eq{font-family:var(--mono);font-size:12.5px;line-height:1.9;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;margin-bottom:10px;word-break:break-all;}
+.info-desc{font-size:12.5px;color:var(--ink-dim);line-height:1.8;}
+.life-box{border-left:3px solid var(--ok);background:var(--ok-soft);border-radius:0 10px 10px 0;
+  padding:8px 12px;font-size:12px;color:var(--ink-dim);line-height:1.75;margin-top:10px;}
+.life-box b{color:var(--ok);}
+.step-list{display:flex;flex-direction:column;gap:6px;}
+.step-item{display:flex;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;
+  background:var(--paper);cursor:pointer;transition:all .2s;text-align:left;font-family:inherit;color:var(--ink);}
+.step-item:hover{border-color:var(--accent);}
+.step-item.cur{border-color:var(--accent);background:var(--accent-soft);}
+.step-item .no{flex:none;font-family:var(--mono);font-size:10px;color:var(--accent);
+  border:1px solid var(--accent);border-radius:6px;width:20px;height:20px;
+  display:inline-flex;align-items:center;justify-content:center;margin-top:2px;}
+.step-item .tx{flex:1;min-width:0;}
+.step-item .nm{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.step-item .ds{font-size:11.5px;color:var(--ink-dim);line-height:1.65;}
+.pass-banner{display:none;align-items:center;gap:8px;border:1px solid var(--ok);background:var(--ok-soft);
+  color:var(--ok);border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:700;margin-bottom:14px;}
+.pass-banner.show{display:flex;}
+.ctrl-row{display:flex;gap:8px;margin-bottom:14px;}
+.func-btn{flex:1;padding:8px 0;background:var(--accent-soft);border:1px solid var(--accent);
+  color:var(--accent);border-radius:8px;cursor:pointer;font-size:12.5px;transition:.25s;font-family:inherit;}
 .func-btn:hover{background:var(--accent);color:#fff;}
 
-
-/* ---- 晶体实验室布局 ---- */
-.left-panel{width:250px;border-right:1px solid var(--line);padding:16px;}
-.info-card{
-  border:1px solid var(--line);border-radius:12px;padding:16px;
-  background:var(--paper);margin-bottom:18px;
+@media (max-width:1120px){
+  #rxToggle{display:inline-flex;}
+  .left-panel{position:absolute;top:0;left:0;height:100%;z-index:35;width:270px;
+    transform:translateX(-102%);transition:transform .3s;box-shadow:12px 0 30px rgba(0,0,0,.3);}
+  .left-panel.open{transform:none;}
+  .right-panel{width:270px;}
 }
-.info-card h2{font-family:var(--serif-cn);font-weight:800;font-size:19px;letter-spacing:1px;margin-bottom:10px;}
-.tag-wrap{margin-bottom:10px;}
-.info-tag{
-  display:inline-block;background:var(--accent-soft);color:var(--accent);
-  border:1px solid var(--accent);padding:2px 9px;border-radius:999px;
-  font-size:11px;margin:0 5px 5px 0;
+@media (max-width:860px){
+  .right-panel{position:absolute;top:0;right:0;height:100%;z-index:35;width:290px;
+    transform:translateX(102%);transition:transform .3s;box-shadow:-12px 0 30px rgba(0,0,0,.3);}
+  .right-panel.open{transform:none;}
+  .stepchip{display:none;}
 }
-.info-desc{font-size:12px;color:var(--ink-dim);line-height:1.7;}
-.legend-row{display:flex;flex-wrap:wrap;gap:10px;}
-.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);}
-.legend-ball{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--line-strong);}
-.canvas-box{flex:1;position:relative;background:var(--canvas-bg);}
-#crystalCanvas{width:100%;height:100%;display:block;}
-.right-panel{width:200px;border-left:1px solid var(--line);padding:16px;}
-/* 二维投影浮层 */
-.proj-modal{
-  display:none;position:absolute;top:18px;right:18px;z-index:60;
-  background:var(--paper);border:1px solid var(--line);border-radius:12px;
-  padding:16px;width:min(360px,80%);box-shadow:0 18px 50px rgba(0,0,0,.35);
-}
-.proj-modal h3{
-  font-family:var(--serif-cn);font-weight:700;font-size:14px;letter-spacing:1px;
-  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
-}
-.proj-close{cursor:pointer;color:var(--ink-mute);font-size:18px;background:none;border:none;}
-.proj-close:hover{color:var(--accent);}
-.proj-canvas{
-  width:100%;height:300px;background:var(--canvas-bg);
-  border-radius:8px;border:1px solid var(--line);margin-top:10px;
-}
-
-
-
-
-
-
-
-
-/* ===== 机理库专用 ===== */
-.mch-scene{width:100%;height:100%;position:relative}
-.mch-atom{position:absolute;transform:translate(-50%,-50%);font-family:Georgia,serif;font-size:15px;
- color:var(--ink);white-space:nowrap;transition:color .3s}
-.mch-atom.hot{color:var(--accent);font-weight:700}
-.mch-atom.ok{color:#2e7d4f;font-weight:700}
-.mch-atom.dbl{color:var(--ink-dim)}
-@keyframes brk{0%,100%{opacity:1}50%{opacity:.15}}
-.mch-bond.br{stroke:var(--accent);stroke-width:2.5;animation:brk .8s infinite}
-.mch-bond.fm{stroke:#2e7d4f;stroke-width:2.5;animation:brk 1.2s infinite}
-.mch-bond{stroke:var(--ink);stroke-width:1.8}
-.mch-arrow{stroke:var(--accent);stroke-width:1.8;fill:none;stroke-dasharray:6 4;animation:arrmove 1s linear infinite}
-@keyframes arrmove{to{stroke-dashoffset:-20}}
-.mch-text{position:absolute;left:0;right:0;bottom:0;padding:10px 16px;font-size:13px;line-height:1.9;
- color:var(--ink);background:color-mix(in srgb,var(--surface) 88%,transparent);border-top:1px solid var(--line)}
-.mch-ctrl{display:flex;gap:8px;justify-content:center;padding:10px 0;border-top:1px solid var(--line);
- background:var(--surface)}
-.mch-btn{border:1px solid var(--line-strong);background:transparent;color:var(--ink);border-radius:6px;
- padding:6px 18px;font-size:12.5px;cursor:pointer;font-family:inherit}
-.mch-btn:hover{border-color:var(--accent);color:var(--accent)}
-.mch-step{font-size:12px;color:var(--ink-mute);align-self:center}
-.mch-item{display:block;width:100%;text-align:left;padding:8px 10px;border:1px solid transparent;border-radius:6px;
- background:none;color:var(--ink);font-size:13px;cursor:pointer;font-family:inherit}
-.mch-item:hover{border-color:var(--line)}
-.mch-item.cur{border-color:var(--accent);color:var(--accent)}
-.mch-item small{display:block;font-size:11px;color:var(--ink-mute)}
 </style>
 <style>html,body{overscroll-behavior:none;}</style>
 </head>
@@ -252,11 +240,11 @@ body::after{
 <nav class="topnav">
   <div class="brand">
     <span class="badge">机</span>
-    <h1 style="white-space:nowrap">有机反应机理库</h1>
-    <span class="lecture-tag">ORGANIC · LAB 01</span>
+    <h1>反应机理库</h1>
+    <span class="lecture-tag">MECHANISM · LAB 03-1</span>
   </div>
   <div class="nav-right">
-    <a class="nav-btn" href="chem_lab3.2.html">命名中心 <span class="arr">→</span></a>
+    <button class="nav-btn" id="btnInfo">使用说明</button>
     <button class="nav-btn" onclick="location.href='/teaching'"><span class="arr">←</span> 返回门户</button>
     <button class="nav-btn" onclick="location.href='/'"><span class="arr">⌂</span> 返回首页</button>
     <div class="theme-switch" role="group" aria-label="主题切换">
@@ -268,133 +256,1663 @@ body::after{
 </nav>
 
 <div class="main-wrap">
-  <div class="side left-panel">
+  <!-- 左栏：反应库 -->
+  <div class="side left-panel" id="leftPanel">
+    <div class="panel-section">
+      <div class="panel-title">搜索机理</div>
+      <input class="search-input" id="searchInput" placeholder="名称 / 类别 / 生活场景…">
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">学习模式</div>
+      <label class="mode-check"><input type="checkbox" id="practiceChk"> 练习模式<small>勾选后，每个机理先「预测产物」再看动画</small></label>
+    </div>
+    <div class="panel-section" style="flex:1">
+      <div class="panel-title">机理目录 <span id="libCount" style="letter-spacing:0"></span></div>
+      <div id="rxNav"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-title">箭头图例</div>
+      <div class="legend-row">
+        <span class="legend-item"><svg width="34" height="14" viewBox="0 0 34 14"><path d="M2 11 C10 2,22 2,30 9" fill="none" stroke="var(--pair)" stroke-width="2" stroke-linecap="round"/><path d="M30 9 l-6 1 M30 9 l-2 -5" stroke="var(--pair)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>双钩 · 一对电子</span>
+        <span class="legend-item"><svg width="34" height="14" viewBox="0 0 34 14"><path d="M2 11 C10 2,22 2,28 8" fill="none" stroke="var(--hook)" stroke-width="2" stroke-linecap="round"/><path d="M28 8 l-5 1" stroke="var(--hook)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>鱼钩 · 单电子</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中央：3D 舞台 -->
+  <div class="canvas-box" id="canvasBox">
+    <canvas id="mechCanvas"></canvas>
+    <button id="rxToggle">机理库 ☰</button>
+    <div id="glFallback">当前浏览器无法启用 WebGL，3D 机理舞台无法运行。<br>请换用较新的 Chrome / Edge / Safari 后再试。</div>
+    <div class="canvas-hint">拖动旋转 · 滚轮缩放 · 拖时间轴逐步看</div>
+
+    <div class="quiz-mask" id="quizMask" role="dialog" aria-label="预测产物">
+      <div class="quiz-card">
+        <div class="quiz-k">PREDICT · 先动脑再动手</div>
+        <div class="quiz-q" id="quizQ">不看答案，先猜本反应的产物</div>
+        <div class="quiz-sub" id="quizSub">根据左边的反应物和条件，推断右边会生成什么。猜对才能播放机理动画。</div>
+        <div class="quiz-opts" id="quizOpts"></div>
+        <div class="quiz-fb" id="quizFb"></div>
+        <div class="quiz-foot">
+          <span class="quiz-tip" id="quizTip">提示：先想「哪根键断、哪个原子接哪里」</span>
+          <button class="quiz-skip" id="quizSkip" type="button">先跳过，直接看动画</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="playbar">
+      <button class="play-btn" id="playBtn" aria-label="播放">▶</button>
+      <select class="speed-sel" id="speedSel" aria-label="播放速度">
+        <option value="0.2">0.2×</option>
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+      <input type="range" id="tSlider" min="0" max="1000" value="0" step="1" aria-label="反应进度">
+      <span class="stepchip" id="stepChip">—</span>
+      <span class="tlabel" id="tLabel">0%</span>
+    </div>
+  </div>
+
+  <!-- 右栏：反应档案 -->
+  <div class="side right-panel" id="rightPanel">
+    <div class="pass-banner" id="passBanner">✓ 已通关 · 机理掌握</div>
     <div class="info-card">
-      <h2 id="mechName">—</h2>
-      <div class="tag-wrap"><span class="tag" id="mechTag"></span></div>
-      <p class="info-desc" id="mechEq" style="font-family:Georgia,serif"></p>
-      <p class="info-desc" id="mechCond"></p>
+      <h2 id="rxName">—</h2>
+      <div class="info-en" id="rxEn">—</div>
+      <div class="tag-wrap" id="tagWrap"></div>
+      <div class="info-eq" id="rxEq">—</div>
+      <p class="info-desc" id="rxDesc">—</p>
+      <div class="life-box" id="rxLife"></div>
     </div>
     <div class="panel-section">
-      <div class="panel-title">六大核心机理</div>
-      <div id="mechList"></div>
+      <div class="panel-title">断键成键步骤 · 点击跳转</div>
+      <div class="step-list" id="stepList"></div>
     </div>
-  </div>
-
-  <div class="canvas-box" style="background:var(--bg-deep);display:flex;flex-direction:column">
-    <div class="mch-scene" id="scene" style="flex:1"></div>
-    <div class="mch-ctrl">
-      <button class="mch-btn" id="btnPrev">← 上一相</button>
-      <span class="mch-step" id="stepInfo"></span>
-      <button class="mch-btn" id="btnPlay">播放</button>
-      <button class="mch-btn" id="btnNext">下一相 →</button>
-    </div>
-  </div>
-
-  <div class="side right-panel">
-    <div class="panel-section">
-      <div class="panel-title">图例</div>
-      <p class="info-desc"><span style="color:var(--accent);font-weight:700">红色闪烁</span> = 即将断裂的键 / 活泼位点<br>
-      <span style="color:#2e7d4f;font-weight:700">绿色</span> = 新形成的键 / 产物<br>
-      <span style="color:var(--accent)">弯箭头</span> = 电子对的移动方向</p>
-    </div>
-    <div class="panel-section">
-      <div class="panel-title">学习建议</div>
-      <p class="info-desc">机理题的核心是「谁断键、谁成键、电子去哪」。每相先遮住文字自己预测，再对照；酯化和银镜是推断题高频突破口。</p>
+    <div class="ctrl-row">
+      <button class="func-btn" id="replayBtn">↻ 重播本机理</button>
+      <button class="func-btn" id="nextBtn">下一反应 →</button>
     </div>
   </div>
 </div>
-
-<script>window.__MECH__ = {"mechs": [{"name": "酯化反应", "tag": "羧酸脱羟基 · 醇脱氢", "eq": "CH₃COOH + C₂H₅¹⁸OH ⇌ CH₃CO¹⁸OC₂H₅ + H₂O", "cond": "浓 H₂SO₄ 催化、加热；¹⁸O 示踪证明机理", "phases": [{"atoms": [["CH₃", 20, 60], ["C", 75, 60], ["O", 105, 25, "dbl"], ["O", 120, 60], ["H", 150, 60, "hot"], ["H", 205, 60, "hot"], ["¹⁸O", 235, 60], ["C₂H₅", 280, 60]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "n"], [3, 4, 1, "br"], [5, 6, 1, "br"], [6, 7, 1, "n"]], "arrows": [], "text": "反应物就位：乙酸的 —OH（红）与乙醇羟基上的 H（红）即将结合成水。乙醇的氧用同位素 ¹⁸O 标记。"}, {"atoms": [["CH₃", 20, 60], ["C", 75, 60], ["O", 105, 25, "dbl"], ["O", 120, 60], ["H", 150, 60, "hot"], ["H", 205, 60, "hot"], ["¹⁸O", 235, 60], ["C₂H₅", 280, 60]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "br"], [3, 4, 1, "br"], [5, 6, 1, "br"], [6, 7, 1, "n"]], "arrows": [[150, 72, 185, 95, 215, 72], [120, 50, 170, 20, 230, 50]], "text": "酸脱羟基、醇脱氢：C—O 键与 O—H 键同时断裂（弯箭头示意电子转移方向）。"}, {"atoms": [["CH₃", 20, 60], ["C", 75, 60], ["O", 105, 25, "dbl"], ["¹⁸O", 125, 60, "ok"], ["C₂H₅", 175, 60], ["H₂O", 250, 60, "ok"]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "fm"], [3, 4, 1, "n"]], "arrows": [], "text": "产物：乙酸乙酯中的氧是 ¹⁸O（来自乙醇），水中没有 ¹⁸O——同位素示踪证明「酸脱羟基醇脱氢」。"}]}, {"name": "乙烯与溴加成", "tag": "π 键断裂 · 双位加成", "eq": "CH₂=CH₂ + Br₂ → CH₂Br—CH₂Br", "cond": "溴水或溴的四氯化碳溶液褪色——检验不饱和键", "phases": [{"atoms": [["CH₂", 60, 60], ["CH₂", 130, 60], ["Br", 215, 60], ["Br", 265, 60]], "bonds": [[0, 1, 2, "n"], [2, 3, 1, "n"]], "arrows": [], "text": "乙烯的碳碳双键（1 个 σ + 1 个 π）与溴分子接近。π 键较弱，是反应的突破口。"}, {"atoms": [["CH₂", 60, 60], ["CH₂", 130, 60], ["Br", 215, 60], ["Br", 265, 60]], "bonds": [[0, 1, 1, "br"], [2, 3, 1, "br"]], "arrows": [[95, 45, 150, 20, 205, 50], [95, 75, 150, 100, 205, 72]], "text": "π 键断裂、Br—Br 键断裂（红闪），形成两个 C—Br 新键的过渡状态。"}, {"atoms": [["CH₂Br", 45, 60], ["CH₂Br", 145, 60]], "bonds": [[0, 1, 1, "n"]], "arrows": [], "text": "生成 1,2-二溴乙烷：每个碳各连一个 Br（绿=新键加成完成），溴水褪色。"}]}, {"name": "乙醇消去制乙烯", "tag": "脱 —OH 与 β-H", "eq": "CH₃CH₂OH → CH₂=CH₂↑ + H₂O", "cond": "浓 H₂SO₄、170 ℃（140 ℃ 时生成乙醚！）", "phases": [{"atoms": [["CH₃", 40, 60], ["C", 110, 60], ["OH", 160, 60, "hot"], ["H(β)", 40, 100, "hot"]], "bonds": [[0, 1, 1, "n"], [1, 2, 1, "n"], [0, 3, 1, "n"]], "arrows": [], "text": "乙醇分子：红标的是羟基（α 位）和 β 碳上的氢——消去反应要脱的就是这一对。"}, {"atoms": [["CH₃", 40, 60], ["C", 110, 60], ["OH", 160, 60, "hot"], ["H(β)", 40, 100, "hot"]], "bonds": [[0, 1, 1, "fm"], [1, 2, 1, "br"], [0, 3, 1, "br"]], "arrows": [[55, 90, 95, 110, 120, 72], [150, 50, 180, 20, 200, 50]], "text": "C—O 键与 C—H 键断裂，β-H 与 —OH 结合成水；两个碳之间补出 π 键。"}, {"atoms": [["CH₂", 55, 60, "ok"], ["CH₂", 125, 60, "ok"], ["H₂O", 215, 60, "ok"]], "bonds": [[0, 1, 2, "fm"]], "arrows": [], "text": "产物：乙烯（碳碳双键，绿）+ 水。温度必须快速升到 170 ℃，否则 140 ℃ 副产乙醚。"}]}, {"name": "甲烷氯代（自由基链式）", "tag": "链引发 · 链传递 · 链终止", "eq": "CH₄ + Cl₂ → CH₃Cl + HCl（光照）", "cond": "光照；产物是 CH₃Cl~CCl₄ 混合物", "phases": [{"atoms": [["Cl—Cl", 60, 60], ["光 hν", 170, 60, "ok"], ["Cl·", 250, 45, "hot"], ["Cl·", 250, 80, "hot"]], "bonds": [], "arrows": [[120, 60, 160, 60, 195, 60]], "text": "链引发：光照下 Cl—Cl 均裂成两个氯自由基（Cl·，带单电子，极活泼）。"}, {"atoms": [["Cl·", 40, 60, "hot"], ["CH₄", 105, 60], ["H—Cl", 185, 45, "ok"], ["·CH₃", 185, 85, "hot"], ["Cl—Cl", 280, 60]], "bonds": [], "arrows": [[70, 55, 90, 30, 120, 45], [215, 85, 245, 75, 262, 65]], "text": "链传递：Cl· 夺走 CH₄ 的 H 生成 HCl 和 ·CH₃；·CH₃ 再夺 Cl₂ 的 Cl 生成 CH₃Cl，同时再生 Cl·——链式循环。"}, {"atoms": [["·CH₃", 60, 45, "hot"], ["·CH₃", 120, 45, "hot"], ["→", 165, 45], ["C₂H₆", 215, 45, "ok"], ["Cl·", 60, 100, "hot"], ["Cl·", 120, 100, "hot"], ["→", 165, 100], ["Cl₂", 215, 100, "ok"]], "bonds": [], "arrows": [], "text": "链终止：自由基相互结合（·CH₃+·CH₃→乙烷、2Cl·→Cl₂ 等）反应停止。产物必然多种共存。"}]}, {"name": "银镜反应", "tag": "醛基被氧化 · Ag⁺ 被还原", "eq": "CH₃CHO + 2[Ag(NH₃)₂]OH → CH₃COONH₄ + 2Ag↓ + 3NH₃ + H₂O", "cond": "水浴加热；试管必须洁净；检验醛基", "phases": [{"atoms": [["CH₃", 40, 60], ["C", 90, 60], ["O", 90, 28, "dbl"], ["H", 125, 60], ["Ag(NH₃)₂⁺", 215, 60]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "n"]], "arrows": [], "text": "醛基 —CHO（C=O 双键连一个 H）遇上银氨溶液：Ag⁺ 等着得电子。"}, {"atoms": [["CH₃", 40, 60], ["C", 90, 60], ["O", 90, 28, "dbl"], ["H", 125, 60], ["Ag⁺", 215, 50], ["e⁻", 190, 80, "hot"]], "bonds": [[0, 1, 1, "n"], [1, 2, 2, "n"], [1, 3, 1, "br"]], "arrows": [[125, 72, 165, 100, 205, 65]], "text": "醛基被氧化（插入一个 O 变成羧基），放出的电子把 Ag⁺ 还原成 Ag 原子。"}, {"atoms": [["CH₃COONH₄", 60, 60, "ok"], ["Ag↓", 195, 60, "ok"], ["（附着在试管壁形成银镜）", 185, 95]], "bonds": [], "arrows": [], "text": "结果：内壁析出光亮的银镜。醛→羧酸铵。凡含 —CHO 的物质（葡萄糖、甲酸酯）都能发生。"}]}, {"name": "卤代烃的两条出路", "tag": "水解 vs 消去 · 条件决定产物", "eq": "CH₃CH₂Br + NaOH →（水溶液）乙醇 或（醇溶液）乙烯", "cond": "NaOH 水溶液加热 → 水解；NaOH 醇溶液加热 → 消去", "phases": [{"atoms": [["CH₃", 50, 60], ["CH₂", 115, 60], ["Br", 165, 60, "hot"], ["H(β)", 50, 100, "hot"]], "bonds": [[0, 1, 1, "n"], [1, 2, 1, "n"], [0, 3, 1, "n"]], "arrows": [], "text": "溴乙烷：C—Br 键极性大易断。Br 要走，β-H 也可能跟着走——往哪走看溶剂。"}, {"atoms": [["OH⁻", 90, 40, "ok"], ["CH₃CH₂OH", 90, 100, "ok"], ["NaBr", 220, 100]], "bonds": [], "arrows": [[90, 55, 105, 80, 110, 92]], "text": "路径一（NaOH 水溶液）：OH⁻ 进攻 α 碳，顶走 Br⁻——取代（水解）生成乙醇。亲核取代。"}, {"atoms": [["CH₂=CH₂", 70, 60, "ok"], ["H₂O", 190, 40, "ok"], ["NaBr", 190, 90]], "bonds": [], "arrows": [], "text": "路径二（NaOH 醇溶液）：OH⁻ 夺走 β-H，Br⁻ 离去，α、β 碳之间成双键——消去生成乙烯。"}]}]};</script>
 <script>
-/* ===== 有机反应机理库 ===== */
-const D = window.__MECH__;
-const $ = (id) => document.getElementById(id);
-let cur = 0, phase = 0, playing = false, timer = null;
-
-function M(){ return D.mechs[cur]; }
-
-function renderList(){
-  $("mechList").innerHTML = "";
-  D.mechs.forEach((m,i) => {
-    const b = document.createElement("button");
-    b.className = "mch-item" + (i===cur?" cur":"");
-    b.innerHTML = `${i+1}. ${m.name}<small>${m.tag}</small>`;
-    b.onclick = () => { cur = i; phase = 0; renderAll(); };
-    $("mechList").appendChild(b);
-  });
-}
-
-function renderScene(){
-  const ph = M().phases[phase];
-  const atoms = ph.atoms;
-  // 计算键端点：两个 atom 中心连线，缩短避免压字
-  const stageW = 100, stageH = 100; // viewBox 逻辑坐标（atoms 用 0~320/0~160 像素）
-  const svgW = 320, svgH = 160;
-  let bondsSvg = "";
-  for (const [ai,bi,order,st] of ph.bonds){
-    const A = atoms[ai], B = atoms[bi];
-    const x1=A[1], y1=A[2], x2=B[1], y2=B[2];
-    const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||1;
-    const s1=14, s2=14;
-    const X1=x1+dx/len*s1, Y1=y1+dy/len*s1, X2=x2-dx/len*s2, Y2=y2-dy/len*s2;
-    const cls = st==="br"?"br":st==="fm"?"fm":"";
-    if (order===2){
-      const nx=-dy/len*3.2, ny=dx/len*3.2;
-      bondsSvg += `<line class="mch-bond ${cls}" x1="${X1+nx}" y1="${Y1+ny}" x2="${X2+nx}" y2="${Y2+ny}"/>`;
-      bondsSvg += `<line class="mch-bond ${cls}" x1="${X1-nx}" y1="${Y1-ny}" x2="${X2-nx}" y2="${Y2-ny}"/>`;
-    } else {
-      bondsSvg += `<line class="mch-bond ${cls}" x1="${X1}" y1="${Y1}" x2="${X2}" y2="${Y2}"/>`;
-    }
-  }
-  let arrSvg = "";
-  for (const [x1,y1,cx,cy,x2,y2] of ph.arrows){
-    const t = 0.92;
-    const ex = (1-t)**2*x1 + 2*(1-t)*t*cx + t*t*x2;
-    const ey = (1-t)**2*y1 + 2*(1-t)*t*cy + t*t*y2;
-    const ang = Math.atan2(y2-cy, x2-cx);
-    arrSvg += `<path class="mch-arrow" d="M${x1},${y1} Q${cx},${cy} ${ex},${ey}"/>`;
-    arrSvg += `<path d="M${ex},${ey} l-7,-3 l1.5,4 l-4,1 z" fill="var(--accent)"
-      transform="rotate(${ang*180/Math.PI} ${ex} ${ey})"/>`;
-  }
-  const atomSpans = atoms.map(([t,x,y,st]) =>
-    `<span class="mch-atom ${st||""}" style="left:${x/svgW*100}%;top:${y/svgH*100}%">${t}</span>`).join("");
-  $("scene").innerHTML = `
-    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
-      ${bondsSvg}${arrSvg}
-    </svg>${atomSpans}
-    <div class="mch-text">${phase+1}/${M().phases.length}　${ph.text}</div>`;
-  $("stepInfo").textContent = `第 ${phase+1} / ${M().phases.length} 相`;
-}
-
-function renderAll(){
-  renderList(); renderScene();
-  $("mechName").textContent = M().name;
-  $("mechEq").textContent = M().eq;
-  $("mechCond").textContent = M().cond;
-  $("mechTag").textContent = M().tag;
-}
-
-$("btnPrev").onclick = () => { phase = (phase-1+M().phases.length)%M().phases.length; renderScene(); };
-$("btnNext").onclick = () => { phase = (phase+1)%M().phases.length; renderScene(); };
-$("btnPlay").onclick = () => {
-  playing = !playing;
-  $("btnPlay").textContent = playing ? "暂停" : "播放";
-  if (playing){ timer = setInterval(() => { phase = (phase+1)%M().phases.length; renderScene(); }, 2400); }
-  else clearInterval(timer);
-};
-renderAll();
-</script>
-<script>/* ========= 主题切换 washi / sumi / ai ========= */
+/* ========= 主题切换（沿用本站三主题体系） ========= */
 (function(){
-  const root=document.documentElement, KEY='ch-theme-lab';
+  const root=document.documentElement, KEY='ch-theme-mech';
   const valid=['washi','sumi','ai'];
-  const saved=localStorage.getItem(KEY);
+  let saved='washi'; try{saved=localStorage.getItem(KEY)||'washi';}catch(e){}
   root.dataset.theme=valid.includes(saved)?saved:'washi';
-  function sync(){ const t=root.dataset.theme; document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false')); }
-  function set(t){ root.dataset.theme=t; localStorage.setItem(KEY,t); sync(); }
+  function sync(){const t=root.dataset.theme;
+    document.querySelectorAll('.ts-dot').forEach(b=>b.setAttribute('aria-current',b.dataset.setTheme===t?'true':'false'));}
+  function set(t){root.dataset.theme=t;try{localStorage.setItem(KEY,t);}catch(e){}sync();}
   document.querySelectorAll('.ts-dot').forEach(b=>b.addEventListener('click',()=>set(b.dataset.setTheme)));
   sync();
-})();</script>
+})();
+</script>
+<script>
+/* ================= 反应数据 =================
+   坐标单位约为埃(Å)的展示尺度；keys 为每个原子的关键帧 [t, x, y, z]
+   bonds: o=键级, form=[t0,t1] 出现, brk=[t0,t1] 断裂
+   arrows: kind 'pair'|'hook', 端点支持 {a:原子id, off:[dx,dy,dz]} 或 {p:[x,y,z]}
+   steps: t 为该步开始时间（0~1）
+*/
+const EL={
+  H:{c:0xf2f4f6,r:.30}, C:{c:0x8f9aa6,r:.44}, O:{c:0xd23b2a,r:.42}, N:{c:0x2f6aa8,r:.44},
+  Cl:{c:0x4f9152,r:.54}, Br:{c:0x8a4ab0,r:.60}, Na:{c:0xb8bfc7,r:.62}, Ag:{c:0xd6dae0,r:.64},
+  Cu:{c:0xc98a4b,r:.62}
+};
+const CATCOL={rad:'--pair',polar:'--hook'};
+const RX=[
+/* ---------- 1. 甲烷氯代 ---------- */
+{
+ id:'halo',cat:'自由基反应',seal:'由',name:'甲烷氯代',en:'RADICAL HALOGENATION',
+ eq:'CH₄ + Cl₂ —光照→ CH₃Cl + HCl',
+ tags:['取代','自由基','链式','光照'],
+ desc:'光照提供能量，Cl–Cl 键均裂成两个氯自由基；氯自由基夺取甲烷的氢生成 HCl 和甲基自由基，甲基自由基再与氯自由基结合得到氯甲烷。少量光引发大量反应，是典型链式机理。',
+ life:'家里的天然气主要成分是甲烷；游泳池水消毒时也会产生微量氯代副产物——自由基一旦引发就会连锁下去。',
+ atoms:[
+  {id:'C',el:'C',p0:[-2.6,0,0]},
+  {id:'H1',el:'H',p0:[-1.97,.63,.63]},{id:'H2',el:'H',p0:[-1.97,-.63,-.63]},
+  {id:'H3',el:'H',p0:[-3.23,.63,-.63]},{id:'H4',el:'H',p0:[-3.23,-.63,.63]},
+  {id:'Cl1',el:'Cl',p0:[2.0,1.9,0]},{id:'Cl2',el:'Cl',p0:[2.0,.4,0]}
+ ],
+ keys:{
+  'Cl1':[[0,2.0,1.9,0],[.22,1.3,2.2,0],[.5,.3,2.3,.3],[.7,-1.56,1.04,1.04],[1,-1.56,1.04,1.04]],
+  'Cl2':[[0,2.0,.4,0],[.22,1.3,-.3,0],[.55,2.0,-.2,.3],[.8,2.55,1.5,.6],[1,2.55,1.5,.6]],
+  'H1':[[0,-1.97,.63,.63],[.52,-1.85,.75,.75],[.75,1.9,.6,.4],[1,1.6,1.2,.6]],
+  'C':[[0,-2.6,0,0],[1,-2.6,0,0]]
+},
+ bonds:[
+  {a:'C',b:'H1',o:1,brk:[.34,.52]},{a:'C',b:'H2',o:1},{a:'C',b:'H3',o:1},{a:'C',b:'H4',o:1},
+  {a:'Cl1',b:'Cl2',o:1,brk:[.08,.26]},{a:'H1',b:'Cl2',o:1,form:[.42,.55]},
+  {a:'C',b:'Cl1',o:1,form:[.68,.82]}
+ ],
+ arrows:[
+  {kind:'hook',t0:.08,t1:.26,from:{a:'Cl1',off:[0,.4,0]},to:{a:'Cl1',off:[1.2,.4,0]}},
+  {kind:'hook',t0:.08,t1:.26,from:{a:'Cl2',off:[0,-.4,0]},to:{a:'Cl2',off:[1.2,-.4,0]}},
+  {kind:'hook',t0:.34,t1:.52,from:{a:'H1',off:[.4,.4,.4]},to:{a:'Cl2',off:[.6,.6,.6]}},
+  {kind:'hook',t0:.60,t1:.80,from:{a:'C',off:[-.7,.7,.7]},to:{a:'C',off:[.8,.4,.4]}},
+  {kind:'hook',t0:.60,t1:.80,from:{a:'Cl1',off:[.7,.7,.7]},to:{a:'Cl1',off:[-.6,.2,.2]}}
+ ],
+ steps:[
+  {t:0,name:'反应物相遇',text:'甲烷与氯气混合，尚未反应。'},
+  {t:.08,name:'引发 · 均裂',text:'光照下 Cl–Cl σ 键均裂：成键电子对拆开，各归一个氯原子，生成两个氯自由基 Cl·。'},
+  {t:.34,name:'链传递① · 夺氢',text:'Cl· 夺取甲烷上的一个 H：C–H 键断裂，同时生成 H–Cl，留下甲基自由基 ·CH₃。'},
+  {t:.60,name:'链传递② · 成键',text:'·CH₃ 与另一个 Cl· 各出一个单电子，配对形成 C–Cl 键，得到氯甲烷。'},
+  {t:.86,name:'终止与产物',text:'CH₃Cl 与 HCl 生成。自由基两两结合即终止；一次引发可让链传递反复进行。'}
+ ],
+ quiz:{q:'光照后，CH₄ 和 Cl₂ 会生成什么？',
+  right:['CH₃Cl + HCl','一氯甲烷和氯化氢'],
+  wrong:[
+   ['CH₂Cl₂ + H₂','一步只替换一个氢；第二个氢要被取代，需要再来一分子 Cl₂。'],
+   ['C + 2HCl','条件只是光照，达不到彻底分解的程度。']
+  ]}
+},
+/* ---------- 2. 乙烯加溴 ---------- */
+{
+ id:'bromine',cat:'加成反应',seal:'加',name:'乙烯加溴',en:'BROMINATION OF ETHENE',
+ eq:'CH₂=CH₂ + Br₂ → CH₂Br–CH₂Br',
+ tags:['加成','双键','褪色检验'],
+ desc:'乙烯的 π 键电子进攻 Br₂，Br–Br 键断裂；两个溴原子分别接到原来双键的两个碳上，π 键打开变成 σ 键，生成 1,2-二溴乙烷，溴水因此褪色。',
+ life:'成熟的水果会释放乙烯催熟同类；实验室里常用溴水是否褪色来检验双键——你吃的香蕉越放越甜，背后就是这个分子。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.0,.4,0]},{id:'C2',el:'C',p0:[-.5,.4,0]},
+  {id:'H1',el:'H',p0:[-2.6,1.3,0]},{id:'H2',el:'H',p0:[-2.6,-.4,.5]},
+  {id:'H3',el:'H',p0:[.1,1.3,0]},{id:'H4',el:'H',p0:[.1,-.4,-.5]},
+  {id:'Br1',el:'Br',p0:[1.6,1.15,0]},{id:'Br2',el:'Br',p0:[1.6,-1.15,0]}
+ ],
+ keys:{
+  'C1':[[0,-2.0,.4,0],[.5,-1.9,0.7,0.05],[1,-1.7,0.87,0]],
+  'C2':[[0,-.5,.4,0],[.5,-0.35,0.15,-0.05],[1,-0.445,-0.019,0]],
+  'H1':[[0,-2.6,1.3,0],[1,-2.517,0.35,0.351]],
+  'H2':[[0,-2.6,-.4,.5],[1,-1.48,1.813,-0.519]],
+  'H3':[[0,.1,1.3,0],[1,-0.146,-0.231,-1.037]],
+  'H4':[[0,.1,-.4,-.5],[1,-0.665,-0.962,0.519]],
+  'Br1':[[0,1.6,1.15,0],[.35,0.3,1.9,0.5],[.7,-1.9,1.4,1.5],[1,-2.216,1.236,1.791]],
+  'Br2':[[0,1.6,-1.15,0],[.35,0.8,-1.2,-0.2],[.7,0.9,0.5,0.7],[1,0.967,0.879,0.896]]
+},
+ bonds:[
+  {a:'C1',b:'C2',o:2,brk:[.30,.46]},{a:'C1',b:'C2',o:1,form:[.30,.46]},
+  {a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C2',b:'H3',o:1},{a:'C2',b:'H4',o:1},
+  {a:'Br1',b:'Br2',o:1,brk:[.18,.34]},
+  {a:'C1',b:'Br1',o:1,form:[.52,.68]},{a:'C2',b:'Br2',o:1,form:[.52,.68]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.14,t1:.34,from:{a:'C1',off:[.75,0,0]},to:{a:'Br1',off:[-.8,-.4,0]}},
+  {kind:'pair',t0:.14,t1:.34,from:{a:'Br1',off:[.6,.5,0]},to:{a:'Br2',off:[.6,-.5,0]}},
+  {kind:'pair',t0:.40,t1:.60,from:{a:'Br2',off:[-.7,0,0]},to:{a:'C2',off:[.5,-.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'反应物相遇',text:'乙烯（平面分子）与溴分子靠近。'},
+  {t:.14,name:'π 电子进攻',text:'C=C 的 π 电子对进攻 Br₂ 的一个溴，Br–Br 键的电子对被挤向另一个溴。'},
+  {t:.40,name:'双键打开 · 两端接溴',text:'π 键断开变为单键；带负电性倾向的溴接到另一个碳上，两个 C–Br 键先后形成。'},
+  {t:.72,name:'产物 · 褪色',text:'生成 1,2-二溴乙烷。π 键消失，溴水的红棕色褪去——这是检验不饱和键的经典现象。'}
+ ],
+ quiz:{q:'乙烯通入溴水，会看到什么产物、什么现象？',
+  right:['CH₂Br–CH₂Br · 褪色','1,2-二溴乙烷，溴水褪色'],
+  wrong:[
+   ['CH₃CH₃ · 褪色','那是加氢的写法；Br₂ 拆成两个 Br 分接两端，不脱色方式也不同。'],
+   ['CH₂Br–CH₂Br · 不褪色','产物对了但现象错：双键被消耗，溴水一定褪色。']
+  ]}
+},
+/* ---------- 3. 乙醇催化氧化 ---------- */
+{
+ id:'ethox',cat:'氧化还原',seal:'氧',name:'乙醇催化氧化',en:'OXIDATION OF ETHANOL',
+ eq:'2CH₃CH₂OH + O₂ —Cu/Ag,Δ→ 2CH₃CHO + 2H₂O',
+ tags:['氧化','醛','催化剂'],
+ desc:'乙醇在铜或银催化、加热条件下被氧化：先断羟基 O–H，再断 α-碳上的 C–H，两对电子转移形成 C=O 双键，乙醇变成乙醛。Cu/Ag 是催化剂，真正被还原的是氧气。',
+ life:'交警的呼气酒精检测用的就是类似氧化原理；人喝酒后乙醇也在肝脏被一步步氧化代谢。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.4,0,0]},{id:'C2',el:'C',p0:[-.9,0,0]},
+  {id:'O',el:'O',p0:[.3,1.1,.2]},{id:'HO',el:'H',p0:[1.2,1.7,.4]},
+  {id:'H1',el:'H',p0:[-3.0,.9,.3]},{id:'H2',el:'H',p0:[-3.0,-.9,-.3]},{id:'H3',el:'H',p0:[-2.6,0,1.0]},
+  {id:'H4',el:'H',p0:[-.3,-1.0,.3]},{id:'Ha',el:'H',p0:[-.6,.6,-1.0]},
+  {id:'Cu',el:'Cu',p0:[1.8,-1.6,-.4]},{id:'Oc',el:'O',p0:[.6,-1.5,.4]}
+ ],
+ keys:{
+  'HO':[[0,1.2,1.7,.4],[.3,1.4,1.2,.2],[.62,2.6,0.0,.25],[1,3.05,-0.2,0.3]],
+  'Ha':[[0,-.6,.6,-1.0],[.42,-.2,.2,-1.3],[.7,2.35,-.55,0.0],[1,1.85,-0.15,-0.55]],
+  'Oc':[[0,.6,-1.5,.4],[.7,1.9,-.65,.25],[1,2.2,-0.7,0.2]],
+  'Cu':[[0,1.8,-1.6,-.4],[.5,2.9,-1.6,-.4],[1,4.3,-1.3,-0.2]],
+  'O':[[0,.3,1.1,.2],[1,-0.275,1.0825,0]],
+  'H1':[[0,-3.0,.9,.3],[1,-2.766,1.037,0]],
+  'H2':[[0,-3.0,-.9,-.3],[1,-2.767,-0.5185,0.9]],
+  'H3':[[0,-2.6,0,1.0],[1,-2.767,-0.5185,-0.9]],
+  'H4':[[0,-.3,-1.0,.3],[1,-0.35,-0.9526,0]],
+  'C1':[[0,-2.4,0,0],[1,-2.4,0,0]],
+  'C2':[[0,-.9,0,0],[1,-0.9,0,0]]
+},
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C1',b:'H3',o:1},
+  {a:'C2',b:'H4',o:1},{a:'C2',b:'Ha',o:1,brk:[.38,.55]},{a:'C2',b:'O',o:1,brk:[.52,.72]},
+  {a:'O',b:'HO',o:1,brk:[.18,.32]},{a:'C2',b:'O',o:2,form:[.52,.72]},
+  {a:'Cu',b:'Oc',o:1,brk:[.45,.65]},{a:'Oc',b:'HO',o:1,form:[.60,.75]},{a:'Oc',b:'Ha',o:1,form:[.68,.82]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.18,t1:.36,from:{a:'O',off:[.5,.4,.1]},to:{a:'Oc',off:[-.5,.2,0]}},
+  {kind:'pair',t0:.38,t1:.58,from:{a:'C2',off:[.15,.3,-.5]},to:{a:'C2',off:[.9,.9,.2]}},
+  {kind:'pair',t0:.45,t1:.62,from:{a:'Cu',off:[-.6,.2,.2]},to:{a:'Cu',off:[.8,-.2,-.2]}}
+ ],
+ steps:[
+  {t:0,name:'反应物相遇',text:'乙醇分子与 CuO（铜作催化剂时表面生成的氧化层）接触。'},
+  {t:.18,name:'断 O–H',text:'羟基上的 O–H 键断开，氢转移到 CuO 的氧上。'},
+  {t:.38,name:'断 α-C–H · 成 C=O',text:'与羟基相连碳上的 C–H 键断裂，电子对转移形成 C=O 双键——乙醇骨架变成乙醛。'},
+  {t:.60,name:'还原氧 · 生成水',text:'Cu–O 键断裂，铜被还原析出；两个转移来的氢与氧结合生成水。'},
+  {t:.84,name:'产物',text:'乙醛生成。继续氧化（如强氧化剂）可到乙酸；这就是「酒越放越酸」的第一步。'}
+ ],
+ quiz:{q:'乙醇在铜催化加热下氧化，首先得到什么？',
+  right:['CH₃CHO · 乙醛','羟基变醛基'],
+  wrong:[
+   ['CH₃COOH · 乙酸','催化氧化停在醛；要到乙酸需要更强的氧化条件。'],
+   ['CH₂=CH₂ · 乙烯','那是浓硫酸 170℃ 的消去，不是氧化。']
+  ]}
+},
+/* ---------- 4. 酯化反应 ---------- */
+{
+ id:'ester',cat:'取代反应',seal:'酯',name:'乙酸乙酯酯化',en:'ESTERIFICATION',
+ eq:'CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O（浓 H₂SO₄,Δ）',
+ tags:['酯化','可逆','浓硫酸'],
+ desc:'羧酸脱羟基、醇脱氢：酸上的 C–OH 键断裂，醇上的 O–H 键断裂，酸的酰基与醇的烷氧基接成酯键，脱下的 –OH 与 –H 结合成水。浓硫酸吸水使平衡右移。',
+ life:'做鱼加酒加醋会特别香——乙醇和乙酸在加热时微量酯化生成乙酸乙酯，这就是「厨师的秘密」。陈酒生香也是同一原理。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-3.3,0,0]},{id:'C2',el:'C',p0:[-1.8,0,0]},
+  {id:'O1',el:'O',p0:[-1.0,1.1,0]},{id:'O2',el:'O',p0:[-1.0,-1.2,.2]},{id:'HO',el:'H',p0:[-.3,-1.9,.4]},
+  {id:'H1',el:'H',p0:[-3.9,.9,.3]},{id:'H2',el:'H',p0:[-3.9,-.9,-.3]},{id:'H3',el:'H',p0:[-3.4,0,1.0]},
+  {id:'C3',el:'C',p0:[.8,-2.3,.2]},{id:'C4',el:'C',p0:[2.3,-1.9,-.2]},
+  {id:'O3',el:'O',p0:[.9,-3.4,.5]},{id:'HE',el:'H',p0:[1.7,-3.9,.9]},
+  {id:'H5',el:'H',p0:[.3,-1.6,1.1]},{id:'H6',el:'H',p0:[.9,-1.7,-.9]},
+  {id:'H7',el:'H',p0:[2.9,-1.2,.6]},{id:'H8',el:'H',p0:[2.9,-2.7,-.5]},{id:'H9',el:'H',p0:[1.9,-1.6,-1.2]}
+ ],
+ keys:{
+  'HO':[[0,-.3,-1.9,.4],[.4,-.2,-2.2,.4],[.78,0.3,-2.6,1.0],[1,1.75,2.8,0.75]],
+  'HE':[[0,1.7,-3.9,.9],[.4,1.9,-3.8,.9],[.82,0.2,-2.7,1.0],[1,0.95,1.4,1.05]],
+  'C2':[[0,-1.8,0,0],[1,-1.8,0,0]],
+  'O2':[[0,-1.0,-1.2,.2],[.7,-1.2,-1.4,.3],[1,0.9,2.3,0.7]],
+  'O3':[[0,.9,-3.4,.5],[.5,0.1,-2.9,0.3],[.78,-0.9,-1.6,0.1],[1,-1.1,-1.2125,0]],
+  'C3':[[0,.8,-2.3,.2],[.55,0.4,-2.35,0.2],[.85,-0.2,-2.45,0],[1,-0.375,-2.466,0]],
+  'H1':[[0,-3.9,.9,.3],[1,-3.666,1.037,0]],
+  'H2':[[0,-3.9,-.9,-.3],[1,-3.667,-0.5185,0.9]],
+  'H3':[[0,-3.4,0,1.0],[1,-3.667,-0.5185,-0.9]],
+  'H5':[[0,.3,-1.6,1.1],[1,-0.64,-3.05,0.9]],
+  'H6':[[0,.9,-1.7,-.9],[1,-0.64,-3.05,-0.9]],
+  'H7':[[0,2.9,-1.2,.6],[1,1.65,-3.15,0]],
+  'H8':[[0,2.9,-2.7,-.5],[1,1.37,-1.62,0.9]],
+  'H9':[[0,1.9,-1.6,-1.2],[1,1.37,-1.62,-0.9]],
+  'C1':[[0,-3.3,0,0],[1,-3.3,0,0]],
+  'C4':[[0,2.3,-1.9,-.2],[1,1.1,-2.2,0]],
+  'O1':[[0,-1.0,1.1,0],[1,-1.175,1.0825,0]]
+},
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C1',b:'H3',o:1},
+  {a:'C2',b:'O1',o:2},{a:'C2',b:'O2',o:1,brk:[.32,.52]},{a:'O2',b:'HO',o:1},
+  {a:'C3',b:'C4',o:1},{a:'C3',b:'O3',o:1},{a:'O3',b:'HE',o:1,brk:[.36,.54]},
+  {a:'C3',b:'H5',o:1},{a:'C3',b:'H6',o:1},
+  {a:'C4',b:'H7',o:1},{a:'C4',b:'H8',o:1},{a:'C4',b:'H9',o:1},
+  {a:'C2',b:'O3',o:1,form:[.56,.74]},
+  {a:'O2',b:'HE',o:1,form:[.78,.92]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.32,t1:.52,from:{a:'C2',off:[.35,-.35,.1]},to:{a:'O2',off:[-.5,-.5,0]}},
+  {kind:'pair',t0:.36,t1:.54,from:{a:'O3',off:[.3,-.3,.2]},to:{a:'HE',off:[.4,-.4,.2]}},
+  {kind:'pair',t0:.56,t1:.74,from:{a:'O3',off:[-.5,.5,0]},to:{a:'C2',off:[.2,-.3,0]}},
+  {kind:'pair',t0:.78,t1:.92,from:{a:'HO',off:[.3,.2,0]},to:{a:'O2',off:[-.3,.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'酸 + 醇',text:'乙酸与乙醇混合，浓硫酸作催化剂和吸水剂。'},
+  {t:.32,name:'酸脱羟基',text:'羧基上的 C–OH 键断开，羟基留下，等待与氢结合。'},
+  {t:.36,name:'醇脱氢',text:'乙醇羟基上的 O–H 键断开，氢留下。'},
+  {t:.56,name:'形成酯键',text:'醇的烷氧基 –OC₂H₅ 接到酸的酰基碳上，C–O 新键生成，乙酸乙酯骨架成形。'},
+  {t:.78,name:'脱水 · 平衡',text:'脱下的 –OH 与 –H 结合成水。水被浓硫酸吸收，平衡不断右移。'},
+  {t:.94,name:'产物 · 香味',text:'乙酸乙酯有果香味；反应可逆，产率靠移走水来推高。'}
+ ],
+ quiz:{q:'乙酸和乙醇酯化，生成什么？',
+  right:['CH₃COOC₂H₅ + H₂O','乙酸乙酯和水'],
+  wrong:[
+   ['CH₃COOC₂H₅ + H₂','酯化脱的是水：酸出羟基、醇出氢，不会放出氢气。'],
+   ['C₂H₅COOCH₃ + H₂O','酰基来自酸、烷氧基来自醇：是 CH₃CO–O–C₂H₅，不是反过来。']
+  ]}
+},
+/* ---------- 5. 皂化反应 ---------- */
+{
+ id:'sapon',cat:'水解反应',seal:'皂',name:'皂化（酯的碱性水解）',en:'SAPONIFICATION',
+ eq:'CH₃COOC₂H₅ + NaOH → CH₃COONa + C₂H₅OH',
+ tags:['水解','碱性','不可逆'],
+ desc:'氢氧根进攻酯的羰基碳，酯键 C–O 断裂：–OH 接到酰基上生成羧酸盐，乙氧基带走一个氢生成乙醇。碱性条件下生成的是羧酸钠（肥皂的有效成分），且反应不可逆。',
+ life:'猪油加碱煮一煮就是肥皂——高级脂肪酸甘油酯在 NaOH 作用下皂化，这是古人就能做的「厨房化学」。洗洁精去油的原理也与此一脉相承。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.9,0,0]},{id:'C2',el:'C',p0:[-1.4,0,0]},
+  {id:'O1',el:'O',p0:[-.6,1.1,0]},{id:'O2',el:'O',p0:[-.6,-1.2,.3]},
+  {id:'C3',el:'C',p0:[.9,-1.4,.3]},{id:'C4',el:'C',p0:[2.4,-1.0,-.2]},
+  {id:'H1',el:'H',p0:[-3.5,.9,.3]},{id:'H2',el:'H',p0:[-3.5,-.9,-.3]},{id:'H3',el:'H',p0:[-3.0,0,1.0]},
+  {id:'H4',el:'H',p0:[.5,-.6,1.2]},{id:'H5',el:'H',p0:[1.2,-2.1,-.5]},
+  {id:'H6',el:'H',p0:[3.0,-.3,.5]},{id:'H7',el:'H',p0:[3.0,-1.8,-.7]},{id:'H8',el:'H',p0:[2.0,-.7,-1.2]},
+  {id:'Na',el:'Na',p0:[1.6,1.9,.6]},{id:'Oh',el:'O',p0:[.8,2.8,-.2]},{id:'Hh',el:'H',p0:[.3,3.6,.3]}
+ ],
+ keys:{
+  'Oh':[[0,.8,2.8,-.2],[.35,.2,1.4,.1],[.6,-0.7,-0.6,0],[1,-0.7,-1.2125,0]],
+  'Hh':[[0,.3,3.6,.3],[.55,.9,-.3,.8],[.85,1.8,-0.1,1.0],[1,1.73,-0.17,1.08]],
+  'Na':[[0,1.6,1.9,.6],[.55,1.2,1.4,.5],[.9,0.94,-1.87,-1.31],[1,0.94,-1.87,-1.31]],
+  'O2':[[0,-.6,-1.2,.3],[.55,-0.7,-1.5,.35],[1,2.55,-0.49,0.61]],
+  'C2':[[0,-1.4,0,0],[1,-1.4,0,0]],
+  'C3':[[0,.9,-1.4,.3],[.6,1.2,-1.45,0.35],[1,1.6,-1.5,0.4]],
+  'O1':[[0,-.6,1.1,0],[1,-0.775,1.0825,0]],
+  'H1':[[0,-3.5,.9,.3],[1,-3.266,1.037,0]],
+  'H2':[[0,-3.5,-.9,-.3],[1,-3.267,-0.5185,0.9]],
+  'H3':[[0,-3.0,0,1.0],[1,-3.267,-0.5185,-0.9]],
+  'H4':[[0,.5,-.6,1.2],[1,0.95,-1.4,1.28]],
+  'H5':[[0,1.2,-2.1,-.5],[1,1.0,-1.59,-0.52]],
+  'H6':[[0,3.0,-.3,.5],[1,3.38,-2.68,0.31]],
+  'H7':[[0,3.0,-1.8,-.7],[1,1.99,-3.40,1.22]],
+  'H8':[[0,2.0,-.7,-1.2],[1,1.99,-3.40,-0.56]],
+  'C1':[[0,-2.9,0,0],[1,-2.9,0,0]],
+  'C4':[[0,2.4,-1.0,-.2],[1,2.29,-2.83,0.33]]
+},
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C1',b:'H3',o:1},
+  {a:'C2',b:'O1',o:2},{a:'C2',b:'O2',o:1,brk:[.50,.66]},
+  {a:'O2',b:'C3',o:1},{a:'C3',b:'C4',o:1},{a:'C3',b:'H4',o:1},{a:'C3',b:'H5',o:1},
+  {a:'C4',b:'H6',o:1},{a:'C4',b:'H7',o:1},{a:'C4',b:'H8',o:1},
+  {a:'Oh',b:'Hh',o:1,brk:[.80,.92]},
+  {a:'C2',b:'Oh',o:1,form:[.35,.6]},{a:'O2',b:'Hh',o:1,form:[.82,.94]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.30,t1:.50,from:{a:'Oh',off:[.4,.5,0]},to:{a:'C2',off:[.3,-.3,0]}},
+  {kind:'pair',t0:.50,t1:.66,from:{a:'C2',off:[.5,-.6,.1]},to:{a:'O2',off:[-.4,-.5,.1]}},
+  {kind:'pair',t0:.78,t1:.92,from:{a:'O2',off:[.4,-.3,.1]},to:{a:'Hh',off:[-.4,-.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'酯 + 碱',text:'乙酸乙酯与 NaOH 溶液混合。'},
+  {t:.30,name:'OH⁻ 进攻羰基碳',text:'氢氧根的孤对电子进攻酯基中带部分正电的羰基碳，形成新 C–O 键。'},
+  {t:.50,name:'酯键断裂',text:'原来的 C–O 键断开，电子对留在氧上，乙氧基 –OC₂H₅ 离开。'},
+  {t:.78,name:'质子转移 · 生成乙醇',text:'乙氧基夺取氢，生成乙醇。'},
+  {t:.86,name:'成盐 · 肥皂',text:'Na⁺ 与羧酸根结合生成乙酸钠。碱性水解进行到底，不像酯化那样可逆——这就是皂化。'}
+ ],
+ quiz:{q:'乙酸乙酯与 NaOH 溶液共热，产物是？',
+  right:['CH₃COONa + C₂H₅OH','乙酸钠和乙醇'],
+  wrong:[
+   ['CH₃COOH + C₂H₅OH','酸化后才会得到乙酸；碱性环境里羧酸以钠盐形式存在。'],
+   ['CH₃COONa + C₂H₄ + H₂O','没有消去发生；烃基部分拿的是氢，变成乙醇。']
+  ]}
+},
+/* ---------- 6. 银镜反应 ---------- */
+{
+ id:'silver',cat:'氧化还原',seal:'银',name:'银镜反应（乙醛）',en:'TOLLENS TEST',
+ eq:'CH₃CHO + 2[Ag(NH₃)₂]OH → CH₃COONH₄ + 2Ag↓ + 3NH₃ + H₂O',
+ tags:['醛基','银氨','检验'],
+ desc:'醛基具有还原性：π 电子转移、醛基 C–H 断裂，电子对形成新的 C=O，醛被氧化；两个 Ag⁺ 各得一个电子还原成银原子，沉积在洁净试管壁上形成银镜。氧化产物在碱性中以乙酸铵存在：一个氢氧根的氧补进羧基、另一个氢氧根与脱下的氢结合成水，醛基氢把 NH₃ 变成 NH₄⁺，与羧酸根靠近（离子对，不成键）。',
+ life:'老式保温瓶胆内壁那层亮闪闪的银，就是用含醛基的还原糖（葡萄糖）通过银镜反应镀上去的；检验糖尿病尿糖也靠类似的还原性。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.3,0,0]},{id:'C2',el:'C',p0:[-.8,0,0]},
+  {id:'O',el:'O',p0:[-.2,1.2,.2]},{id:'Ha',el:'H',p0:[-.1,-.9,-.5]},
+  {id:'H1',el:'H',p0:[-2.9,.9,.3]},{id:'H2',el:'H',p0:[-2.9,-.9,-.3]},{id:'H3',el:'H',p0:[-2.4,0,1.0]},
+  {id:'Ag',el:'Ag',p0:[1.6,0.8,0]},{id:'AgB',el:'Ag',p0:[1.6,-2.2,-0.4]},
+  {id:'N1',el:'N',p0:[2.7,1.9,0.3]},{id:'N2',el:'N',p0:[2.7,-0.3,-0.3]},
+  {id:'N1a',el:'H',p0:[3.3,2.5,0.6]},{id:'N1b',el:'H',p0:[2.3,2.0,-0.5]},{id:'N1c',el:'H',p0:[3.1,1.0,1.0]},
+  {id:'N2a',el:'H',p0:[3.3,0.3,-0.6]},{id:'N2b',el:'H',p0:[2.3,0.2,0.4]},{id:'N2c',el:'H',p0:[3.1,-0.6,-1.1]},
+  {id:'N3',el:'N',p0:[2.7,-1.1,-0.1]},{id:'N4',el:'N',p0:[0.5,-3.3,0.2]},
+  {id:'N3a',el:'H',p0:[3.3,-0.5,0.2]},{id:'N3b',el:'H',p0:[2.3,-0.6,-0.6]},{id:'N3c',el:'H',p0:[3.1,-1.4,-0.5]},
+  {id:'N4a',el:'H',p0:[1.1,-2.7,0.6]},{id:'N4b',el:'H',p0:[-0.1,-3.8,0.5]},{id:'N4c',el:'H',p0:[0.9,-3.9,-0.5]},
+  {id:'Oh',el:'O',p0:[0.3,-1.4,0.9]},{id:'Hh',el:'H',p0:[0.9,-2.0,1.4]},
+  {id:'Oh2',el:'O',p0:[1.5,-3.1,1.8]},{id:'Hh2',el:'H',p0:[2.1,-3.5,2.1]}
+ ],
+ keys:{
+  'Ha':[[0,-.1,-.9,-.5],[.45,.4,-1.8,0.0],[1,1.16,-3.21,-0.21]],
+  'Ag':[[0,1.6,0.8,0],[.55,2.6,0.7,0.1],[1,4.8,0.5,0]],
+  'AgB':[[0,1.6,-2.2,-0.4],[.55,2.8,-1.6,-0.2],[1,4.8,-0.8,0.2]],
+  'N1':[[0,2.7,1.9,0.3],[.55,2.0,0.3,0.4],[.78,1.2,-1.2,0.5],[1,0.5,-2.6,0.4]],
+  'N2':[[0,2.7,-0.3,-0.3],[.6,3.1,0.5,0.0],[1,3.3,1.2,0.3]],
+  'N3':[[0,2.7,-1.1,-0.1],[1,3.3,-1.5,-0.2]],
+  'N4':[[0,0.5,-3.3,0.2],[1,1.8,-4.2,0.3]],
+  'N1a':[[0,3.3,2.5,0.6],[1,1.16,-1.99,1.01]],
+  'N1b':[[0,2.3,2.0,-0.5],[1,-0.16,-1.99,-0.21]],
+  'N1c':[[0,3.1,1.0,1.0],[1,-0.16,-3.21,1.01]],
+  'N2a':[[0,3.3,0.3,-0.6],[1,3.9,1.8,0.0]],
+  'N2b':[[0,2.3,0.2,0.4],[1,2.9,1.7,1.0]],
+  'N2c':[[0,3.1,-0.6,-1.1],[1,3.7,0.7,-0.6]],
+  'N3a':[[0,3.3,-0.5,0.2],[1,3.9,-0.9,0.2]],
+  'N3b':[[0,2.3,-0.6,-0.6],[1,2.9,-0.9,-1.0]],
+  'N3c':[[0,3.1,-1.4,-0.5],[1,3.7,-2.1,-0.5]],
+  'N4a':[[0,1.1,-2.7,0.6],[1,2.4,-3.6,0.9]],
+  'N4b':[[0,-0.1,-3.8,0.5],[1,1.2,-4.9,0.7]],
+  'N4c':[[0,0.9,-3.9,-0.5],[1,2.2,-4.6,-0.6]],
+  'Oh':[[0,0.3,-1.4,0.9],[.5,-0.05,-1.3,0.4],[1,-0.1,-1.21,0.1]],
+  'Hh':[[0,0.9,-2.0,1.4],[.55,1.4,-3.4,1.3],[1,2.1,-5.5,0.5]],
+  'Oh2':[[0,1.5,-3.1,1.8],[.7,1.9,-4.0,1.5],[1,2.6,-5.0,1.0]],
+  'Hh2':[[0,2.1,-3.5,2.1],[1,3.3,-5.2,1.3]],
+  'O':[[0,-.2,1.2,.2],[1,-0.175,1.0825,0]],
+  'H1':[[0,-2.9,.9,.3],[1,-2.666,1.037,0]],
+  'H2':[[0,-2.9,-.9,-.3],[1,-2.667,-0.5185,0.9]],
+  'H3':[[0,-2.4,0,1.0],[1,-2.667,-0.5185,-0.9]],
+  'C1':[[0,-2.3,0,0],[1,-2.3,0,0]],
+  'C2':[[0,-.8,0,0],[1,-0.8,0,0]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C1',b:'H3',o:1},
+  {a:'C2',b:'O',o:2},{a:'C2',b:'Ha',o:1,brk:[.40,.58]},
+  {a:'Ag',b:'N1',o:1,brk:[.52,.68]},{a:'Ag',b:'N2',o:1,brk:[.52,.68]},
+  {a:'AgB',b:'N3',o:1,brk:[.52,.68]},{a:'AgB',b:'N4',o:1,brk:[.52,.68]},
+  {a:'N1',b:'N1a',o:1},{a:'N1',b:'N1b',o:1},{a:'N1',b:'N1c',o:1},
+  {a:'N2',b:'N2a',o:1},{a:'N2',b:'N2b',o:1},{a:'N2',b:'N2c',o:1},
+  {a:'N3',b:'N3a',o:1},{a:'N3',b:'N3b',o:1},{a:'N3',b:'N3c',o:1},
+  {a:'N4',b:'N4a',o:1},{a:'N4',b:'N4b',o:1},{a:'N4',b:'N4c',o:1},
+  {a:'Oh',b:'Hh',o:1,brk:[.45,.62]},
+  {a:'C2',b:'Oh',o:1,form:[.5,.68]},
+  {a:'Oh2',b:'Hh2',o:1},{a:'Oh2',b:'Hh',o:1,form:[.75,.9]},
+  {a:'N1',b:'Ha',o:1,form:[.70,.86]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.30,t1:.50,from:{a:'C2',off:[.3,.6,.1]},to:{a:'O',off:[-.3,.4,0]}},
+  {kind:'pair',t0:.40,t1:.58,from:{a:'C2',off:[.35,-.5,-.3]},to:{a:'O',off:[.35,.5,.1]}},
+  {kind:'hook',t0:.52,t1:.70,from:{a:'Ag',off:[.4,.3,.2]},to:{a:'Ag',off:[1.2,-.3,-.2]}},
+  {kind:'hook',t0:.52,t1:.70,from:{a:'AgB',off:[.4,-.3,-.2]},to:{a:'AgB',off:[1.2,.3,.2]}},
+  {kind:'pair',t0:.45,t1:.62,from:{a:'Oh',off:[.3,-.3,.2]},to:{a:'Hh',off:[.4,-.3,.2]}},
+  {kind:'pair',t0:.45,t1:.65,from:{a:'Oh',off:[-.4,-.4,0]},to:{a:'C2',off:[.3,-.3,0]}},
+  {kind:'pair',t0:.70,t1:.86,from:{a:'Ha',off:[.3,.3,0]},to:{a:'N1',off:[.4,.4,.3]}},
+  {kind:'pair',t0:.75,t1:.9,from:{a:'Hh',off:[.3,.3,0]},to:{a:'Oh2',off:[-.4,-.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'醛 + 银氨溶液',text:'乙醛与 2 倍 [Ag(NH₃)₂]OH 混合。每个 Ag⁺ 配两个 NH₃，两个氢氧根漂浮在络离子旁等待反应。'},
+  {t:.30,name:'π 电子转移',text:'C=O 的 π 电子对转移到氧上。'},
+  {t:.40,name:'断醛基 C–H',text:'醛基上的 C–H 键断裂，电子对回到碳氧之间——醛基被氧化。'},
+  {t:.45,name:'OH⁻ 断键接碳',text:'一个 OH⁻ 断开 O–H 键，氧原子接到羰基碳上形成羧酸根；脱下的氢留给另一个氢氧根。'},
+  {t:.52,name:'两个 Ag⁺ 得电子',text:'两个 Ag⁺ 各接受一个电子被还原成 Ag 原子（鱼钩表示单电子转移）。'},
+  {t:.70,name:'醛基氢 → NH₄⁺',text:'醛基氢转移给一个 NH₃ 生成正四面体的 NH₄⁺，NH₄⁺ 靠近羧酸根（离子对，不成键），即乙酸铵。'},
+  {t:.75,name:'另一个 OH⁻ 成水',text:'另一个氢氧根与脱下的氢结合成水。'},
+  {t:.88,name:'银镜生成',text:'无数 Ag 原子均匀沉积在试管壁上形成银镜；溶液中是乙酸铵。'}
+ ],
+ quiz:{q:'乙醛发生银镜反应，试管壁上和溶液中分别得到什么？',
+  right:['Ag 银镜 + CH₃COONH₄','银单质和乙酸铵'],
+  wrong:[
+   ['Ag₂O + CH₃COOH','Ag⁺ 被还原成单质银；碱性中氧化产物是乙酸铵不是乙酸。'],
+   ['Ag + CH₃CH₂OH','醛被氧化不会变成醇。']
+  ]}
+},
+/* ---------- 7. 聚乙烯加聚 ---------- */
+{
+ id:'poly',cat:'聚合反应',seal:'聚',name:'聚乙烯加聚',en:'ADDITION POLYMERIZATION',
+ eq:'n CH₂=CH₂ —催化剂→ –[CH₂–CH₂]ₙ–',
+ tags:['加聚','高分子','塑料'],
+ desc:'无数个乙烯分子的 π 键依次打开，单体首尾相连成链：每个双键打开后，两端各与相邻单体形成一个 σ 键，整条链全是碳骨架。没有小分子副产物，单体全部进入高分子。',
+ life:'奶茶杯、塑料袋、保鲜膜多是聚乙烯（PE）。你随手一个塑料袋，背后是成千上万个乙烯分子手拉手连成的高分子链。',
+ atoms:[
+  {id:'A1',el:'C',p0:[-2.3,2.4,0]},{id:'A2',el:'C',p0:[-.8,2.4,0]},
+  {id:'A1a',el:'H',p0:[-2.9,3.3,0]},{id:'A1b',el:'H',p0:[-2.9,1.5,.5]},
+  {id:'A2a',el:'H',p0:[-.2,3.3,0]},{id:'A2b',el:'H',p0:[-.2,1.5,-.5]},
+  {id:'B1',el:'C',p0:[-2.3,0,0]},{id:'B2',el:'C',p0:[-.8,0,0]},
+  {id:'B1a',el:'H',p0:[-2.9,.9,0]},{id:'B1b',el:'H',p0:[-2.9,-.9,.5]},
+  {id:'B2a',el:'H',p0:[-.2,.9,0]},{id:'B2b',el:'H',p0:[-.2,-.9,-.5]},
+  {id:'D1',el:'C',p0:[-2.3,-2.4,0]},{id:'D2',el:'C',p0:[-.8,-2.4,0]},
+  {id:'D1a',el:'H',p0:[-2.9,-1.5,0]},{id:'D1b',el:'H',p0:[-2.9,-3.3,.5]},
+  {id:'D2a',el:'H',p0:[-.2,-1.5,0]},{id:'D2b',el:'H',p0:[-.2,-3.3,-.5]}
+ ],
+ keys:{
+  'A1':[[0,-2.3,2.4,0],[.4,-2.25,2.35,0],[1,-3.055,0.866,0]],
+  'A2':[[0,-.8,2.4,0],[.4,-.85,2.35,0],[1,-1.833,0,0]],
+  'A1a':[[0,-2.9,3.3,0],[1,-3.055,1.50,0.90]],
+  'A1b':[[0,-2.9,1.5,.5],[1,-3.055,1.50,-0.90]],
+  'A2a':[[0,-.2,3.3,0],[1,-1.833,-0.635,0.898]],
+  'A2b':[[0,-.2,1.5,-.5],[1,-1.833,-0.635,-0.898]],
+  'B1':[[0,-2.3,0,0],[.4,-2.3,0,0],[1,-0.611,0.866,0]],
+  'B2':[[0,-.8,0,0],[.4,-.8,0,0],[1,0.611,0,0]],
+  'B1a':[[0,-2.9,.9,0],[1,-0.611,1.50,0.90]],
+  'B1b':[[0,-2.9,-.9,.5],[1,-0.611,1.50,-0.90]],
+  'B2a':[[0,-.2,.9,0],[1,0.611,-0.635,0.898]],
+  'B2b':[[0,-.2,-.9,-.5],[1,0.611,-0.635,-0.898]],
+  'D1':[[0,-2.3,-2.4,0],[.4,-2.25,-2.35,0],[1,1.833,0.866,0]],
+  'D2':[[0,-.8,-2.4,0],[.4,-.85,-2.35,0],[1,3.055,0,0]],
+  'D1a':[[0,-2.9,-1.5,0],[1,1.833,1.50,0.90]],
+  'D1b':[[0,-2.9,-3.3,.5],[1,1.833,1.50,-0.90]],
+  'D2a':[[0,-.2,-1.5,0],[1,3.055,-0.635,0.898]],
+  'D2b':[[0,-.2,-3.3,-.5],[1,3.055,-0.635,-0.898]]
+},
+ bonds:[
+  {a:'A1',b:'A2',o:2,brk:[.10,.24]},{a:'A1',b:'A2',o:1,form:[.10,.24]},
+  {a:'B1',b:'B2',o:2,brk:[.30,.44]},{a:'B1',b:'B2',o:1,form:[.30,.44]},
+  {a:'D1',b:'D2',o:2,brk:[.50,.64]},{a:'D1',b:'D2',o:1,form:[.50,.64]},
+  {a:'A1',b:'A1a',o:1},{a:'A1',b:'A1b',o:1},{a:'A2',b:'A2a',o:1},{a:'A2',b:'A2b',o:1},
+  {a:'B1',b:'B1a',o:1},{a:'B1',b:'B1b',o:1},{a:'B2',b:'B2a',o:1},{a:'B2',b:'B2b',o:1},
+  {a:'D1',b:'D1a',o:1},{a:'D1',b:'D1b',o:1},{a:'D2',b:'D2a',o:1},{a:'D2',b:'D2b',o:1},
+  {a:'A2',b:'B1',o:1,form:[.34,.50]},{a:'B2',b:'D1',o:1,form:[.54,.70]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.10,t1:.24,from:{a:'A1',off:[.75,0,0]},to:{a:'A2',off:[.5,.4,0]}},
+  {kind:'pair',t0:.30,t1:.44,from:{a:'B1',off:[.75,0,0]},to:{a:'B2',off:[.5,.4,0]}},
+  {kind:'pair',t0:.50,t1:.64,from:{a:'D1',off:[.75,0,0]},to:{a:'D2',off:[.5,.4,0]}},
+  {kind:'pair',t0:.34,t1:.50,from:{a:'A2',off:[-.3,0,0]},to:{a:'B1',off:[.3,0,0]}},
+  {kind:'pair',t0:.54,t1:.70,from:{a:'B2',off:[-.3,0,0]},to:{a:'D1',off:[.3,0,0]}}
+ ],
+ steps:[
+  {t:0,name:'单体排队',text:'三个乙烯分子代表 n 个单体，双键是它们「手牵手」的接口。'},
+  {t:.10,name:'双键依次打开',text:'π 键断开变成 σ 键，每个碳原子留出一个成键「空位」。'},
+  {t:.34,name:'首尾相连',text:'相邻单体的两个半键对接，形成新的 C–C σ 键，链条一点点延长。'},
+  {t:.72,name:'碳链成形',text:'—CH₂–CH₂— 单元无限重复。没有任何小分子脱去，单体利用率 100%。'},
+  {t:.9,name:'产物 · 塑料',text:'聚乙烯：质轻、无毒、怕热。回收标志 ② HDPE、④ LDPE 都是它家族成员。'}
+ ],
+ quiz:{q:'n 个乙烯加聚成聚乙烯，会脱出小分子吗？',
+  right:['不脱任何小分子','单体全部进入链中'],
+  wrong:[
+   ['脱出 n H₂O','那是缩聚（如聚酯）的特征；加聚只开双键，没有副产物。'],
+   ['脱出 n H₂','加聚不是脱氢反应，氢都留在碳链上。']
+  ]}
+},
+
+{
+ id:'elim',cat:'消去反应',seal:'消',name:'乙醇消去制乙烯',en:'ELIMINATION TO ETHENE',
+ eq:'C₂H₅OH —浓H₂SO₄,170℃→ CH₂=CH₂↑ + H₂O',
+ tags:['消去','浓硫酸','170℃'],
+ desc:'浓硫酸在 170℃ 下夺取乙醇的 –OH 和 β-H：C–O 键与 β-C–H 键断裂，两个碳各出一个电子形成 C=C 双键，脱下的 –H 与 –OH 结合成水。140℃ 时则走分子间脱水生成乙醚。',
+ life:'实验室制乙烯就是这个反应；温度不同产物不同——170℃ 出乙烯，140℃ 出乙醚，是「条件决定产物」的经典例子。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.4,0,0]},{id:'C2',el:'C',p0:[-.9,0,0]},
+  {id:'O',el:'O',p0:[.3,1.1,.2]},{id:'HO',el:'H',p0:[1.2,1.7,.4]},
+  {id:'H1',el:'H',p0:[-3.0,.9,.3]},{id:'H2',el:'H',p0:[-3.0,-.9,-.3]},{id:'Ha',el:'H',p0:[-2.6,0,1.0]},
+  {id:'H4',el:'H',p0:[-.3,-1.0,.3]},{id:'H6',el:'H',p0:[-.4,.6,-.9]}
+ ],
+ keys:{
+  'C1':[[0,-2.4,0,0],[1,-2.4,0.2,0]],
+  'C2':[[0,-.9,0,0],[1,-0.9,0.2,0]],
+  'O':[[0,.3,1.1,.2],[.5,1.0,0.6,0.2],[1,1.9,0.4,0.2]],
+  'HO':[[0,1.2,1.7,.4],[.5,1.9,1.0,0.4],[1,2.75,0.75,0.3]],
+  'Ha':[[0,-2.6,0,1.0],[.5,-1.9,0.3,0.4],[.75,2.2,-0.3,-0.1],[1,2.0,-0.5,-0.1]],
+  'H1':[[0,-3.0,.9,.3],[1,-3.05,1.05,0]],
+  'H2':[[0,-3.0,-.9,-.3],[1,-3.05,-0.65,0]],
+  'H4':[[0,-.3,-1.0,.3],[1,-0.25,1.05,0]],
+  'H6':[[0,-.4,.6,-.9],[1,-0.25,-0.65,0]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1,brk:[.35,.55]},{a:'C1',b:'C2',o:2,form:[.35,.55]},
+  {a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C1',b:'Ha',o:1,brk:[.3,.5]},
+  {a:'C2',b:'H4',o:1},{a:'C2',b:'H6',o:1},{a:'C2',b:'O',o:1,brk:[.25,.45]},{a:'O',b:'HO',o:1},
+  {a:'O',b:'Ha',o:1,form:[.6,.78]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.25,t1:.45,from:{a:'C2',off:[.3,.3,0]},to:{a:'O',off:[-.4,-.3,0]}},
+  {kind:'pair',t0:.3,t1:.5,from:{a:'C1',off:[-.4,.1,.5]},to:{a:'C2',off:[-.4,.1,.3]}},
+  {kind:'pair',t0:.6,t1:.78,from:{a:'Ha',off:[.3,-.2,-.2]},to:{a:'O',off:[.4,-.2,0]}}
+ ],
+ steps:[
+  {t:0,name:'反应物',text:'乙醇与浓硫酸混合，升温至 170℃。'},
+  {t:.25,name:'断 C–O',text:'羟基与 β-碳上的氢被浓硫酸「夺水」：C–O 键先断裂，–OH 留下。'},
+  {t:.3,name:'断 β-C–H · 成 C=C',text:'β-H 离开碳架，它的电子对与 C–O 断下的电子对汇合，在两个碳之间形成双键。'},
+  {t:.6,name:'脱水',text:'–H 与 –OH 结合生成水。'},
+  {t:.85,name:'产物 · 乙烯',text:'乙烯气体逸出。若控制在 140℃，则两分子乙醇分子间脱水生成乙醚。'}
+ ],
+ quiz:{q:'乙醇在浓硫酸 170℃ 下发生消去，产物是？',
+  right:['CH₂=CH₂↑ + H₂O','乙烯和水'],
+  wrong:[
+   ['C₂H₅OC₂H₅ + H₂O','那是 140℃ 分子间脱水的产物；170℃ 走消去。'],
+   ['CH₃CHO + H₂','浓硫酸不是氧化剂，不会把乙醇氧化成乙醛。']
+  ]}
+},
+{
+ id:'hydration',cat:'加成反应',seal:'水',name:'乙烯水化制乙醇',en:'HYDRATION OF ETHENE',
+ eq:'CH₂=CH₂ + H₂O —催化剂→ C₂H₅OH',
+ tags:['加成','工业制乙醇'],
+ desc:'催化剂作用下，乙烯的 π 键断裂，水分子拆成 –H 和 –OH 分别加到两个双键碳上，生成乙醇。这是工业上生产乙醇的重要方法。',
+ life:'医用酒精、消毒酒精大规模生产就靠这个反应——石化路线制乙醇，比粮食发酵便宜得多。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.0,0.3,0]},{id:'C2',el:'C',p0:[-.6,0.3,0]},
+  {id:'H1',el:'H',p0:[-2.65,1.2,0]},{id:'H2',el:'H',p0:[-2.65,-.6,0]},
+  {id:'H3',el:'H',p0:[.05,1.2,0]},{id:'H4',el:'H',p0:[.05,-.6,0]},
+  {id:'O',el:'O',p0:[2.0,-1.2,0.3]},{id:'HO',el:'H',p0:[2.8,-1.5,0.5]},{id:'Ha',el:'H',p0:[1.7,-2.0,0.2]}
+ ],
+ keys:{
+  'C1':[[0,-2.0,0.3,0],[1,-2.4,0,0]],
+  'C2':[[0,-.6,0.3,0],[1,-0.9,0,0]],
+  'H1':[[0,-2.65,1.2,0],[1,-2.766,1.037,0]],
+  'H2':[[0,-2.65,-.6,0],[1,-2.767,-0.5185,0.9]],
+  'H3':[[0,.05,1.2,0],[1,-0.54,-0.52,0.9]],
+  'H4':[[0,.05,-.6,0],[1,-0.54,-0.52,-0.9]],
+  'Ha':[[0,1.7,-2.0,0.2],[.45,1.2,-1.4,0.2],[1,-2.767,-0.5185,-0.9]],
+  'O':[[0,2.0,-1.2,0.3],[.5,0.6,0.3,0.2],[1,-0.43,1.32,0]],
+  'HO':[[0,2.8,-1.5,0.5],[.5,1.3,0.7,0.3],[1,-1.09,1.909,0.471]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:2,brk:[.2,.38]},{a:'C1',b:'C2',o:1,form:[.2,.38]},
+  {a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C2',b:'H3',o:1},{a:'C2',b:'H4',o:1},
+  {a:'O',b:'HO',o:1},{a:'O',b:'Ha',o:1,brk:[.3,.48]},
+  {a:'C1',b:'Ha',o:1,form:[.5,.66]},{a:'C2',b:'O',o:1,form:[.52,.7]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.2,t1:.38,from:{a:'C1',off:[.7,0,0]},to:{a:'C2',off:[.5,.5,0]}},
+  {kind:'pair',t0:.3,t1:.48,from:{a:'O',off:[-.4,-.4,0]},to:{a:'Ha',off:[-.3,-.3,0]}},
+  {kind:'pair',t0:.5,t1:.66,from:{a:'C1',off:[-.5,0,0]},to:{a:'Ha',off:[.4,-.3,-0.4]}}
+ ],
+ steps:[
+  {t:0,name:'反应物',text:'乙烯与水蒸气混合，通过催化剂。'},
+  {t:.2,name:'π 键断裂',text:'双键打开，两个碳各留一个成键空位。'},
+  {t:.3,name:'拆开 H₂O',text:'水分子的 O–H 键断开，H 和 OH 分开准备上链。'},
+  {t:.5,name:'加上 H',text:'–H 接到一个双键碳上。'},
+  {t:.52,name:'接上 OH',text:'–OH 接到另一个碳上，乙醇骨架成形。'},
+  {t:.85,name:'产物 · 乙醇',text:'工业乙醇。与水化法对应的是粮食发酵法——同样的乙醇，两条路线。'}
+ ],
+ quiz:{q:'乙烯和水在催化剂作用下生成什么？',
+  right:['C₂H₅OH · 乙醇','羟基加成一个碳、氢加另一个'],
+  wrong:[
+   ['C₂H₅OC₂H₅','两个乙醇分子脱水才得乙醚；这里只加一个水分子。'],
+   ['CH₃CHO + H₂','水分子不会变成氢气跑掉。']
+  ]}
+},
+{
+ id:'benzbr',cat:'取代反应',seal:'苯',name:'苯的溴代',en:'BROMINATION OF BENZENE',
+ eq:'C₆H₆ + Br₂ —FeBr₃→ C₆H₅Br + HBr',
+ tags:['取代','苯环','催化剂'],
+ desc:'FeBr₃ 催化下 Br–Br 键极化断裂，Br 取代苯环上的一个氢：苯环 C–H 断裂、C–Br 形成，脱下的 H 与另一个 Br 结合成 HBr。苯环大 π 键稳定，只取代不加成。',
+ life:'溴苯是染料、医药中间体；这个反应也证明了苯环的「顽固」——双键那么多却不肯加成，只肯慢慢取代。',
+ atoms:[
+  {id:'C1',el:'C',p0:[1.4,0,0]},{id:'C2',el:'C',p0:[0.7,1.212,0]},{id:'C3',el:'C',p0:[-0.7,1.212,0]},
+  {id:'C4',el:'C',p0:[-1.4,0,0]},{id:'C5',el:'C',p0:[-0.7,-1.212,0]},{id:'C6',el:'C',p0:[0.7,-1.212,0]},
+  {id:'H1',el:'H',p0:[2.2,0,0]},{id:'H2',el:'H',p0:[1.1,1.91,0]},{id:'H3',el:'H',p0:[-1.1,1.91,0]},
+  {id:'H4',el:'H',p0:[-2.2,0,0]},{id:'H5',el:'H',p0:[-1.1,-1.91,0]},{id:'H6',el:'H',p0:[1.1,-1.91,0]},
+  {id:'Bra',el:'Br',p0:[3.6,1.0,0]},{id:'Brb',el:'Br',p0:[3.6,-1.0,0]}
+ ],
+ keys:{
+  'H1':[[0,2.2,0,0],[.45,2.5,0.3,0.1],[.75,4.4,0.7,0.4],[1,4.4,0.8,0.4]],
+  'Bra':[[0,3.6,1.0,0],[.5,4.6,0.4,0.2],[.8,3.3,0,0],[1,3.3,0,0]],
+  'Brb':[[0,3.6,-1.0,0],[.5,4.9,-0.3,0.2],[1,5.3,1.1,0.5]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C2',b:'C3',o:1},{a:'C3',b:'C4',o:1},
+  {a:'C4',b:'C5',o:1},{a:'C5',b:'C6',o:1},{a:'C6',b:'C1',o:1},
+  {a:'C1',b:'H1',o:1,brk:[.35,.55]},{a:'C2',b:'H2',o:1},{a:'C3',b:'H3',o:1},
+  {a:'C4',b:'H4',o:1},{a:'C5',b:'H5',o:1},{a:'C6',b:'H6',o:1},
+  {a:'Bra',b:'Brb',o:1,brk:[.2,.4]},{a:'C1',b:'Bra',o:1,form:[.6,.8]},{a:'H1',b:'Brb',o:1,form:[.7,.85]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.2,t1:.4,from:{a:'Bra',off:[.5,.4,0]},to:{a:'Brb',off:[.5,-.4,0]}},
+  {kind:'pair',t0:.35,t1:.55,from:{a:'C1',off:[.4,0,0]},to:{a:'H1',off:[.5,.2,0]}},
+  {kind:'pair',t0:.6,t1:.8,from:{a:'C1',off:[-.6,.3,0]},to:{a:'Bra',off:[-.6,.2,0]}},
+  {kind:'pair',t0:.7,t1:.85,from:{a:'H1',off:[.3,.2,0]},to:{a:'Brb',off:[-.5,-.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'反应物',text:'苯与液溴混合，加入 FeBr₃ 催化。'},
+  {t:.2,name:'Br–Br 断裂',text:'FeBr₃ 使 Br–Br 键极化断裂。'},
+  {t:.35,name:'断苯环 C–H',text:'苯环上的一个 C–H 键断裂——大 π 键体系保持不变。'},
+  {t:.6,name:'成 C–Br',text:'Br 接到苯环碳上，生成溴苯骨架。'},
+  {t:.7,name:'生成 HBr',text:'脱下的 H 与另一个 Br 结合成 HBr。'},
+  {t:.9,name:'产物 · 溴苯',text:'苯环只取代、不加成——这正是苯「不像烯烃」的关键证据。'}
+ ],
+ quiz:{q:'苯与液溴在 FeBr₃ 催化下生成什么？',
+  right:['C₆H₅Br + HBr','溴苯和溴化氢'],
+  wrong:[
+   ['C₆H₆Br₂','苯环稳定，不会像烯烃那样加成；只取代一个氢。'],
+   ['C₆H₅Br + H₂','脱下的氢跟溴走，生成 HBr，不放氢气。']
+  ]}
+},
+{
+ id:'nitration',cat:'取代反应',seal:'硝',name:'苯的硝化',en:'NITRATION OF BENZENE',
+ eq:'C₆H₆ + HNO₃ —浓H₂SO₄,Δ→ C₆H₅NO₂ + H₂O',
+ tags:['取代','硝基','混酸'],
+ desc:'浓硫酸促使硝酸脱去 –OH，硝基接到苯环上：C–H 断裂、C–N 形成，脱下的氢与硝酸脱下的羟基结合成水。硝基苯是染料和炸药 TNT 产业链的重要原料。',
+ life:'TNT（三硝基甲苯）的「硝」就来自这类硝化反应；染料、医药中间体也大量使用硝基苯。',
+ atoms:[
+  {id:'C1',el:'C',p0:[1.4,0,0]},{id:'C2',el:'C',p0:[0.7,1.212,0]},{id:'C3',el:'C',p0:[-0.7,1.212,0]},
+  {id:'C4',el:'C',p0:[-1.4,0,0]},{id:'C5',el:'C',p0:[-0.7,-1.212,0]},{id:'C6',el:'C',p0:[0.7,-1.212,0]},
+  {id:'H1',el:'H',p0:[2.2,0,0]},{id:'H2',el:'H',p0:[1.1,1.91,0]},{id:'H3',el:'H',p0:[-1.1,1.91,0]},
+  {id:'H4',el:'H',p0:[-2.2,0,0]},{id:'H5',el:'H',p0:[-1.1,-1.91,0]},{id:'H6',el:'H',p0:[1.1,-1.91,0]},
+  {id:'N',el:'N',p0:[3.4,0.4,0.3]},{id:'O1',el:'O',p0:[4.3,1.1,0.5]},{id:'O2',el:'O',p0:[3.2,1.2,-0.4]},
+  {id:'O3',el:'O',p0:[4.1,-0.7,0.2]},{id:'H3o',el:'H',p0:[4.9,-1.1,0.3]}
+ ],
+ keys:{
+  'H1':[[0,2.2,0,0],[.5,2.6,0.5,0.2],[.8,4.5,1.2,0.3],[1,5.75,2.0,0.6]],
+  'N':[[0,3.4,0.4,0.3],[.55,4.4,0.2,0.3],[.8,2.85,0,0],[1,2.85,0,0]],
+  'O1':[[0,4.3,1.1,0.5],[1,3.475,1.0825,0]],
+  'O2':[[0,3.2,1.2,-0.4],[.6,3.6,0.6,-0.3],[1,3.475,-1.0825,0]],
+  'O3':[[0,4.1,-0.7,0.2],[.6,4.5,0.6,0.4],[1,4.9,1.6,0.5]],
+  'H3o':[[0,4.9,-1.1,0.3],[.6,4.7,1.0,0.45],[1,4.6,2.4,0.8]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C2',b:'C3',o:1},{a:'C3',b:'C4',o:1},
+  {a:'C4',b:'C5',o:1},{a:'C5',b:'C6',o:1},{a:'C6',b:'C1',o:1},
+  {a:'C1',b:'H1',o:1,brk:[.4,.6]},{a:'C2',b:'H2',o:1},{a:'C3',b:'H3',o:1},
+  {a:'C4',b:'H4',o:1},{a:'C5',b:'H5',o:1},{a:'C6',b:'H6',o:1},
+  {a:'N',b:'O1',o:2},{a:'N',b:'O2',o:1},{a:'N',b:'O3',o:1,brk:[.45,.65]},
+  {a:'O3',b:'H3o',o:1},
+  {a:'C1',b:'N',o:1,form:[.6,.8]},{a:'O3',b:'H1',o:1,form:[.75,.9]},{a:'O3',b:'H3o',o:1,brk:[.6,.78]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.45,t1:.65,from:{a:'N',off:[.3,-.4,0]},to:{a:'O3',off:[.4,-.3,0]}},
+  {kind:'pair',t0:.4,t1:.6,from:{a:'C1',off:[.4,0,0]},to:{a:'H1',off:[.5,.3,0]}},
+  {kind:'pair',t0:.6,t1:.8,from:{a:'C1',off:[-.6,.3,0]},to:{a:'N',off:[-.5,0,0]}},
+  {kind:'pair',t0:.75,t1:.9,from:{a:'H1',off:[.3,.2,0]},to:{a:'O3',off:[-.4,-.4,0]}}
+ ],
+ steps:[
+  {t:0,name:'混酸',text:'苯与混酸（浓硝酸+浓硫酸）混合，50–60℃ 水浴。'},
+  {t:.4,name:'脱羟基 · 断环上 C–H',text:'浓硫酸夺去硝酸的 –OH；苯环上一个 C–H 同时断裂。'},
+  {t:.6,name:'成 C–N',text:'硝基接到苯环碳上。'},
+  {t:.62,name:'脱水',text:'环上脱下的 H 与硝酸脱下的 –OH 结合成水。'},
+  {t:.9,name:'产物 · 硝基苯',text:'硝基苯，无色油状液体；继续硝化可得间二硝基苯。'}
+ ],
+ quiz:{q:'苯硝化的产物是？',
+  right:['C₆H₅NO₂ + H₂O','硝基苯和水'],
+  wrong:[
+   ['C₆H₅NO₂ + CO₂','没有碳的氧化物；脱下的 H 和 OH 结成水。'],
+   ['C₆H₅SO₃H','那是苯与浓硫酸的磺化反应，用的不是硝酸。']
+  ]}
+},
+{
+ id:'fehling',cat:'氧化还原',seal:'斐',name:'乙醛与新制Cu(OH)₂',en:'FEHLING TEST',
+ eq:'CH₃CHO + 2Cu(OH)₂ + NaOH → CH₃COONa + Cu₂O↓ + 3H₂O',
+ tags:['醛基','斐林','砖红沉淀'],
+ desc:'先往硫酸铜溶液里加 NaOH 调到碱性，生成新制 Cu(OH)₂。醛基把它还原：Cu²⁺ 得电子变成 Cu⁺，两两结合成砖红色 Cu₂O 沉淀；醛基被氧化成羧基，NaOH 提供的 –OH 补成羧酸根，与 Na⁺ 成乙酸钠。与银镜反应一样，都是检验醛基的经典方法。（图中每个氢氧化铜只画一个 –OH，水分子从简）',
+ life:'检验还原糖（葡萄糖）的斐林试剂/班氏试剂就是这个原理；糖尿病人尿糖试纸的早期版本也靠它。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.3,0,0]},{id:'C2',el:'C',p0:[-.8,0,0]},
+  {id:'O',el:'O',p0:[-.2,1.2,.2]},{id:'Ha',el:'H',p0:[-.1,-.9,-.5]},
+  {id:'H1',el:'H',p0:[-2.9,.9,.3]},{id:'H2',el:'H',p0:[-2.9,-.9,-.3]},{id:'H3',el:'H',p0:[-2.4,0,1.0]},
+  {id:'Na',el:'Na',p0:[2.5,-2.7,0.5]},{id:'Oh',el:'O',p0:[3.8,-2.0,0.8]},{id:'Hh',el:'H',p0:[4.5,-2.6,1.2]},
+  {id:'Cu',el:'Cu',p0:[1.6,0,0]},{id:'CuB',el:'Cu',p0:[4.8,1.8,-.5]},
+  {id:'O1',el:'O',p0:[2.9,1.3,.5]},{id:'O2',el:'O',p0:[2.9,-1.3,-.5]},{id:'HO2',el:'H',p0:[3.5,-1.9,-.8]},
+  {id:'O3',el:'O',p0:[5.9,3.1,0.2]},{id:'HO3',el:'H',p0:[6.4,3.7,0.8]}
+ ],
+ keys:{
+  'O':[[0,-.2,1.2,.2],[1,-0.175,1.0825,0]],
+  'Ha':[[0,-.1,-.9,-.5],[.5,.35,.5,-.6],[.85,3.2,0.2,0.3],[1,4.7,2.2,0.9]],
+  'C1':[[0,-2.3,0,0],[1,-2.3,0,0]],
+  'C2':[[0,-.8,0,0],[1,-0.8,0,0]],
+  'H1':[[0,-2.9,.9,.3],[1,-2.666,1.037,0]],
+  'H2':[[0,-2.9,-.9,-.3],[1,-2.667,-0.5185,0.9]],
+  'H3':[[0,-2.4,0,1.0],[1,-2.667,-0.5185,-0.9]],
+  'Na':[[0,2.5,-2.7,0.5],[.6,1.8,-2.2,0.2],[.9,1.08,-2.21,-1.09],[1,1.08,-2.21,-1.09]],
+  'Oh':[[0,3.8,-2.0,0.8],[.5,1.2,-1.0,0.4],[.72,-0.1,-1.21,0.1],[1,-0.1,-1.21,0.1]],
+  'Hh':[[0,4.5,-2.6,1.2],[.6,4.9,0.0,0.8],[1,5.0,3.3,0.8]],
+  'Cu':[[0,1.6,0,0],[.55,2.2,0.6,0.1],[1,3.4,1.85,0]],
+  'CuB':[[0,4.8,1.8,-.5],[.6,4.2,0.8,-0.2],[1,3.4,-1.85,0]],
+  'O1':[[0,2.9,1.3,.5],[.6,3.0,0.6,0.2],[1,3.4,0,0]],
+  'O2':[[0,2.9,-1.3,-.5],[.6,3.2,-0.6,-0.2],[1,5.3,1.5,0.6]],
+  'HO2':[[0,3.5,-1.9,-.8],[.7,2.9,-0.5,0.0],[1,6.1,1.9,0.7]],
+  'O3':[[0,5.9,3.1,0.2],[1,5.6,2.6,0.4]],
+  'HO3':[[0,6.4,3.7,0.8],[1,6.3,3.1,0.7]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C1',b:'H3',o:1},
+  {a:'C2',b:'O',o:2},{a:'C2',b:'Ha',o:1,brk:[.4,.58]},
+  {a:'Oh',b:'Hh',o:1,brk:[.45,.65]},
+  {a:'Cu',b:'O1',o:1,brk:[.3,.5]},{a:'Cu',b:'O2',o:1,brk:[.3,.5]},{a:'CuB',b:'O3',o:1,brk:[.3,.5]},
+  {a:'O2',b:'HO2',o:1},{a:'O3',b:'HO3',o:1},
+  {a:'C2',b:'Oh',o:1,form:[.5,.68]},
+  {a:'O1',b:'Cu',o:1,form:[.7,.88]},{a:'O1',b:'CuB',o:1,form:[.72,.9]},
+  {a:'O2',b:'Ha',o:1,form:[.7,.88]},{a:'O3',b:'Hh',o:1,form:[.75,.9]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.3,t1:.5,from:{a:'Cu',off:[.5,.3,.2]},to:{a:'O1',off:[-.5,-.3,-0.1]}},
+  {kind:'pair',t0:.3,t1:.5,from:{a:'Cu',off:[.5,-.3,-.2]},to:{a:'O2',off:[-.5,.3,0]}},
+  {kind:'pair',t0:.45,t1:.65,from:{a:'Oh',off:[-.4,-.4,0]},to:{a:'C2',off:[.3,-.3,0]}},
+  {kind:'pair',t0:.4,t1:.58,from:{a:'C2',off:[.35,-.5,-.3]},to:{a:'O',off:[.35,.5,.1]}},
+  {kind:'pair',t0:.7,t1:.88,from:{a:'Ha',off:[.3,.3,0]},to:{a:'O2',off:[-.4,-.3,0]}},
+  {kind:'pair',t0:.75,t1:.9,from:{a:'Hh',off:[.3,.3,0]},to:{a:'O3',off:[-.4,-.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'醛 + 新制 Cu(OH)₂ + NaOH',text:'CuSO₄ 溶液先加 NaOH 调到碱性，生成新制氢氧化铜悬浊液，与乙醛混合加热。'},
+  {t:.3,name:'Cu–O 断裂',text:'氢氧化铜的 Cu–O 键断裂，Cu²⁺ 准备得电子。'},
+  {t:.4,name:'断醛基 C–H · 成 C=O',text:'醛基 C–H 断裂，电子对形成 C=O——醛被氧化成羧基。'},
+  {t:.45,name:'–OH 接上 · 成盐',text:'NaOH 提供的 –OH 接到羰基碳上成羧酸根，与 Na⁺ 结合成乙酸钠。'},
+  {t:.7,name:'Cu⁺ 成 Cu₂O · 脱水',text:'Cu²⁺ 得电子变 Cu⁺，两个 Cu⁺ 与 O 结合成砖红色 Cu₂O 沉淀；脱下的氢分别与氢氧根结合成水。'},
+  {t:.9,name:'产物 · 砖红沉淀',text:'乙酸钠 + Cu₂O（砖红色）。现象与银镜并列，都是醛基的指纹。'}
+ ],
+ quiz:{q:'乙醛与新制 Cu(OH)₂（NaOH 碱性）加热，产物是？',
+  right:['CH₃COONa + Cu₂O↓','乙酸钠和砖红色沉淀'],
+  wrong:[
+   ['CH₃COOH + Cu₂O↓','碱性环境里羧酸以钠盐形式存在，不是游离乙酸。'],
+   ['CH₃COOH + Cu','铜只被还原到 +1 价成 Cu₂O，不会析出铜单质。']
+  ]}
+},
+
+{
+ id:'vcm',cat:'加成反应',seal:'氯',name:'乙炔制氯乙烯',en:'VCM FROM ACETYLENE',
+ eq:'CH≡CH + HCl —催化剂→ CH₂=CHCl',
+ tags:['加成','乙炔','PVC原料'],
+ desc:'乙炔三根键里先断一根 π 键，HCl 拆成 –H 和 –Cl 分别加到两个碳上，生成氯乙烯（VCM）。氯乙烯是塑料 PVC 的单体。',
+ life:'PVC 管、PVC 地板、银行卡的主要成分聚氯乙烯，源头就是这个反应制出的氯乙烯单体。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.3,0,0]},{id:'C2',el:'C',p0:[-.95,0,0]},
+  {id:'H1',el:'H',p0:[-3.35,0,0]},{id:'H2',el:'H',p0:[0.1,0,0]},
+  {id:'Ha',el:'H',p0:[1.5,1.0,0.3]},{id:'Cl',el:'Cl',p0:[2.3,1.65,0.6]}
+ ],
+ keys:{
+  'H1':[[0,-3.35,0,0],[1,-2.85,0.95,0]],
+  'H2':[[0,0.1,0,0],[1,-0.4,0.95,0]],
+  'Ha':[[0,1.5,1.0,0.3],[.4,0.0,0.6,0.2],[.6,-2.85,-0.95,0],[1,-2.85,-0.95,0]],
+  'Cl':[[0,2.3,1.65,0.6],[.5,0.3,0.5,0.3],[.75,-0.075,-1.52,0],[1,-0.075,-1.52,0]],
+  'C1':[[0,-2.3,0,0],[1,-2.3,0,0]],
+  'C2':[[0,-.95,0,0],[1,-0.95,0,0]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:3,brk:[.15,.3]},{a:'C1',b:'C2',o:2,form:[.15,.3]},
+  {a:'C1',b:'H1',o:1},{a:'C2',b:'H2',o:1},
+  {a:'Ha',b:'Cl',o:1,brk:[.35,.5]},
+  {a:'C1',b:'Ha',o:1,form:[.45,.62]},{a:'C2',b:'Cl',o:1,form:[.5,.68]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.15,t1:.3,from:{a:'C1',off:[.7,0,0]},to:{a:'C2',off:[.5,.3,0]}},
+  {kind:'pair',t0:.35,t1:.5,from:{a:'Ha',off:[.4,.3,.2]},to:{a:'Cl',off:[-.4,-.3,-.2]}},
+  {kind:'pair',t0:.45,t1:.62,from:{a:'C1',off:[-.5,.3,0]},to:{a:'Ha',off:[.4,-.3,-.2]}}
+ ],
+ steps:[
+  {t:0,name:'反应物',text:'乙炔（直线型分子）与氯化氢混合，催化剂作用下反应。'},
+  {t:.15,name:'断一根 π 键',text:'三键变双键，两个碳各留一个成键空位。'},
+  {t:.35,name:'断 H–Cl',text:'氯化氢的 H–Cl 键断开。'},
+  {t:.45,name:'加上 H',text:'–H 接到端位碳上。'},
+  {t:.5,name:'加上 Cl',text:'–Cl 接到另一个碳上，氯乙烯成形。'},
+  {t:.85,name:'产物 · 氯乙烯',text:'氯乙烯加聚即得 PVC——用途最广的塑料之一。'}
+ ],
+ quiz:{q:'乙炔与 HCl 加成生成什么？',
+  right:['CH₂=CHCl · 氯乙烯','只断一根 π 键'],
+  wrong:[
+   ['CH₂Cl–CH₂Cl','两个氯加成是 Cl₂ 的产物；HCl 只提供一个 Cl。'],
+   ['CH₃CH₃','HCl 只有一个 H，不能把三键全加掉。']
+  ]}
+},
+{
+ id:'sn2',cat:'水解反应',seal:'解',name:'溴乙烷水解',en:'HYDROLYSIS OF BROMOETHANE',
+ eq:'C₂H₅Br + NaOH —水溶液,Δ→ C₂H₅OH + NaBr',
+ tags:['水解','卤代烃','SN2'],
+ desc:'OH⁻ 进攻带部分正电的 α-碳，C–Br 键同时断裂——旧键断与新键成一步完成（SN2 机理）：–OH 接上、Br⁻ 离去，生成乙醇。卤代烃水解是官能团转换的基础反应。',
+ life:'溴乙烷曾用作麻醉剂和熏蒸剂，因毒性被淘汰；这个反应至今是有机合成「卤素换羟基」的标准操作。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.4,0,0]},{id:'C2',el:'C',p0:[-.9,0,0]},
+  {id:'H1',el:'H',p0:[-2.766,1.037,0]},{id:'H2',el:'H',p0:[-2.767,-0.5185,0.9]},{id:'H3',el:'H',p0:[-2.767,-0.5185,-0.9]},
+  {id:'H4',el:'H',p0:[-0.53,-0.52,0.9]},{id:'H5',el:'H',p0:[-0.53,-0.52,-0.9]},
+  {id:'Br',el:'Br',p0:[-0.27,1.79,0]},
+  {id:'Na',el:'Na',p0:[1.8,1.8,0.6]},{id:'Oh',el:'O',p0:[1.0,2.6,-0.2]},{id:'Hh',el:'H',p0:[0.5,3.4,0.3]}
+ ],
+ keys:{
+  'Oh':[[0,1.0,2.6,-0.2],[.35,0.2,1.3,0.1],[.5,-0.43,1.32,0],[1,-0.43,1.32,0]],
+  'Hh':[[0,0.5,3.4,0.3],[.4,0.9,2.9,0.2],[1,0.27,2.02,0.15]],
+  'Na':[[0,1.8,1.8,0.6],[.5,2.4,1.0,0.4],[.8,3.8,-0.5,0.4],[1,3.8,-0.5,0.4]],
+  'Br':[[0,-0.27,1.79,0],[.55,0.8,1.2,0.2],[1,2.6,-0.9,0.3]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C1',b:'H3',o:1},
+  {a:'C2',b:'H4',o:1},{a:'C2',b:'H5',o:1},{a:'C2',b:'Br',o:1,brk:[.35,.55]},
+  {a:'C2',b:'Oh',o:1,form:[.3,.5]},{a:'Oh',b:'Hh',o:1}
+ ],
+ arrows:[
+  {kind:'pair',t0:.3,t1:.5,from:{a:'Oh',off:[.4,.4,0]},to:{a:'C2',off:[.3,-.2,0]}},
+  {kind:'pair',t0:.35,t1:.55,from:{a:'C2',off:[.2,.6,0]},to:{a:'Br',off:[-.4,.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'反应物',text:'溴乙烷与 NaOH 水溶液混合加热。'},
+  {t:.3,name:'OH⁻ 进攻',text:'氢氧根从背面进攻 α-碳，新 C–O 键开始形成。'},
+  {t:.35,name:'断 C–Br',text:'旧键断裂与新键形成同步进行（SN2），Br⁻ 带着电子对离去。'},
+  {t:.6,name:'成盐',text:'Na⁺ 与 Br⁻ 结合生成 NaBr。'},
+  {t:.85,name:'产物 · 乙醇',text:'乙醇生成。若改用醇溶液并加热，则走消去路线生成乙烯——溶剂决定路线。'}
+ ],
+ quiz:{q:'溴乙烷与 NaOH 水溶液共热，产物是？',
+  right:['C₂H₅OH + NaBr','水解得乙醇'],
+  wrong:[
+   ['CH₂=CH₂ + NaBr + H₂O','那是 NaOH 醇溶液的消去条件；水溶液走水解。'],
+   ['C₂H₅OC₂H₅','没有醚生成；羟基只上一个。']
+  ]}
+},
+{
+ id:'pet',cat:'聚合反应',seal:'缩',name:'缩聚·PET 的原理',en:'POLYCONDENSATION (PET)',
+ eq:'n HOOC–C₆H₄–COOH + n HOCH₂CH₂OH → PET + 2n H₂O',
+ tags:['缩聚','PET','可逆'],
+ desc:'对苯二甲酸两端的羧基与乙二醇两端的羟基反复酯化：每接一个链接就脱一分子水，高分子链慢慢变长——这叫缩聚（区别于加聚：有小分子副产物）。图中展示其中一个羧基与羟基成酯键的过程。产物 PET 就是你手里的奶茶杯。',
+ life:'奶茶杯、矿泉水瓶大多是 PET（聚对苯二甲酸乙二醇酯），回收标志 ① 就是它。你每喝一杯奶茶，都在和这条高分子链打交道。',
+ atoms:[
+  {id:'C1',el:'C',p0:[1.2,0,0]},{id:'C2',el:'C',p0:[0.6,1.04,0]},{id:'C3',el:'C',p0:[-0.6,1.04,0]},
+  {id:'C4',el:'C',p0:[-1.2,0,0]},{id:'C5',el:'C',p0:[-0.6,-1.04,0]},{id:'C6',el:'C',p0:[0.6,-1.04,0]},
+  {id:'H2',el:'H',p0:[1.1,1.906,0]},{id:'H3',el:'H',p0:[-1.1,1.906,0]},{id:'H5',el:'H',p0:[-1.1,-1.906,0]},{id:'H6',el:'H',p0:[1.1,-1.906,0]},
+  {id:'C7',el:'C',p0:[2.5,0,0]},{id:'O1',el:'O',p0:[3.15,1.08,0]},{id:'O2',el:'O',p0:[3.15,-1.08,0]},{id:'H2o',el:'H',p0:[3.9,-1.6,0.15]},
+  {id:'C8',el:'C',p0:[-2.5,0,0]},{id:'O3',el:'O',p0:[-3.15,1.08,0]},{id:'O4',el:'O',p0:[-3.15,-1.08,0]},{id:'H4o',el:'H',p0:[-3.65,-1.88,0.2]},
+  {id:'Ca',el:'C',p0:[3.9,-2.6,0.3]},{id:'Cb',el:'C',p0:[5.31,-2.09,0.23]},
+  {id:'Oa',el:'O',p0:[3.1,-3.5,0.7]},{id:'HOa',el:'H',p0:[2.5,-3.8,0.2]},
+  {id:'Ha1',el:'H',p0:[4.93,-2.97,0.17]},{id:'Ha2',el:'H',p0:[3.88,-1.79,1.03]},
+  {id:'Hb1',el:'H',p0:[6.0,-2.94,0.21]},{id:'Hb2',el:'H',p0:[5.45,-2.0,1.31]},
+  {id:'Ob',el:'O',p0:[5.58,-1.31,-0.94]},{id:'HOb',el:'H',p0:[5.98,-0.76,-1.59]}
+ ],
+ keys:{
+  'O2':[[0,3.15,-1.08,0],[.6,3.1,0.2,0.5],[1,3.6,2.6,0.9]],
+  'H2o':[[0,3.9,-1.6,0.15],[.6,3.8,-0.4,0.4],[1,4.4,2.9,1.0]],
+  'HOa':[[0,2.5,-3.8,0.2],[.5,2.7,-2.4,0.5],[.8,3.2,2.2,1.1],[1,3.0,3.1,1.2]],
+  'Oa':[[0,3.1,-3.5,0.7],[.55,3.2,-2.3,0.3],[.8,3.2,-1.21,0],[1,3.2,-1.21,0]],
+  'Ca':[[0,3.9,-2.6,0.3],[.7,3.95,-2.55,0.15],[1,3.93,-2.47,0]],
+  'Cb':[[0,5.31,-2.09,0.23],[1,5.2,-2.3,0.2]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C2',b:'C3',o:1},{a:'C3',b:'C4',o:1},
+  {a:'C4',b:'C5',o:1},{a:'C5',b:'C6',o:1},{a:'C6',b:'C1',o:1},
+  {a:'C2',b:'H2',o:1},{a:'C3',b:'H3',o:1},{a:'C5',b:'H5',o:1},{a:'C6',b:'H6',o:1},
+  {a:'C1',b:'C7',o:1},{a:'C7',b:'O1',o:2},{a:'C7',b:'O2',o:1,brk:[.35,.55]},{a:'O2',b:'H2o',o:1},
+  {a:'C4',b:'C8',o:1},{a:'C8',b:'O3',o:2},{a:'C8',b:'O4',o:1},{a:'O4',b:'H4o',o:1},
+  {a:'Ca',b:'Oa',o:1},{a:'Ca',b:'Cb',o:1},{a:'Ca',b:'Ha1',o:1},{a:'Ca',b:'Ha2',o:1},
+  {a:'Cb',b:'Ob',o:1},{a:'Cb',b:'Hb1',o:1},{a:'Cb',b:'Hb2',o:1},{a:'Ob',b:'HOb',o:1},
+  {a:'Oa',b:'HOa',o:1,brk:[.5,.68]},
+  {a:'C7',b:'Oa',o:1,form:[.7,.88]},{a:'O2',b:'HOa',o:1,form:[.8,.94]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.35,t1:.55,from:{a:'C7',off:[.3,-.4,0]},to:{a:'O2',off:[-.4,-.4,0]}},
+  {kind:'pair',t0:.5,t1:.68,from:{a:'Oa',off:[.3,-.3,.2]},to:{a:'HOa',off:[.4,-.3,.3]}},
+  {kind:'pair',t0:.7,t1:.88,from:{a:'Oa',off:[-.4,.3,0]},to:{a:'C7',off:[.2,-.3,0]}},
+  {kind:'pair',t0:.8,t1:.94,from:{a:'HOa',off:[.3,.2,0]},to:{a:'O2',off:[-.3,.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'两种单体',text:'对苯二甲酸（两端各一个羧基）与乙二醇（两端各一个羟基）。'},
+  {t:.35,name:'酸脱羟基',text:'羧基上的 C–OH 键断开。'},
+  {t:.5,name:'醇脱氢',text:'乙二醇羟基上的 O–H 键断开。'},
+  {t:.7,name:'成酯键',text:'–O–CH₂CH₂– 接到羰基碳上，酯键形成。'},
+  {t:.8,name:'脱水',text:'脱下的 –OH 与 –H 结合成水——缩聚的特征：每接一个链接脱一份小分子。'},
+  {t:.93,name:'产物 · PET',text:'两端不断重复，长成 PET 高分子链。对比聚乙烯（加聚）：缩聚有副产物，加聚没有。'}
+ ],
+ quiz:{q:'对苯二甲酸与乙二醇生成 PET 的反应类型和副产物是？',
+  right:['缩聚 · 副产物水','每接一个链接脱一分子水'],
+  wrong:[
+   ['加聚 · 无副产物','那是乙烯制聚乙烯；缩聚一定脱小分子。'],
+   ['取代 · 副产物 HCl','没有卤素参与，脱的是水。']
+  ]}
+},
+
+{
+ id:'tnt',cat:'取代反应',seal:'T',name:'甲苯硝化制 TNT',en:'NITRATION OF TOLUENE',
+ eq:'C₆H₅CH₃ + 3HNO₃ —浓H₂SO₄→ C₆H₂CH₃(NO₂)₃ + 3H₂O',
+ tags:['取代','硝化','TNT'],
+ desc:'甲基活化苯环的邻、对位，甲苯比苯更容易硝化，在混酸中直接三连硝化生成 2,4,6-三硝基甲苯（TNT）。图中展示其中一次硝化：断环上 C–H、成 C–N、脱下水分子。三次反应完成后就是炸药 TNT。',
+ life:'TNT 是常见军用炸药，也是工业爆破用药；甲苯硝化还用于制造染料中间体。',
+ atoms:[
+  {id:'C1',el:'C',p0:[1.2,0,0]},{id:'C2',el:'C',p0:[0.6,1.04,0]},{id:'C3',el:'C',p0:[-0.6,1.04,0]},
+  {id:'C4',el:'C',p0:[-1.2,0,0]},{id:'C5',el:'C',p0:[-0.6,-1.04,0]},{id:'C6',el:'C',p0:[0.6,-1.04,0]},
+  {id:'Cm',el:'C',p0:[2.7,0,0]},{id:'Hm1',el:'H',p0:[3.07,1.037,0]},{id:'Hm2',el:'H',p0:[3.07,-0.519,0.899]},{id:'Hm3',el:'H',p0:[3.07,-0.519,-0.899]},
+  {id:'H2',el:'H',p0:[1.1,1.9,0]},{id:'H3',el:'H',p0:[-1.1,1.9,0]},{id:'H5',el:'H',p0:[-1.1,-1.9,0]},{id:'H6',el:'H',p0:[1.1,-1.9,0]},
+  {id:'H4',el:'H',p0:[-2.2,0,0]},
+  {id:'N',el:'N',p0:[0,-3.0,0.4]},{id:'O1',el:'O',p0:[0.9,-2.3,0.6]},{id:'O2',el:'O',p0:[-0.5,-2.1,-0.3]},
+  {id:'O3',el:'O',p0:[0.75,-3.95,0.2]},{id:'H3o',el:'H',p0:[1.5,-4.35,0.4]}
+ ],
+ keys:{
+  'H4':[[0,-2.2,0,0],[.5,-1.8,-1.5,0.2],[.8,0.0,-3.6,0.5],[1,1.2,-5.3,0.9]],
+  'N':[[0,0,-3.0,0.4],[.55,-1.2,-2.2,0.3],[.8,-2.0,-1.0,0.2],[1,-2.65,0,0]],
+  'O1':[[0,0.9,-2.3,0.6],[1,-3.275,1.0825,0]],
+  'O2':[[0,-0.5,-2.1,-0.3],[.6,-1.6,-0.9,-0.2],[1,-3.275,-1.0825,0]],
+  'O3':[[0,0.75,-3.95,0.2],[.6,0.6,-4.4,0.4],[1,1.6,-4.6,0.6]],
+  'H3o':[[0,1.5,-4.35,0.4],[.6,1.3,-4.7,0.5],[1,2.4,-4.9,0.7]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C2',b:'C3',o:1},{a:'C3',b:'C4',o:1},
+  {a:'C4',b:'C5',o:1},{a:'C5',b:'C6',o:1},{a:'C6',b:'C1',o:1},
+  {a:'C1',b:'Cm',o:1},{a:'Cm',b:'Hm1',o:1},{a:'Cm',b:'Hm2',o:1},{a:'Cm',b:'Hm3',o:1},
+  {a:'C2',b:'H2',o:1},{a:'C3',b:'H3',o:1},{a:'C5',b:'H5',o:1},{a:'C6',b:'H6',o:1},
+  {a:'C4',b:'H4',o:1,brk:[.4,.6]},
+  {a:'N',b:'O1',o:2},{a:'N',b:'O2',o:1},{a:'N',b:'O3',o:1,brk:[.45,.65]},{a:'O3',b:'H3o',o:1},
+  {a:'C4',b:'N',o:1,form:[.6,.8]},{a:'O3',b:'H4',o:1,form:[.75,.9]},{a:'O3',b:'H3o',o:1,brk:[.6,.78]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.45,t1:.65,from:{a:'N',off:[.3,-.4,0]},to:{a:'O3',off:[.4,-.3,0]}},
+  {kind:'pair',t0:.4,t1:.6,from:{a:'C4',off:[-.5,0,0]},to:{a:'H4',off:[-.5,-.3,0]}},
+  {kind:'pair',t0:.6,t1:.8,from:{a:'C4',off:[.3,.3,0]},to:{a:'N',off:[.5,.2,0]}},
+  {kind:'pair',t0:.75,t1:.9,from:{a:'H4',off:[.3,-.2,0]},to:{a:'O3',off:[-.4,-.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'甲苯 + 混酸',text:'甲苯与混酸混合。甲基活化苯环，邻、对位氢特别活泼。'},
+  {t:.4,name:'断环上 C–H',text:'对位 C–H 断裂（图中只展示这一次，实际邻位还要各来一次）。'},
+  {t:.45,name:'硝酸脱羟基',text:'浓硫酸夺去硝酸的 –OH。'},
+  {t:.6,name:'成 C–N',text:'硝基接到对位碳上。'},
+  {t:.75,name:'脱水',text:'脱下的 –H 与 –OH 结合成水。'},
+  {t:.9,name:'产物 · TNT',text:'三次硝化后得到 2,4,6-三硝基甲苯——烈性炸药。甲基的存在让硝化比苯容易得多。'}
+ ],
+ quiz:{q:'甲苯在混酸中充分硝化，最终产物是？',
+  right:['2,4,6-三硝基甲苯 TNT','甲基的邻对位被硝化三次'],
+  wrong:[
+   ['一硝基甲苯','甲基活化苯环，条件足够时会继续硝化到三硝基。'],
+   ['苯甲酸','浓硫酸不是强氧化剂，不会氧化甲基。']
+  ]}
+},
+{
+ id:'elimhx',cat:'消去反应',seal:'去',name:'溴乙烷消去制乙烯',en:'ELIMINATION OF BROMOETHANE',
+ eq:'C₂H₅Br + NaOH —醇溶液,Δ→ CH₂=CH₂↑ + NaBr + H₂O',
+ tags:['消去','卤代烃','醇溶液'],
+ desc:'NaOH 醇溶液中，OH⁻ 夺取 β-碳上的氢，C–H 电子对形成 C=C 双键，同时 C–Br 键断裂，Br⁻ 离去——生成乙烯。与溴乙烷水解（水溶液）只换溶剂，产物完全不同。',
+ life:'实验室除了用乙醇消去，还可以用溴乙烷走这条路线制乙烯——溶剂决定反应方向，是有机化学的经典考点。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-2.4,0,0]},{id:'C2',el:'C',p0:[-.9,0,0]},
+  {id:'H1',el:'H',p0:[-2.766,1.037,0]},{id:'H2',el:'H',p0:[-2.767,-0.5185,0.9]},{id:'H3',el:'H',p0:[-2.767,-0.5185,-0.9]},
+  {id:'H4',el:'H',p0:[-0.53,-0.52,0.9]},{id:'H5',el:'H',p0:[-0.53,-0.52,-0.9]},
+  {id:'Br',el:'Br',p0:[-0.27,1.79,0]},
+  {id:'Na',el:'Na',p0:[1.8,1.8,0.6]},{id:'Oh',el:'O',p0:[1.0,2.6,-0.2]},{id:'Hh',el:'H',p0:[0.5,3.4,0.3]}
+ ],
+ keys:{
+  'C1':[[0,-2.4,0,0],[1,-2.4,0.2,0]],
+  'C2':[[0,-.9,0,0],[1,-0.9,0.2,0]],
+  'H1':[[0,-2.766,1.037,0],[1,-3.05,1.05,0]],
+  'H2':[[0,-2.767,-0.5185,0.9],[1,-3.05,-0.65,0]],
+  'H3':[[0,-2.767,-0.5185,-0.9],[.5,-2.0,0.6,-0.4],[.75,1.3,2.7,0.9],[1,1.6,3.5,1.0]],
+  'H4':[[0,-0.53,-0.52,0.9],[1,-0.25,1.05,0]],
+  'H5':[[0,-0.53,-0.52,-0.9],[1,-0.25,-0.65,0]],
+  'Br':[[0,-0.27,1.79,0],[.55,0.8,1.2,0.2],[1,2.6,-0.9,0.3]],
+  'Na':[[0,1.8,1.8,0.6],[.5,2.6,0.6,0.5],[1,3.6,-0.5,0.4]],
+  'Oh':[[0,1.0,2.6,-0.2],[.5,1.9,2.8,0.4],[1,2.3,2.8,0.8]],
+  'Hh':[[0,0.5,3.4,0.3],[1,3.1,3.2,0.9]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1,brk:[.35,.55]},{a:'C1',b:'C2',o:2,form:[.35,.55]},
+  {a:'C1',b:'H1',o:1},{a:'C1',b:'H2',o:1},{a:'C1',b:'H3',o:1,brk:[.3,.5]},
+  {a:'C2',b:'H4',o:1},{a:'C2',b:'H5',o:1},{a:'C2',b:'Br',o:1,brk:[.35,.55]},
+  {a:'Oh',b:'Hh',o:1},{a:'Oh',b:'H3',o:1,form:[.6,.78]},
+ ],
+ arrows:[
+  {kind:'pair',t0:.3,t1:.5,from:{a:'Oh',off:[.4,.4,0]},to:{a:'H3',off:[-.4,-.2,-.4]}},
+  {kind:'pair',t0:.3,t1:.5,from:{a:'C1',off:[-.4,-.1,-.5]},to:{a:'C2',off:[-.4,.1,-.3]}},
+  {kind:'pair',t0:.35,t1:.55,from:{a:'C2',off:[.2,.6,0]},to:{a:'Br',off:[-.4,.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'反应物',text:'溴乙烷与 NaOH 醇溶液混合加热（注意：是水解的反面教材——溶剂不同）。'},
+  {t:.3,name:'夺 β-H',text:'OH⁻ 夺取 β-碳上的氢，新 O–H 键形成。'},
+  {t:.3,name:'成 C=C',text:'C–H 的电子对转移到两个碳之间，双键生成。'},
+  {t:.35,name:'断 C–Br',text:'C–Br 键断裂，Br⁻ 离去。'},
+  {t:.55,name:'成盐',text:'Na⁺ 与 Br⁻ 结合成 NaBr。'},
+  {t:.85,name:'产物 · 乙烯',text:'乙烯气体。对比溴乙烷水解：水溶液得乙醇，醇溶液得乙烯。'}
+ ],
+ quiz:{q:'溴乙烷与 NaOH 醇溶液共热，产物是？',
+  right:['CH₂=CH₂↑ + NaBr + H₂O','消去得乙烯'],
+  wrong:[
+   ['C₂H₅OH + NaBr','那是 NaOH 水溶液的水解条件；醇溶液走消去。'],
+   ['CH₃CH₂OCH₂CH₃','没有醚生成。']
+  ]}
+},
+{
+ id:'gsilver',cat:'氧化还原',seal:'糖',name:'葡萄糖银镜',en:'GLUCOSE TOLLENS',
+ eq:'CH₂OH(CHOH)₄CHO + 2[Ag(NH₃)₂]OH → CH₂OH(CHOH)₄COONH₄ + 2Ag↓ + 3NH₃ + H₂O',
+ tags:['醛基','葡萄糖','还原糖'],
+ desc:'葡萄糖是多羟基醛，醛基有还原性，银镜反应与乙醛完全相同：π 电子转移、断醛基 C–H、OH⁻ 接碳成羧酸根、Ag⁺ 得电子成银镜。其余五个羟基只是旁观基团，不参与反应。',
+ life:'暖瓶胆镀银、镜子镀银工业上就是用葡萄糖做还原剂——便宜、安全、镀层均匀。你家的镜子背后，可能就有一层葡萄糖换来的银。',
+ atoms:[
+  {id:'C1',el:'C',p0:[-3.2,0.3,0]},{id:'Oa',el:'O',p0:[-3.27,1.55,0]},{id:'Ha',el:'H',p0:[-4.12,-0.31,0]},
+  {id:'C2',el:'C',p0:[-2.0,-0.3,0.2]},{id:'H2',el:'H',p0:[-2.0,0.68,-0.29]},{id:'O2',el:'O',p0:[-2.0,-1.55,0.83]},{id:'HO2',el:'H',p0:[-2.7,-1.75,1.4]},
+  {id:'C3',el:'C',p0:[-0.8,0.3,-0.2]},{id:'H3',el:'H',p0:[-0.8,-0.68,0.29]},{id:'O3',el:'O',p0:[-0.8,1.55,-0.83]},{id:'HO3',el:'H',p0:[-1.5,1.75,-1.4]},
+  {id:'C4',el:'C',p0:[0.4,-0.3,0.2]},{id:'H4',el:'H',p0:[0.4,0.68,-0.29]},{id:'O4',el:'O',p0:[0.4,-1.55,0.83]},{id:'HO4',el:'H',p0:[-0.3,-1.75,1.4]},
+  {id:'C5',el:'C',p0:[1.6,0.3,-0.1]},{id:'H5',el:'H',p0:[1.6,-0.68,0.29]},{id:'O5',el:'O',p0:[1.6,1.55,-0.83]},{id:'HO5',el:'H',p0:[0.9,1.75,-1.4]},
+  {id:'C6',el:'C',p0:[2.8,-0.2,0.2]},{id:'H6a',el:'H',p0:[3.35,-0.75,0.86]},{id:'H6b',el:'H',p0:[3.24,0.24,-0.68]},
+  {id:'O6',el:'O',p0:[3.64,0.5,0.9]},{id:'HO6',el:'H',p0:[4.34,0.3,1.6]},
+  {id:'Ag',el:'Ag',p0:[2.2,-3.4,0.8]},{id:'AgB',el:'Ag',p0:[-2.2,-3.6,0.4]},
+  {id:'N1',el:'N',p0:[3.3,-2.3,1.1]},{id:'N2',el:'N',p0:[3.3,-4.5,0.5]},
+  {id:'N1a',el:'H',p0:[3.9,-1.7,1.4]},{id:'N1b',el:'H',p0:[2.9,-1.8,0.6]},{id:'N1c',el:'H',p0:[3.7,-2.9,1.5]},
+  {id:'N2a',el:'H',p0:[3.9,-3.9,0.8]},{id:'N2b',el:'H',p0:[2.9,-5.0,1.0]},{id:'N2c',el:'H',p0:[3.7,-4.6,-0.3]},
+  {id:'N3',el:'N',p0:[-1.1,-2.6,0.8]},{id:'N4',el:'N',p0:[-3.3,-4.6,0.0]},
+  {id:'N3a',el:'H',p0:[-0.5,-2.0,1.1]},{id:'N3b',el:'H',p0:[-1.5,-2.1,0.3]},{id:'N3c',el:'H',p0:[-0.7,-3.2,1.4]},
+  {id:'N4a',el:'H',p0:[-2.7,-4.0,0.3]},{id:'N4b',el:'H',p0:[-3.9,-5.1,0.4]},{id:'N4c',el:'H',p0:[-2.9,-4.7,-0.9]},
+  {id:'Oh',el:'O',p0:[-1.0,-1.6,1.3]},{id:'Hh',el:'H',p0:[-0.4,-1.0,1.7]},
+  {id:'Oh2',el:'O',p0:[-2.0,-2.2,-0.4]},{id:'Hh2',el:'H',p0:[-1.25,-2.85,-0.1]}
+ ],
+ keys:{
+  'Ha':[[0,-4.12,-0.31,0],[.5,-3.6,-1.5,0.3],[.8,-2.9,-2.2,0.8],[1,-1.62,-2.22,1.08]],
+  'Oh':[[0,-1.0,-1.6,1.3],[.5,-2.6,-2.2,1.0],[.72,-3.6,-0.9,0.3],[1,-4.34,-0.48,-0.2]],
+  'N1':[[0,3.3,-2.3,1.1],[.5,1.2,-3.2,0.8],[.78,-0.8,-3.0,0.6],[1,-2.2,-2.8,0.5]],
+  'N1a':[[0,3.9,-1.7,1.4],[1,-1.62,-3.38,-0.08]],
+  'N1b':[[0,2.9,-1.8,0.6],[1,-2.78,-2.22,-0.08]],
+  'N1c':[[0,3.7,-2.9,1.5],[1,-2.78,-3.38,1.08]],
+  'Ag':[[0,2.2,-3.4,0.8],[.55,4.0,-2.0,0.6],[1,5.1,-0.5,0.3]],
+  'N2':[[0,3.3,-4.5,0.5],[1,2.8,-4.8,0.3]],
+  'N2a':[[0,3.9,-3.9,0.8],[1,3.4,-4.2,0.9]],
+  'N2b':[[0,2.9,-5.0,1.0],[1,2.2,-5.3,1.0]],
+  'N2c':[[0,3.7,-4.6,-0.3],[1,3.4,-4.9,-0.6]],
+  'AgB':[[0,-2.2,-3.6,0.4],[.55,1.4,-2.4,0.3],[1,5.1,0.5,-0.2]],
+  'N3':[[0,-1.1,-2.6,0.8],[.6,-0.6,-4.0,0.6],[1,-0.2,-5.2,0.4]],
+  'N3a':[[0,-0.5,-2.0,1.1],[1,0.4,-4.6,0.8]],
+  'N3b':[[0,-1.5,-2.1,0.3],[1,-0.8,-5.8,0.2]],
+  'N3c':[[0,-0.7,-3.2,1.4],[1,0.2,-5.6,-0.3]],
+  'N4':[[0,-3.3,-4.6,0.0],[1,-4.2,-4.4,-0.3]],
+  'N4a':[[0,-2.7,-4.0,0.3],[1,-3.6,-3.8,0.4]],
+  'N4b':[[0,-3.9,-5.1,0.4],[1,-4.8,-4.9,0.1]],
+  'N4c':[[0,-2.9,-4.7,-0.9],[1,-3.8,-4.9,-1.1]],
+  'Hh':[[0,-0.4,-1.0,1.7],[.5,-1.9,-3.2,0.6],[.8,-1.7,-4.4,0.1],[1,-1.9,-5.9,-0.3]],
+  'Oh2':[[0,-2.0,-2.2,-0.4],[.7,-2.3,-3.9,-0.5],[1,-2.6,-5.6,-0.6]],
+  'Hh2':[[0,-1.25,-2.85,-0.1],[1,-3.3,-5.9,-0.8]],
+  'C1':[[0,-3.2,0.3,0],[1,-3.2,0.25,0]],
+  'Oa':[[0,-3.27,1.55,0],[1,-3.3,1.55,0]]
+ },
+ bonds:[
+  {a:'C1',b:'C2',o:1},{a:'C2',b:'C3',o:1},{a:'C3',b:'C4',o:1},{a:'C4',b:'C5',o:1},{a:'C5',b:'C6',o:1},
+  {a:'C2',b:'H2',o:1},{a:'C2',b:'O2',o:1},{a:'O2',b:'HO2',o:1},
+  {a:'C3',b:'H3',o:1},{a:'C3',b:'O3',o:1},{a:'O3',b:'HO3',o:1},
+  {a:'C4',b:'H4',o:1},{a:'C4',b:'O4',o:1},{a:'O4',b:'HO4',o:1},
+  {a:'C5',b:'H5',o:1},{a:'C5',b:'O5',o:1},{a:'O5',b:'HO5',o:1},
+  {a:'C6',b:'H6a',o:1},{a:'C6',b:'H6b',o:1},{a:'C6',b:'O6',o:1},{a:'O6',b:'HO6',o:1},
+  {a:'C1',b:'Oa',o:2},{a:'C1',b:'Ha',o:1,brk:[.40,.58]},
+  {a:'Ag',b:'N1',o:1,brk:[.52,.68]},{a:'Ag',b:'N2',o:1,brk:[.52,.68]},
+  {a:'AgB',b:'N3',o:1,brk:[.52,.68]},{a:'AgB',b:'N4',o:1,brk:[.52,.68]},
+  {a:'N1',b:'N1a',o:1},{a:'N1',b:'N1b',o:1},{a:'N1',b:'N1c',o:1},
+  {a:'N2',b:'N2a',o:1},{a:'N2',b:'N2b',o:1},{a:'N2',b:'N2c',o:1},
+  {a:'N3',b:'N3a',o:1},{a:'N3',b:'N3b',o:1},{a:'N3',b:'N3c',o:1},
+  {a:'N4',b:'N4a',o:1},{a:'N4',b:'N4b',o:1},{a:'N4',b:'N4c',o:1},
+  {a:'Oh',b:'Hh',o:1,brk:[.45,.62]},
+  {a:'C1',b:'Oh',o:1,form:[.5,.68]},
+  {a:'Oh2',b:'Hh2',o:1},{a:'Oh2',b:'Hh',o:1,form:[.75,.9]},
+  {a:'N1',b:'Ha',o:1,form:[.70,.86]}
+ ],
+ arrows:[
+  {kind:'pair',t0:.30,t1:.50,from:{a:'C1',off:[.3,.6,.1]},to:{a:'Oa',off:[-.3,.4,0]}},
+  {kind:'pair',t0:.40,t1:.58,from:{a:'C1',off:[-.4,-.5,-.3]},to:{a:'Oa',off:[.35,.5,.1]}},
+  {kind:'hook',t0:.52,t1:.70,from:{a:'Ag',off:[.4,.3,.2]},to:{a:'Ag',off:[1.2,-.3,-.2]}},
+  {kind:'hook',t0:.52,t1:.70,from:{a:'AgB',off:[.4,-.3,-.2]},to:{a:'AgB',off:[1.2,.3,.2]}},
+  {kind:'pair',t0:.45,t1:.62,from:{a:'Oh',off:[.3,-.3,.2]},to:{a:'Hh',off:[.4,-.3,.2]}},
+  {kind:'pair',t0:.45,t1:.65,from:{a:'Oh',off:[-.4,-.4,0]},to:{a:'C1',off:[-.3,-.3,0]}},
+  {kind:'pair',t0:.70,t1:.86,from:{a:'Ha',off:[.3,.3,0]},to:{a:'N1',off:[.4,.4,.3]}},
+  {kind:'pair',t0:.75,t1:.9,from:{a:'Hh',off:[.3,.3,0]},to:{a:'Oh2',off:[-.4,-.3,0]}}
+ ],
+ steps:[
+  {t:0,name:'葡萄糖 + 银氨溶液',text:'葡萄糖（多羟基醛）与 2 倍 [Ag(NH₃)₂]OH 混合，水浴加热。只有醛基反应，五个羟基旁观。'},
+  {t:.30,name:'π 电子转移',text:'醛基 C=O 的 π 电子对转移到氧上。'},
+  {t:.40,name:'断醛基 C–H',text:'醛基 C–H 断裂，电子对回到碳氧之间——醛基被氧化成羧基。'},
+  {t:.45,name:'OH⁻ 断键接碳',text:'一个 OH⁻ 断开 O–H 键，氧接到醛基碳上形成羧酸根。'},
+  {t:.52,name:'两个 Ag⁺ 得电子',text:'两个 Ag⁺ 各得一个电子还原成 Ag 原子。'},
+  {t:.70,name:'醛基氢 → NH₄⁺',text:'醛基氢转移给一个 NH₃ 生成正四面体的 NH₄⁺，与羧酸根靠近成葡萄糖酸铵。'},
+  {t:.75,name:'另一个 OH⁻ 成水',text:'另一个氢氧根与脱下的氢结合成水。'},
+  {t:.88,name:'银镜生成',text:'葡萄糖是工业镀银的还原剂——暖瓶胆和镜子背后的银层，很多就是这样来的。'}
+ ],
+ quiz:{q:'葡萄糖能发生银镜反应，原因是？',
+  right:['分子中含有醛基','多羟基醛的醛基有还原性'],
+  wrong:[
+   ['分子中含有羧基','葡萄糖没有羧基；是醛基被氧化成羧基。'],
+   ['葡萄糖是酮糖','葡萄糖是醛糖；果糖（酮糖）也能反应但那是异构化之后。']
+  ]}
+}
+];
+window.RXDATA=RX;
+</script>
+<script>
+/* ================= three.js r128 引擎 ================= */
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+var DATA=window.RXDATA, DUR=16;
+var COL_PAIR=0xe8452c, COL_HOOK=0x2bb3a3, COL_ELEC=0xffd35c;
+
+/* ---------- 基础 ---------- */
+var renderer=null,scene,camera,gAtoms,gBonds,gArrows,gFx;
+var atoms=[],atomById={},bonds=[],arrows=[],mirror=null,bgPts=null;
+var cur=null,curIdx=0,tGlobal=0,playing=false,lastTs=0,curStep=-1,speed=1;
+var practice=false;try{practice=localStorage.getItem('mech-practice')==='1';}catch(e){}
+var cam={theta:.6,phi:1.15,r:15,auto:true,idle:0};
+var done={},quizDone={};
+try{done=JSON.parse(localStorage.getItem('mech-pass')||'{}');}catch(e){}
+try{quizDone=JSON.parse(sessionStorage.getItem('mech-quiz')||'{}');}catch(e){}
+
+var SPHERE=new THREE.SphereGeometry(1,26,18);
+var CYL=new THREE.CylinderGeometry(1,1,1,14,1);
+var CONE=new THREE.ConeGeometry(1,1,12);
+var _v0=new THREE.Vector3(),_v1=new THREE.Vector3(),_v2=new THREE.Vector3(),_up=new THREE.Vector3(0,1,0);
+
+/* ---------- 电子粒子 shader（GLSL ES 1.00，兼容 WebGL1/2） ---------- */
+var PTS_VERT=[
+ 'attribute float aSeed;',
+ 'uniform float uSize;',
+ 'varying float vSeed;',
+ 'void main(){',
+ '  vSeed=aSeed;',
+ '  vec4 mv=modelViewMatrix*vec4(position,1.0);',
+ '  gl_PointSize=uSize*(300.0/max(1.0,-mv.z));',
+ '  gl_Position=projectionMatrix*mv;',
+ '}'].join('\n');
+var PTS_FRAG=[
+ 'uniform vec3 uColor;',
+ 'uniform float uAlpha;',
+ 'varying float vSeed;',
+ 'void main(){',
+ '  vec2 uv=gl_PointCoord-vec2(0.5);',
+ '  float d=length(uv);',
+ '  float a=smoothstep(0.34,0.14,d);',
+ '  a+=smoothstep(0.13,0.03,d)*0.9;',
+ '  a*=0.70+0.30*sin(vSeed*6.28318);',
+ '  if(a<0.02) discard;',
+ '  gl_FragColor=vec4(uColor,a*uAlpha);',
+ '}'].join('\n');
+
+var STAR_FRAG=[
+ 'uniform vec3 uColor;',
+ 'uniform float uAlpha;',
+ 'varying float vSeed;',
+ 'void main(){',
+ '  vec2 uv=gl_PointCoord-vec2(0.5);',
+ '  float d=length(uv);',
+ '  if(d>0.30) discard;',
+ '  gl_FragColor=vec4(uColor,uAlpha*(0.55+0.45*sin(vSeed*6.28318)));',
+ '}'].join('\n');
+function makeLabel(text){
+  var cv=document.createElement('canvas');cv.width=128;cv.height=64;
+  var g=cv.getContext('2d');
+  g.font='600 40px "JetBrains Mono",monospace';
+  g.textAlign='center';g.textBaseline='middle';
+  g.fillStyle='rgba(232,237,244,.95)';
+  g.fillText(text,64,36);
+  var tx=new THREE.CanvasTexture(cv);
+  tx.minFilter=THREE.LinearFilter;tx.magFilter=THREE.LinearFilter;tx.generateMipmaps=false;
+  var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,opacity:.9,depthTest:false}));
+  sp.scale.set(1.35,.68,1);
+  return sp;
+}
+
+function initGL(){
+  var canvas=$('mechCanvas');
+  if(!window.THREE){fail();return false;}
+  try{
+    renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+    if(!renderer.getContext()){fail();return false;}
+  }catch(e){fail();return false;}
+  function fail(){$('glFallback').style.display='flex';canvas.style.display='none';}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x0d1017);
+  camera=new THREE.PerspectiveCamera(42,1,.1,300);
+  scene.add(new THREE.AmbientLight(0x93a3b5,.85));
+  var key=new THREE.DirectionalLight(0xffffff,.9);key.position.set(6,10,8);scene.add(key);
+  var rim=new THREE.DirectionalLight(0x5f7fd8,.4);rim.position.set(-8,-5,-7);scene.add(rim);
+  gAtoms=new THREE.Group();gBonds=new THREE.Group();gArrows=new THREE.Group();gFx=new THREE.Group();
+  scene.add(gAtoms);scene.add(gBonds);scene.add(gArrows);scene.add(gFx);
+  buildBackground();
+  resize();
+  window.addEventListener('resize',resize);
+  bindOrbit(canvas);
+  requestAnimationFrame(loop);
+  return true;
+}
+function buildBackground(){
+  var N=170,pos=new Float32Array(N*3),seed=new Float32Array(N);
+  for(var i=0;i<N;i++){
+    pos[i*3]=(Math.random()-.5)*70;pos[i*3+1]=(Math.random()-.5)*40-Math.random()*10;pos[i*3+2]=(Math.random()-.5)*70;
+    seed[i]=Math.random();
+  }
+  var geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('aSeed',new THREE.BufferAttribute(seed,1));
+  var mat=new THREE.ShaderMaterial({
+    uniforms:{uColor:{value:new THREE.Color(0xd4e4f4)},uSize:{value:0.85},uAlpha:{value:.65}},
+    vertexShader:PTS_VERT,fragmentShader:STAR_FRAG,
+    transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+  bgPts=new THREE.Points(geo,mat);gFx.add(bgPts);
+}
+function resize(){
+  var box=$('canvasBox');if(!renderer)return;
+  var w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+
+/* ---------- 轨道控制（自实现，避免引入 OrbitControls 外部依赖） ---------- */
+function bindOrbit(el){
+  var drag=false,px=0,py=0;
+  el.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;cam.auto=false;cam.idle=0;el.setPointerCapture(e.pointerId);});
+  el.addEventListener('pointermove',function(e){
+    if(!drag)return;
+    cam.theta-=(e.clientX-px)*.006;cam.phi-=(e.clientY-py)*.005;
+    cam.phi=Math.max(.15,Math.min(Math.PI-.15,cam.phi));
+    px=e.clientX;py=e.clientY;
+  });
+  el.addEventListener('pointerup',function(){drag=false;});
+  el.addEventListener('wheel',function(e){
+    e.preventDefault();cam.r*=e.deltaY>0?1.08:0.92;
+    cam.r=Math.max(6,Math.min(34,cam.r));
+  },{passive:false});
+}
+function updateCam(dt){
+  cam.idle+=dt;
+  if(cam.auto&&cam.idle>3)cam.theta+=dt*.12;
+  var sp=Math.sin(cam.phi);
+  camera.position.set(cam.r*sp*Math.cos(cam.theta),cam.r*Math.cos(cam.phi),cam.r*sp*Math.sin(cam.theta));
+  camera.lookAt(_v0.set(0,0,0));
+}
+
+/* ---------- 场景构建 ---------- */
+function clearGroup(g){while(g.children.length){var c=g.children[0];g.remove(c);}}
+function buildScene(rx){
+  clearGroup(gAtoms);clearGroup(gBonds);clearGroup(gArrows);
+  for(var gi=gFx.children.length-1;gi>=0;gi--){if(gFx.children[gi]!==bgPts)gFx.remove(gFx.children[gi]);}
+  atoms=[];atomById={};bonds=[];arrows=[];mirror=null;
+  rx.atoms.forEach(function(a){
+    var e=EL[a.el];
+    var m=new THREE.Mesh(SPHERE,new THREE.MeshStandardMaterial({color:e.c,roughness:.5,metalness:.12}));
+    m.scale.setScalar(e.r);
+    var pos=(rx.keys[a.id]&&rx.keys[a.id][0])?rx.keys[a.id][0]:[0].concat(a.p0);
+    m.position.set(pos[1],pos[2],pos[3]);
+    gAtoms.add(m);
+    if(a.el!=='H'){
+      var lb=makeLabel(a.el);lb.position.copy(m.position).y+=e.r+.55;gAtoms.add(lb);
+      atoms.push({id:a.id,el:a.el,mesh:m,label:lb,keys:(rx.keys[a.id]||[[0].concat(a.p0)]).map(function(k){return{t:k[0],x:k[1],y:k[2],z:k[3]};})});
+    }else{
+      atoms.push({id:a.id,el:a.el,mesh:m,label:null,keys:(rx.keys[a.id]||[[0].concat(a.p0)]).map(function(k){return{t:k[0],x:k[1],y:k[2],z:k[3]};})});
+    }
+    atomById[a.id]=atoms[atoms.length-1];
+  });
+  rx.bonds.forEach(function(b){
+    var grp=new THREE.Group();
+    var n=b.o>=3?3:(b.o>=2?2:1);
+    for(var i=0;i<n;i++){
+      var col=b.o>=2?0xd9e2ea:0xc4ccd6;
+      var c=new THREE.Mesh(CYL,new THREE.MeshStandardMaterial({color:col,roughness:.55,metalness:.1}));
+      if(n===2){c.position.x=i===0?1.8:-1.8;c.scale.y=.72;}
+      else if(n===3){var a3=i*2.0944;c.position.x=Math.cos(a3)*1.7;c.position.z=Math.sin(a3)*1.7;c.scale.y=.66;}
+      grp.add(c);
+    }
+    gBonds.add(grp);
+    bonds.push({def:b,grp:grp});
+  });
+  rx.arrows.forEach(function(a){
+    var col=a.kind==='pair'?COL_PAIR:COL_HOOK;
+    var geo=new THREE.BufferGeometry();
+    var lp=new Float32Array(33*3);geo.setAttribute('position',new THREE.BufferAttribute(lp,3));
+    var line=new THREE.Line(geo,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:1,blending:THREE.AdditiveBlending}));
+    var head=new THREE.Mesh(CONE,new THREE.MeshBasicMaterial({color:col}));
+    head.visible=false;
+    var N=10,ppos=new Float32Array(N*3),psd=new Float32Array(N);
+    for(var i=0;i<N;i++)psd[i]=i/N;
+    var pgeo=new THREE.BufferGeometry();
+    pgeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));
+    pgeo.setAttribute('aSeed',new THREE.BufferAttribute(psd,1));
+    var pmat=new THREE.ShaderMaterial({
+      uniforms:{uColor:{value:new THREE.Color(a.kind==='pair'?0xffb054:COL_ELEC)},uSize:{value:0.62},uAlpha:{value:.92}},
+      vertexShader:PTS_VERT,fragmentShader:PTS_FRAG,
+      transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+    var pts=new THREE.Points(pgeo,pmat);pts.visible=false;
+    gArrows.add(line);gArrows.add(head);gArrows.add(pts);
+    arrows.push({def:a,line:line,head:head,pts:pts,ppos:ppos,pgeo:pgeo});
+  });
+  /* 银镜反应专属：试管壁（镜面质感卡片） */
+  if(rx.id==='silver'||rx.id==='gsilver'){
+    var cv=document.createElement('canvas');cv.width=256;cv.height=420;
+    var g=cv.getContext('2d');
+    var grd=g.createLinearGradient(0,0,256,420);
+    grd.addColorStop(0,'rgba(232,238,246,.96)');
+    grd.addColorStop(.42,'rgba(158,171,186,.9)');
+    grd.addColorStop(.58,'rgba(214,224,236,.94)');
+    grd.addColorStop(1,'rgba(146,159,175,.9)');
+    g.fillStyle=grd;
+    var rr=function(x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();};
+    rr(8,8,240,404,28);g.fill();
+    g.strokeStyle='rgba(244,249,255,.95)';g.lineWidth=4;rr(8,8,240,404,28);g.stroke();
+    g.fillStyle='rgba(255,255,255,.32)';
+    g.beginPath();g.moveTo(44,372);g.lineTo(128,28);g.lineTo(168,28);g.lineTo(84,372);g.closePath();g.fill();
+    var mtx=new THREE.CanvasTexture(cv);
+    mirror=new THREE.Mesh(new THREE.PlaneGeometry(2.7,4.4),
+      new THREE.MeshBasicMaterial({map:mtx,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));
+    mirror.position.set(5.7,0,0);mirror.rotation.y=-Math.PI/2;gFx.add(mirror);
+  }
+}
+function atomPos(id,out){var a=atomById[id];if(!a)return out.set(0,0,0);return out.copy(a.mesh.position);}
+function anchor(def,out){
+  if(def.a){atomPos(def.a,out);if(def.off)out.add(_v1.set(def.off[0],def.off[1],def.off[2]));}
+  else out.set(def.p[0],def.p[1],def.p[2]);
+  return out;
+}
+function bezier(p0,c,p1,u,out){
+  var w=1-u;
+  out.set(w*w*p0.x+2*w*u*c.x+u*u*p1.x,
+          w*w*p0.y+2*w*u*c.y+u*u*p1.y,
+          w*w*p0.z+2*w*u*c.z+u*u*p1.z);
+  return out;
+}
+function smooth(u){return u*u*(3-2*u);}
+
+/* ---------- 每帧更新 ---------- */
+var _p0=new THREE.Vector3(),_p1=new THREE.Vector3(),_pc=new THREE.Vector3(),_pt=new THREE.Vector3(),_dir=new THREE.Vector3();
+function updateScene(t){
+  atoms.forEach(function(a){
+    var ks=a.keys,n=ks.length;
+    var x,y,z;
+    if(t<=ks[0].t){x=ks[0].x;y=ks[0].y;z=ks[0].z;}
+    else if(t>=ks[n-1].t){x=ks[n-1].x;y=ks[n-1].y;z=ks[n-1].z;}
+    else{
+      for(var i=0;i<n-1;i++){
+        if(t>=ks[i].t&&t<=ks[i+1].t){
+          var u=smooth((t-ks[i].t)/Math.max(1e-6,ks[i+1].t-ks[i].t));
+          x=ks[i].x+(ks[i+1].x-ks[i].x)*u;
+          y=ks[i].y+(ks[i+1].y-ks[i].y)*u;
+          z=ks[i].z+(ks[i+1].z-ks[i].z)*u;
+          break;
+        }
+      }
+    }
+    a.mesh.position.set(x,y,z);
+    if(a.label){a.label.position.set(x,y+EL[a.el].r+.55,z);}
+  });
+  bonds.forEach(function(b){
+    var d=b.def;
+    var va=atomById[d.a],vb=atomById[d.b];
+    if(!va||!vb){b.grp.visible=false;return;}
+    _p0.copy(va.mesh.position);_p1.copy(vb.mesh.position);
+    var vis=1;
+    if(d.form)vis=Math.min(vis,Math.max(0,Math.min(1,(t-d.form[0])/Math.max(1e-6,d.form[1]-d.form[0]))));
+    if(d.brk)vis=Math.min(vis,1-Math.max(0,Math.min(1,(t-d.brk[0])/Math.max(1e-6,d.brk[1]-d.brk[0]))));
+    vis=smooth(Math.max(0,Math.min(1,vis)));
+    if(vis<.03){b.grp.visible=false;return;}
+    b.grp.visible=true;
+    _dir.subVectors(_p1,_p0);var len=_dir.length();
+    b.grp.position.copy(_p0).addScaledVector(_dir,.5);
+    b.grp.quaternion.setFromUnitVectors(_up,_dir.normalize());
+    var r=(d.o>=3?.058:d.o>=2?.068:.075)*vis;
+    b.grp.scale.set(r,len*vis,r);
+  });
+  arrows.forEach(function(ar){
+    var d=ar.def;
+    if(t<d.t0||t>d.t1){ar.line.visible=false;ar.head.visible=false;ar.pts.visible=false;return;}
+    var u=(t-d.t0)/Math.max(1e-6,d.t1-d.t0);
+    anchor(d.from,_p0);anchor(d.to,_p1);
+    _pc.addVectors(_p0,_p1).multiplyScalar(.5);
+    _pt.subVectors(_p1,_p0);
+    var bow=_pt.length()*.34;
+    _pt.cross(_up);
+    if(_pt.lengthSq()<1e-6)_pt.set(1,0,0);
+    _pt.normalize().multiplyScalar(bow*.6);
+    _pc.add(_pt);_pc.y+=bow*.5;
+    ar.line.visible=true;
+    var attr=ar.line.geometry.attributes.position,n=33;
+    for(var i=0;i<n;i++){bezier(_p0,_pc,_p1,i/(n-1),_pt);attr.setXYZ(i,_pt.x,_pt.y,_pt.z);}
+    attr.needsUpdate=true;
+    ar.line.geometry.setDrawRange(0,Math.max(2,Math.floor(u*(n-1))+1));
+    /* 箭头头部 */
+    var hu=Math.min(1,u/.75);
+    if(u>.6){
+      ar.head.visible=true;
+      bezier(_p0,_pc,_p1,hu,_pt);
+      ar.head.position.copy(_pt);
+      bezier(_p0,_pc,_p1,Math.max(0,hu-.06),_dir);
+      _dir.subVectors(_pt,_dir).normalize();
+      ar.head.quaternion.setFromUnitVectors(_up,_dir);
+      var hs=.16*Math.min(1,(u-.6)/.3);
+      ar.head.scale.set(hs,hs*2.2,hs);
+    }else ar.head.visible=false;
+    /* 电子粒子流动 */
+    ar.pts.visible=true;
+    var N=16,flow=(t*1.6)%1;
+    for(var k=0;k<N;k++){
+      var pu=((flow-k/N)%1+1)%1;
+      bezier(_p0,_pc,_p1,pu,_pt);
+      ar.ppos[k*3]=_pt.x;ar.ppos[k*3+1]=_pt.y;ar.ppos[k*3+2]=_pt.z;
+    }
+    ar.pgeo.attributes.position.needsUpdate=true;
+  });
+  if(mirror){
+    var mo=Math.max(0,Math.min(1,(t-.82)/.16));
+    mirror.material.opacity=mo*.95;
+    mirror.visible=mo>0;
+  }
+}
+
+/* ---------- 时间轴 ---------- */
+function setT(t){
+  tGlobal=Math.max(0,Math.min(1,t));
+  updateScene(tGlobal);
+  $('tSlider').value=Math.round(tGlobal*1000);
+  $('tLabel').textContent=Math.round(tGlobal*100)+'%';
+  updateStepUI();
+}
+function updateStepUI(){
+  if(!cur)return;
+  var idx=0;
+  cur.steps.forEach(function(s,i){if(tGlobal>=s.t-.001)idx=i;});
+  if(idx!==curStep){
+    curStep=idx;
+    $('stepChip').textContent=(idx+1)+'/'+cur.steps.length+' · '+cur.steps[idx].name;
+    var items=$('stepList').children;
+    for(var i=0;i<items.length;i++)items[i].classList.toggle('cur',i===idx);
+  }
+}
+function play(){
+  if(!cur)return;
+  if(!$('quizMask').classList.contains('show')){
+    if(tGlobal>=1)setT(0);
+    playing=true;lastTs=performance.now();
+    $('playBtn').textContent='❚❚';
+  }
+}
+function pause(){playing=false;$('playBtn').textContent='▶';}
+function markPass(){
+  if(!cur||done[cur.id])return;
+  done[cur.id]=1;
+  try{localStorage.setItem('mech-pass',JSON.stringify(done));}catch(e){}
+  refreshNavState();
+  $('passBanner').classList.add('show');
+}
+function loop(ts){
+  requestAnimationFrame(loop);
+  var dt=Math.min(.05,(ts-lastTs)/1000||0);lastTs=ts;
+  if(playing){
+    var nt=tGlobal+dt*speed/DUR;
+    if(nt>=1){setT(1);pause();markPass();}
+    else setT(nt);
+  }
+  updateCam(playing?0:dt);
+  if(bgPts)bgPts.rotation.y+=dt*.0025;
+  renderer.render(scene,camera);
+}
+
+/* ---------- 预测产物 ---------- */
+function openQuiz(rx){
+  var mask=$('quizMask');
+  if(!practice||quizDone[rx.id]){mask.classList.remove('show');return;}
+  $('quizQ').textContent=rx.quiz.q;
+  $('quizFb').textContent='';$('quizFb').className='quiz-fb';
+  var host=$('quizOpts');host.innerHTML='';
+  var opts=[{h:rx.quiz.right[0],s:rx.quiz.right[1],ok:true}]
+    .concat(rx.quiz.wrong.map(function(w){return{h:w[0],s:w[1],ok:false};}));
+  for(var i=opts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=opts[i];opts[i]=opts[j];opts[j]=tmp;}
+  opts.forEach(function(o){
+    var b=document.createElement('button');b.type='button';b.className='quiz-opt';
+    b.innerHTML=o.h+'<small></small>';
+    b.addEventListener('click',function(){
+      if(o.ok){
+        b.classList.add('ok');
+        $('quizFb').className='quiz-fb good';
+        $('quizFb').textContent='猜对了——'+o.s+'。看动画验证你的判断。';
+        quizDone[rx.id]=1;
+        try{sessionStorage.setItem('mech-quiz',JSON.stringify(quizDone));}catch(e){}
+        setTimeout(function(){mask.classList.remove('show');},750);
+      }else{
+        b.classList.add('no');
+        $('quizFb').className='quiz-fb bad';
+        $('quizFb').textContent='不对。'+o.s;
+      }
+    });
+    host.appendChild(b);
+  });
+  mask.classList.add('show');
+}
+
+/* ---------- 反应装载 / 目录 ---------- */
+function loadReaction(idx){
+  curIdx=(idx+DATA.length)%DATA.length;
+  cur=DATA[curIdx];
+  pause();tGlobal=0;curStep=-1;
+  buildScene(cur);
+  $('rxName').textContent=cur.name;
+  $('rxEn').textContent=cur.en;
+  $('tagWrap').innerHTML=cur.tags.map(function(t){return '<span class="info-tag">'+t+'</span>';}).join('');
+  $('rxEq').textContent=cur.eq;
+  $('rxDesc').textContent=cur.desc;
+  $('rxLife').innerHTML='<b>生活中的化学</b> · '+cur.life;
+  var sl=$('stepList');sl.innerHTML='';
+  cur.steps.forEach(function(s,i){
+    var b=document.createElement('button');b.type='button';b.className='step-item';
+    b.innerHTML='<span class="no">'+(i+1)+'</span><span class="tx"><span class="nm">'+s.name+'</span><span class="ds" style="display:block">'+s.text+'</span></span>';
+    b.addEventListener('click',function(){pause();setT(Math.min(.999,s.t+.0008));});
+    sl.appendChild(b);
+  });
+  $('passBanner').classList.toggle('show',!!done[cur.id]);
+  refreshNavState();
+  document.querySelectorAll('.rx-item').forEach(function(el){el.classList.toggle('cur',parseInt(el.dataset.idx,10)===curIdx);});
+  var ext=0;cur.atoms.forEach(function(a){var ks=cur.keys[a.id];var pts=ks?ks.map(function(k){return[k[1],k[2],k[3]];}):[a.p0];pts.forEach(function(p){var d=Math.sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2]);if(d>ext)ext=d;});});
+  cam.r=Math.max(9,Math.min(26,ext*2.1+5));cam.theta=.6;cam.phi=1.12;cam.idle=0;
+  setT(0);
+  openQuiz(cur);
+}
+function refreshNavState(){
+  document.querySelectorAll('.rx-item').forEach(function(el){
+    var id=el.dataset.rid;
+    el.classList.toggle('passed',!!done[id]);
+  });
+}
+function buildNav(){
+  var host=$('rxNav');host.innerHTML='';
+  var cats=[],byCat={};
+  DATA.forEach(function(r){
+    if(!byCat[r.cat]){byCat[r.cat]=[];cats.push(r.cat);}
+    byCat[r.cat].push(r);
+  });
+  cats.forEach(function(c){
+    var h=document.createElement('div');h.className='rx-cat';h.textContent=c;host.appendChild(h);
+    byCat[c].forEach(function(r){
+      var i=DATA.indexOf(r);
+      var b=document.createElement('button');b.type='button';b.className='rx-item';b.dataset.rid=r.id;
+      b.dataset.search=(r.name+' '+r.cat+' '+r.tags.join(' ')+' '+r.life).toLowerCase();
+      b.dataset.idx=i;
+      b.innerHTML='<span class="seal">'+r.seal+'</span><span>'+r.name+'</span><span class="done">✓已通关</span>';
+      b.addEventListener('click',function(){loadReaction(i);$('leftPanel').classList.remove('open');});
+      host.appendChild(b);
+    });
+  });
+  $('libCount').textContent='· '+DATA.length;
+  refreshNavState();
+}
+$('searchInput').addEventListener('input',function(){
+  var q=this.value.trim().toLowerCase(),shown=0;
+  document.querySelectorAll('.rx-item').forEach(function(el){
+    var hit=!q||el.dataset.search.indexOf(q)>=0;
+    el.style.display=hit?'':'none';if(hit)shown++;
+  });
+  document.querySelectorAll('.rx-cat').forEach(function(h){
+    var n=0,hEl=h;
+    while(hEl.nextSibling&&hEl.nextSibling.classList&&hEl.nextSibling.classList.contains('rx-item')){
+      hEl=hEl.nextSibling;if(hEl.style.display!=='none')n++;
+    }
+    h.style.display=n?'':'none';
+  });
+  $('libCount').textContent='· '+shown+'/'+DATA.length;
+});
+
+/* ---------- 控件 ---------- */
+$('playBtn').addEventListener('click',function(){playing?pause():play();});
+$('tSlider').addEventListener('input',function(){pause();setT(this.value/1000);});
+$('replayBtn').addEventListener('click',function(){pause();setT(0);play();});
+$('nextBtn').addEventListener('click',function(){loadReaction(curIdx+1);});
+$('quizSkip').addEventListener('click',function(){
+  quizDone[cur.id]=1;
+  try{sessionStorage.setItem('mech-quiz',JSON.stringify(quizDone));}catch(e){}
+  $('quizMask').classList.remove('show');
+});
+$('rxToggle').addEventListener('click',function(){$('leftPanel').classList.toggle('open');});
+$('speedSel').addEventListener('change',function(){speed=parseFloat(this.value)||1;});
+$('practiceChk').checked=practice;
+$('practiceChk').addEventListener('change',function(){
+  practice=this.checked;
+  try{localStorage.setItem('mech-practice',practice?'1':'0');}catch(e){}
+});
+$('btnInfo').addEventListener('click',function(){
+  alert('反应机理库 · 使用说明\n\n'
+    +'1. 左栏选择反应，可按名称或生活场景搜索；\n'
+    +'2. 首次观看前需「预测产物」，猜对才能播放；\n'
+    +'3. 中央 3D 舞台：拖动旋转、滚轮缩放；\n'
+    +'4. 底部时间轴可拖动，逐步观察断键/成键；\n'
+    +'5. 红色双钩=一对电子转移，青色鱼钩=单电子；\n'
+    +'6. 右栏点击任意步骤可直接跳转到该时刻；\n'
+    +'7. 完整看完一个机理即「通关」，进度保存在本机。');
+});
+
+/* ---------- 启动 ---------- */
+if(initGL()){
+  buildNav();
+  loadReaction(0);
+}
+})();
+</script>
 </body>
 </html>
