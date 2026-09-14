@@ -94,3 +94,36 @@
 - 2026-09-14 互动功能增强批上线（commit 10be4a2，主人反馈 4+1 项）：① 昵称头像实时同步——forum.js 新增 resolveAuthors，list/get/board 读取时用 CHEM_AUTH 最新昵称头像覆盖展示，「古早名字」根治（帖子/榜单存储不动）② 一键禁言——user 记录加 banned 标记，ban 动作仅管理员（不可禁言管理员）；被禁言者 post/reply/like/report 全部 403，历史内容保留；管理入口在个人名片弹窗底部 ③ 个人名片——公开动作 userCard 返回头像/昵称/备注/标签，本人开了公开开关则附带使用时长（分模块）和游戏战绩（各游戏分数+排名，即「排名积分」钩子）；前端新增 UserCard.tsx 弹窗组件，论坛列表/详情/回复、排行榜两表昵称均可点击 ④ 资料保存确认弹窗——保存资料先弹「确认保存更改？」，保存→提示保存成功，放弃→表单还原原设置 ⑤ 头像图片上传——前端 canvas 居中裁方压缩至 128px webp/jpeg dataURL（<140KB），auth.js updateProfile 放行 data:image/...;base64（≤150KB）；新增 UserAvatar.tsx 组件兼容 emoji/图片双模式，论坛/排行榜/个人中心全接入 ⑥ 顺手修复：usageBoard 此前误读 CHEM_FORUM 的 usage:（心跳实际写 CHEM_AUTH）导致时长榜恒空；B+ v4 已部署 zao-chem.com（哈希 index-BNtYILow），线上六项验收全过
 
 - 2026-09-14 体验反馈批 + VSEPR 换代上线（commit 7c23660）：① 禁言名单管理——forum.js 新增 banList（仅管理员），个人中心管理员区新增「禁言名单」卡片集中解禁 ② 全操作轻提示——Profile 页所有操作（绑定手机/改密/邀请窗口/解禁等）改为顶部居中胶囊 toast，成功 1.2s 自动消失、失败 2.6s；主按钮加 active:scale-95 按压感 ③ 新账号默认公开——register 的 showUsage/showGameTime 默认 true（本人可关；心跳与成绩照常存储，重新公开即同步榜单）④ VSEPR 模块换代——chem_lab1.1.html 替换为新版「VSEPR 轨道成键演化台」（单文件 726KB，three.js r160 内联离线可用，33 分子+成键演化滑杆+三主题），导航占位 href 接真实路由（首页/数据库/生活馆/教学实验）+ 注入悬浮 ⌂ 返回首页；说明书自检脚本（轨道对准）线上跑过 ✅。**注意：scripts/labs/build_vsepr_lab.py 已作废，不要再运行它覆盖新页** ⑤ 页脚署名按主人要求改「© 2026 早晨」（仅 B+ 变体与部署记录存档代码块，主线不动）⑥ B+ v5 已部署 zao-chem.com（哈希 index-D4f5BtTr）：新构建/新 VSEPR 页/返回键/页脚改名/名片接口六项验收全过。部署记录新增「宝塔 API 直传通道」（vite_public_request_token + /files?action=upload/UnZip/DeleteFile），绕开新版面板 UI 不吃 CDP 文件注入的坑
+
+
+---
+
+## 2026-09-14（晚）· 体验修复批 + chem_lab1.3 换代（commit d33009a）
+
+主人批次需求（9-14 12:01）执行结果：
+
+1. **拾焰集社区卡片只留首页**：App.tsx 页脚卡片改为 `pathname === '/'` 条件渲染，模块页不再出现。主线直接改，B+ 构建从此不再需要临时改 App.tsx。
+2. **VSEPR 手机端适配**：chem_lab1.1.html 注入 @media(max-width:768px)，控制面板改底部抽屉式（bottom:8/left:8/right:8/max-height:34vh），字号压缩，电脑端不变。未真机实测。
+3. **论坛/排行榜隐私打码**：forum.js 新增 maskName——昵称==账号且为 ≥6 位纯数字时显示「前3****后4」；resolveAuthors/buildUserCard/usageBoard 全接入。管理员带 token 请求 userCard 时额外返回 realUsername（禁言按钮用真实账号，且管理员自己名片不显示禁言钮）。
+4. **舍弃资料归档**：build_vsepr_lab.py / build_electron_lab.py 移出仓库，归档到本机 `D:\我的AI\化学网站-2026-08-31\过渡文件已舍弃\`（含旧版 chem_lab1.1/1.3 HTML）；scripts/README.md 已注明 1.1/1.3 改为单文件直维护。
+5. **点赞/发言延迟**：不是网络问题，原实现等服务器确认才刷新。Forum.tsx 改乐观更新（先改本地再请求，失败回滚），发帖/回复按钮加「发布中…」态和按压反馈。
+6. **右下角「反馈」留言**：FeedbackWidget 组件（悬浮钮 right:20 bottom:76，叠在 ⌂ 上方），免登录可留言（IP 限频 5 条/小时），自动附带所在页面路径；管理端在个人中心「留言箱」查看/删除。接口：forum.js 的 feedback / feedbackList / feedbackDel。
+7. **chem_lab1.3 换代**：按《上线说明书-chem_lab1.3_r128.md》整页覆盖为 r128 单文件版；three@0.128 入库 public/vendor/three.r128.min.js；顶栏注入返回门户/返回首页。线上实测：GL 自检徽章通过、Fe=[Ar]3d⁶4s²、练习模式（写排布式/认排布式/挑战区）在。
+
+### 部署事故记录（重要教训）
+
+宝塔 API 部署 v6 时，DeleteFile 接口误用（把目录当 path + data 列表）导致 **/www/wwwroot/zao-chem.com 整个目录被删进回收站**，全站 500 约 4 分钟。从回收站恢复（Re_Recycle_bin）后内容完好（解压先于删除，恢复即是 v6 完整内容）。
+
+**规则**：宝塔 `DeleteFile` 的 `path` 参数 = 要删的文件完整路径本身，不要带 data 列表。删除前先在回收站确认目标。
+
+### B+ v6 构建规则变化
+
+- 主线 App.tsx 页脚已含「© 2026 早晨 ｜ 备案号链接」全站渲染；社区卡片仅首页。
+- B+ 只需给 19 个静态实验页注入**角落备案小字**（position:fixed left:8 bottom:4, opacity:.55），不再注入大卡片页脚、不再临时改 App.tsx。
+- 注入脚本模式：`</body>` 前替换，注入前断言无 beian 残留，构建打包后 `git checkout -- public/teaching/` 还原。
+
+### 待办 / 待主人实测
+
+- 留言箱里有两条「上线验收测试留言，可删除」（pages.dev 与 zao 各一条），可在个人中心删掉
+- 名片打码效果、留言箱 UI、手机端 VSEPR 面板需主人实测
+- chem_lab1.2 晶体实验室等大改需求仍在排队（等 chat 侧交付包）
