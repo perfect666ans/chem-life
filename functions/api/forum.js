@@ -12,6 +12,8 @@
 // - pin       {token, postId}                 登录：置顶/取消（仅管理员）
 // - report    {token, game, score}            登录：上报成绩（只保留每人每游戏最高，带服务端上限+限频）
 // - board     {game, token?}                  公开：排行榜 Top 20（可选附带我的排名）
+// - userCard  {username}                      公开：个人名片（昵称/头像/备注/标签 + 按本人开关公开时长与战绩）
+// - ban       {token, username, banned}       管理员：一键禁言/解禁（禁言后无法发帖/回复/点赞/上报成绩）
 // 游戏标识：td=化学塔防(波) rpg=元素纪元(波) tree=知识挑战树(点亮节点数)
 
 const now = () => Date.now()
@@ -70,6 +72,53 @@ const brief = (p) => ({
 
 const PAGE = 20
 
+/* 读取时同步作者信息：帖子/榜单里存的是发帖当时的昵称头像，
+   用户改资料后这里实时用 CHEM_AUTH 里的最新值覆盖展示（修「古早名字」） */
+async function resolveAuthors(env, authors) {
+  const names = [...new Set(authors.map((a) => a && a.username).filter(Boolean))]
+  const cache = {}
+  for (const n of names) {
+    const u = await getJSON(env.CHEM_AUTH, 'user:' + n)
+    if (u) cache[n] = { nickname: u.nickname || n, avatar: u.avatar || '🧪' }
+  }
+  for (const a of authors) {
+    if (a && cache[a.username]) Object.assign(a, cache[a.username])
+  }
+}
+
+/* 个人名片数据：基础信息 + 按本人公开开关附带时长/战绩（W-系「个人名片」钩子） */
+async function buildUserCard(env, username) {
+  const u = await getJSON(env.CHEM_AUTH, 'user:' + username)
+  if (!u) return null
+  const card = {
+    username: u.username,
+    nickname: u.nickname || u.username,
+    avatar: u.avatar || '🧪',
+    bio: u.bio || '',
+    tags: u.tags || [],
+    banned: !!u.banned,
+    showUsage: !!u.showUsage,
+    showGameTime: !!u.showGameTime,
+    usage: null,
+    games: null,
+  }
+  if (card.showUsage) {
+    const usage = (await getJSON(env.CHEM_AUTH, 'usage:' + u.username)) || {}
+    card.usage = { byModule: usage, total: Object.values(usage).reduce((a, b) => a + b, 0) }
+  }
+  if (card.showGameTime) {
+    const games = []
+    for (const g of GAMES) {
+      const board = (await getJSON(env.CHEM_FORUM, 'score:' + g)) || {}
+      const all = Object.values(board).sort((a, b) => b.score - a.score)
+      const mine = board[u.username]
+      if (mine) games.push({ game: g, score: mine.score, rank: all.findIndex((r) => r.username === u.username) + 1, players: all.length })
+    }
+    card.games = games
+  }
+  return card
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context
   let body
@@ -89,8 +138,10 @@ export async function onRequestPost(context) {
         p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q))
       posts.sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || b.createdAt - a.createdAt)
       const offset = Math.max(0, Number(body.offset) || 0)
+      const page = posts.slice(offset, offset + PAGE)
+      await resolveAuthors(env, page.map((p) => p.author))
       return ok({
-        posts: posts.slice(offset, offset + PAGE).map(brief),
+        posts: page.map(brief),
         total: posts.length,
         hasMore: offset + PAGE < posts.length,
       })
@@ -98,6 +149,7 @@ export async function onRequestPost(context) {
     if (action === 'get') {
       const p = await getJSON(env.CHEM_FORUM, 'post:' + clip(body.postId, 40))
       if (!p) return fail('帖子不存在', 404)
+      await resolveAuthors(env, [p.author, ...(p.replies || []).map((r) => r.author)])
       return ok({ post: p })
     }
     if (action === 'board') {
@@ -105,6 +157,7 @@ export async function onRequestPost(context) {
       if (!GAMES.includes(game)) return fail('未知游戏', 404)
       const board = (await getJSON(env.CHEM_FORUM, 'score:' + game)) || {}
       const rows = Object.values(board).sort((a, b) => b.score - a.score).slice(0, 20)
+      await resolveAuthors(env, rows)
       // 可选登录：附带「我的排名」
       let me = null
       const u = await userByToken(env, body.token)
@@ -119,20 +172,27 @@ export async function onRequestPost(context) {
       return ok({ rows, total: Object.keys(board).length, me })
     }
 
+    /* 公开个人名片：论坛/排行榜点击昵称弹出 */
+    if (action === 'userCard') {
+      const username = clip(body.username, 40)
+      if (!username) return fail('缺少用户名')
+      const card = await buildUserCard(env, username)
+      if (!card) return fail('用户不存在', 404)
+      return ok({ card })
+    }
+
     /* 使用时长榜：仅统计选择公开的用户（W-06 后半句） */
     if (action === 'usageBoard') {
+      // 注意：心跳数据存在 CHEM_AUTH（usage: 前缀），此前误读 CHEM_FORUM 导致榜单恒空
       const users = await env.CHEM_AUTH.list({ prefix: 'user:' })
-      const usageKeys = await env.CHEM_FORUM.list({ prefix: 'usage:' })
-      const usageMap = {}
-      for (const k of usageKeys.keys) usageMap[k.name.slice(5)] = (await getJSON(env.CHEM_FORUM, k.name)) || {}
       const rows = []
       for (const k of users.keys) {
         const uname = k.name.slice(5)
         const u = await getJSON(env.CHEM_AUTH, k.name)
         if (!u || !u.showUsage) continue
-        const uu = usageMap[uname] || {}
+        const uu = (await getJSON(env.CHEM_AUTH, 'usage:' + uname)) || {}
         const total = Object.values(uu).reduce((a, b) => a + b, 0)
-        if (total > 0) rows.push({ username: u.nickname || uname, avatar: u.avatar || '🧪', total })
+        if (total > 0) rows.push({ username: uname, nickname: u.nickname || uname, avatar: u.avatar || '🧪', total })
       }
       rows.sort((a, b) => b.total - a.total)
       return ok({ rows: rows.slice(0, 20) })
@@ -141,6 +201,20 @@ export async function onRequestPost(context) {
     /* ---------- 以下需登录 ---------- */
     const u = await userByToken(env, body.token)
     if (!u) return fail('请先登录', 401)
+
+    /* 管理员：一键禁言/解禁（被禁言者无法发帖/回复/点赞/上报成绩，历史内容保留） */
+    if (action === 'ban') {
+      if (!u.isAdmin) return fail('仅管理员可禁言', 403)
+      const target = await getJSON(env.CHEM_AUTH, 'user:' + clip(body.username, 40))
+      if (!target) return fail('用户不存在', 404)
+      if (target.isAdmin) return fail('不能禁言管理员', 403)
+      target.banned = !!body.banned
+      await setJSON(env.CHEM_AUTH, 'user:' + target.username, target)
+      return ok({ username: target.username, banned: target.banned })
+    }
+
+    // 禁言检查：ban 动作本身在上面已处理，其余写操作一律拦截
+    if (u.banned) return fail('你已被禁言，暂时无法发言或上榜，如有疑问请联系站长', 403)
 
     if (action === 'post') {
       const title = clip(body.title, 60)

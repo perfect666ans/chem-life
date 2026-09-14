@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Check, KeyRound, LogOut, Plus, ShieldCheck, UserRound } from 'lucide-react'
+import { Check, ImagePlus, KeyRound, LogOut, Plus, ShieldCheck, UserRound } from 'lucide-react'
 import {
   bindPhone,
   changePassword,
@@ -13,6 +13,7 @@ import {
   refresh,
   type InviteState,
 } from '../lib/auth'
+import UserAvatar, { isImageAvatar } from '../components/UserAvatar'
 
 const AVATARS = ['🧪', '⚗️', '🔬', '🧫', '🧬', '💊', '🧂', '🔥', '💧', '❄️', '⚡', '🌡️',
   '🍋', '🍇', '🥛', '🍯', '🧅', '🥕', '🌽', '🍞', '🧀', '🥚', '🧊', '🍵']
@@ -89,6 +90,36 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+/** 把本地图片压缩成 128×128 方形头像（webp/jpeg dataURL，通常 <20KB） */
+function fileToAvatar(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) return reject(new Error('请选择图片文件'))
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error('读取文件失败'))
+    reader.onload = () => {
+      const img = new Image()
+      img.onerror = () => reject(new Error('图片解析失败，请换一张'))
+      img.onload = () => {
+        const SIZE = 128
+        const side = Math.min(img.width, img.height)
+        const canvas = document.createElement('canvas')
+        canvas.width = SIZE
+        canvas.height = SIZE
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return reject(new Error('浏览器不支持图片处理'))
+        // 居中裁剪为正方形后缩放
+        ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, SIZE, SIZE)
+        let url = canvas.toDataURL('image/webp', 0.85)
+        if (!url.startsWith('data:image/webp')) url = canvas.toDataURL('image/jpeg', 0.85)
+        if (url.length > 140000) url = canvas.toDataURL('image/jpeg', 0.6)
+        resolve(url)
+      }
+      img.src = String(reader.result)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
 export default function ProfilePage() {
   const { user, ready } = useAuth()
   const nav = useNavigate()
@@ -116,19 +147,30 @@ export default function ProfilePage() {
   const [invMin, setInvMin] = useState(60)
   const [invMax, setInvMax] = useState(10)
 
+  // 保存确认弹窗 + 头像上传
+  const [confirmSave, setConfirmSave] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     if (ready && !user) nav('/login', { replace: true })
   }, [ready, user, nav])
 
+  const resetForm = (u = user) => {
+    if (!u) return
+    setNickname(u.nickname)
+    setAvatar(u.avatar)
+    setBio(u.bio)
+    setTags(u.tags)
+    setShowUsage(u.showUsage)
+    setShowGameTime(u.showGameTime)
+  }
+
   useEffect(() => {
     if (!user) return
-    setNickname(user.nickname)
-    setAvatar(user.avatar)
-    setBio(user.bio)
-    setTags(user.tags)
-    setShowUsage(user.showUsage)
-    setShowGameTime(user.showGameTime)
+    resetForm(user)
     if (user.isAdmin) void getInvite().then((r) => r.ok && setInv(r.invite))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   const flash = (okMsg: string, err?: string) => {
@@ -140,9 +182,28 @@ export default function ProfilePage() {
     }, 4000)
   }
 
-  const saveProfile = async () => {
+  // 保存资料：先弹确认框；确认→真正保存并提示；放弃→还原成原设置
+  const doSaveProfile = async () => {
+    setSaving(true)
     const r = await updateProfile({ nickname, avatar, bio, tags, showUsage, showGameTime })
-    flash('资料已保存', r.ok ? undefined : r.error)
+    setSaving(false)
+    setConfirmSave(false)
+    flash('保存成功 ✓ 论坛和排行榜会同步显示新资料', r.ok ? undefined : r.error)
+  }
+  const discardProfile = () => {
+    resetForm()
+    setConfirmSave(false)
+    flash('已放弃修改，恢复为原设置')
+  }
+
+  const onPickAvatar = async (f: File | undefined) => {
+    if (!f) return
+    try {
+      setAvatar(await fileToAvatar(f))
+      flash('头像已更新（记得点下方「保存资料」生效）')
+    } catch (e) {
+      flash('', e instanceof Error ? e.message : '图片处理失败')
+    }
   }
   const savePw = async () => {
     const r = await changePassword(oldPw, newPw)
@@ -175,7 +236,7 @@ export default function ProfilePage() {
     <main className="mx-auto max-w-3xl space-y-5 px-4 py-8">
       <UsageSection usage={user.usage} />
       <div className="flex items-center gap-3">
-        <span className="text-3xl">{user.avatar}</span>
+        <UserAvatar value={user.avatar} className="text-3xl" imgClassName="h-12 w-12 border border-slate-200" />
         <div>
           <h1 className="text-xl font-bold text-slate-900">
             {user.nickname}
@@ -283,6 +344,30 @@ export default function ProfilePage() {
         <div className="space-y-4">
           <div>
             <div className="mb-2 text-sm text-slate-600">头像</div>
+            {/* 上传图片头像：自动居中裁方并压缩到 128px */}
+            <div className="mb-3 flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3">
+              <UserAvatar value={avatar} className="text-2xl" imgClassName="h-10 w-10 border border-slate-200" />
+              <div className="text-xs text-slate-500">
+                {isImageAvatar(avatar) ? '当前使用自定义图片头像' : '当前使用表情头像，也可以上传自己的图片'}
+              </div>
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="ml-auto flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100"
+              >
+                <ImagePlus className="h-4 w-4" />
+                上传图片
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  void onPickAvatar(e.target.files?.[0])
+                  e.target.value = ''
+                }}
+              />
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {AVATARS.map((a) => (
                 <button
@@ -384,13 +469,41 @@ export default function ProfilePage() {
           })}
         </div>
         <button
-          onClick={() => void saveProfile()}
+          onClick={() => setConfirmSave(true)}
           className="mt-4 flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
           <UserRound className="h-4 w-4" />
           保存资料
         </button>
       </Section>
+
+      {/* 保存确认弹窗：保存→生效并提示；放弃→还原原设置 */}
+      {confirmSave && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4" onClick={() => setConfirmSave(false)}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-base font-bold text-slate-900">确认保存更改？</h3>
+            <p className="mt-2 text-sm text-slate-500">
+              保存后，新的昵称/头像/简介会同步到论坛帖子和排行榜；放弃则恢复为原来的设置。
+            </p>
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => void doSaveProfile()}
+                disabled={saving}
+                className="flex-1 rounded-lg bg-indigo-600 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {saving ? '保存中…' : '保存'}
+              </button>
+              <button
+                onClick={discardProfile}
+                disabled={saving}
+                className="flex-1 rounded-lg border border-slate-300 py-2.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+              >
+                放弃
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 账号安全：绑定手机 + 切换账号 */}
       <Section title="账号安全">

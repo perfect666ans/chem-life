@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Trophy } from 'lucide-react'
 import { GAMES, fmtTime, getBoard, getUsageBoard, type BoardMe, type BoardRow, type UsageRow } from '../lib/forum'
+import UserAvatar from '../components/UserAvatar'
+import UserCard from '../components/UserCard'
 
 const MEDAL = ['🥇', '🥈', '🥉']
 
@@ -12,6 +14,7 @@ export default function LeaderboardPage() {
   const [me, setMe] = useState<BoardMe>(null)
   const [err, setErr] = useState('')
   const [usageRows, setUsageRows] = useState<UsageRow[]>([])
+  const [cardFor, setCardFor] = useState<string | null>(null) // 个人名片弹窗目标
   const fmtDur = (sec: number) => (sec < 3600 ? Math.round(sec / 60) + ' 分钟' : (sec / 3600).toFixed(1) + ' 小时')
 
   useEffect(() => {
@@ -91,8 +94,10 @@ export default function LeaderboardPage() {
                 <tr key={r.username} className="border-b last:border-0">
                   <td className="px-4 py-3">{MEDAL[i] || i + 1}</td>
                   <td className="px-4 py-3">
-                    <span className="mr-2">{r.avatar}</span>
-                    <span className="font-medium text-slate-800">{r.username}</span>
+                    <button onClick={() => setCardFor(r.username)} className="group flex items-center">
+                      <UserAvatar value={r.avatar} className="mr-2" imgClassName="mr-2 h-6 w-6" />
+                      <span className="font-medium text-slate-800 group-hover:text-indigo-600 group-hover:underline">{r.nickname}</span>
+                    </button>
                   </td>
                   <td className="px-4 py-3 font-mono font-bold text-amber-600">{fmtDur(r.total)}</td>
                 </tr>
@@ -121,8 +126,10 @@ export default function LeaderboardPage() {
               <tr key={r.username} className="border-b last:border-0">
                 <td className="px-4 py-3">{MEDAL[i] || i + 1}</td>
                 <td className="px-4 py-3">
-                  <span className="mr-2">{r.avatar}</span>
-                  <span className="font-medium text-slate-800">{r.nickname}</span>
+                  <button onClick={() => setCardFor(r.username)} className="group flex items-center">
+                    <UserAvatar value={r.avatar} className="mr-2" imgClassName="mr-2 h-6 w-6" />
+                    <span className="font-medium text-slate-800 group-hover:text-indigo-600 group-hover:underline">{r.nickname}</span>
+                  </button>
                 </td>
                 <td className="px-4 py-3 font-mono font-bold text-indigo-700">
                   {r.score} <span className="text-xs font-normal text-slate-400">{g?.unit}</span>
@@ -134,7 +141,10 @@ export default function LeaderboardPage() {
         </table>
       </div>
       )}
-      <p className="mt-3 text-xs text-slate-400">共 {total} 位玩家上榜 · 榜单展示前 20 名 · 使用时长与游戏时长可在「个人信息」中自主选择是否公开（即将上线）。</p>
+      <p className="mt-3 text-xs text-slate-400">共 {total} 位玩家上榜 · 榜单展示前 20 名 · 点击玩家昵称可查看个人名片。</p>
+
+      {/* 个人名片弹窗 */}
+      {cardFor && <UserCard username={cardFor} onClose={() => setCardFor(null)} />}
     </div>
   )
 }

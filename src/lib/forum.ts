@@ -46,7 +46,20 @@ export const GAMES = [
   { id: 'aufbau', name: '轨道之门', unit: '亚层' },
 ] as const
 
-export type UsageRow = { username: string; avatar: string; total: number }
+export type UsageRow = { username: string; nickname: string; avatar: string; total: number }
+
+export type UserCardData = {
+  username: string
+  nickname: string
+  avatar: string
+  bio: string
+  tags: string[]
+  banned: boolean
+  showUsage: boolean
+  showGameTime: boolean
+  usage: { byModule: Record<string, number>; total: number } | null
+  games: { game: string; score: number; rank: number; players: number }[] | null
+}
 
 async function api<T = Record<string, unknown>>(
   action: string,
@@ -76,6 +89,14 @@ export const likePost = (postId: string) =>
 export const delPost = (postId: string) => api('del', { postId })
 export const pinPost = (postId: string) => api<{ pinned: boolean }>('pin', { postId })
 export const getUsageBoard = () => api<{ rows: UsageRow[] }>('usageBoard')
+
+/** 公开个人名片 */
+export const getUserCard = (username: string) =>
+  api<{ card: UserCardData }>('userCard', { username })
+
+/** 管理员：禁言/解禁 */
+export const banUser = (username: string, banned: boolean) =>
+  api<{ username: string; banned: boolean }>('ban', { username, banned })
 
 export const getBoard = (game: string) =>
   api<{ rows: BoardRow[]; total: number; me: BoardMe }>('board', { game })

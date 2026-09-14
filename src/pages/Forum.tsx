@@ -6,6 +6,8 @@ import {
   createPost, delPost, fmtTime, getPost, likePost, listPosts, pinPost, replyPost,
   POST_TAGS, type PostBrief, type PostFull,
 } from '../lib/forum'
+import UserAvatar from '../components/UserAvatar'
+import UserCard from '../components/UserCard'
 
 const inputCls =
   'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
@@ -27,6 +29,7 @@ export default function ForumPage() {
   const [q, setQ] = useState('')
   const [total, setTotal] = useState(0)
   const [hasMore, setHasMore] = useState(false)
+  const [cardFor, setCardFor] = useState<string | null>(null) // 个人名片弹窗目标
 
   // 发帖表单
   const [title, setTitle] = useState('')
@@ -132,8 +135,12 @@ export default function ForumPage() {
           <article key={p.id} className="cursor-pointer rounded-xl border border-slate-200 bg-white p-5 transition-shadow hover:shadow-sm"
             onClick={() => openPost(p.id)}>
             <div className="flex items-center gap-2">
-              <span className="text-lg">{p.author.avatar}</span>
-              <span className="text-sm font-medium text-slate-800">{p.author.nickname}</span>
+              <UserAvatar value={p.author.avatar} className="text-lg" imgClassName="h-6 w-6" />
+              <button
+                onClick={(e) => { e.stopPropagation(); setCardFor(p.author.username) }}
+                className="text-sm font-medium text-slate-800 hover:text-indigo-600 hover:underline">
+                {p.author.nickname}
+              </button>
               {p.pinned && (
                 <span className="flex items-center gap-0.5 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
                   <Pin className="h-3 w-3" /> 置顶
@@ -163,8 +170,12 @@ export default function ForumPage() {
         <div className="fixed inset-0 z-50 flex justify-end bg-black/30" onClick={() => setOpen(null)}>
           <div className="h-full w-full max-w-xl overflow-y-auto bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-2">
-              <span className="text-xl">{open.author.avatar}</span>
-              <span className="font-medium text-slate-800">{open.author.nickname}</span>
+              <UserAvatar value={open.author.avatar} className="text-xl" imgClassName="h-7 w-7" />
+              <button
+                onClick={() => setCardFor(open.author.username)}
+                className="font-medium text-slate-800 hover:text-indigo-600 hover:underline">
+                {open.author.nickname}
+              </button>
               <span className={`rounded-full px-2 py-0.5 text-xs ${TAG_COLOR[open.tag] || TAG_COLOR.闲聊灌水}`}>{open.tag}</span>
               <span className="ml-auto text-xs text-slate-400">{fmtTime(open.createdAt)}</span>
             </div>
@@ -209,7 +220,12 @@ export default function ForumPage() {
               {open.replies.map((r) => (
                 <div key={r.id} className="rounded-lg bg-slate-50 p-3">
                   <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <span>{r.author.avatar}</span><span className="font-medium text-slate-700">{r.author.nickname}</span>
+                    <UserAvatar value={r.author.avatar} imgClassName="h-4 w-4" />
+                    <button
+                      onClick={() => setCardFor(r.author.username)}
+                      className="font-medium text-slate-700 hover:text-indigo-600 hover:underline">
+                      {r.author.nickname}
+                    </button>
                     <span className="ml-auto">{fmtTime(r.createdAt)}</span>
                   </div>
                   <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{r.content}</p>
@@ -228,6 +244,9 @@ export default function ForumPage() {
           </div>
         </div>
       )}
+
+      {/* 个人名片弹窗 */}
+      {cardFor && <UserCard username={cardFor} onClose={() => setCardFor(null)} />}
     </div>
   )
 }

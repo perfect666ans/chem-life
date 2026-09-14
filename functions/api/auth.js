@@ -168,7 +168,16 @@ export async function onRequestPost(context) {
       if (!u) return fail('未登录', 401)
       const pick = (v, max = 200) => (typeof v === 'string' ? v.slice(0, max) : undefined)
       if (body.nickname !== undefined) u.nickname = pick(body.nickname, 24) || u.username
-      if (body.avatar !== undefined) u.avatar = pick(body.avatar, 8)
+      if (body.avatar !== undefined) {
+        const a = String(body.avatar)
+        // 支持 emoji（≤8 字符）或前端压缩后的 data:image/...;base64 图片（≤150KB）
+        if (/^data:image\/(png|jpe?g|webp|gif);base64,/.test(a)) {
+          if (a.length > 150000) return fail('头像图片过大，请换一张或裁剪后再试', 413)
+          u.avatar = a
+        } else {
+          u.avatar = pick(a, 8)
+        }
+      }
       if (body.bio !== undefined) u.bio = pick(body.bio, 300)
       if (Array.isArray(body.tags)) u.tags = [...new Set(body.tags.map((t) => String(t).slice(0, 20)))].slice(0, 30)
       if (body.showUsage !== undefined) u.showUsage = !!body.showUsage
