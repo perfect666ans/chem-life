@@ -172,3 +172,13 @@
 - 旧版与 build_naming_lab.py 归档「过渡文件已舍弃」；scripts/README 同步
 - 线上实测（pages.dev）：React/ReactDOM/THREE 全加载、六 Tab 渲染、生成器界面完整、切 Tab 无报错；zao B+ v9 部署验收过
 - B+ v9：zao-chem-dist-v9.zip（62 文件 2338KB，index-VrLGv9Yr.js）
+
+
+---
+
+## 2026-09-14（深夜④）· 人格星岛换代 + 命名实验室顶栏修正（commit fcf72d4）
+
+1. **命名实验室顶栏修正**：主题/音效/返回按钮排改为固定右上角（.top 禁换行 + themes 不收缩；≤768px 隐藏英文 tag、logo 缩至 20px、按钮瘦身）；去除构建时间（徽章和页脚的 `v32 · 09:05` / `v32 · 2026-09-14 09:05` → `v32`），版号保留。602px 实测：同行不换行、无横向溢出。
+2. **chem_lab5.3 人格星岛换代**：16 题 × 4 维度 → 16 种物质人格、鉴定证书、相溶/相克互跳、PNG 鉴定卡下载、three r128 粒子背景+原子太阳系、三主题。适配：three.js 本地 vendor 优先（cdnjs 回退）、补「← 返回门户」（交付件只带了返回首页）、误触保护。首页卡片文案 12 题 → 16 题。旧版与 build_cbti.py 已归档。
+- 线上实测：16 题/16 型数据齐、THREE 加载未降级、答题流程到 02/16 正常、返回键双键在位
+- B+ v10：zao-chem-dist-v10.zip（62 文件 2354KB，index-BkSO3rj2.js），zao 验收全过
