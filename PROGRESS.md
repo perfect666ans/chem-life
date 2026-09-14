@@ -127,3 +127,25 @@
 - 留言箱里有两条「上线验收测试留言，可删除」（pages.dev 与 zao 各一条），可在个人中心删掉
 - 名片打码效果、留言箱 UI、手机端 VSEPR 面板需主人实测
 - chem_lab1.2 晶体实验室等大改需求仍在排队（等 chat 侧交付包）
+
+
+---
+
+## 2026-09-14（深夜）· 晶体实验室换代 + 体验修复批（commit 见 git log）
+
+主人批次需求（9-14 12:58）执行结果：
+
+1. **手机端误触保护**：19 个静态实验页 + React 全局 index.css 注入 `html,body{overscroll-behavior:none;}`，禁止边缘滑动触发浏览器前进/后退。重新生成实验页时必须保留该行（scripts/README.md 已注明）。
+2. **晶体结构深度实验室换代**：chem_lab1.2.html 整页替换为 r128 版（42 种晶体 6 大类：ion 15 / metal 12 / covalent 6 / molecule 3 / mix 2 / alloy 4）；新增：本地 vendor（../vendor/three.r128.min.js）作为 three.js 第一回退源、顶栏「⌂ 返回首页」、误触保护。旧版与 build_crystal_lab.py 已归档「过渡文件已舍弃」。线上实测：__cx 体检钩子在、后处理链加载成功、42 晶体齐全、三主题切换正常（自检日志按说明书为启动全绿才就绪）。
+3. **离子晶体晶胞专题模块删除**：Teaching.tsx 入口卡片已删（其内容与晶体实验室重复），结构专题重编号 01-03，晶体实验室描述更新为 42 种。
+4. **反馈按钮改小球**：40px 圆形图标、半透明白底低调配色、移至 right:14 bottom:70（⌂ 上方）；**手机端（≤768px）只在「我的」/profile 页显示**，其余页面隐藏。
+
+### 部署
+
+- pages.dev：push main 自动部署（本批 hash index-DBybhEHz）
+- zao-chem.com：B+ v7（19 静态页注入角落备案小字后构建，zao-chem-dist-v7.zip，60 文件 2241KB，hash index-BbgO5Ha-）宝塔 API 部署；DeleteFile 已按修正后的单文件路径用法，无误删
+- 验收：zao 首页 200 新 hash；/teaching 无「离子晶体晶胞专题」、晶体描述已更新、无社区卡片；chem_lab1.2 双站均含 r128/vendor/误触保护；反馈球在手机宽度（602px 实测）下 /teaching 与 /login 隐藏，符合规则
+
+### 备注
+
+- 主人管理员账号密码已非初始密码（登录返回"密码错误"），说明改密流程生效；后续自动化验收需要登录态时请先问主人要当前密码
