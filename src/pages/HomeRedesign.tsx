@@ -34,7 +34,7 @@ const WORLDS = [
   { img: worldPrinciple, color: '#FF9A3D', en: 'AUFBAU', name: '轨道之门', tags: '构造原理 · 59 扇轨道门 · 洪特规则', badge: '跑酷', to: '/teaching/chem_lab7.3.html' },
   { img: worldRpg, color: '#C77DFF', en: 'RPG', name: '元素纪元', tags: '30 波元素兽 · 方程式施法', badge: 'RPG', to: '/teaching/chem_lab5.1.html' },
   { img: worldTd, color: '#FF5C5C', en: 'ARCADE TD', name: '元素防线', tags: '沉淀塔 · 中和塔 · 15 波守卫战', badge: '塔防', to: '/teaching/chem_lab5.2.html' },
-  { img: worldReview, color: '#8AB4FF', en: 'PERSONA', name: '人格星岛', tags: 'CBTI 化学人格 · 12 题测阵营', badge: '测试', to: '/teaching/chem_lab5.3.html' },
+  { img: worldReview, color: '#8AB4FF', en: 'PERSONA', name: '人格星岛', tags: 'CBTI 化学人格 · 16 题测物质人格', badge: '测试', to: '/teaching/chem_lab5.3.html' },
 ]
 
 const PORTALS = [

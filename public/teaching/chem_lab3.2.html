@@ -54,7 +54,7 @@ body.dmg::after{
 .wrap{max-width:1100px; width:100%; margin:0 auto; padding:0 16px; flex:1; position:relative; z-index:1;}
 
 /* ============ 头部 ============ */
-header.top{padding:20px 0 8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+header.top{padding:20px 0 8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:nowrap; gap:10px;} .brand .tag{white-space:nowrap;} .themes{flex-shrink:0;} @media(max-width:768px){ .brand .tag{display:none;} .brand .logo{font-size:20px!important;} .tbtn{padding:4px 10px!important; font-size:12px!important;} }
 .brand{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
 .brand .logo{
   font-size:28px; font-weight:900; letter-spacing:2px;
@@ -273,7 +273,7 @@ footer{padding:28px 0 36px; text-align:center; color:var(--muted); font-size:12p
 <body>
 <div id="bgfx"></div>
 <div id="app"></div>
-<footer class="wrap">化学视界 · 生活中的化学 —— 早晨老师的化学可视化趣味平台<br>CHEMISTRY IN DAILY LIFE · 有机命名实验室 · <b style="color:var(--accent)">v32 · 2026-09-14 09:05</b></footer>
+<footer class="wrap">化学视界 · 生活中的化学 —— 早晨老师的化学可视化趣味平台<br>CHEMISTRY IN DAILY LIFE · 有机命名实验室 · <b style="color:var(--accent)">v32</b></footer>
 
 <script src="../vendor/three.r128.min.js"></script>
 <script src="../vendor/react.production.min.js"></script>
@@ -2384,7 +2384,7 @@ function Shell(){
       h('div',{className:'brand'},
         h('span',{className:'logo'},h('em',null,'化学视界'),' · 有机命名实验室'),
         h('span',{className:'tag'},'CHEMISTRY IN DAILY LIFE'),
-        h('span',{className:'tag',style:{color:'var(--accent)',borderColor:'var(--accent)',fontWeight:900}},'v32 · 09:05')),
+        h('span',{className:'tag',style:{color:'var(--accent)',borderColor:'var(--accent)',fontWeight:900}},'v32')),
       h('div',{className:'themes'},
         Object.keys(THEMES).map(function(k){
           return h('button',{key:k,className:'tbtn'+(k===theme?' on':''),onClick:function(){ setTheme(k); }},THEMES[k].label);
