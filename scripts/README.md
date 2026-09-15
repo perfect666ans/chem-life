@@ -31,7 +31,7 @@
 | build_solution_lab.py | chem_lab4.3.html | 水溶液中的离子平衡 |
 | build_electro_lab.py | chem_lab4.4.html | 电化学实验室 |
 | build_rpg.py | chem_lab5.1.html | 元素纪元 RPG |
-| build_td.py | chem_lab5.2.html | 元素防线：化学塔防 |
+| ~~build_td.py~~ | chem_lab5.2.html | 离子塔防 3D·原元素防线（2026-09-15 起换代为 v2 素材版，脚本已归档舍弃） |
 | ~~build_cbti.py~~ | chem_lab5.3.html | CBTI 化学人格鉴定（人格星岛，2026-09-14 起换代为 r128 单文件版·16 题 16 型，脚本已归档舍弃） |
 
 ## rebuild_labs.py（外壳换装）
@@ -40,7 +40,9 @@
 
 ## 没有生成脚本的页面
 
-- `chem_lab1.1.html`（VSEPR）、`chem_lab1.2.html`（晶体结构）、`chem_lab1.3.html`（核外电子排布）、`chem_lab3.1.html`（有机反应机理库）、`chem_lab3.2.html`（有机命名实验室）、`chem_lab5.3.html`（人格星岛 CBTI）：2026-09-14 起改为**单文件直接维护**（交付包整页覆盖），原 build_vsepr_lab.py / build_crystal_lab.py / build_electron_lab.py / build_mech_lab.py / build_naming_lab.py / build_cbti.py 已归档到本机「过渡文件已舍弃」文件夹并从仓库删除
+- `chem_lab1.1.html`（VSEPR）、`chem_lab1.2.html`（晶体结构）、`chem_lab1.3.html`（核外电子排布）、`chem_lab3.1.html`（有机反应机理库）、`chem_lab3.2.html`（有机命名实验室）、`chem_lab5.2.html`（离子塔防 3D）、`chem_lab5.3.html`（人格星岛 CBTI）：2026-09-14/15 起改为**单文件直接维护**（交付包整页覆盖），原 build_vsepr_lab.py / build_crystal_lab.py / build_electron_lab.py / build_mech_lab.py / build_naming_lab.py / build_td.py / build_cbti.py 已归档到本机「过渡文件已舍弃」文件夹并从仓库删除
+- chem_lab5.2 依赖同目录素材：`public/teaching/assets/td/`（50 个文件 ~8MB，AI 生成地面/全景/道具图），移动或重命名主文件时素材目录必须跟着走
+- chem_lab7.2 / 7.3 交付件已预嵌备案角落小字（仓库内即带，pages.dev 也会显示）；B+ 注入脚本为幂等（已有 beian 则跳过）
 - chem_lab3.2 的 React UMD 依赖已本地化：`public/vendor/react.production.min.js` + `react-dom.production.min.js`（18.2.0，cdnjs 同源下载）
 - 全部 19 个静态实验页已注入误触保护样式 `html,body{overscroll-behavior:none;}`（2026-09-14，手机端边缘滑动防浏览器后退）；重新生成页面时需保留这一行
 - `chem_lab7.1 / 7.2 / 7.3`（链式星蛇 / 元素熔炉 / 轨道之门，2026-09-08 交付包新增）：**无生成脚本**，由交付包直接维护 HTML，改它们就手工改文件
