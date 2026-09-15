@@ -218,3 +218,16 @@
 - v12 包（112 文件 10149KB）上传解压即覆盖，v11 内容已含在内，v11 包作废未传
 - zao 验收全过：root 200 且 hash=index-2JXchZqa.js 与包内一致；chem_lab5.2 含「离子塔防」+素材 lab_pano.jpg 200；7.2/7.3 模块名+备案行在；www 200；http 301→https；服务器 zip 已删（进回收站）；站点目录结构干净（index/assets/teaching/vendor）
 - zao 与 pages.dev 至此同版本（commit 8805a5e 内容）
+
+
+---
+
+## 2026-09-15（晚）· 化合星枢上线，替代元素纪元（commit 5c02d82）
+
+- **chem_lab5.4 化合星枢**（Little Alchemy 类合成图鉴）：水/空气/火/岩石四源两两合成，生活版 67 物质 127 配方 + 完全版 110 物质 183 配方（五大工业链），危险组合弹真实安全警示，三主题，单文件零依赖数据内嵌
+- 适配：去「沙盘预览」字样、header 加「⌂ 首页」（游戏无返回门户）、误触保护（overscroll-behavior）、预嵌备案行（B+ 幂等跳过）
+- 首页 WORLDS 六宫格：元素纪元 → 化合星枢（ALCHEMY · 四源合成 · 183 配方）；排行榜 GAMES：rpg/元素纪元 → hxs/化合星枢（单位：图鉴）。**注意**：化合星枢暂未接排行榜上报与 chem_passport（说明书改造点，chem_passport 体系尚未建立，存档仍为 localStorage wuzhi_sandbox_v2_*），成分库 db 字段映射也是预留钩子
+- 元素纪元下线：chem_lab5.1.html + build_rpg.py 归档「过渡文件已舍弃/chem_lab5.1-元素纪元」；scripts/README 已更新
+- **事故记录**：git add -A 误将 art-待转换/ 加入提交，已 git rm --cached + amend + 补 .gitignore（art-待转换/），规则「art-待转换/ 永不 commit」现在有 .gitignore 兜底
+- zao v13（112 文件 10161KB）部署验收全过：root hash=index-DfoyqUWZ.js 与包一致；lab5.4 200 含化合星枢/四源/返回首页/备案行；旧 lab5.1 服务器文件已删（返回 SPA 回退壳，属正常）；td 素材 200
+- **⚠️ pages.dev 未更新**：2026-09-15 傍晚起 github.com 主域被 SNI 阻断（所有 IP 均超时，api/codeload 正常），commit 5c02d82 + 6c511a0 待 push，恢复后 push 即自动部署
