@@ -207,3 +207,14 @@
 - 排行榜上报走站内 /api/forum 已有协议，无需改动
 - pages.dev 验收：主文件 v2 标记齐、素材 200；td_test 两个回归台按说明书不上线
 - B+ v12：zao-chem-dist-v12.zip（112 文件 10149KB），**与 v11 一起挂起等宝塔面板恢复**（面板仍 404）
+
+
+---
+
+## 2026-09-15（傍晚）· zao v12 部署完成（v11 并入，一次部署）
+
+- **面板 404 真相**：并非故障——面板开了「未认证返回 404」隐身伪装 + 安全入口，完整地址 `http://139.224.71.129:8888/zao2026`；且入口只对浏览器 UA 放行（curl 需带 Chrome UA）。教训已双同步进 AI 说明书（md + xlsx 案例表）：宝塔地址必须带后缀，404 是防盗门不是故障。
+- **curl 全流程部署**（内置浏览器不稳，未用）：GET /login 取 `vite_public_login_token` + RSA 公钥 → username=RSA(md5(md5(user+token)))、password=RSA(md5(md5(pwd)+'_bt.cn')) → **表单格式** POST /login（JSON 不行）→ 主页取 `vite_public_request_token` 作 `x-http-token` 头 → upload / UnZip / DeleteFile。cookie jar 在工作区 bt-jar.txt。
+- v12 包（112 文件 10149KB）上传解压即覆盖，v11 内容已含在内，v11 包作废未传
+- zao 验收全过：root 200 且 hash=index-2JXchZqa.js 与包内一致；chem_lab5.2 含「离子塔防」+素材 lab_pano.jpg 200；7.2/7.3 模块名+备案行在；www 200；http 301→https；服务器 zip 已删（进回收站）；站点目录结构干净（index/assets/teaching/vendor）
+- zao 与 pages.dev 至此同版本（commit 8805a5e 内容）
