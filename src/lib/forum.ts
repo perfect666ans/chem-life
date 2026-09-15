@@ -39,7 +39,7 @@ export const POST_TAGS = ['学习讨论', '题目求助', '页面反馈', '心�
 
 export const GAMES = [
   { id: 'td', name: '元素防线 · 化学塔防', unit: '波' },
-  { id: 'rpg', name: '元素纪元 RPG', unit: '波' },
+  { id: 'hxs', name: '化合星枢', unit: '图鉴' },
   { id: 'tree', name: '知识挑战树', unit: '节点' },
   { id: 'snake', name: '链式星蛇', unit: '分' },
   { id: 'merge', name: '元素熔炉', unit: '能量' },

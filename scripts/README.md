@@ -30,9 +30,10 @@
 | build_kinetics_lab.py | chem_lab4.2.html | 化学反应速率与平衡 |
 | build_solution_lab.py | chem_lab4.3.html | 水溶液中的离子平衡 |
 | build_electro_lab.py | chem_lab4.4.html | 电化学实验室 |
-| build_rpg.py | chem_lab5.1.html | 元素纪元 RPG |
+| ~~build_rpg.py~~ | ~~chem_lab5.1.html~~ | ~~元素纪元 RPG~~（2026-09-15 起下线，由 chem_lab5.4.html 化合星枢接替；文件与脚本已归档舍弃） |
 | ~~build_td.py~~ | chem_lab5.2.html | 离子塔防 3D·原元素防线（2026-09-15 起换代为 v2 素材版，脚本已归档舍弃） |
 | ~~build_cbti.py~~ | chem_lab5.3.html | CBTI 化学人格鉴定（人格星岛，2026-09-14 起换代为 r128 单文件版·16 题 16 型，脚本已归档舍弃） |
+| （无脚本·单文件交付） | chem_lab5.4.html | 化合星枢（2026-09-15 上线，双版本 67+110 物质 / 127+183 配方，数据内嵌零依赖；源数据 JSON 在主人家 化合星枢-上线包） |
 
 ## rebuild_labs.py（外壳换装）
 
