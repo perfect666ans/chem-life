@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>合成大元素 · v2 小清新</title>
+<title>合成大元素 · v3</title>
 <style>
 :root{--ink:#33414f;--ink2:#7b8a99;--line:#dbe4ec;--panel:#f4f8fb;--red:#e0705f;--gold:#c9a25e}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
@@ -18,7 +18,7 @@ h1{font-family:'Ma Shan Zheng','Noto Serif SC',serif;font-weight:400;font-size:2
 .side{width:112px;display:flex;flex-direction:column;gap:8px}
 .sbox{border:1px solid var(--line);border-radius:12px;background:#fff;padding:9px 10px;font-size:10.5px;color:var(--ink2);line-height:1.55;box-shadow:0 10px 26px -16px rgba(60,90,120,.2)}
 .sbox b{display:block;font-size:16px;color:var(--ink);font-family:'JetBrains Mono',monospace;margin-top:1px}
-.sbox label{display:flex;align-items:center;gap:4px;font-size:10px;margin-top:3px;cursor:pointer}
+.sbox label{display:flex;align-items:center;gap:4px;font-size:10px;margin-top:3px;cursor:pointer;white-space:nowrap}
 .sbox input[type=checkbox]{width:11px;height:11px}
 #achvBadge{display:none;margin-top:5px;font-size:10px;font-weight:700;color:#b8860b;background:#fdf3d7;border:1px solid #ecd9a0;border-radius:8px;padding:3px 6px;text-align:center}
 #achvBadge.on{display:block}
@@ -61,6 +61,41 @@ canvas{display:block;width:min(94vw,420px);height:auto}
 .mname{font-family:'Noto Serif SC',serif;font-weight:900;font-size:19px}
 .mmeta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink2)}
 .mmade{font-size:11px;color:#5b8cc4;font-weight:700;height:14px}
+/* 宽屏信息栏（≥1120px 显示，填充两侧空间） */
+.widebar{display:none}
+@media(min-width:1120px){
+  .widelayout{display:flex;gap:20px;align-items:flex-start;justify-content:center}
+  .widebar{display:block;width:196px;position:sticky;top:16px}
+  .wbox{border:1px solid var(--line);border-radius:14px;background:#fff;padding:13px 15px;font-size:11.5px;color:var(--ink2);line-height:1.85;box-shadow:0 10px 26px -16px rgba(60,90,120,.2);margin-bottom:12px}
+  .wbox h3{font-size:13px;color:#2c3a48;font-family:'Noto Serif SC',serif;margin-bottom:5px}
+  .wbox b{color:var(--ink)}
+  .wbox .rline{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px}
+  .wbox hr{border:none;border-top:1px solid var(--line);margin:6px 0}
+}
+/* 手机版：完整可玩布局（棋盘置顶，数据卡 2×2 在下方） */
+@media(max-width:640px){
+  body{padding:10px 8px 30px}
+  h1{font-size:21px}
+  .sub{margin-bottom:6px}
+  .topbar{width:100%;gap:6px;margin-bottom:6px}
+  .hud{gap:10px;font-size:11px}
+  .nextbox{padding:4px 10px}
+  .stage{flex-direction:column;width:100%;gap:8px}
+  .play{width:100%}
+  canvas{width:100%}
+  .side{width:100%;flex-direction:row;flex-wrap:wrap;gap:6px}
+  .sbox{flex:1 1 44%;padding:7px 9px;font-size:10px}
+  .sbox b{font-size:14px}
+  .overlay .big{font-size:19px}
+  .overlay .tip{font-size:11.5px;max-width:92vw;line-height:1.75}
+  .overlay button{padding:10px 24px;font-size:13px}
+  .foot{font-size:10.5px;padding:0 8px}
+  .ptitle{font-size:14px}
+  .ptable{grid-template-columns:repeat(18,25px);grid-auto-rows:25px;gap:2px}
+  .ptable.fblock{grid-template-columns:repeat(15,25px);margin-left:26px}
+  .cell b{font-size:9px}
+  .cell i{font-size:6.5px}
+}
 </style>
 <style>html,body{overscroll-behavior:none;}</style>
 </head>
@@ -70,14 +105,34 @@ canvas{display:block;width:min(94vw,420px);height:auto}
 <div class="topbar">
   <div class="hud"><div>能量 <b id="score">0</b></div><div>已合成 <b id="maxel">—</b></div></div>
   <div class="nextbox"><div class="q"><canvas id="ncv" width="88" height="88"></canvas><canvas class="mini" id="q1" width="34" height="34"></canvas><canvas class="mini" id="q2" width="34" height="34"></canvas><canvas class="mini" id="q3" width="34" height="34"></canvas></div><div class="lbl"><span>下一个</span><b id="nhint"></b></div></div>
-  <button class="replay" id="replayBtn">再来一局</button>
+  <button class="replay" id="replayBtn">再来一局</button><button class="replay" id="sfxBtn" style="padding:8px 13px" title="音效">🔊</button><button class="replay" id="gateBtn" onclick="location.href='chem_lab7.3.html'" style="padding:8px 13px" title="联动：在熔炉合成更重元素，轨道之门可跳过前置能级">🌀 轨道之门</button>
 </div>
+<div class="widelayout">
+<aside class="widebar">
+  <div class="wbox"><h3>🔥 合成速查</h3>
+    <div class="rline"><span>相同元素相撞</span><b>Z × 2</b></div>
+    <div class="rline"><span>质子（粉球）</span><b>Z + 1</b></div>
+    <div class="rline"><span>补给包</span><b>+2 – +10</b></div>
+    <hr>
+    <div style="font-size:10px;color:var(--ink2);margin-bottom:2px">（左下标 = 原子序 Z，相撞 Z 求和）</div>
+    <div class="rline"><span>H + H</span><b><sub>2</sub>He</b></div>
+    <div class="rline"><span>He + He</span><b><sub>4</sub>Be</b></div>
+    <div class="rline"><span>Li + Li</span><b><sub>6</sub>C</b></div>
+    <div class="rline"><span>C + C</span><b><sub>12</sub>Mg</b></div>
+    <div class="rline"><span>O + O</span><b><sub>16</sub>S</b></div>
+    <div class="rline"><span>Ne + Ne</span><b><sub>20</sub>Ca</b></div>
+    <div class="rline"><span>Ca + Ca</span><b><sub>40</sub>Zr</b></div>
+    <div class="rline"><span>Fe + Fe</span><b><sub>56</sub>Ba</b></div>
+    <div class="rline"><span>Pr + Pr</span><b style="color:var(--red)"><sub>118</sub>Og 捷径</b></div>
+  </div>
+  <div class="wbox"><h3>🎯 目标</h3>合成 <b>118 号 Og</b> 点亮整张周期表；冲击「最少原子通关」纪录。</div>
+</aside>
 <div class="stage">
  <div class="play">
   <canvas id="c"></canvas>
   <div class="overlay" id="ov">
     <div class="big" id="ovTitle">合成大元素</div>
-    <div class="tip" id="ovTip">点按投放元素球。<br><b>相同元素相撞：原子序相加</b>（氦+氦→铍，碳+碳→镁）<br>粉色<b>质子</b>可与任何元素结合：原子序 +1<br>一路合成到 <b style="color:var(--red)">118 号 Og</b>。别让球堆过警戒线。</div>
+    <div class="tip" id="ovTip">点按投放元素球。<br><b>相同元素相撞：原子序相加</b>（氦+氦→铍，碳+碳→镁）<br>粉色<b>质子</b>可与任何元素结合：原子序 +1<br>一路合成到 <b style="color:var(--red)">118 号 Og</b>。别让球堆过警戒线。<br><b style="color:#c9a25e">⚠ 不稳定元素</b>：43 锝、61 钷、83 铋之后放置约 12 秒会闪烁警告，再不放它参与合成就会 <b>α 衰变（原子序 -2）</b>！</div>
     <button id="startBtn">开始聚变</button>
  </div>
  </div>
@@ -87,6 +142,12 @@ canvas{display:block;width:min(94vw,420px);height:auto}
   <div class="sbox">最高能量纪录<b id="sBest">0</b></div>
   <div class="sbox" id="achv">元素图鉴<b id="sMade">0/118</b><div id="achvBadge">🏆 全元素收集</div></div>
  </div>
+</div>
+<aside class="widebar">
+  <div class="wbox"><h3>☢️ 不稳定元素</h3>43 锝 · 61 钷 · 83 铋 ~ 118<br>落地静置约 <b>12 秒</b>开始闪烁警告（表情变慌张），约 15 秒触发 <b>α 衰变（Z - 2）</b> 并喷出质子——尽快让它们参与合成！</div>
+  <div class="wbox"><h3>⌨️ 操作</h3>移动鼠标 / 手指瞄准<br>点击、空格或回车投放<br>右上角 🔊 切换音效</div>
+  <div class="wbox"><h3>🏆 纪录</h3>最高分与最少原子通关自动本地保存；集齐 118 元素得全图鉴徽章。</div>
+</aside>
 </div>
 <div class="foot">恒星里氢聚成氦、氦聚成碳……但更重元素需要别的机制——<br>在这里，你的小球相撞就是加速器</div>
 
@@ -182,7 +243,7 @@ function updateHud(){
   document.getElementById('achvBadge').classList.toggle('on',made.size>=118);
   drawNext();markTable();
 }
-function drawBall(c,x,y,z,scale,noName,pack){
+function drawBall(c,x,y,z,scale,noName,pack,b){
   scale=scale||1;
   if(z===0&&pack){ /* 质子补给包 +N */
     var rp=12*scale;
@@ -209,6 +270,19 @@ function drawBall(c,x,y,z,scale,noName,pack){
   c.textAlign='center';c.textBaseline='middle';c.fillText(SYM[z-1],x,y-r*0.08);
   if(!noName&&r>16){c.font=(r*0.3)+'px "Noto Sans SC"';c.fillStyle='#5c6b7a';c.fillText(NAM[z-1],x,y+r*0.5)}
   if(r>26){c.font='bold '+(r*0.26)+'px "JetBrains Mono"';c.fillStyle='#8a99a8';c.fillText(z,x,y-r*0.52)}
+  /* 表情：置于球体下三分之一，半透明不遮挡符号与名称 */
+  if(!pack&&z>0&&r>20){
+    var worried=b&&b.warn;
+    c.save();c.globalAlpha=0.42;
+    c.fillStyle='rgba(44,58,72,.9)';
+    var ey=y+r*0.44,er=Math.max(1.1,r*0.06);
+    c.beginPath();c.arc(x-r*0.32,ey,er,0,6.283);c.arc(x+r*0.32,ey,er,0,6.283);c.fill();
+    c.strokeStyle='rgba(44,58,72,.85)';c.lineWidth=Math.max(1,r*0.045);c.beginPath();
+    if(worried){c.arc(x,y+r*0.8,r*0.15,Math.PI*1.15,Math.PI*1.85);}
+    else{c.arc(x,y+r*0.62,r*0.15,Math.PI*0.15,Math.PI*0.85);}
+    c.stroke();c.restore();
+    if(worried){c.globalAlpha=0.85;c.fillStyle='#c9a25e';c.font='bold '+(r*0.28)+'px "Noto Sans SC"';c.textAlign='center';c.fillText('!',x+r*0.68,y-r*0.5);c.globalAlpha=1;}
+  }
 }
 var ncv=document.getElementById('ncv'),nx=ncv.getContext('2d');
 function drawNext(){
@@ -232,10 +306,32 @@ function drop(){
   var it=Q.shift();Q.push(roll());
   var r=it.z===0&&!it.pack?8:(it.pack?12:radiusOf(it.z));
   var x=Math.max(r+2,Math.min(W-r-2,aimX));
-  balls.push({x:x,y:LINE-24,vx:0,vy:2,r:r,z:it.z,pack:it.pack||0,age:0,hot:14});
+  balls.push({x:x,y:LINE-24,vx:0,vy:2,r:r,z:it.z,pack:it.pack||0,age:0,hot:14,idle:0});
+  SFX.drop();
   if(!countStop){if(it.z>0)usedAtoms++;else usedProtons++}
   dropCd=26;updateHud();
 }
+
+/* ===== 特效 / 音效 / 衰变 ===== */
+var floaters=[],ringsFx=[],parts=[],shake=0,combo=0,lastMergeF=-999,frame=0;
+var RZ={};[43,61].forEach(function(z){RZ[z]=1});for(var zr=83;zr<=118;zr++)RZ[zr]=1;
+var sfxOn=true;try{sfxOn=localStorage.getItem('fusionSfx')!=='0'}catch(e){}
+var AC=null;
+function ac(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC}
+function tone(f0,f1,dur,type,vol){if(!sfxOn)return;var c=ac();if(!c)return;var t0=c.currentTime,o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t0+dur);g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(vol||0.22,t0+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+dur+0.05)}
+var SFX={
+  pop:function(z){tone(300+z*4,520+z*6,0.12,'sine',0.2)},
+  big:function(){tone(220,660,0.22,'triangle',0.26);tone(440,880,0.3,'sine',0.14)},
+  decay:function(){tone(500,120,0.35,'sawtooth',0.2);tone(660,180,0.25,'square',0.08)},
+  drop:function(){tone(400,300,0.06,'sine',0.1)}
+};
+function addFloater(x,y,txt,color,big){floaters.push({x:x,y:y,txt:txt,life:big?80:56,color:color||'#5b8cc4',big:big})}
+function addRing(x,y,r0,color){ringsFx.push({x:x,y:y,r:r0,life:26,color:color})}
+function addParts(x,y,n,color){for(var i=0;i<n;i++){var a=Math.random()*6.283,v=1.5+Math.random()*2.6;parts.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1.2,life:30+Math.random()*16,color:color})}}
+document.getElementById('sfxBtn').addEventListener('click',function(){sfxOn=!sfxOn;try{localStorage.setItem('fusionSfx',sfxOn?'1':'0')}catch(e){}this.textContent=sfxOn?'🔊':'🔇'});
+
+/* 启动时同步轨道之门按钮上的加成状态 */
+(function(){try{var z=+localStorage.getItem('zaoFusionMaxZ')||0;if(z>0){var gb=document.getElementById('gateBtn');if(gb)gb.textContent='🌀 轨道之门（'+z+'号加成）'}}catch(e){}})();
 
 /* ===== 物理 ===== */
 var G=0.32,REST=0.22;
@@ -246,6 +342,24 @@ function physics(){
     if(b.x-b.r<2){b.x=b.r+2;b.vx=Math.abs(b.vx)*REST}
     if(b.x+b.r>W-2){b.x=W-2-b.r;b.vx=-Math.abs(b.vx)*REST}
     if(b.y+b.r>H-2){b.y=H-2-b.r;b.vy=-Math.abs(b.vy)*REST;b.vx*=0.96}
+  }
+  /* 不稳定同位素衰变：静置 12s 警告闪烁，15s 触发 α 衰变 */
+  for(var d=0;d<balls.length;d++){var db=balls[d];
+    if(db.pack||db.z<=0||!RZ[db.z]){db.warn=false;continue}
+    var settled=db.age>60&&Math.abs(db.vy)<0.8&&db.y+db.r>H-8;
+    db.idle=settled?(db.idle||0)+1:0;
+    if(db.idle>780){
+      var nz=Math.max(1,db.z-2);
+      addFloater(db.x,db.y-10,'α衰变 '+SYM[db.z-1]+'→'+SYM[nz-1],'#c9a25e',true);
+      addRing(db.x,db.y,db.r,'#c9a25e');addParts(db.x,db.y,10,'#c9a25e');
+      SFX.decay();shake=Math.max(shake,6);
+      balls.push({x:db.x,y:db.y-8,vx:(Math.random()*2-1),vy:-3.2,r:8,z:0,pack:0,age:0,hot:22});
+      db.z=nz;db.r=radiusOf(nz);db.idle=0;db.age=0;db.hot=14;
+      if(nz>0){made.add(nz);
+        try{var fmz=+localStorage.getItem('zaoFusionMaxZ')||0;if(nz>fmz){localStorage.setItem('zaoFusionMaxZ',nz);var gb=document.getElementById('gateBtn');if(gb)gb.textContent='🌀 轨道之门（'+nz+'号加成）'}}catch(e){}
+      }
+    }
+    db.warn=db.idle>600;
   }
   var merges=[];
   for(var a=0;a<balls.length;a++)for(var c=a+1;c<balls.length;c++){
@@ -278,6 +392,14 @@ function physics(){
       var of=merges[m][2].overflow||0;
       balls.push({x:(A2.x+B2.x)/2,y:(A2.y+B2.y)/2,vx:(A2.vx+B2.vx)/2,vy:(A2.vy+B2.vy)/2-2.4,r:nz===0&&!merges[m][2].pack?8:(merges[m][2].pack?12:radiusOf(nz)),z:nz,pack:merges[m][2].pack||0,age:0,hot:12});
       score+=(nz||1)*10;if(nz===118)score+=1000;
+      /* juice：连锁 / 飘字 / 光环 / 粒子 / 震屏 / 音效 */
+      frame++;
+      combo=(frame-lastMergeF<55)?combo+1:1;lastMergeF=frame;
+      var mx=(A2.x+B2.x)/2,my=(A2.y+B2.y)/2;
+      addFloater(mx,my-8,'+'+((nz||1)*10)+(combo>2?' 连锁×'+combo:''),nz>=30?'#c9a25e':'#5b8cc4',nz>=30);
+      addRing(mx,my,Math.max(10,(merges[m][2].pack?12:(nz?radiusOf(nz):8))*0.7),'#7ba7d9');
+      addParts(mx,my,Math.min(12,3+((nz||1)>>3)),'#9cc0e8');
+      if(nz>=16){shake=Math.min(14,3+(nz>>3));SFX.big()}else SFX.pop(nz||1);
       if(nz>0)made.add(nz);
       /* 溢出质子：从大球顶端喷出，可被接住 */
       for(var e=0;e<of;e++){
@@ -312,6 +434,7 @@ function gameOver(){
 }
 
 function draw(){
+  if(shake>0.3)shake*=0.88;else shake=0;
   var bg=ctx.createLinearGradient(0,0,0,H);
   bg.addColorStop(0,'#ffffff');bg.addColorStop(1,'#eef4f9');
   ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
@@ -327,7 +450,23 @@ function draw(){
     drawBall(ctx,aimX,LINE-18,it0.z,1,false,it0.pack);
     ctx.fillStyle='rgba(90,120,150,.2)';ctx.beginPath();ctx.ellipse(aimX,H-8,(it0.z===0&&!it0.pack?8:(it0.pack?12:radiusOf(it0.z)))*0.8,5,0,0,6.283);ctx.fill();
   }
-  for(var b=0;b<balls.length;b++){var bb=balls[b];drawBall(ctx,bb.x,bb.y,bb.z,1,false,bb.pack)}
+  ctx.save();
+  if(shake>0.3)ctx.translate((Math.random()*2-1)*shake,(Math.random()*2-1)*shake);
+  for(var b=0;b<balls.length;b++){var bb=balls[b];drawBall(ctx,bb.x,bb.y,bb.z,1,false,bb.pack,bb)}
+  /* 特效层：光环 / 粒子 / 飘字 */
+  for(var ri=0;ri<ringsFx.length;ri++){var rf=ringsFx[ri];rf.r+=3.2;rf.life--;
+    ctx.strokeStyle=rf.color;ctx.globalAlpha=Math.max(0,rf.life/26);ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.arc(rf.x,rf.y,rf.r,0,6.283);ctx.stroke();ctx.globalAlpha=1;}
+  ringsFx=ringsFx.filter(function(r){return r.life>0});
+  for(var pi=0;pi<parts.length;pi++){var pt=parts[pi];pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=0.12;pt.life--;
+    ctx.globalAlpha=Math.max(0,pt.life/40);ctx.fillStyle=pt.color;ctx.fillRect(pt.x-1.5,pt.y-1.5,3,3);ctx.globalAlpha=1;}
+  parts=parts.filter(function(p){return p.life>0});
+  for(var fi=0;fi<floaters.length;fi++){var fl=floaters[fi];fl.y-=0.7;fl.life--;
+    ctx.globalAlpha=Math.min(1,fl.life/28);ctx.fillStyle=fl.color;
+    ctx.font=(fl.big?'bold 15px':'bold 12px')+' "Noto Sans SC"';ctx.textAlign='center';
+    ctx.fillText(fl.txt,fl.x,fl.y);ctx.globalAlpha=1;}
+  floaters=floaters.filter(function(f){return f.life>0});
+  ctx.restore();
 }
 function loop(){
   if(!running)return;
@@ -339,6 +478,7 @@ function loop(){
 }
 function start(){
   balls=[];score=0;overTimer=0;dropCd=0;made=new Set();celebrated=false;
+  floaters=[];ringsFx=[];parts=[];shake=0;combo=0;lastMergeF=-999;
   usedAtoms=0;usedProtons=0;countStop=false;
   Q=[roll(),roll(),roll(),roll()];
   running=true;ov.classList.add('hide');document.getElementById('cele').classList.remove('show');updateHud();loop();
@@ -453,5 +593,5 @@ fetch('/api/forum',{method:'POST',headers:{'Content-Type':'application/json'},
 body:JSON.stringify({action:'report',token:t,game:game,score:Math.floor(score)})}).catch(function(){})}catch(e){}};
 </script>
 <a href="/" title="返回首页" style="position:fixed;right:20px;bottom:20px;z-index:9999;width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.85);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35);text-decoration:none;backdrop-filter:blur(6px);font-size:18px">⌂</a>
-</body>
+<div style="position:fixed;left:8px;bottom:4px;font-size:10px;color:#94a3b8;opacity:.55;z-index:9998">© 2026 早晨 ｜ <a href="https://beian.miit.gov.cn" target="_blank" rel="noreferrer" style="color:#64748b">湘ICP备2026039674号-1</a></div></body>
 </html>
