@@ -27,7 +27,7 @@ const sections: Section[] = [
       {
         no: '01',
         name: 'VSEPR 分子构型实验室',
-        desc: '184 种分子 3D 电子云：无机 / 离子团（正·负）/ 有机三大类，σ·π·孤对分色渲染。',
+        desc: '33 种分子/离子 3D 电子云 + 成键四幕动画：sp–sp³d³ 全类型，封盘推演答题、键角量角器、双视角切换。',
         href: '/teaching/chem_lab1.1.html',
       },
       {

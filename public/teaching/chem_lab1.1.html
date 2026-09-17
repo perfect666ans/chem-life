@@ -63,7 +63,7 @@ canvas#stage{position:fixed;inset:0;display:block;z-index:1}
 
 /* ---------- 控制面板 ---------- */
 #ui-panel{
-  position:absolute;top:calc(52px + 12px);left:15px;width:320px;z-index:10;
+  position:absolute;top:calc(52px + 12px);right:15px;width:320px;z-index:10;
   background:var(--panel);backdrop-filter:blur(12px);
   border:1px solid var(--border);border-radius:12px;
   box-shadow:0 20px 50px rgba(0,0,0,.6);
@@ -144,12 +144,22 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .swatch{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.25);cursor:pointer;background:var(--sw);transition:transform .15s,box-shadow .15s;}
 .swatch:hover{transform:scale(1.15);}
 .swatch.on{border-color:#fff;box-shadow:0 0 12px var(--sw);}
+
+/* ---------- 推演连击 + 键角量角器 ---------- */
+.vq-streak{font-size:12px;color:#c9ced4;margin-top:14px;padding:8px 12px;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.06)}
+.vq-streak b{color:var(--acc)}
+.prot-hint{font-size:12px;color:#8a939e;line-height:1.6;margin-bottom:8px}
+.prot-result{font-size:13px;color:#e6e9ec;line-height:1.8;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 12px}
+.prot-result b{color:var(--acc)}
+#btn-prot.active{background:var(--acc);color:#050508;font-weight:800}
 .legend{
   margin-top:14px;padding:10px 12px;border-radius:9px;font-size:11px;color:#8a939e;
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);line-height:1.9;
 }
 .legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
 .legend .badges{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.legend .badges.periodic{display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:18px;gap:2px}
+.legend .badges.periodic .el{min-width:0;height:18px;padding:0;border-radius:3px;font-size:9px}
 .legend .el{
   display:inline-flex;align-items:center;justify-content:center;
   min-width:20px;height:20px;padding:0 4px;border-radius:6px;font-size:10px;font-weight:800;
@@ -157,18 +167,25 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 
 /* ---------- 信息卡 ---------- */
 #info-overlay{
-  position:absolute;right:30px;bottom:30px;width:420px;z-index:9;
-  display:flex;justify-content:flex-end;pointer-events:none;
+  position:absolute;left:12px;bottom:12px;width:auto;max-width:360px;z-index:9;
+  display:flex;justify-content:flex-start;pointer-events:none;
 }
 .info-card{
   pointer-events:auto;cursor:pointer;
   background:rgba(15,16,20,.95);backdrop-filter:blur(12px);
   border-left:4px solid var(--acc);border-radius:12px;
-  padding:22px 25px;box-shadow:0 20px 50px rgba(0,0,0,.6);
+  padding:12px 16px;box-shadow:0 20px 50px rgba(0,0,0,.6);
   transition:.3s;
 }
-#info-title{margin:0;font-size:30px;font-weight:900;color:#fff;line-height:1.15}
+#info-title{margin:0;font-size:22px;font-weight:900;color:#fff;line-height:1.15}
 .chem-sub,.chem-sup{font-size:.7em}
+/* 元素色球图例（分子式旁）+ 信息卡折叠态 */
+#info-els{display:flex;gap:4px;margin-top:6px}
+.elchip{width:11px;height:11px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,.28)}
+.info-hint{font-size:10px;color:#5b636e;margin-top:4px;letter-spacing:.05em}
+#info-card.collapsed #info-tags,#info-card.collapsed #info-desc{display:none}
+#info-card:not(.collapsed) .info-hint{display:none}
+#info-card.collapsed{cursor:pointer}
 .tag{
   display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;
   margin:8px 6px 0 0;font-weight:700;letter-spacing:.05em;
@@ -176,7 +193,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .tag-vsepr{background:#2a2d33;color:#c9ced4}
 .tag-hyb{background:#f5a623;color:#1a1206}
 .tag-warn{background:#3a3d44;color:#e6e9ec}
-#info-desc{font-size:14px;color:#bbb;line-height:1.6;margin:10px 0 0}
+#info-desc{font-size:12px;color:#bbb;line-height:1.5;margin:10px 0 0}
 #info-desc.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* ---------- 画布提示 ---------- */
@@ -317,22 +334,6 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
   #info-title{font-size:22px}
   #site-header nav{display:none}
 }
-
-/* ---------- 手机端适配：控制面板下移到底部并缩小，电脑端不变 ---------- */
-@media (max-width: 768px){
-  #site-header{height:44px;padding:0 10px;gap:8px}
-  #site-header nav a{padding:4px 8px;font-size:11px}
-  #site-header .crumb{display:none}
-  #site-header .logo{font-size:14px}
-  #ui-panel{
-    top:auto;bottom:8px;left:8px;right:8px;width:auto;
-    max-height:34vh;padding:10px 12px 8px;border-radius:10px;
-    font-size:12px;
-  }
-  #ui-panel h1{font-size:14px;margin:0 56px 6px 0;padding-bottom:6px}
-  #ui-panel .ctl-label{font-size:11px;margin:8px 0 4px}
-  #canvas-hint{font-size:11px;top:auto;bottom:calc(34vh + 14px)}
-}
 </style>
 <style>html,body{overscroll-behavior:none;}</style>
 </head>
@@ -364,7 +365,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     <div class="ctl-label">选择分子 / 离子</div>
     <select id="mol-select"></select>
 
-    <div class="ctl-label">成键演化：自由原子 → 凝聚成键</div>
+    <div class="ctl-label">成键时刻 · 四幕：游离 → 试探 → 交融 → 定型</div>
     <input type="range" id="bond-slider" min="0" max="100" value="100">
 
     <div class="ctl-label">显示模式</div>
@@ -374,11 +375,20 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     </div>
 
     <div class="switch-row">
-      <span>先算后看（答题推演）</span>
+      <span>封盘推演 · 先推价层电子对再开盘对照</span>
       <label class="switch"><input type="checkbox" id="vq-toggle"><span class="track"></span></label>
     </div>
 
     <button class="btn-table" id="btn-table">VSEPR 数据总表</button>
+
+    <div class="ctl-label">观察工具</div>
+    <button class="btn-table" id="btn-prot" style="margin-top:0">键角量角器</button>
+    <div id="prot-box" style="display:none;margin-top:10px">
+      <div class="prot-hint">依次点击画布中的原子：<b>第 1 个 = 测量顶角</b>，第 2、3 个 = 两端原子</div>
+      <div class="prot-hint" id="prot-hint" style="color:#5b636e;margin-bottom:6px">等待选择…（画布中点选原子）</div>
+      <div class="prot-result" id="prot-result" style="display:none"></div>
+      <button class="btn-table" id="prot-reset" style="margin-top:8px;border-color:#5b636e;color:#9aa3ad">重新测量</button>
+    </div>
 
     <div class="legend">
       <div><span class="dot" style="background:#f2f4f6"></span>成键电子 / σ 键</div>
@@ -397,10 +407,12 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 </aside>
 
 <div id="info-overlay">
-  <div class="info-card" id="info-card">
+  <div class="info-card collapsed" id="info-card">
     <h2 id="info-title"></h2>
+    <div id="info-els"></div>
     <div id="info-tags"></div>
     <p id="info-desc"></p>
+    <div class="info-hint">点击展开 ▾</div>
   </div>
 </div>
 
@@ -462,8 +474,8 @@ const CONFIG = {
     s:'#f2f4f6', sigma:'#f2f4f6', nucleus:'#f2f4f6',
     p:'#3ddcff', p_alt:'#b482c8', lone:'#3ddcff', deloc:'#3ddcff',
     hybrid:'#e6e9ec', ghost:'#5a6068',
-    atom_H:'#f2f4f6', atom_C:'#7d858e', atom_N:'#2196f3', atom_O:'#e85d75',
-    atom_F:'#2196f3', atom_P:'#c8801a', atom_S:'#f5a623', atom_Cl:'#66bb6a',
+    atom_H:'#7d858e', atom_C:'#ffffff', atom_N:'#3d8b62', atom_O:'#d98a3d',
+    atom_F:'#7a5fc0', atom_P:'#c94a6a', atom_S:'#4a7dc9', atom_Cl:'#c9b23d',atom_I:'#3da08a',atom_Xe:'#8a8a92',
     atom_I:'#7e4a96', atom_Xe:'#cfd4d9', atom_B:'#9b59b6', atom_Be:'#9b59b6'
   }
 };
@@ -572,10 +584,7 @@ function makeAtom(sym, radius){
   const outline=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0x05070a,side:THREE.BackSide}));
   outline.scale.setScalar(1.16);
   grp.add(outline);
-  const badge=labelSprite(sym,col);
-  badge.position.y=radius+0.16;
-  grp.add(badge);
-  return grp;
+  return grp;   /* 元素符号标签已按需求移除：原子种类仅靠球色区分 */
 }
 
 /* ---------- 电子云点云：按波函数概率密度拒绝采样 ---------- */
@@ -709,23 +718,23 @@ const tbp_ax=[[0,1,0],[0,-1,0]];
 const tbp_eq=[0,120,240].map(a=>{const r=a*Math.PI/180;return [Math.cos(r),0,Math.sin(r)];});
 
 function A(t,p,orbs,extra){ return Object.assign({t:t,p:p,orbs:orbs||[]}, extra||{}); }
-function O(t,d,lone){ return {t:t,d:d,lone:!!lone}; }
+function O(t,d,lone,scale){ return {t:t,d:d,lone:!!lone,scale:scale}; }
 
 const MOLECULES=[
 { id:"CH4", name:"CH₄", hyb:"sp³", tags:["AX4","正四面体"],
-  desc:"C 原子 sp³ 杂化：4 个杂化轨道指向正四面体四个顶点，键角 109.5°。拖动下方滑杆可以看到 4 个氢原子从远处靠近、轨道融合、最终凝聚成四根 σ 键。",
+  desc:"C 原子 sp³ 杂化：4 个杂化轨道指向正四面体四个顶点，键角 109.5°。拖动下方滑杆可以看到 4 个氢原子从远处靠近、轨道融合、最终交融定形成四根 σ 键。",
   atoms:[A("C",[0,0,0],tet.map(d=>O("hybrid",d)))],
   bonds:[[0,1],[0,2],[0,3],[0,4]],
   ligands:tet.map(d=>({t:"H",p:d.map(x=>x*1.6),orbs:[O("s",d.map(x=>-x))]})) },
 { id:"NH3", name:"NH₃", hyb:"sp³", tags:["AX3E","三角锥"],
-  desc:"N 原子 sp³ 杂化，其中 1 对孤电子对（电蓝）占据一个四面体顶点，斥力把键角从 109.5° 挤压到 107.3°，分子呈三角锥形。",
+  desc:"N 原子 sp³ 杂化，其中 1 对孤电子对（青蓝）占据一个四面体顶点，斥力把键角从 109.5° 挤压到 107.3°，分子呈三角锥形。",
   atoms:[A("N",[0,0,0],[
       O("hybrid",[0.94,-0.33,0]),O("hybrid",[-0.47,-0.33,0.82]),O("hybrid",[-0.47,-0.33,-0.82]),
       O("hybrid",[0,1,0],true)])],
   bonds:[[0,1],[0,2],[0,3]],
   ligands:[[0.94,-0.33,0],[-0.47,-0.33,0.82],[-0.47,-0.33,-0.82]].map(d=>({t:"H",p:d.map(x=>x*1.6),orbs:[O("s",d.map(x=>-x))]})) },
 { id:"H2O", name:"H₂O", hyb:"sp³", tags:["AX2E2","V形"],
-  desc:"O 原子 2 对孤电子对产生更强斥力，键角进一步压缩到 104.5°，分子呈 V 形。两对孤电子对（电蓝）清晰可见。",
+  desc:"O 原子 2 对孤电子对产生更强斥力，键角进一步压缩到 104.5°，分子呈 V 形。两对孤电子对（青蓝）清晰可见。",
   atoms:[A("O",[0,0,0],[
       O("hybrid",[0.8,-0.5,0]),O("hybrid",[-0.8,-0.5,0]),
       O("hybrid",[0,0.8,0.6],true),O("hybrid",[0,0.8,-0.6],true)])],
@@ -749,13 +758,13 @@ const MOLECULES=[
   ligands:[[1,0,0],[-1,0,0]].map(d=>({t:"O",p:d.map(x=>x*2.4),orbs:[O("p",d.map(x=>-x)),O("p",[0,1,0],true),O("p",[0,0,1],true)]})),
   pi:[[0,1,'y'],[0,2,'y'],[0,1,'z','p_alt'],[0,2,'z','p_alt']] },
 { id:"SO2", name:"SO₂", hyb:"sp²", tags:["AX2E","V形"],
-  desc:"S 原子 sp² 杂化，1 对孤电子对占据一个杂化轨道；三个平行的 p 轨道形成 3 中心 4 电子离域大 π 键（电蓝弯管），键角约 119.5°。",
+  desc:"S 原子 sp² 杂化，1 对孤电子对占据一个杂化轨道；三个平行的 p 轨道形成 3 中心 4 电子离域大 π 键（青蓝弯管），键角约 119.5°。",
   atoms:[A("S",[0,0,0],[O("hybrid",[0.867,-0.498,0]),O("hybrid",[-0.867,-0.498,0]),O("hybrid",[0,1,0],true)],{rem:['z']})],
   bonds:[[0,1],[0,2]],
   ligands:[[0.867,-0.498,0],[-0.867,-0.498,0]].map(d=>({t:"O",p:d.map(x=>x*2.26),orbs:[O("p",d.map(x=>-x))]})),
   deloc:"bent" },
 { id:"SO3", name:"SO₃", hyb:"sp²", tags:["AX3","平面三角形"],
-  desc:"S 原子 sp² 杂化，三个 O 在同一平面互成 120°；四个平行的 p 轨道形成 4 中心 6 电子平面离域大 π 键（电蓝扁柱壳），S=O 键长均等。",
+  desc:"S 原子 sp² 杂化，三个 O 在同一平面互成 120°；四个平行的 p 轨道形成 4 中心 6 电子平面离域大 π 键（青蓝扁柱壳），S=O 键长均等。",
   atoms:[A("S",[0,0,0],tri.map(d=>O("hybrid",d)),{rem:['z']})],
   bonds:[[0,1],[0,2],[0,3]],
   ligands:tri.map(d=>({t:"O",p:d.map(x=>x*1.8),orbs:[O("p",d.map(x=>-x))]})),
@@ -771,7 +780,7 @@ const MOLECULES=[
   atoms:[A("C",[0,0,0],[O("hybrid",[0,1,0]),O("hybrid",[0.894,-0.447,0]),O("hybrid",[-0.894,-0.447,0])],{rem:['z']})],
   bonds:[[0,1],[0,2],[0,3]],
   ligands:[
-    {t:"O",p:[0,1.5,0],orbs:[O("p",[0,-1,0]),O("hybrid",[0.87,0.5,0],true),O("hybrid",[-0.87,0.5,0],true),O("p",[0,0,1])]},
+    {t:"O",p:[0,1.5,0],orbs:[O("p",[0,-1,0])]},
     {t:"Cl",p:[1.79,-0.89,0],orbs:[O("p",[-0.894,0.447,0])]},
     {t:"Cl",p:[-1.79,-0.89,0],orbs:[O("p",[0.894,0.447,0])]}],
   pi:[[0,1,'z']] },
@@ -880,7 +889,7 @@ const MOLECULES=[
     {t:"H",p:[0,-1.23,-1.41],orbs:[O("s",[0,0.33,0.94])]},
     {t:"H",p:[1.32,1.23,0.51],orbs:[O("s",[-0.88,-0.33,-0.34])]}] },
 { id:"C6H6", name:"C₆H₆", hyb:"sp²", tags:["苯","闭合大π键"],
-  desc:"苯环是平面正六边形：每个 C sp² 杂化，剩余 6 个 p 轨道垂直于环平面、肩并肩重叠，形成闭合的 6 中心 6 电子离域大 π 键（上下两道电蓝圆环）——这就是苯异常稳定的根源。",
+  desc:"苯环是平面正六边形：每个 C sp² 杂化，剩余 6 个 p 轨道垂直于环平面、肩并肩重叠，形成闭合的 6 中心 6 电子离域大 π 键（上下两道青蓝圆环）——这就是苯异常稳定的根源。",
   benzene:true, atoms:[], bonds:[], ligands:[] },
 { id:"S8", name:"S₈", hyb:"sp³", tags:["皇冠型","同素异形体"],
   desc:"皇冠硫：8 个 S 原子各用 sp³ 杂化相连，形成上下交错的褶皱环（像皇冠）。每个 S 的 2 对孤电子对呈兔耳状指向环外侧，使 S₈ 分子疏水、易溶于 CS₂。",
@@ -936,7 +945,7 @@ const MOLECULES=[
     atoms:[A("C",[0,0,0],[O("hybrid",[1,0,0]),O("hybrid",[-0.5,0,0.866]),O("hybrid",[-0.5,0,-0.866])],{rem:['y']})],
     bonds:[[0,1],[0,2],[0,3]],
     ligands:[
-      {t:"O",p:[1.5,0,0],orbs:[O("p",[-1,0,0]),O("hybrid",[0.35,0,0.85],true),O("hybrid",[0.35,0,-0.85],true),O("p",[0,1,0])]},
+      {t:"O",p:[1.5,0,0],orbs:[O("p",[-1,0,0])]},
       {t:"H",p:[-0.85,0,1.47],orbs:[O("s",[0.5,0,-0.866])]},
       {t:"H",p:[-0.85,0,-1.47],orbs:[O("s",[0.5,0,0.866])]}
     ],
@@ -1025,7 +1034,7 @@ const ctl={target:new THREE.Vector3(0,0,0),sph:new THREE.Spherical().setFromVect
     ctl.sph.phi-=(e.clientY-ctl.py)*0.005;
     ctl.sph.phi=Math.max(0.15,Math.min(Math.PI-0.15,ctl.sph.phi));
     ctl.px=e.clientX;ctl.py=e.clientY;};
-  const onUp=()=>{ctl.dragging=false;setTimeout(()=>{ctl.autoRotate=true;},2500);};
+  const onUp=()=>{ctl.dragging=false;setTimeout(()=>{if(!prot.active) ctl.autoRotate=true;},2500);};
   el.addEventListener('pointerdown',onDown);
   window.addEventListener('pointermove',onMove);
   window.addEventListener('pointerup',onUp);
@@ -1045,32 +1054,54 @@ function ctlUpdate(){
   camera.lookAt(ctl.target);
 }
 
-/* ---------- 背景装饰：双环 + 电子珠 ---------- */
+/* ---------- 背景装饰：半透明金色行星环 + 游星 ---------- */
 const ornament=new THREE.Group(), ornament2=new THREE.Group();
+const ringMats=[], beadMats=[];
 (function buildOrnaments(){
-  const ring1=new THREE.Mesh(new THREE.TorusGeometry(4.6,0.012,8,120),
-    new THREE.MeshBasicMaterial({color:0x9aa3ad,transparent:true,opacity:0.55}));
-  const ring2=new THREE.Mesh(new THREE.TorusGeometry(3.7,0.008,8,120),
-    new THREE.MeshBasicMaterial({color:0x555b63,transparent:true,opacity:0.5}));
-  ring2.rotation.x=0.3;
-  ornament.add(ring1,ring2);
-  for(let i=0;i<8;i++){
-    const a=i/8*Math.PI*2;
-    const b=new THREE.Mesh(new THREE.SphereGeometry(0.055,10,10),
-      new THREE.MeshBasicMaterial({color:0x3ddcff}));
-    b.position.set(Math.cos(a)*4.6,Math.sin(a)*4.6,0);
-    ornament.add(b);
-  }
-  ornament.rotation.set(0.35,-0.4,0);
-  const ring3=new THREE.Mesh(new THREE.TorusGeometry(5.4,0.008,8,120),
-    new THREE.MeshBasicMaterial({color:0x555b63,transparent:true,opacity:0.42}));
-  ornament2.add(ring3);
+  const GOLD=0xd8b56a;
+  /* 三条金色环：半径拉开，微光带宽统一(0.40)；
+     每条 = 扁平微光宽带 + 亮线核心；第二层附密集发光星点（环形璀璨星河） */
+  const defs=[
+    {r:4.0, tube:0.008, op:0.42, glow:0, tilt:[0.46,-0.38,0.00], sy:0.86, grp:ornament},
+    {r:6.2, tube:0.006, op:0.30, glowW:0.40, glowOp:0.09, tilt:[0.22, 0.55,0.12], sy:0.90, grp:ornament, stars:120},
+    {r:8.4, tube:0.004, op:0.20, glowW:0.40, glowOp:0.07, tilt:[-0.52,-0.18,0.06], sy:0.78, grp:ornament2},
+  ];
+  defs.forEach(d=>{
+    const holder=new THREE.Group();
+    holder.scale.y=d.sy;
+    holder.rotation.set(d.tilt[0],d.tilt[1],d.tilt[2]);
+    /* 微光宽带（第一层不设，只留细线，避免挡视野） */
+    if(d.glow!==0){
+      const gmat=new THREE.MeshBasicMaterial({color:GOLD,transparent:true,opacity:d.glowOp,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
+      const glow=new THREE.Mesh(new THREE.RingGeometry(Math.max(0.1,d.r-d.glowW/2), d.r+d.glowW/2, 128), gmat);
+      holder.add(glow); ringMats.push(gmat);
+    }
+    /* 亮线核心 */
+    const m=new THREE.MeshBasicMaterial({color:GOLD,transparent:true,opacity:d.op});
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(d.r,d.tube,8,140),m);
+    holder.add(ring); ringMats.push(m);
+    /* 第二层星河：THREE.Points 一次绘制（120 颗星 = 1 次 draw call，治卡顿） */
+    if(d.stars){
+      const n=d.stars, arr=new Float32Array(n*3);
+      for(let i=0;i<n;i++){
+        const th=Math.random()*Math.PI*2, rr=d.r+(Math.random()-0.5)*0.36;
+        arr[i*3]=Math.cos(th)*rr; arr[i*3+1]=Math.sin(th)*rr; arr[i*3+2]=(Math.random()-0.5)*0.1;
+      }
+      const sg=new THREE.BufferGeometry();
+      sg.setAttribute('position',new THREE.BufferAttribute(arr,3));
+      holder.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xfff3d6,size:0.055,sizeAttenuation:true,transparent:true,opacity:0.95,depthWrite:false})));
+    }
+    d.grp.add(holder);
+  });
+  /* 游星：沿最外环(8.4)运行，大小/相位/明度渐变 */
   const eBeads=[];
-  for(let i=0;i<3;i++){
-    const b=new THREE.Mesh(new THREE.SphereGeometry(0.07,10,10),
-      new THREE.MeshBasicMaterial({color:0x3ddcff}));
-    ornament2.add(b); eBeads.push({m:b,off:i/3*Math.PI*2});
-  }
+  [{s:0.10,ph:0.0,op:0.95},{s:0.055,ph:2.2,op:0.8},{s:0.04,ph:4.1,op:0.6}].forEach(d=>{
+    const m=new THREE.MeshBasicMaterial({color:GOLD,transparent:true,opacity:d.op});
+    const b=new THREE.Mesh(new THREE.SphereGeometry(d.s,10,10),m);
+    ornament2.add(b); beadMats.push(m);
+    eBeads.push({m:b,off:d.ph,rr:8.4,sp:0.010});
+  });
+  ornament.rotation.set(0.35,-0.4,0);
   ornament2.rotation.x=-0.55;
   ornament2.userData.beads=eBeads;
   scene.add(ornament,ornament2);
@@ -1116,7 +1147,7 @@ function buildMolecule(mol){
         :(o.t==='s'?CONFIG.colors.s
         :(o.t==='p'||o.t==='p_alt')?CONFIG.colors[o.t]||CONFIG.colors.p
         :CONFIG.colors.hybrid);
-      const scale=o.t==='s'?0.62:0.9;
+      const scale=o.scale||(o.t==='s'?0.62:0.9);
       const og=createOrbitalGroup(o.t==='p_alt'?'p':o.t, color, scale, o.d, {lone:o.lone});
       og.position.copy(center);
       molGroup.add(og);
@@ -1188,7 +1219,8 @@ function buildMolecule(mol){
       const pts=[];
       for(let i=0;i<=20;i++){
         const t=i/20;
-        pts.push(new THREE.Vector3(-1.6+3.2*t, 0.9*Math.sin(Math.PI*t)+0.55, sgn*0.5));
+        /* 贴合 S–O–O 骨架：两端在 O(±1.96,-1.13)，拱顶略高于 S(0,0) */
+        pts.push(new THREE.Vector3(-1.95+3.9*t, -1.1+1.35*Math.sin(Math.PI*t), sgn*0.5));
       }
       const geo=track(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),32,0.42,10));
       const mat=createShellMat(CONFIG.colors.deloc,{deloc:true});
@@ -1226,7 +1258,7 @@ function updateEvolution(p){
   const t=p>0.4?Math.min((p-0.4)/0.4,1):0;
   /* ③ 云聚成键：p∈[0.2,0.5] */
   const tCloud=Math.max(0,Math.min((p-0.2)/0.3,1));
-  /* ④ 键柱凝聚：p∈[0.55,1] */
+  /* ④ 键柱交融定型：p∈[0.55,1] */
   const tSolid=Math.max(0,Math.min((p-0.55)/0.45,1));
   /* π 专场：p∈[0.5,0.9] */
   const tPi=Math.max(0,Math.min((p-0.5)/0.4,1));
@@ -1251,7 +1283,7 @@ function updateEvolution(p){
     if(shellMat){
       let op=1;
       if(o.type==='rem'){ op=1-tPi; }
-      else if(o.type==='s'){ op=1-t; }             /* σ/1s 云随成键凝聚，终态完全消失，不留虚影 */
+      else if(o.type==='s'){ op=1-t; }             /* σ/1s 云随成键交融定型，终态完全消失，不留虚影 */
       else if(!o.lone){ op=1-t; }
       shellMat.uniforms.opacity.value=op;
     }
@@ -1355,6 +1387,7 @@ CHAPTERS.forEach(ch=>{
 /* 元素徽章图例 */
 (function buildLegend(){
   const box=document.getElementById('el-badges');
+  box.className='badges periodic';
   ['H','C','N','O','F','P','S','Cl','I','Xe'].forEach(sym=>{
     const col=CONFIG.colors['atom_'+sym];
     const s=document.createElement('span'); s.className='el'; s.textContent=sym;
@@ -1372,6 +1405,10 @@ function flash(){
 
 function setInfo(mol){
   document.getElementById('info-title').innerHTML=mol.name;
+  /* 分子式旁：本分子涉及元素的颜色小球 */
+  const els=[...new Set(mol.atoms.concat(mol.ligands||[]).map(a=>a.t))];
+  document.getElementById('info-els').innerHTML=els.map(s=>
+    '<span class="elchip" style="background:'+atomColor(s)+'" title="'+s+'"></span>').join('');
   document.getElementById('info-tags').innerHTML=
     '<span class="tag tag-vsepr">'+mol.tags[0]+'</span>'+
     '<span class="tag tag-hyb">'+mol.hyb+' 杂化</span>'+
@@ -1389,6 +1426,7 @@ function selectMolecule(id, noFlash){
   buildMolecule(mol);
   if(!noFlash) flash();
   if(window.VQ) VQ.check();
+  if(typeof protReset==='function') protReset();  /* 换分子即清空量角器选中（原子全变） */
   if(!noFlash && history.replaceState){
     try{ history.replaceState(null,'','?mol='+encodeURIComponent(id)); }catch(e){}
   }
@@ -1417,7 +1455,7 @@ if(window.self!==window.top || window.innerWidth<600 || window.innerHeight<540){
 
 /* 信息卡展开/收起 */
 document.getElementById('info-card').addEventListener('click',()=>{
-  document.getElementById('info-desc').classList.toggle('clamp');
+  document.getElementById('info-card').classList.toggle('collapsed');
 });
 
 /* ---------- 数据总表 ---------- */
@@ -1467,9 +1505,10 @@ function animate(){
   ornament.rotation.y+=0.0015;
   ornament2.rotation.y-=0.0011;
   (ornament2.userData.beads||[]).forEach(b=>{
-    b.off+=0.012;
-    b.m.position.set(Math.cos(b.off)*5.4,Math.sin(b.off)*5.4,0);
+    b.off+=b.sp||0.012;
+    b.m.position.set(Math.cos(b.off)*b.rr,Math.sin(b.off)*b.rr,0);
   });
+  protFxTick();
   ctlUpdate();
   renderer.render(scene,camera);
 }
@@ -1500,6 +1539,153 @@ document.getElementById('theme-row').addEventListener('click',e=>{
   const b=e.target.closest('.swatch'); if(b) applyTheme(b.dataset.theme);
 });
 
+/* ---------- 键角量角器 ---------- */
+const prot={active:false,picks:[],dots:[],vis:[],vs:null,ang:0};
+const protFx=new THREE.Group(); scene.add(protFx);
+document.getElementById('btn-prot').addEventListener('click',()=>{
+  prot.active=!prot.active;
+  document.getElementById('btn-prot').classList.toggle('active',prot.active);
+  document.getElementById('prot-box').style.display=prot.active?'block':'none';
+  ctl.autoRotate=!prot.active;   /* 量角时暂停自转，保证点选准确 */
+  protReset();
+});
+document.getElementById('prot-reset').addEventListener('click',protReset);
+function protClearVis(){
+  prot.vis.forEach(m=>protFx.remove(m)); prot.vis=[];
+}
+function protReset(){
+  prot.picks=[]; prot.dots.forEach(d=>protFx.remove(d)); prot.dots=[];
+  protClearVis(); prot.vs=null;
+  const r=document.getElementById('prot-result'); r.innerHTML=''; r.style.display='none';
+  document.getElementById('prot-hint').textContent='等待选择…（画布中点选原子）';
+}
+function protPick(e){
+  if(!prot.active||!currentMol) return;
+  let best=-1,bd=1e9; const W=innerWidth,H=innerHeight;
+  evolveParts.atoms.forEach((a,i)=>{
+    const w=new THREE.Vector3(); a.grp.getWorldPosition(w); w.project(camera);
+    const sx=(w.x*0.5+0.5)*W, sy=(-w.y*0.5+0.5)*H;
+    const d=Math.hypot(sx-e.clientX,sy-e.clientY);
+    if(d<bd){bd=d;best=i;}
+  });
+  if(best<0||bd>30||prot.picks.includes(best)) return;
+  prot.picks.push(best);
+  protMark(best);
+  document.getElementById('prot-hint').textContent='已选 '+prot.picks.length+'/3 个原子';
+  if(prot.picks.length===3) protMeasure();
+}
+/* 选中反馈：亮度增强壳（呼吸微光）+ 双层扩散水波纹，所有原子一致 */
+function protMark(idx){
+  const radius=evolveParts.atoms[idx].grp.userData.radius||0.5;
+  /* 中心发光点：点光源式微光（居中、适中亮度）+ 微晕，不是大圆圈 */
+  const core=new THREE.Mesh(new THREE.SphereGeometry(radius*0.32,10,10),
+    new THREE.MeshBasicMaterial({color:0xfff6e0,transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false}));
+  core.userData={kind:'core',atom:idx};
+  protFx.add(core); prot.dots.push(core);
+  const halo=new THREE.Mesh(new THREE.SphereGeometry(radius*0.55,10,10),
+    new THREE.MeshBasicMaterial({color:0xffe9c0,transparent:true,opacity:0.22,blending:THREE.AdditiveBlending,depthWrite:false}));
+  halo.userData={kind:'halo',atom:idx};
+  protFx.add(halo); prot.dots.push(halo);
+  /* 水波纹：细线环，仅扩散约一个原子半径即淡出 */
+  for(let k=0;k<2;k++){
+    const rip=new THREE.Mesh(new THREE.RingGeometry(radius*1.06,radius*1.1,48),
+      new THREE.MeshBasicMaterial({color:0xbfe6ff,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));
+    rip.userData={kind:'ripple',atom:idx,phase:k*0.5};
+    protFx.add(rip); prot.dots.push(rip);
+  }
+}
+/* 每帧驱动：FX 跟随原子移动；波纹环面朝相机扩散淡出 */
+function protFxTick(){
+  prot.dots.forEach(m=>{
+    const a=evolveParts.atoms[m.userData.atom]; if(!a) return;
+    a.grp.getWorldPosition(m.position);
+    const k=m.userData.kind, t=performance.now()*0.005;
+    if(k==='core'){ m.material.opacity=0.72+0.13*Math.sin(t); }       /* 点光源呼吸，亮度适中 */
+    else if(k==='halo'){ m.material.opacity=0.16+0.06*Math.sin(t); }
+    else{
+      m.userData.phase=(m.userData.phase+0.02)%1;
+      const ph=m.userData.phase;
+      m.scale.setScalar(1+ph*0.55);          /* 小范围扩散 */
+      m.material.opacity=0.28*(1-ph);        /* 更透明 */
+      m.quaternion.copy(camera.quaternion);
+    }
+  });
+  protVisTick();   /* 量角器辅助线/角度弧/度数标注跟随原子 */
+}
+function protMeasure(){
+  const [vi,a1,a2]=prot.picks;
+  const V=evolveParts.atoms[vi].base,A=evolveParts.atoms[a1].base,B=evolveParts.atoms[a2].base;
+  const v1=A.clone().sub(V).normalize(),v2=B.clone().sub(V).normalize();
+  const ang=Math.acos(Math.max(-1,Math.min(1,v1.dot(v2))))*180/Math.PI;
+  prot.vs=[vi,a1,a2]; prot.ang=ang;
+  protBuildVis();
+  const r=document.getElementById('prot-result');
+  r.innerHTML='∠ 键角（顶点为第 1 个选中原子）= <b>'+ang.toFixed(1)+'°</b>';
+  r.style.display='block';
+  document.getElementById('prot-hint').textContent='测量完成，可点"重新测量"；拖动旋转后标注会跟随';
+}
+/* 可视量角器：顶点→两端的辅助线 + 顶角角度弧 + 弧旁度数标注（跟随原子，每帧更新） */
+function protTextSprite(text){
+  const c=document.createElement('canvas'); c.width=256; c.height=128;
+  const x=c.getContext('2d');
+  x.font='bold 72px "JetBrains Mono",monospace'; x.fillStyle='#ffd27a';
+  x.textAlign='center'; x.textBaseline='middle';
+  x.shadowColor='rgba(0,0,0,.7)'; x.shadowBlur=10;
+  x.fillText(text,128,64);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));
+  sp.scale.set(1.15,0.575,1);
+  return sp;
+}
+function protBuildVis(){
+  protClearVis();
+  const [vi,a1,a2]=prot.vs;
+  const lmat=new THREE.LineBasicMaterial({color:0xffd27a,transparent:true,opacity:0.9});
+  [[vi,a1],[vi,a2]].forEach(pr=>{
+    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]);
+    const ln=new THREE.Line(g,lmat);
+    ln.userData={kind:'vline',from:pr[0],to:pr[1]};
+    protFx.add(ln); prot.vis.push(ln);
+  });
+  const arc=new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array.from({length:25},()=>new THREE.Vector3())),
+    new THREE.LineBasicMaterial({color:0xffd27a,transparent:true,opacity:0.95}));
+  arc.userData={kind:'varc'};
+  protFx.add(arc); prot.vis.push(arc);
+  const label=protTextSprite(prot.ang.toFixed(1)+'°');
+  label.userData={kind:'vlabel'};
+  protFx.add(label); prot.vis.push(label);
+}
+function protVisTick(){
+  if(!prot.vs) return;
+  const P=i=>{const w=new THREE.Vector3(); evolveParts.atoms[i].grp.getWorldPosition(w); return w;};
+  const V=P(prot.vs[0]),A=P(prot.vs[1]),B=P(prot.vs[2]);
+  const u=A.clone().sub(V).normalize(), w=B.clone().sub(V).normalize();
+  let n=new THREE.Vector3().crossVectors(u,w);
+  if(n.lengthSq()<1e-8) n=new THREE.Vector3(0,0,1); else n.normalize();
+  const wp=new THREE.Vector3().crossVectors(n,u).normalize();
+  const angR=Math.acos(Math.max(-1,Math.min(1,u.dot(w))));
+  const R=Math.min(A.distanceTo(V),B.distanceTo(V))*0.42;
+  prot.vis.forEach(m=>{
+    const p=m.geometry&&m.geometry.attributes?m.geometry.attributes.position:null;
+    if(m.userData.kind==='vline'){
+      const a=P(m.userData.from), b=P(m.userData.to);
+      p.setXYZ(0,a.x,a.y,a.z); p.setXYZ(1,b.x,b.y,b.z); p.needsUpdate=true;
+    }else if(m.userData.kind==='varc'){
+      for(let i=0;i<=24;i++){
+        const t=i/24*angR;
+        const pt=V.clone().addScaledVector(u,R*Math.cos(t)).addScaledVector(wp,R*Math.sin(t));
+        p.setXYZ(i,pt.x,pt.y,pt.z);
+      }
+      p.needsUpdate=true;
+    }else if(m.userData.kind==='vlabel'){
+      const bis=u.clone().add(w).normalize();
+      const mid=V.clone().addScaledVector(u,R*Math.cos(angR/2)).addScaledVector(wp,R*Math.sin(angR/2));
+      mid.addScaledVector(bis,0.34);
+      m.position.copy(mid);
+    }
+  });
+}
+document.getElementById('stage').addEventListener('click',protPick);
+
 /* ---------- 启动 ---------- */
 (function boot(){
   const params=new URLSearchParams(location.search);
@@ -1517,7 +1703,7 @@ document.getElementById('theme-row').addEventListener('click',e=>{
 <script>
 "use strict";
 /* =====================================================================
-   先算后看 · 答题推演系统
+   封盘推演 · 答题推演系统
    ===================================================================== */
 const VQ_DATA={
   BeCl2:{c:"Be",n:2,m:0,shape:"直线形",calc:"a = 2，配位 Cl×2（各 b = 1）：m = (2 − 2) ÷ 2 = 0"},
@@ -1535,6 +1721,14 @@ const VQ_DATA={
   C2H2:{c:"C",n:2,m:0,shape:"直线形",how:"看任意一个 C：C≡C 三键只算 1 根 σ 键，再加 1 个 H，n = 2；价电子用光，m = 0。"},
   HCN:{c:"C",n:2,m:0,shape:"直线形",calc:"a = 4，配位 H×1（b = 1）+ N×1（b = 3）：m = (4 − 4) ÷ 2 = 0"},
   COCl2:{c:"C",n:3,m:0,shape:"平面三角形",calc:"a = 4，配位 O×1（b = 2）+ Cl×2（各 b = 1）：m = (4 − 4) ÷ 2 = 0"},
+  CS2:{c:"C",n:2,m:0,shape:"直线形",calc:"a = 4，配位 S×2（各 b = 2，双键各出 2 电子）：m = (4 − 4) ÷ 2 = 0"},
+  BCl3:{c:"B",n:3,m:0,shape:"平面三角形",calc:"a = 3，配位 Cl×3（各 b = 1）：m = (3 − 3) ÷ 2 = 0"},
+  SiH4:{c:"Si",n:4,m:0,shape:"正四面体",calc:"a = 4，配位 H×4（各 b = 1）：m = (4 − 4) ÷ 2 = 0"},
+  PH3:{c:"P",n:3,m:1,shape:"三角锥",calc:"a = 5，配位 H×3（各 b = 1）：m = (5 − 3) ÷ 2 = 1"},
+  H2S:{c:"S",n:2,m:2,shape:"V形",calc:"a = 6，配位 H×2（各 b = 1）：m = (6 − 2) ÷ 2 = 2"},
+  XeF2:{c:"Xe",n:2,m:3,shape:"直线形",calc:"a = 8，配位 F×2（各 b = 1）：m = (8 − 2) ÷ 2 = 3"},
+  BrF5:{c:"Br",n:5,m:1,shape:"四方锥",calc:"a = 7，配位 F×5（各 b = 1）：m = (7 − 5) ÷ 2 = 1"},
+  HCHO:{c:"C",n:3,m:0,shape:"平面三角形",how:"看 C：连 2 个 H 和 1 个 O。C=O 双键只算 1 根 σ 键，所以 n = 3；C 的 4 个价电子用光，m = 0。"},
   SO2:{c:"S",n:2,m:1,shape:"V形",calc:"a = 6，配位 O×2（各 b = 2）：m = (6 − 4) ÷ 2 = 1"},
   SO3:{c:"S",n:3,m:0,shape:"平面三角形",calc:"a = 6，配位 O×3（各 b = 2）：m = (6 − 6) ÷ 2 = 0"},
   NO3:{c:"N",n:3,m:0,shape:"平面三角形",calc:"a = 5 + 1 = 6（负电荷 +1），配位 O×3（各 b = 2）：m = (6 − 6) ÷ 2 = 0"},
@@ -1554,9 +1748,16 @@ const VQ={
   veil:document.getElementById('vq-veil'),
   card:document.getElementById('vq-card'),
   chip:document.getElementById('vq-chip'),
+  streak:0,
+  best:(function(){try{return parseInt(localStorage.getItem('zao_passport_vsepr_best'))||0;}catch(e){return 0;}})(),
   toggle:document.getElementById('vq-toggle'),
 
   enabled(){ return this.toggle.checked; },
+  passport(k,def){ try{ const v=localStorage.getItem('zao_passport_'+k); return v===null?def:v; }catch(e){ return def; } },
+  setPassport(k,v){ try{ localStorage.setItem('zao_passport_'+k,String(v)); }catch(e){} },
+  addXP(n){ const c=parseInt(this.passport('xp',0),10)||0; this.setPassport('xp',c+n); },
+  syncStreak(){ const el=document.getElementById('vq-streak');
+    if(el) el.innerHTML='🔥 连击 <b>'+this.streak+'</b> · 最高 <b>'+this.best+'</b> · 护照 XP <b>'+this.passport('xp',0)+'</b>'; },
   done(id){ try{ return sessionStorage.getItem('vq_done_'+id)==='1'; }catch(e){ return true; } },
   markDone(id){ try{ sessionStorage.setItem('vq_done_'+id,'1'); }catch(e){} },
 
@@ -1610,7 +1811,7 @@ const VQ={
 
   render(){
     const d=VQ_DATA[this.molId], qs=this.questions(), q=qs[this.step];
-    let html='<div class="vq-kicker">先算，再看</div>'+
+    let html='<div class="vq-kicker">封盘推演</div>'+
       '<h2 class="vq-title">'+currentMol.name+'</h2>'+
       '<p class="vq-sub">切换分子时自动触发推演 · 第 '+(this.step+1)+' 步 / 3</p>'+
       '<div class="vq-q">'+q.q+'</div><div class="vq-opts">';
@@ -1620,12 +1821,14 @@ const VQ={
     html+='</div><div class="vq-fb" id="vq-fb"></div>'+
       '<div class="vq-hint" id="vq-hint">'+q.hint+'</div>'+
       (this.step===2?'<div class="vq-sum" id="vq-sum"></div>':'')+
+      '<div class="vq-streak" id="vq-streak"></div>'+
       '<div class="vq-foot"><span class="vq-prog">第 '+(this.step+1)+' 步 / 3</span>'+
       '<button class="vq-skip" id="vq-skip">直接看模型（跳过）</button></div>';
     if(this.step===2){
       html+='<button class="vq-see" id="vq-see">看 模 型</button>';
     }
     this.card.innerHTML=html;
+    this.syncStreak();
 
     const self=this;
     this.card.querySelectorAll('.vq-opts button').forEach(btn=>{
@@ -1643,6 +1846,9 @@ const VQ={
   answer(btn,q,d){
     const fb=document.getElementById('vq-fb'), hint=document.getElementById('vq-hint');
     if(btn.dataset.v===q.ans){
+      this.streak++; this.addXP(8+this.streak*2);
+      if(this.streak>this.best){ this.best=this.streak; this.setPassport('vsepr_best',this.best); }
+      this.syncStreak();
       btn.classList.add('ok');
       fb.className='vq-fb ok'; fb.textContent=q.ok;
       if(this.step===2){
@@ -1657,6 +1863,7 @@ const VQ={
         setTimeout(()=>{ this.step++; this.render(); },450);
       }
     }else{
+      this.streak=0; this.syncStreak();
       btn.classList.add('bad');
       fb.className='vq-fb bad';
       const dv=parseInt(btn.dataset.v,10), av=parseInt(q.ans,10);
@@ -1686,6 +1893,5 @@ window.VQ=VQ;
   if(on) VQ.check();
 })();
 </script>
-<a href="/" title="返回首页" style="position:fixed;right:20px;bottom:20px;z-index:9999;width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.85);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35);text-decoration:none;backdrop-filter:blur(6px);font-size:18px">⌂</a>
-</body>
+<div style="position:fixed;left:8px;bottom:4px;font-size:10px;color:#94a3b8;opacity:.55;z-index:9998">© 2026 早晨 ｜ <a href="https://beian.miit.gov.cn" target="_blank" rel="noreferrer" style="color:#64748b">湘ICP备2026039674号-1</a></div></body>
 </html>
