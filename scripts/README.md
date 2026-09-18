@@ -25,7 +25,7 @@
 | build_challengetree.py | chem_lab2.3.html | 知识挑战树 |
 | ~~build_mech_lab.py~~ | chem_lab3.1.html | 有机反应机理库（2026-09-14 起换代为 r128 单文件版·18 反应，脚本已归档舍弃） |
 | ~~build_naming_lab.py~~ | chem_lab3.2.html | 有机命名实验室·原有机系统命名中心（2026-09-14 起换代为 v32 单文件版，脚本已归档舍弃） |
-| build_isomer_lab.py | chem_lab3.3.html | 同分异构体闯关 |
+| ~~build_isomer_lab.py~~ | chem_lab3.3.html | 异构迷城（2026-09-18 起换代为单文件重制版：150 题库/错题本/每日挑战/称号墙/分享卡/2D 结构式，three r128 内联，脚本已归档舍弃） |
 | build_thermo_lab.py | chem_lab4.1.html | 化学反应的热效应 |
 | build_kinetics_lab.py | chem_lab4.2.html | 化学反应速率与平衡 |
 | build_solution_lab.py | chem_lab4.3.html | 水溶液中的离子平衡 |

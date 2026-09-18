@@ -183,6 +183,12 @@ export default function ForumPage() {
         </button>
       )}
 
+      {/* 举报入口 */}
+      <p className="mt-6 text-center text-xs text-slate-400">
+        发现违规内容请举报至：
+        <a href="mailto:1298052658@qq.com" className="text-slate-500 underline hover:text-indigo-600">1298052658@qq.com</a>
+      </p>
+
       {/* 详情抽屉 */}
       {open && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/30" onClick={() => setOpen(null)}>
