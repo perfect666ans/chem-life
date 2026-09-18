@@ -64,8 +64,8 @@ const sections: Section[] = [
       },
       {
         no: '03',
-        name: '同分异构体闯关挑战',
-        desc: '5 章 27 题：烷烃骨架、等效氢与卤代、烯炔、苯环定位、醇醚羧酸酯，题题带解析、80% 通关。',
+        name: '异构迷城',
+        desc: '150 题题库每轮随机 5-8 题：错题本、每日挑战、称号墙、连对加分、成绩分享卡，2D 结构式配图。',
         href: '/teaching/chem_lab3.3.html',
       },
     ],
@@ -149,7 +149,7 @@ const TK_STYLE = `
 .tk-sec-head h2{font-family:var(--serif-cn);font-weight:800;font-size:clamp(19px,2.4vw,26px);letter-spacing:2px;}
 .tk-sec-head .range{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;color:var(--ink-mute);margin-left:auto;}
 .tk-cards{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);}
-.tk-cards.c2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+.tk-cards.c2{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
 .tk-card{
   background:var(--card);padding:18px 20px 16px;display:block;text-decoration:none;color:inherit;
   transition:background .25s;position:relative;
