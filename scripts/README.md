@@ -21,8 +21,9 @@
 | ~~build_crystal_lab.py~~ | chem_lab1.2.html | 晶体结构深度实验室（2026-09-14 起换代为 r128 单文件版·42 种晶体，脚本已归档舍弃） |
 | ~~build_electron_lab.py~~ | chem_lab1.3.html | 核外电子排布实验室（2026-09-14 起换代为 r128 单文件版，脚本已归档舍弃） |
 | build_knowledge_map.py | chem_lab2.1.html | 知识球 · 知识地图 |
-| build_flashcards.py | chem_lab2.2.html | 化学闪卡复习 |
-| build_challengetree.py | chem_lab2.3.html | 知识挑战树 |
+| build_flashcards.py | chem_lab2.2.html | 化学闪卡复习（**保留勿删**：新记忆回廊 2.4 运行时会读取它作数据源，缺失时回退内嵌备份） |
+| ~~build_challengetree.py~~ | ~~chem_lab2.3.html~~ | ~~知识挑战树~~（2026-09-19 下线，题库/闯关/XP 已移植进 2.4 闯关练习，存档键 chem-kt-progress-v1 不变；文件与脚本已归档舍弃） |
+| （无脚本·单文件交付） | chem_lab2.4.html | 记忆回廊（2026-09-19 上线：三维回廊 + 十记忆门 + 页内复习/三阶闯关，three r128 内联，5.4MB；原 chem_lab2.4 造·化学同日挪至 chem_lab6.1.html） |
 | ~~build_mech_lab.py~~ | chem_lab3.1.html | 有机反应机理库（2026-09-14 起换代为 r128 单文件版·18 反应，脚本已归档舍弃） |
 | ~~build_naming_lab.py~~ | chem_lab3.2.html | 有机命名实验室·原有机系统命名中心（2026-09-14 起换代为 v32 单文件版，脚本已归档舍弃） |
 | ~~build_isomer_lab.py~~ | chem_lab3.3.html | 异构迷城（2026-09-18 起换代为单文件重制版：150 题库/错题本/每日挑战/称号墙/分享卡/2D 结构式，three r128 内联，脚本已归档舍弃） |

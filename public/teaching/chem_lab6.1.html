@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>造·化学 — 虚拟实验室</title>
+<script src="../vendor/three.r128.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<style>
+:root{
+  --acc:#3ddcff; --acc2:#7ee0a3; --bg:#0b1017; --panel:#101823; --line:#22303f;
+  --txt:#dce7f2; --dim:#7d93a8; --danger:#ff6e7a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  overflow-x:hidden; line-height:1.6;
+}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#app{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:0 18px 40px}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:10px}
+.logo{font-size:20px;font-weight:700;letter-spacing:1px}
+.logo b{color:var(--acc)}
+.logo span{font-size:12px;color:var(--dim);margin-left:8px;font-weight:400}
+.hright{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pts{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13px}
+.pts b{color:var(--acc2)}
+button{font-family:inherit;cursor:pointer}
+.btn{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:7px 14px;font-size:13px;transition:.15s}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.btn.on{background:var(--acc);color:#04222c;border-color:var(--acc);font-weight:600}
+.btn.warn:hover{border-color:var(--danger);color:var(--danger)}
+.themes{display:flex;gap:6px}
+.tdot{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.tdot.on{border-color:#fff}
+/* ---------- 任务选择 ---------- */
+#screenTasks h2{margin:26px 0 6px;font-size:18px;color:var(--acc)}
+#screenTasks .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+#taskGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.tcard{background:rgba(16,24,35,.82);border:1px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer;transition:.18s;position:relative;backdrop-filter:blur(6px)}
+.tcard:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 8px 28px rgba(61,220,255,.12)}
+.tcard h3{font-size:15px;margin:6px 0 8px}
+.tcard p{font-size:12.5px;color:var(--dim);min-height:38px}
+.tcard .cat{font-size:11px;color:var(--acc);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.tcard .done{position:absolute;top:14px;right:14px;font-size:12px;color:var(--acc2)}
+.tcard .pts2{font-size:12px;color:var(--acc2);margin-top:8px}
+/* ---------- 实验室 ---------- */
+#goalBar{margin:16px 0;padding:12px 16px;background:rgba(16,24,35,.85);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;font-size:13.5px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;backdrop-filter:blur(6px)}
+#goalBar .t{color:var(--acc);font-weight:600;white-space:nowrap}
+#labWrap{display:grid;grid-template-columns:238px 1fr 296px;gap:14px;align-items:start}
+.panel{background:rgba(16,24,35,.85);border:1px solid var(--line);border-radius:14px;padding:14px;backdrop-filter:blur(6px)}
+.panel h4{font-size:13px;color:var(--acc);margin-bottom:10px;letter-spacing:1px}
+/* 货架 */
+.stockItem{width:100%;text-align:left;background:#0d141d;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:8px;color:var(--txt);transition:.15s;position:relative}
+.stockItem:hover{border-color:var(--acc)}
+.stockItem.sel{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 0 14px rgba(61,220,255,.25)}
+.stockItem .nm{font-size:13px;font-weight:600}
+.stockItem .mt{font-size:11.5px;color:var(--dim);margin-top:2px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:1px}
+/* 台面 */
+#vesselBar,#toolBar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+#toolBar .sep{width:1px;height:22px;background:var(--line);margin:0 4px}
+#toolBar .lbl{font-size:12px;color:var(--dim);margin-right:2px}
+#bench{position:relative;min-height:380px;padding:18px 18px 24px;background:linear-gradient(180deg,rgba(16,24,35,.5),rgba(16,24,35,.85));border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(6px)}
+.slot{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:150px;margin-bottom:8px}
+.vessel{position:relative;cursor:pointer;border:2px solid var(--line);background:rgba(255,255,255,.03);transition:.15s;overflow:hidden}
+.vessel:hover{border-color:var(--acc)}
+.vessel.sel{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 0 16px rgba(61,220,255,.3)}
+.vessel .liquid{position:absolute;left:3px;right:3px;bottom:3px;border-radius:4px;transition:height .35s;opacity:.55}
+.vessel .sed{position:absolute;left:3px;right:3px;bottom:3px;border-radius:3px;opacity:.9;background:repeating-linear-gradient(180deg,#e8e0cc,#e8e0cc 2px,#d8cdb4 2px,#d8cdb4 4px)}
+.vtag{font-size:11px;color:var(--dim);text-align:center;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vmeta{font-size:10.5px;color:var(--dim);text-align:center}
+.vmeta b{color:var(--acc2)}
+.beaker{width:88px;height:112px;border-radius:6px 6px 16px 16px;border-top-width:2px}
+.flask{width:92px;height:124px;clip-path:polygon(34% 0,66% 0,66% 4%,60% 4%,60% 46%,72% 52%,82% 62%,84% 72%,76% 83%,62% 90%,50% 92%,38% 90%,24% 83%,16% 72%,18% 62%,28% 52%,40% 46%,40% 4%,34% 4%);border:none;background:rgba(255,255,255,.05);outline:2px solid var(--line);outline-offset:-2px}
+.flask::after{content:"";position:absolute;left:41%;right:41%;top:22%;height:2px;background:var(--acc);opacity:.65;border-radius:1px}
+.cylinder{width:48px;height:132px;border:none;outline:2px solid var(--line);outline-offset:-2px;background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.28) 0 1px,transparent 1px 8px),linear-gradient(180deg,rgba(255,255,255,.04) 0 97%,rgba(255,255,255,.05) 97% 100%);background-size:8px 92%,100% 100%;background-position:right 16% top 3%,0 0;background-repeat:no-repeat,no-repeat;clip-path:polygon(14% 0,86% 0,86% 97%,100% 97%,100% 100%,0 100%,0 97%,14% 97%)}
+.testtube{width:26px;height:96px;border-radius:4px 4px 12px 12px}
+.burette{width:34px;height:168px;border:none;outline:2px solid var(--line);outline-offset:-2px;background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.28) 0 1px,transparent 1px 9px),linear-gradient(180deg,rgba(255,255,255,.04) 0 70%,rgba(238,244,250,.95) 70% 73%,rgba(190,205,220,.85) 73% 100%);background-size:7px 68%,100% 100%;background-position:right 34% top 2px,0 0;background-repeat:no-repeat,no-repeat;clip-path:polygon(35% 0,65% 0,65% 70%,78% 70%,78% 73%,55% 73%,50% 90%,45% 73%,22% 73%,22% 70%,35% 70%)}
+.waste{width:88px;height:90px;border-radius:8px 8px 14px 14px;border-style:dashed}
+.simBar{height:4px;border-radius:2px;background:var(--line);overflow:hidden;width:100%}
+.simBar i{display:block;height:100%;background:var(--acc2)}
+/* 仪器面板 */
+#instr{position:sticky;top:14px}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tab{font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:#0d141d;color:var(--dim);cursor:pointer}
+.tab.on{color:var(--acc);border-color:var(--acc)}
+.kv{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px dashed #1b2634}
+.kv span:last-child{color:var(--acc2);font-family:Consolas,monospace}
+.bigRead{font-size:34px;font-family:Consolas,monospace;color:var(--acc);text-align:center;padding:10px 0 4px}
+.bigRead small{font-size:13px;color:var(--dim)}
+table.sp{width:100%;border-collapse:collapse;font-size:12px}
+table.sp td,table.sp th{border-bottom:1px solid #1b2634;padding:5px 4px;text-align:left}
+table.sp th{color:var(--dim);font-weight:400}
+.st{font-size:10px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--dim)}
+.st.aq{color:var(--acc)} .st.s{color:var(--acc2)} .st.g{color:#ffb86b}
+#reportBtn{width:100%;margin-top:12px;background:var(--acc);color:#04222c;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700}
+#reportBtn:hover{filter:brightness(1.1)}
+/* 键盘 & 弹窗 */
+.modalMask{position:fixed;inset:0;background:rgba(4,8,14,.7);z-index:50;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modalMask[hidden]{display:none!important}
+/* ---------- 新手导航 ---------- */
+.tutMask{position:fixed;z-index:200;border:2px solid var(--acc);border-radius:12px;box-shadow:0 0 0 9999px rgba(3,7,12,.78);pointer-events:none;transition:all .35s}
+.tutCard{position:fixed;z-index:201;width:300px;background:var(--panel);border:1px solid var(--acc);border-radius:14px;padding:16px;box-shadow:0 12px 50px rgba(0,0,0,.6)}
+.tutCard h3{font-size:14px;color:var(--acc);margin-bottom:6px}
+.tutCard p{font-size:13px;color:var(--txt);margin-bottom:12px;line-height:1.8}
+.tutCard .trow{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.tutCard .prog{font-size:11px;color:var(--dim);margin-right:auto}
+/* ---------- 固体颗粒动画 ---------- */
+.gran{position:absolute;top:-4px;width:5px;height:5px;background:#f2f6fa;border-radius:1px;opacity:0;animation:gran .75s ease-in forwards;z-index:2}
+.g1{left:30%}.g2{left:48%;animation-delay:.12s}.g3{left:64%;animation-delay:.24s}
+.dotS{position:absolute;border-radius:1px;opacity:.95;box-shadow:0 0 2px rgba(0,0,0,.45)}
+.specTag{cursor:pointer}.specTag:hover{color:var(--acc)}
+.bub{position:absolute;border-radius:50%;border:1.5px solid rgba(120,225,255,.95);background:rgba(150,230,255,.4);box-shadow:inset 0 0 3px rgba(255,255,255,.85),0 0 6px rgba(61,220,255,.55);opacity:0;pointer-events:none}
+/* 气泡由 JS 逐帧驱动（bubFrame），不依赖 CSS 动画（兼容旧内核） */
+@keyframes br10{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-10px) scale(1.12);opacity:0}}
+@keyframes br20{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-20px) scale(1.12);opacity:0}}
+@keyframes br30{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-30px) scale(1.12);opacity:0}}
+@keyframes br40{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-40px) scale(1.12);opacity:0}}
+@keyframes br55{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-55px) scale(1.12);opacity:0}}
+@keyframes br65{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-65px) scale(1.12);opacity:0}}
+@keyframes br75{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-75px) scale(1.12);opacity:0}}
+@keyframes br85{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-85px) scale(1.12);opacity:0}}
+@keyframes br95{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:.92}85%{opacity:.7}100%{transform:translateY(-95px) scale(1.12);opacity:0}}
+@keyframes gran{0%{transform:translateY(0);opacity:1}85%{opacity:1}100%{transform:translateY(78px);opacity:0}}
+/* ---------- 滴定装置 ---------- */
+.rig{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:2px}
+.rigB{position:relative;width:26px;height:64px;border:2px solid var(--line);border-radius:5px 5px 9px 9px;cursor:pointer;background:rgba(255,255,255,.03)}
+.rigB:hover{border-color:var(--acc)}
+.rigB.run{border-color:var(--acc);box-shadow:0 0 10px rgba(61,220,255,.35)}
+.rigLiq{position:absolute;left:2px;right:2px;bottom:2px;border-radius:3px;background:#d6ecff;opacity:.6;transition:height .3s}
+.rigB span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;color:var(--acc)}
+.drop{position:absolute;left:50%;bottom:-9px;width:4px;height:7px;margin-left:-2px;background:var(--acc);border-radius:2px;animation:dropfall .35s linear infinite}
+@keyframes dropfall{0%{transform:translateY(0);opacity:1}100%{transform:translateY(10px);opacity:0}}
+.rigCtl{display:flex;align-items:center;gap:4px}
+.rigInfo{font-size:10.5px;color:var(--dim);line-height:1.5}
+.rigInfo b{color:var(--acc)}
+.arc{cursor:pointer;touch-action:none}
+/* ---------- 加热装置 ---------- */
+.heater{display:flex;flex-direction:column;align-items:center;height:40px;justify-content:flex-end}
+.heater span{font-size:10px;color:var(--dim)}
+.heater i{display:block;transform-origin:50% 100%}
+.heater.lamp i{width:13px;height:19px;background:radial-gradient(circle at 50% 82%,#a8d4ff,#3d7dff 62%,transparent 78%);animation:flick 1.1s infinite}
+.heater.torch i{width:19px;height:26px;background:radial-gradient(circle at 50% 82%,#ffe9a8,#ff9d3d 55%,#ff5d2a 78%,transparent 90%);animation:flick .45s infinite}
+.heater.arc i{width:22px;height:26px;background:#cfeaff;clip-path:polygon(62% 0,22% 56%,44% 56%,28% 100%,80% 40%,54% 40%);animation:arcflash .18s infinite}
+.heater.cool i{width:20px;height:8px;border-radius:4px;background:linear-gradient(90deg,#3d7dff,#9fd8ff,#3d7dff)}
+@keyframes flick{50%{transform:scale(1.12,.92)}}
+@keyframes arcflash{50%{opacity:.35}}
+.modal{background:var(--panel);border:1px solid var(--acc);border-radius:16px;padding:20px;width:320px;box-shadow:0 12px 60px rgba(0,0,0,.6)}
+.modal h3{font-size:15px;margin-bottom:6px;color:var(--acc)}
+.modal .q{font-size:13px;color:var(--dim);margin-bottom:12px}
+.kpDisplay{font-family:Consolas,monospace;font-size:26px;text-align:right;background:#0a0f16;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:12px;min-height:52px;color:var(--acc2);overflow:hidden}
+.kpGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpGrid button{background:#0d141d;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:12px 0;font-size:17px}
+.kpGrid button:hover{border-color:var(--acc);color:var(--acc)}
+.kpGrid button.ok{background:var(--acc);color:#04222c;font-weight:700;border-color:var(--acc)}
+.kpGrid button.cc:hover{border-color:var(--danger);color:var(--danger)}
+.choice{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.choice button{text-align:left;padding:11px 14px;font-size:14px}
+/* toast */
+#toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast{background:var(--panel);border:1px solid var(--acc);color:var(--txt);padding:10px 20px;border-radius:999px;font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:tin .25s}
+.toast.bad{border-color:var(--danger)}
+@keyframes tin{from{opacity:0;transform:translateY(12px)}to{opacity:1}}
+@media(max-width:1060px){#labWrap{grid-template-columns:1fr}#instr{position:static}}
+</style>
+<style>html,body{overscroll-behavior:none;}</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="app">
+  <header>
+    <div class="logo"><b>造·化学</b> 虚拟实验室<span>模块 3 · 教学实验</span></div>
+    <div class="hright">
+      <button class="btn" onclick="location.href='/teaching'" title="返回门户">← 门户</button>
+      <button class="btn" onclick="location.href='/'" title="返回首页">⌂ 首页</button>
+      <div class="themes" id="themes"></div>
+      <div class="pts">积分 <b id="pts">0</b></div>
+      <button class="btn" id="tutBtn" title="新手引导">引导</button>
+      <button class="btn" id="homeBtn" hidden>任务列表</button>
+      <button class="btn warn" id="resetBtn" hidden>重置本实验</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="screenTasks">
+      <h2>选择实验任务</h2>
+      <p class="sub">从货架取液 → 倒入器皿 → 测量读数 → 提交报告。共 8 个原创任务，完成后获得积分。</p>
+      <div id="taskGrid"></div>
+    </section>
+
+    <section id="screenLab" hidden>
+      <div id="goalBar"><span class="t" id="goalTitle"></span><span id="goalText"></span></div>
+      <div id="labWrap">
+        <aside class="panel" id="shelfPanel"><h4>药品货架 STOCKROOM</h4><div id="shelf"></div></aside>
+        <div id="benchCol">
+          <div id="vesselBar"></div>
+          <div id="bench"></div>
+          <div id="toolBar"></div>
+        </div>
+        <aside class="panel" id="instr">
+          <h4>仪器面板 <span id="avName" style="color:var(--dim);font-weight:400"></span></h4>
+          <div class="tabs" id="instTabs"></div>
+          <div id="instBody"></div>
+          <button id="reportBtn">提交实验报告</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modalMask" id="keypadMask" hidden>
+  <div class="modal">
+    <h3 id="kpTitle">输入数值</h3>
+    <div class="q" id="kpHint"></div>
+    <div class="kpDisplay" id="kpDisplay">0</div>
+    <div class="kpGrid" id="kpGrid"></div>
+  </div>
+</div>
+
+<div class="modalMask" id="choiceMask" hidden>
+  <div class="modal">
+    <h3 id="chTitle"></h3>
+    <div class="q" id="chHint"></div>
+    <div class="choice" id="chList"></div>
+  </div>
+</div>
+
+<div class="tutMask" id="tutMask" hidden></div>
+<div class="tutCard" id="tutCard" hidden></div>
+
+<div id="toasts"></div>
+<script>
+/* ============================================================
+   造·化学 虚拟实验室 —— 三层数据驱动
+   任务层 TASKS / 领域层 stock(vessel) / 化学层 SP + equilibrate
+   ============================================================ */
+
+/* ---------- 主题（化学视界三色调） ---------- */
+const THEMES=[
+  {n:'青', a:'#3ddcff', b:'#7ee0a3'},
+  {n:'绛', a:'#ff6ec7', b:'#ffd166'},
+  {n:'碧', a:'#7ee0a3', b:'#3ddcff'}
+];
+let themeIdx = +(localStorage.getItem('zclab_theme')||0);
+
+/* ---------- 化学层：物种库 ---------- */
+const SP={
+  h2o:  {n:'H₂O',       s:'l',  mw:18},
+  hplus:{n:'H⁺',        s:'aq', mw:1},
+  ohminus:{n:'OH⁻',      s:'aq', mw:17},
+  na:   {n:'Na⁺',       s:'aq', mw:23},
+  cl:   {n:'Cl⁻',       s:'aq', mw:35.5},
+  k:    {n:'K⁺',        s:'aq', mw:39},
+  no3:  {n:'NO₃⁻',      s:'aq', mw:62},
+  nacl: {n:'NaCl',      s:'aq', mw:58.5},
+  nacl_s:{n:'NaCl(s)',  s:'s',  mw:58.5},
+  kno3: {n:'KNO₃',      s:'aq', mw:101},
+  kno3_s:{n:'KNO₃(s)',  s:'s',  mw:101},
+  mg:   {n:'Mg',        s:'s',  mw:24},
+  mg2:  {n:'Mg²⁺',      s:'aq', mw:24},
+  zn:   {n:'Zn',        s:'s',  mw:65},
+  zn2:  {n:'Zn²⁺',      s:'aq', mw:65},
+  al:   {n:'Al',        s:'s',  mw:27},
+  al3:  {n:'Al³⁺',      s:'aq', mw:27},
+  h2:   {n:'H₂',        s:'g',  mw:2},
+  hco3: {n:'HCO₃⁻',     s:'aq', mw:61},
+  co2:  {n:'CO₂',       s:'g',  mw:44},
+  eth:  {n:'C₂H₅OH',    s:'l',  mw:46},
+  brine:{n:'NaCl(浓)',  s:'aq', mw:58.5},
+  phph:{n:'酚酞',     s:'aq', mw:318},
+  litmus:{n:'石蕊',   s:'aq', mw:500},
+  fe3:  {n:'Fe³⁺',    s:'aq', mw:56},
+  cuoh2_s:{n:'Cu(OH)₂(s)',s:'s', mw:98},
+  feoh3_s:{n:'Fe(OH)₃(s)',s:'s', mw:107},
+  hac:  {n:'CH₃COOH',   s:'aq', mw:60},
+  ac:   {n:'CH₃COO⁻',   s:'aq', mw:59},
+  imp:  {n:'泥沙(不溶)', s:'s',  mw:60},
+  ca:   {n:'Ca²⁺',      s:'aq', mw:40},
+  caco3_s:{n:'CaCO₃(s)', s:'s',  mw:100},
+  nh4:  {n:'NH₄⁺',      s:'aq', mw:18},
+  nh3:  {n:'NH₃',       s:'aq', mw:17},
+  cu2:  {n:'Cu²⁺',      s:'aq', mw:64},
+  so4:  {n:'SO₄²⁻',     s:'aq', mw:96},
+  ag:   {n:'Ag⁺',       s:'aq', mw:108},
+  agcl_s:{n:'AgCl(s)',  s:'s',  mw:143.5},
+  ba2:  {n:'Ba²⁺',      s:'aq', mw:137},
+  baso4_s:{n:'BaSO₄(s)', s:'s',  mw:233}
+};
+const ST_NAME={l:'液',aq:'aq',s:'固',g:'气'};
+
+/* KNO3 溶解度表 g/100g 水（分段线性） */
+const KNO3_SOL=[[0,13],[10,21],[20,32],[30,46],[40,64],[50,86],[60,110],[70,137],[80,168],[90,203],[100,246]];
+function kno3Sol(T){
+  T=Math.max(0,Math.min(100,T));
+  for(let i=1;i<KNO3_SOL.length;i++){
+    if(T<=KNO3_SOL[i][0]){
+      const [t0,s0]=KNO3_SOL[i-1],[t1,s1]=KNO3_SOL[i];
+      return s0+(s1-s0)*(T-t0)/(t1-t0);
+    }
+  }
+  return 246;
+}
+
+/* ---------- 工具函数 ---------- */
+const $=id=>document.getElementById(id);
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function toast(msg,bad){const t=document.createElement('div');t.className='toast'+(bad?' bad':'');t.textContent=msg;$('toasts').appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='.4s';setTimeout(()=>t.remove(),400)},2600);}
+function fmtPrecise(x,d=2){return (+x).toFixed(d)}
+function fmtSig(x,sig=3){ if(!isFinite(x))return'—'; if(x===0)return'0';
+  const e=Math.floor(Math.log10(Math.abs(x))); const d=Math.max(0,sig-1-e);
+  return String(parseFloat(x.toFixed(Math.min(d,10)))); }
+function fmtReal(x){ // 模拟真实读数误差（确定性抖动 ±0.4%）
+  const j=Math.sin(x*97.31)*0.004*x; return fmtPrecise(Math.max(0,x+j), x<1?3:2);
+}
+let _ac=null;
+function snd(kind){
+  try{
+    if(typeof AudioContext==='undefined')return;
+    _ac=_ac||new AudioContext();
+    if(_ac.state==='suspended')_ac.resume();
+    const conf={pour:[520,.12,'sine',.10],drop:[340,.10,'sine',.10],drip:[1250,.06,'square',.05],done:[660,.15,'sine',.10],win:[523,.10,'sine',.12]}[kind];
+    if(!conf)return;
+    const t=_ac.currentTime,o=_ac.createOscillator(),g=_ac.createGain();
+    o.type=conf[2];o.frequency.value=conf[0];
+    g.gain.setValueAtTime(conf[3],t);g.gain.exponentialRampToValueAtTime(.0001,t+conf[1]);
+    o.connect(g);g.connect(_ac.destination);o.start(t);o.stop(t+conf[1]);
+    if(kind==='win'){const o2=_ac.createOscillator(),g2=_ac.createGain();o2.type='sine';o2.frequency.setValueAtTime(659,t+.1);o2.frequency.setValueAtTime(784,t+.2);g2.gain.setValueAtTime(.12,t+.1);g2.gain.exponentialRampToValueAtTime(.0001,t+.4);o2.connect(g2);g2.connect(_ac.destination);o2.start(t+.1);o2.stop(t+.45);}
+  }catch(e){}
+}
+function fmtVol(mL){ const m=$('selMode')?$('selMode').value:'precise';
+  if(m==='precise')return fmtPrecise(mL,2);
+  if(m==='sigfig')return fmtSig(mL,3);
+  return fmtReal(mL); }
+
+/* ---------- 全局实验状态 ---------- */
+const G={
+  task:null, stocks:[], vessels:[], waste:null,
+  tool:'take', sel:null, activeV:null, vid:0, sid:0,
+  timedMode:false, lastNeut:null, running:false
+};
+const VESSEL_TYPES={
+  beaker:{cn:'烧杯',cap:250,cls:'beaker',specs:[250,500,1000]},
+  flask:{cn:'容量瓶',cap:100,cls:'flask',specs:[100,250,500,1000]},
+  cylinder:{cn:'量筒',cap:50,cls:'cylinder',specs:[50,100,250]},
+  testtube:{cn:'试管',cap:20,cls:'testtube',specs:[20,50]},
+  burette:{cn:'滴定管',cap:50,cls:'burette',specs:[50,100]}
+};
+/* 器皿基础像素尺寸 [宽,高]（布局与气泡共用） */
+const VWH={beaker:[88,112],flask:[92,124],cylinder:[48,132],testtube:[26,96],burette:[34,168]};
+
+/* ---------- 溶液构造 ---------- */
+function mkSol(label,moles,volL,opt={}){
+  return {label, vol:volL, moles:Object.assign({},moles), temp:opt.temp||25,
+          color:opt.color||'#3ddcff', density:opt.density||1.0,
+          produced:{co2:0,h2:0}, filtered:0};
+}
+function solMass(sol){return sol.vol*1000*sol.density + solidMass(sol)}
+function solidMass(sol){let m=0;for(const id in sol.moles){if(SP[id]&&SP[id].s==='s')m+=sol.moles[id]*SP[id].mw;}return m;}
+/* 真实沉淀/固体颜色 */
+const SOLID_COLORS={nacl_s:'#f6f8fa',kno3_s:'#ffffff',agcl_s:'#f4f1e4',baso4_s:'#f7f7f7',caco3_s:'#f1efe4',imp:'#a8854f',mg:'#c9ced6',zn:'#b9c0c9',al:'#d3d8de',cuoh2_s:'#4a9fd8',feoh3_s:'#a8432a'};
+function solidColor(sol){let bg=0,bc='#e8e0cc';for(const id in sol.moles){if(SP[id]&&SP[id].s==='s'&&sol.moles[id]>0){const g=sol.moles[id]*SP[id].mw;if(g>bg){bg=g;bc=SOLID_COLORS[id]||'#e8e0cc';}}}return{g:bg,c:bc};}
+function solMoles(sol){let n=0;for(const id in sol.moles){n+=sol.moles[id];}return n;}
+function mainContent(sol){
+  let best=null,bn=0;
+  for(const id in sol.moles){
+    if(SP[id].s!=='aq')continue;
+    const v=sol.moles[id]*(id==='h2o'?0.01:1);
+    if(v>bn){bn=v;best=id;}
+  }
+  if(!best)return sol.vol>0.0001?'溶液':'空';
+  return SP[best].n;
+}
+function pHOf(sol){
+  if(sol.vol<=0)return null;
+  const h=sol.moles.hplus||0, oh=sol.moles.ohminus||0;
+  if(h>1e-9)return Math.max(0,Math.min(14,-Math.log10(h/sol.vol)));
+  if(oh>1e-9)return Math.max(0,Math.min(14,14+Math.log10(oh/sol.vol)));
+  return 7;
+}
+
+/* ---------- 化学引擎：每次倒液/合并/变温后调用 ---------- */
+function equilibrate(sol){
+  if(!sol)return;
+  const m=solMass(sol)||1;
+  const heat=n=>{sol.temp+=n*57300/(m*4.18);};
+  // 1) 强酸强碱中和（放热）
+  let h=sol.moles.hplus||0, oh=sol.moles.ohminus||0;
+  let n=Math.min(h,oh);
+  if(n>1e-10){
+    sol.moles.hplus=h-n; sol.moles.ohminus=oh-n;
+    sol.moles.h2o=(sol.moles.h2o||0)+n;
+    sol.temp+=n*57300/(m*4.18);
+    G.lastNeut={n:n, m:m, dT:n*57300/(m*4.18)};
+  }
+  // 2) H⁺ + HCO₃⁻ → CO₂ + H₂O
+  h=sol.moles.hplus||0; let hc=sol.moles.hco3||0;
+  n=Math.min(h,hc);
+  if(n>1e-10){
+    sol.moles.hplus=h-n; sol.moles.hco3=hc-n;
+    sol.moles.co2=(sol.moles.co2||0)+n; sol.moles.h2o=(sol.moles.h2o||0)+n;
+    sol.produced.co2+=n;
+  }
+  // 3) 弱酸 reservoir：HAc + HCO₃⁻ → CO₂ + Ac⁻
+  let hac=sol.moles.hac||0; hc=sol.moles.hco3||0;
+  n=Math.min(hac,hc);
+  if(n>1e-10){
+    sol.moles.hac=hac-n; sol.moles.hco3=hc-n;
+    sol.moles.co2=(sol.moles.co2||0)+n; sol.moles.ac=(sol.moles.ac||0)+n;
+    sol.produced.co2+=n;
+  }
+  // 4) 金属与酸（限时任务除外，由试管模拟接管）
+  if(!G.timedMode){
+    const metals=[['mg','mg2',2],['zn','zn2',2],['al','al3',3]];
+    for(const [me,ion,val] of metals){
+      let mm=sol.moles[me]||0; h=sol.moles.hplus||0;
+      let k=Math.min(mm, h/val);
+      if(k>1e-10){
+        sol.moles[me]=mm-k; sol.moles.hplus=h-k*val;
+        sol.moles[ion]=(sol.moles[ion]||0)+k;
+        sol.moles.h2=(sol.moles.h2||0)+k;
+        sol.produced.h2+=k; heat(k);
+      }
+    }
+  }
+  // 5) 沉淀判据（Ksp 简化）
+  // Ag⁺ + Cl⁻ → AgCl↓
+  let ag=sol.moles.ag||0, cl=sol.moles.cl||0;
+  n=Math.min(ag,cl);
+  if(n>1e-7){sol.moles.ag=ag-n;sol.moles.cl=cl-n;sol.moles.agcl_s=(sol.moles.agcl_s||0)+n;}
+  // Ba²⁺ + SO₄²⁻ → BaSO₄↓
+  let ba=sol.moles.ba2||0, so=sol.moles.so4||0;
+  n=Math.min(ba,so);
+  if(n>1e-7){sol.moles.ba2=ba-n;sol.moles.so4=so-n;sol.moles.baso4_s=(sol.moles.baso4_s||0)+n;}
+  // Cu²⁺ + 2OH⁻ → Cu(OH)₂↓（蓝色絮状）
+  let cu=sol.moles.cu2||0; oh=sol.moles.ohminus||0;
+  n=Math.min(cu,oh/2);
+  if(n>1e-7){sol.moles.cu2=cu-n;sol.moles.ohminus=oh-2*n;sol.moles.cuoh2_s=(sol.moles.cuoh2_s||0)+n;}
+  // Fe³⁺ + 3OH⁻ → Fe(OH)₃↓（红褐色絮状）
+  let fe=sol.moles.fe3||0; oh=sol.moles.ohminus||0;
+  n=Math.min(fe,oh/3);
+  if(n>1e-7){sol.moles.fe3=fe-n;sol.moles.ohminus=oh-3*n;sol.moles.feoh3_s=(sol.moles.feoh3_s||0)+n;}
+  // Ca²⁺ + CO₃²⁻ 以 HCO₃⁻ 近似：Ca²⁺ + 2HCO₃⁻ → CaCO₃↓（简化为 1:1 且需 OH⁻ 环境）
+  // 教学 scope 略
+  // 6) KNO₃ 溶解-结晶平衡
+  if(sol.vol>1e-6){
+    const waterG=sol.vol*1000*sol.density;
+    const cap=kno3Sol(sol.temp)/100*waterG/SP.kno3.mw;
+    let kn=sol.moles.kno3||0, ks=sol.moles.kno3_s||0;
+    if(kn>cap+1e-9){ sol.moles.kno3=cap; sol.moles.kno3_s=ks+(kn-cap); }
+    else if(ks>0&&kn<cap-1e-9){ const d=Math.min(ks,cap-kn); sol.moles.kno3=kn+d; sol.moles.kno3_s=ks-d; }
+  }
+  // 7) 清理数值噪声
+  for(const id in sol.moles){ if(Math.abs(sol.moles[id])<1e-12) sol.moles[id]=0; }
+  // 8) 产气可视化时间戳（持续2-6秒，随产气量）
+  const gt=(sol.produced.co2||0)+(sol.produced.h2||0);
+  if(gt>(sol._gT||0)){
+    const dGt=gt-(sol._gT||0);
+    sol.gasFx=Date.now();
+    sol.gasFxT=2000+Math.min(4000,dGt*8e5);
+    sol._gRate=dGt;
+    sol._gT=gt;
+  }
+}
+
+/* ---------- 倒液 / 合并 ---------- */
+function mixInto(dst,srcMol,frac,srcTemp,srcColor,srcDensity){
+  // 体积加权温度、颜色、密度
+  const v1=dst.vol, v2frac=frac; // frac = 倒出的体积
+  if(v1+frac>1e-9){
+    dst.temp=(dst.temp*v1+srcTemp*frac)/(v1+frac);
+    dst.color=mixHex(dst.color,srcColor,v1,frac);
+    dst.density=(dst.density*v1+srcDensity*frac)/(v1+frac);
+  }
+  for(const id in srcMol){ dst.moles[id]=(dst.moles[id]||0)+srcMol[id]; }
+  dst.vol+=frac;
+}
+function mixHex(c1,c2,w1,w2){
+  if(w2<=0)return c1; if(w1<=0)return c2;
+  const a=parseInt(c1.slice(1),16),b=parseInt(c2.slice(1),16);
+  const r=Math.round(((a>>16)&255)*w1/(w1+w2)+((b>>16)&255)*w2/(w1+w2));
+  const g=Math.round(((a>>8)&255)*w1/(w1+w2)+((b>>8)&255)*w2/(w1+w2));
+  const bl=Math.round((a&255)*w1/(w1+w2)+(b&255)*w2/(w1+w2));
+  return '#'+((1<<24)+(r<<16)+(g<<8)+bl).toString(16).slice(1);
+}
+function pourStock(stock,vessel,amt){
+  const sol=vessel.solution;
+  if(stock.vol===null){ // 固体：按质量
+    if(amt<=0||amt>stock.mass+1e-9)return toast('质量不足',true);
+    const f=amt/stock.mass;
+    const mol={}; for(const id in stock.moles)mol[id]=stock.moles[id]*f;
+    for(const id in mol){sol.moles[id]=(sol.moles[id]||0)+mol[id];}
+    stock.mass-=amt;
+    (G.fx=G.fx||{})[vessel.id]=Date.now();
+    snd('drop');toast('加入 '+fmtPrecise(amt,2)+' g '+stock.label);
+  }else{
+    amt=Math.min(amt,stock.vol*1000);
+    if(amt<=0)return toast('液体不足',true);
+    const capL=(vessel.cap||VESSEL_TYPES[vessel.type].cap)/1000;
+    if(sol.vol+amt/1000>capL+1e-9)return toast('超出'+vessel.label+'容积（'+(vessel.cap||VESSEL_TYPES[vessel.type].cap)+' mL），添加失败',true);
+    const v=amt/1000, f=v/stock.vol;
+    const mol={}; for(const id in stock.moles)mol[id]=stock.moles[id]*f;
+    for(const id in stock.moles)stock.moles[id]*=(1-f);
+    stock.vol-=v;
+    mixInto(sol,mol,v,stock.temp,stock.color,stock.density);
+    snd('pour');toast('移取 '+fmtVol(amt)+' mL '+stock.label);
+  }
+  equilibrate(sol); afterChange();
+}
+function pourVessel(src,dst,amt){
+  const s=src.solution,d=dst.solution;
+  amt=Math.min(amt,s.vol*1000);
+  if(amt<=0)return toast('没有可倒出的液体',true);
+  if(d.vol+amt/1000>(dst.cap||VESSEL_TYPES[dst.type].cap)/1000+1e-9)return toast('超出'+dst.label+'容积，倒出失败',true);
+  const v=amt/1000,f=v/s.vol;
+  const mol={}; for(const id in s.moles)mol[id]=s.moles[id]*f;
+  for(const id in s.moles)s.moles[id]-=mol[id];
+  s.vol-=v;
+  mixInto(d,mol,v,s.temp,s.color,s.density);
+  equilibrate(d); afterChange();
+  toast('倒出 '+fmtVol(amt)+' mL');
+}
+function mergeVessel(src,dst){
+  const s=src.solution,d=dst.solution;
+  if(s.vol<=0&&solMoles(s)<=0)return toast('源器皿是空的',true);
+  if(d.vol+s.vol>(dst.cap||VESSEL_TYPES[dst.type].cap)/1000+1e-9)return toast('合并后超过目标器皿容量，请先倒出部分液体',true);
+  for(const id in s.moles)d.moles[id]=(d.moles[id]||0)+s.moles[id];
+  mixInto(d,{},s.vol,s.temp,s.color,s.density);
+  d.produced.co2+=s.produced.co2; d.produced.h2+=s.produced.h2;
+  src.solution=mkSol('',{},0);
+  src.sim=null;
+  equilibrate(d); afterChange();
+  toast('已合并到目标器皿');
+}
+function filterVessel(v){
+  const s=v.solution; let m=0;
+  for(const id in s.moles){ if(SP[id].s==='s'){m+=s.moles[id]*SP[id].mw; s.moles[id]=0;} }
+  s.filtered+=m; afterChange();
+  toast(m>0.001?('过滤完成，滤渣 '+fmtPrecise(m,2)+' g（已弃去）'):'过滤完成，无固体滤渣');
+}
+function dumpVessel(v){ v.solution=mkSol('',{},0); v.sim=null; afterChange(); toast('已倒入废液缸'); }
+function heatVessel(v,dT){
+  v.solution.temp=Math.max(0,Math.min(100,v.solution.temp+dT));
+  equilibrate(v.solution); afterChange();
+  toast((dT>0?'加热':'冷却')+'至 '+fmtPrecise(v.solution.temp,1)+' ℃');
+}
+function evaporate(v){
+  const s=v.solution;
+  // 离子配对结晶：Na⁺+Cl⁻→NaCl(s)，K⁺+NO₃⁻→KNO₃(s)
+  const pairs=[['na','cl','nacl_s'],['k','no3','kno3_s']];
+  for(const [a,b,p] of pairs){
+    let n=Math.min(s.moles[a]||0,s.moles[b]||0);
+    if(n>1e-10){s.moles[a]-=n;s.moles[b]-=n;s.moles[p]=(s.moles[p]||0)+n;}
+  }
+  // 已以分子形式存在的溶质直接结晶
+  for(const id of ['nacl','kno3']){
+    if((s.moles[id]||0)>1e-10){ s.moles[id+'_s']=(s.moles[id+'_s']||0)+s.moles[id]; s.moles[id]=0; }
+  }
+  // 气体逸出
+  delete s.moles.co2; delete s.moles.h2;
+  s.vol=0.002; equilibrate(s); afterChange();
+  toast('蒸发结晶完成，剩余固体 '+fmtPrecise(solidMass(s),2)+' g');
+}
+function fillToMark(v){ // 容量瓶定容
+  if(v.type!=='flask')return toast('只有容量瓶可以定容',true);
+  v.solution.vol=(v.cap||VESSEL_TYPES.flask.cap)/1000;
+  equilibrate(v.solution); afterChange();
+  toast('已定容至 '+(v.cap||100)+' mL 刻度线');
+}
+</script>
+<script>
+/* ============================================================
+   任务层：8 个原创任务（纯声明式：货架 + 题干 + 验收）
+   ============================================================ */
+function mkStock(label,moles,opt={}){
+  return {id:'s'+(++G.sid),label,
+    vol:opt.vol!==undefined?opt.vol:null,
+    mass:opt.mass!==undefined?opt.mass:null,
+    moles, color:opt.color||'#3ddcff', temp:opt.temp||25, density:opt.density||1.0,
+    desc:opt.desc||'', _key:opt._key};
+}
+
+const TASKS=[
+{
+  id:'prep-nacl', cat:'molarity', title:'精准配制', pts:100,
+  desc:'用容量瓶配制 100 mL 0.100 mol/L NaCl 溶液，并报告其浓度。',
+  goal:'取 0.585 g NaCl 固体入容量瓶，加适量蒸馏水溶解，定容至 100 mL 刻度，报告溶液物质的量浓度。',
+  stock:()=>[
+    mkStock('NaCl 固体',{nacl:0.0100},{mass:0.585,desc:'分析纯',color:'#e8f4ff'}),
+    mkStock('蒸馏水',{h2o:55.5},{vol:0.5,desc:'去离子',color:'#d6ecff'})
+  ],
+  check:(ans)=>{
+    const v=G.vessels.find(v=>v.type==='flask');
+    if(!v||v.solution.vol<0.099)return{ok:false,msg:'请先在容量瓶中完成定容（100 mL）。'};
+    const c=(v.solution.moles.nacl||0)/v.solution.vol;
+    if(Math.abs(c-0.100)<=0.002&&Math.abs(ans-0.100)<=0.002)return{ok:true,err:Math.abs(ans-c)/c,msg:'实测 c = '+fmtPrecise(c,4)+' mol/L，报告正确！'};
+    return{ok:false,msg:'报告值与实测不符。实测约 '+fmtPrecise(c,3)+' mol/L，请重新测量（读数随移液精度模式变化）。'};
+  },
+  report:{type:'num',title:'报告浓度',q:'所配 NaCl 溶液的物质的量浓度 c(NaCl) = ? mol/L'}
+},
+{
+  id:'titration', cat:'acidbase', title:'中和滴定', pts:120,
+  desc:'用 0.1000 mol/L 盐酸滴定 25.00 mL 未知浓度 NaOH 溶液。',
+  goal:'工具栏选「滴定」：先点滴定管、再点接收器皿，装置自动组装；点击上方滴定管滴加，旋塞调速。可往被滴液中加几滴酚酞——粉色恰好褪去即为终点！报告 c(NaOH)。',
+  stock:()=>[
+    mkStock('0.1000 mol/L 盐酸',{hplus:0.05,cl:0.05},{vol:0.5,desc:'标准溶液',color:'#e8f3ff'}),
+    mkStock('未知 NaOH 溶液',{na:0.002000,ohminus:0.002000},{vol:0.025,desc:'待测',color:'#f0eaff',hidden:true}),
+    mkStock('酚酞指示剂',{phph:0.002},{vol:0.05,desc:'加2-3滴，终点变粉红',color:'#f5e9f2'}),
+    mkStock('石蕊试液',{litmus:0.002},{vol:0.05,desc:'酸红碱蓝',color:'#5a3f8a'})
+  ],
+  check:(ans)=>{
+    if(Math.abs(ans-0.0800)/0.0800<=0.01)return{ok:true,err:Math.abs(ans-0.0800)/0.0800,msg:'滴定终点判断正确，c(NaOH)=0.0800 mol/L！'};
+    return{ok:false,msg:'偏差过大。提示：终点附近 pH 会发生突变（约 7 突跃），用所耗盐酸体积计算 c = c(HCl)·V(HCl)/V(NaOH)。'};
+  },
+  report:{type:'num',title:'滴定报告',q:'根据终点读数计算 c(NaOH) = ? mol/L（保留 4 位有效数字）'}
+},
+{
+  id:'neutral-heat', cat:'thermochemistry', title:'测定中和热', pts:120,
+  desc:'量热法测定强酸强碱中和反应的中和热。',
+  goal:'取 50 mL 1.00 mol/L 盐酸与 50 mL 1.00 mol/L NaOH 在烧杯中混合，记录温升 ΔT，计算摩尔中和热 ΔH（应约为 -57.3 kJ/mol）。',
+  stock:()=>[
+    mkStock('1.00 mol/L 盐酸',{hplus:0.10,cl:0.10},{vol:0.1,desc:'',color:'#e8f3ff'}),
+    mkStock('1.00 mol/L NaOH',{na:0.10,ohminus:0.10},{vol:0.1,desc:'',color:'#f0eaff'}),
+    mkStock('酚酞指示剂',{phph:0.002},{vol:0.05,desc:'',color:'#f5e9f2'})
+  ],
+  check:(ans)=>{
+    const ln=G.lastNeut;
+    if(!ln||ln.n<0.005)return{ok:false,msg:'尚未检测到足够的中和反应。请把酸和碱在烧杯中混合。'};
+    const dH=-(ln.m*4.18*ln.dT)/ln.n/1000;
+    if(Math.abs(ans-dH)/Math.abs(dH)<=0.05)return{ok:true,err:Math.abs(ans-dH)/Math.abs(dH),msg:'计算正确！ΔH ≈ '+fmtPrecise(dH,1)+' kJ/mol。'};
+    return{ok:false,msg:'偏差过大。提示：ΔH = -(m·c·ΔT)/n(H₂O 生成量)，c(水)=4.18 J/(g·℃)。'};
+  },
+  report:{type:'num',title:'量热报告',q:'中和反应的摩尔反应热 ΔH = ? kJ/mol（放热为负值，如 -57.3）'}
+},
+{
+  id:'crude-salt', cat:'stoichiometry', title:'粗盐提纯', pts:100,
+  desc:'溶解 → 过滤 → 蒸发，提纯 10.0 g 粗盐（含泥沙）并称量产率。',
+  goal:'粗盐 10.0 g 中含 NaCl 8.0 g 与泥沙 2.0 g。在烧杯中溶解、加蒸馏水后过滤除去泥沙，再蒸发结晶，报告所得精盐质量。',
+  stock:()=>[
+    mkStock('粗盐',{nacl:0.1368,imp:0.0333},{mass:10.0,desc:'含泥沙约 20%',color:'#f2e8d8'}),
+    mkStock('蒸馏水',{h2o:55.5},{vol:0.5,desc:'',color:'#d6ecff'})
+  ],
+  check:(ans)=>{
+    let pure=0,impure=0;
+    for(const v of G.vessels){pure+=(v.solution.moles.nacl_s||0)*SP.nacl_s.mw;impure+=(v.solution.moles.imp||0);}
+    if(impure>0.001)return{ok:false,msg:'精盐中混有泥沙（说明没有过滤）。请重置后按正确顺序：溶解 → 过滤 → 蒸发。'};
+    if(pure<0.5)return{ok:false,msg:'尚未获得精盐。请完成：溶解 → 过滤（去泥沙）→ 蒸发结晶。'};
+    if(Math.abs(ans-pure)<=0.2)return{ok:true,msg:'称量正确，精盐 '+fmtPrecise(pure,2)+' g，产率 '+fmtPrecise(pure/8.0*100,1)+'%。'};
+    return{ok:false,msg:'与称量值 '+fmtPrecise(pure,2)+' g 不符，请重新读数。'};
+  },
+  report:{type:'num',title:'产率报告',q:'提纯所得精盐质量 = ? g'}
+},
+{
+  id:'metal-rate', cat:'kinetics', title:'金属与酸反应速率', pts:100,
+  desc:'比较 Mg、Al、Zn 与同浓度盐酸反应生成 H₂ 的快慢（限时模式）。',
+  goal:'三只试管各加入 0.01 mol 金属与 5 mL 1.0 mol/L 盐酸，点击试管上「反应」按钮开始计时，30 s 时比较 H₂ 体积并排出顺序。注意：铝表面有致密氧化膜。',
+  stock:()=>[
+    mkStock('1.0 mol/L 盐酸',{hplus:0.05,cl:0.05},{vol:0.05,desc:'',color:'#e8f3ff'}),
+    mkStock('镁条 Mg',{mg:0.01},{mass:0.24,desc:'',color:'#d8dee8'}),
+    mkStock('锌粒 Zn',{zn:0.01},{mass:0.65,desc:'',color:'#b8c2ce'}),
+    mkStock('铝片 Al',{al:0.01},{mass:0.27,desc:'表面有氧化膜',color:'#e0e6ee'})
+  ],
+  timed:true,
+  check:(ans)=> ans==='mg>zn>al'
+    ? {ok:true,msg:'正确！速率 Mg > Zn > Al。铝虽活泼，但氧化膜使其起始速率最慢。'}
+    : {ok:false,msg:'顺序不对。再观察 30 s 时三支试管的 H₂ 体积读数。'},
+  report:{type:'choice',title:'排序报告',q:'30 s 时生成 H₂ 体积由大到小的顺序是？',
+    options:[{v:'mg>zn>al',t:'Mg > Zn > Al'},{v:'zn>mg>al',t:'Zn > Mg > Al'},{v:'al>zn>mg',t:'Al > Zn > Mg'},{v:'al>mg>zn',t:'Al > Mg > Zn'}]}
+},
+{
+  id:'kno3-solubility', cat:'solubility', title:'溶解度曲线', pts:100,
+  desc:'测定 60 ℃ 时 KNO₃ 的溶解度（g/100 g 水）。',
+  goal:'在烧杯中加水并加热至 60 ℃，逐步加入 KNO₃ 固体至恰好饱和（出现的第一粒晶核即饱和），报告 60 ℃ 时溶解度。也可直接用已饱和溶液读数推算。',
+  stock:()=>[
+    mkStock('KNO₃ 固体',{kno3_s:1.98},{mass:200,desc:'',color:'#ffffff'}),
+    mkStock('蒸馏水',{h2o:55.5},{vol:0.3,desc:'',color:'#d6ecff'})
+  ],
+  check:(ans)=>{
+    const s60=kno3Sol(60);
+    if(Math.abs(ans-s60)<=5)return{ok:true,err:Math.abs(ans-s60)/s60,msg:'正确！60 ℃ 时 KNO₃ 溶解度约 '+fmtPrecise(s60,0)+' g/100 g 水。降温会有晶体析出，这就是降温结晶法。'};
+    return{ok:false,msg:'偏差较大。提示：加热到 60 ℃ 后用温度计读数，逐步加 KNO₃ 至刚好饱和，溶解度 = 溶质质量/水质量×100。'};
+  },
+  report:{type:'num',title:'溶解度报告',q:'60 ℃ 时 KNO₃ 的溶解度 = ? g/100 g 水'}
+},
+{
+  id:'density-id', cat:'identify', title:'密度鉴别', pts:100,
+  desc:'用量筒测定三种无色液体的密度，鉴别水、酒精与盐水。',
+  goal:'三种无色液体标签缺失。各取 10.00 mL 于量筒中，用「性质」面板读质量，算出密度 ρ=m/V，把 ①②③ 对应到 水 / 酒精 / 盐水。',
+  stock:()=>{
+    // 随机打乱三瓶液体编号
+    const pool=[
+      {label:'无色液体 ①',mol:{h2o:27.8},vol:0.5,color:'#d6ecff',density:1.00,key:'水'},
+      {label:'无色液体 ②',mol:{eth:8.57},vol:0.5,color:'#eef8ff',density:0.79,key:'酒精'},
+      {label:'无色液体 ③',mol:{brine:1.71,na:1.71,cl:1.71},vol:0.5,color:'#ddeeff',density:1.05,key:'盐水'}
+    ];
+    const keys=['水','酒精','盐水'];
+    const dens={'水':1.00,'酒精':0.79,'盐水':1.05};
+    const order=['水','酒精','盐水'].sort(()=>Math.random()-0.5);
+    return order.map((k,i)=>mkStock('无色液体 '+['①','②','③'][i],
+      pool.find(p=>p.key===k).mol,
+      {vol:0.5,color:pool.find(p=>p.key===k).color,density:dens[k],desc:'未知',_key:k}));
+  },
+  check:(ans)=>{ // ans = {1:密度,2:密度,3:密度}
+    const expect={}; G.stocks.forEach(s=>{const i=s.label.slice(-1);expect[i=='①'?1:i=='②'?2:3]=s.density;});
+    for(const k of [1,2,3]){ if(Math.abs(ans[k]-expect[k])>0.03) return{ok:false,msg:'液体 '+['①','②','③'][k-1]+' 的密度测量不对。提示：ρ=m/V，用量筒取 10.00 mL 后在「性质」面板读质量。'}; }
+    const names=G.stocks.map(s=>s._key);
+    return{ok:true,msg:'鉴别完成！'+'①②③'.split('').map((c,i)=>'液体'+c+' = '+names[i]).join('，')+'。'};
+  },
+  report:{type:'multi3',title:'鉴别报告',q:'依次报告 ①②③ 三种液体的密度 ρ = ? g/mL（据此判断哪种是水/酒精/盐水）'}
+},
+{
+  id:'baking-soda', cat:'stoichiometry', title:'泡沫灭火器原理', pts:100,
+  desc:'小苏打与酸反应生成 CO₂ 的定量研究。',
+  goal:'将 8.4 g NaHCO₃ 与足量白醋（弱酸，逐步电离出 H⁺）混合反应，测量生成 CO₂ 在标准状况下的体积（1 mol 气体 ≈ 22.4 L）。',
+  stock:()=>[
+    mkStock('小苏打 NaHCO₃',{hco3:0.10,na:0.10},{mass:8.4,desc:'',color:'#ffffff'}),
+    mkStock('白醋',{hac:0.50,ac:0.025,hplus:0.025},{vol:0.1,density:1.01,desc:'5% 醋酸',color:'#faf6e6'})
+  ],
+  check:(ans)=>{
+    let co2=0; for(const v of G.vessels)co2+=v.solution.produced.co2;
+    const V=co2*22.4;
+    if(V<0.05)return{ok:false,msg:'尚未反应生成可测量的 CO₂。把小苏打倒入盛有白醋的器皿中。'};
+    if(Math.abs(ans-V)<=Math.max(0.1,V*0.06))return{ok:true,msg:'正确！生成 CO₂ 约 '+fmtPrecise(V,2)+' L（标况）。这就是泡沫灭火器与汽水的原理。'};
+    return{ok:false,msg:'与实测 '+fmtPrecise(V,2)+' L 不符。提示：n(CO₂)=n(NaHCO₃)，V=n×22.4 L。'};
+  },
+  report:{type:'num',title:'气体计量报告',q:'标况下生成 CO₂ 的体积 V = ? L'}
+},
+{
+  id:'precip-agcl', cat:'solubility', title:'白色沉淀的奥秘', pts:110,
+  desc:'AgNO₃ 与 NaCl 相遇生成 AgCl 白色沉淀，练习沉淀计量与离子方程式。',
+  goal:'取等量（如各 50 mL）的 0.10 mol/L AgNO₃ 与 0.10 mol/L NaCl 混合，观察白色沉淀生成（可过滤后称量），报告沉淀质量。（AgCl 摩尔质量 143.5 g/mol）',
+  stock:()=>[
+    mkStock('0.10 mol/L AgNO₃',{ag:0.010,no3:0.010},{vol:0.1,desc:'',color:'#e6f0ff'}),
+    mkStock('0.10 mol/L NaCl',{na:0.010,cl:0.010},{vol:0.1,desc:'',color:'#e3f3ff'})
+  ],
+  check:(ans)=>{
+    let m=0; for(const v of G.vessels)m+=(v.solution.moles.agcl_s||0)*SP.agcl_s.mw;
+    if(m<0.05)return{ok:false,msg:'尚未观察到沉淀。把两种溶液混合试试。'};
+    const err=Math.abs(ans-m)/m;
+    if(err<=0.02)return{ok:true,err,msg:'称量正确！m(AgCl)='+fmtPrecise(m,3)+' g。Ag⁺ + Cl⁻ → AgCl↓（白色）'};
+    return{ok:false,err,msg:'与实测 '+fmtPrecise(m,3)+' g 不符。提示：n(AgCl)=n(Ag⁺)=n(Cl⁻)，m=n×143.5。'};
+  },
+  report:{type:'num',title:'沉淀计量报告',q:'生成 AgCl 沉淀的质量 m = ? g'}
+},
+{
+  id:'color-precip', cat:'solubility', title:'调色盘沉淀', pts:120,
+  desc:'Cu²⁺ 遇碱生成蓝色 Cu(OH)₂，Fe³⁺ 遇碱生成红褐色 Fe(OH)₃——沉淀不全是白色！',
+  goal:'烧杯中各取 50 mL 0.10 mol/L CuSO₄（蓝色溶液）与 0.10 mol/L FeCl₃（黄色溶液），混合后滴加 NaOH 至沉淀完全，观察蓝色与红褐色两种絮状沉淀，报告沉淀总质量。',
+  stock:()=>[
+    mkStock('0.10 mol/L CuSO₄',{cu2:0.010,so4:0.010},{vol:0.1,desc:'蓝色溶液',color:'#7fb8e8'}),
+    mkStock('0.10 mol/L FeCl₃',{fe3:0.010,cl:0.010},{vol:0.1,desc:'黄色溶液',color:'#e8c86a'}),
+    mkStock('1.0 mol/L NaOH',{na:0.10,ohminus:0.10},{vol:0.1,desc:'',color:'#f0eaff'})
+  ],
+  check:(ans)=>{
+    let m=0; for(const v of G.vessels){m+=(v.solution.moles.cuoh2_s||0)*98+(v.solution.moles.feoh3_s||0)*107;}
+    if(m<0.1)return{ok:false,msg:'还没有沉淀。把两种盐溶液混合后滴加 NaOH。'};
+    const err=Math.abs(ans-m)/m;
+    if(err<=0.02)return{ok:true,err,msg:'正确！蓝色 Cu(OH)₂ + 红褐色 Fe(OH)₃，总质量 '+fmtPrecise(m,3)+' g。'};
+    return{ok:false,err,msg:'与实测 '+fmtPrecise(m,3)+' g 不符。提示：n(Cu(OH)₂)=n(Cu²⁺)、n(Fe(OH)₃)=n(Fe³⁺)，m=n×M 求和。'};
+  },
+  report:{type:'num',title:'沉淀计量报告',q:'沉淀总质量 m = ? g'}
+}
+];
+
+/* ---------- 积分与进度 ---------- */
+function loadProg(){try{return JSON.parse(localStorage.getItem('zclab_prog'))||{pts:0,done:{}}}catch(e){return{pts:0,done:{}}}}
+function saveProg(p){localStorage.setItem('zclab_prog',JSON.stringify(p))}
+function refreshPts(){const p=loadProg();$('pts').textContent=p.pts;}
+function award(task,err){
+  const p=loadProg(); p.stars=p.stars||{};
+  const st=(err===undefined)?2:(err<=0.01?3:err<=0.05?2:1);
+  const isNew=!p.done[task.id];
+  if(isNew){p.done[task.id]=true;p.pts+=task.pts;}
+  if(st>(p.stars[task.id]||0))p.stars[task.id]=st;
+  saveProg(p);refreshPts();
+  toast((isNew?'✔ 任务完成 +'+task.pts+' 分　':'✔ 刷新纪录　')+'★'.repeat(st)+'☆'.repeat(3-st));
+}
+</script>
+<script>
+/* ============================================================
+   界面层：渲染 + 交互
+   ============================================================ */
+let instTab='props', spFilter='all';
+
+function renderTaskGrid(){
+  const p=loadProg();
+  $('taskGrid').innerHTML=TASKS.map(t=>{
+    const done=p.done[t.id];
+    return `<div class="tcard" data-id="${t.id}">
+      <span class="cat">${t.cat}</span>${done?'<span class="done">✔ '+((p.stars&&p.stars[t.id])?'★'.repeat(p.stars[t.id]):'已完成')+'</span>':''}
+      <h3>${esc(t.title)}</h3><p>${esc(t.desc)}</p>
+      <div class="pts2">完成 +${t.pts} 积分</div></div>`;
+  }).join('');
+  document.querySelectorAll('.tcard').forEach(c=>c.onclick=()=>startTask(TASKS.find(t=>t.id===c.dataset.id)));
+}
+
+function startTask(task){
+  G.task=task;
+  G.stocks=task.stock().map(s=>{ // 药瓶补满：浓度不变只加量
+    if(s.vol!==null&&s.vol<0.4){const k=0.5/s.vol;for(const id in s.moles)s.moles[id]*=k;s.vol=0.5;}
+    else if(s.mass!==null&&s.mass<40){const k=50/s.mass;for(const id in s.moles)s.moles[id]*=k;s.mass=50;}
+    return s;
+  });
+  G.vessels=[]; G.waste={id:'waste',type:'waste',label:'废液缸',solution:mkSol('废液缸',{},0)};
+  G.sel=null; G.activeV=null; G.tool='take'; G.lastNeut=null; G.timedMode=!!task.timed; G.sid=0;
+  G.titrate=null; G.heat=null; G._titSel=null; G.fx={}; G._moving=null;
+  G.bubbles=localStorage.getItem('zclab_bub')!=='0';
+  G._uiHold=false;
+  $('screenTasks').hidden=true; $('screenLab').hidden=false;
+  $('homeBtn').hidden=false; $('resetBtn').hidden=false;
+  $('goalTitle').textContent='【'+task.title+'】';
+  $('goalText').textContent=task.goal;
+  renderVesselBar(); renderTools(); afterChange();
+  toast('实验开始：'+task.title);
+  if(!localStorage.getItem('zclab_tut')) setTimeout(tutStart,700);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderVesselBar(){
+  $('vesselBar').innerHTML='<span class="lbl" style="font-size:12px;color:var(--dim)">添加器皿：</span>'+
+    Object.keys(VESSEL_TYPES).map(k=>{const s=VESSEL_TYPES[k];return `<button class="btn" data-t="${k}" title="添加到台面后，点击器皿名称可切换规格">+ ${s.cn} ${s.cap}${s.specs?'/'+s.specs.slice(1).join('/'):''}mL</button>`;}).join('');
+  $('vesselBar').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const t=b.dataset.t;
+    const _idx=G.vessels.length;
+    G.vessels.push({id:'v'+(++G.vid),type:t,label:VESSEL_TYPES[t].cn,cap:VESSEL_TYPES[t].cap,x:190+(_idx%4)*200,y:24+Math.floor(_idx/4)*330,solution:mkSol('',{},0),sim:null});
+    afterChange();
+  });
+}
+
+function renderTools(){
+  const tools=[['take','取液'],['pour','倒出'],['merge','合并'],['titrate','滴定'],['heat','加热'],['filter','过滤'],['evap','蒸发'],['fill','定容'],['dump','倾倒'],['stow','收拾'],['move','移动']];
+  $('toolBar').innerHTML=tools.map(([k,n])=>`<button class="btn ${G.tool===k?'on':''}" data-k="${k}">${n}</button>`).join('')+
+    '<span class="sep"></span><span class="lbl">移液精度</span>'+
+    `<select id="selMode" class="btn" style="appearance:auto">
+       <option value="precise">精准</option><option value="sigfig">有效数字</option><option value="real">真实</option>
+     </select>`+
+    '<button class="btn" id="bubBtn" title="气泡效果开关" style="'+(G.bubbles?'':'color:var(--danger);border-color:var(--danger)')+'">气泡:'+(G.bubbles?'开':'关')+'</button>'+
+    (G.timedMode?'<span class="sep"></span><span class="lbl" style="color:var(--acc2)">⏱ 限时反应模式</span>':'');
+  $('toolBar').querySelectorAll('button').forEach(b=>b.onclick=()=>{G.tool=b.dataset.k;G.sel=null;renderTools();afterChange();});
+  const sel=$('selMode'); sel.value=localStorage.getItem('zclab_mode')||'precise';
+  sel.onchange=()=>{localStorage.setItem('zclab_mode',sel.value);afterChange();};
+  $('bubBtn').onclick=()=>{G.bubbles=!G.bubbles;localStorage.setItem('zclab_bub',G.bubbles?'1':'0');$('bubBtn').textContent='气泡:'+(G.bubbles?'开':'关');afterChange();};
+}
+
+function renderShelf(){
+  $('shelf').innerHTML=G.stocks.map(s=>{
+    const amt=s.vol===null?fmtPrecise(s.mass,2)+' g':fmtVol(s.vol*1000)+' mL';
+    const conc=s.desc?esc(s.desc):'';
+    return `<button class="stockItem ${G.sel&&G.sel.kind==='stock'&&G.sel.id===s.id?'sel':''}" data-id="${s.id}">
+      <div class="nm"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}</div>
+      <div class="mt">余量 ${amt}　${conc}</div></button>`;
+  }).join('');
+  $('shelf').querySelectorAll('.stockItem').forEach(b=>b.onclick=()=>{
+    const s=G.stocks.find(x=>x.id===b.dataset.id);
+    if(G.tool!=='take'){G.tool='take';renderTools();}
+    G.sel={kind:'stock',id:s.id}; afterChange();
+    toast('已选中 '+s.label+'，点击台面器皿移取');
+  });
+}
+
+function renderBench(){
+  const w=G.waste;
+  let html=`<div class="slot" style="position:absolute;left:16px;top:24px"><div class="vessel waste ${G.sel&&G.sel.id==='waste'?'sel':''}" data-v="waste" title="废液缸"><div class="liquid" style="height:12%;background:#5b6b7a"></div></div><div class="vtag">废液缸</div></div>`;
+  for(const v of G.vessels){
+    if(G.titrate&&G.titrate.src===v.id)continue;
+    const cap=v.cap||VESSEL_TYPES[v.type].cap, sol=v.solution;
+    const k=Math.pow(cap/VESSEL_TYPES[v.type].cap,0.4);
+    const vh=(VWH[v.type]||[88,112])[1]*k, vw=(VWH[v.type]||[88,112])[0]*k;
+    const pct=Math.min(v.type==='flask'?78:92,sol.vol*1000/cap*100*(v.type==='flask'?0.78:1));
+    const sm=solidColor(sol);
+    const sed=sm.g>0.01?`<div class="sed" style="height:${Math.min(24,2+sm.g/12)}%;background:${sm.c}"></div>`:'';
+    const gran=(G.fx&&G.fx[v.id]&&Date.now()-G.fx[v.id]<800)?'<span class="gran g1"></span><span class="gran g2"></span><span class="gran g3"></span>':'';
+    const dots=granuleDots(sol,v.id);
+    const lcol=liqDisplayColor(sol);
+    const bubs=bubHTML(sol,pct,vh,v.id);
+    const rig=(G.titrate&&G.titrate.dst===v.id)?rigHTML():'';
+    const heater=(G.heat&&G.heat.vid===v.id)?heaterHTML():'';
+    const isSel=(G.sel&&(G.sel.kind==='vessel')&&G.sel.id===v.id)||G._moving===v.id;
+    const isAV=G.activeV===v;
+    html+=`<div class="slot" style="position:absolute;left:${v.x}px;top:${v.y}px">${rig}<div class="vessel ${VESSEL_TYPES[v.type].cls} ${isSel?'sel':''}" data-v="${v.id}" style="width:${vw.toFixed(0)}px;height:${vh.toFixed(0)}px;${isAV?'outline:2px solid var(--acc2);outline-offset:2px':''}${G._moving===v.id?';border-style:dashed':''}">
+        <div class="liquid" style="height:${pct}%;background:${lcol}"></div>${gran}${sed}${dots}${bubs}</div>${heater}
+      <div class="vtag specTag" data-spec="${v.id}" title="点击切换规格">${v.label} ${cap}mL${(VESSEL_TYPES[v.type].specs||[]).length>1?' ▾':''}</div>
+      <div class="vmeta">${esc(mainContent(sol))}${sol.vol>0?(' · '+fmtVol(sol.vol*1000)+'mL'):''}<br><b>${fmtPrecise(sol.temp,1)}℃</b>${v.sim?(' · H₂ '+fmtPrecise(v.sim.gas,1)+'mL'):''}${bubs?' 🫧':''}</div>
+      ${v.simBtn?`<button class="btn" style="font-size:11px;padding:4px 10px" data-sim="${v.id}">▶ 反应</button>`:''}
+    </div>`;
+  }
+  $('bench').innerHTML=html;
+  $('bench').querySelectorAll('.vessel').forEach(el=>el.onclick=()=>{if(_clickLock)return;onVesselClick(el.dataset.v);});
+  $('bench').querySelectorAll('[data-sim]').forEach(b=>b.onclick=e=>{e.stopPropagation();startSim(b.dataset.sim);});
+  $('bench').querySelectorAll('[data-tact]').forEach(el=>el.onclick=e=>{
+    e.stopPropagation();
+    if(!G.titrate)return;
+    if(el.dataset.tact==='end'){G.titrate=null;toast('滴定结束');afterChange();return;}
+    const src=G.vessels.find(x=>x.id===G.titrate.src);
+    if(!G.titrate.running&&(!src||src.solution.vol<=0))return toast('滴定管是空的',true);
+    G.titrate.running=!G.titrate.running;
+    snd('drip');toast(G.titrate.running?'开始滴加':'已停止滴加');
+    renderBench();
+  });
+  $('bench').querySelectorAll('.arc').forEach(a=>{
+    a.onpointerdown=e=>{
+      G._arcEl=a;arcMove(e);
+      window.addEventListener('pointermove',arcMove);
+      window.addEventListener('pointerup',()=>{window.removeEventListener('pointermove',arcMove);G._arcEl=null;},{once:true});
+    };
+  });
+  $('bench').querySelectorAll('[data-spec]').forEach(el=>el.onclick=e=>{e.stopPropagation();cycleSpec(el.dataset.spec);});
+  $('bench').onpointerdown=benchPD;
+  window.onpointermove=benchPM;
+  window.onpointerup=benchPU;
+  $('bench').onmousedown=e=>benchPD(e);
+  $('bench').ontouchstart=e=>{const t=e.touches[0];if(t)benchPD({target:e.target,clientX:t.clientX,clientY:t.clientY});};
+  window.onmousemove=benchPM;
+  window.ontouchmove=e=>{const t=e.touches[0];if(t)benchPM({target:e.target,clientX:t.clientX,clientY:t.clientY});};
+  window.onmouseup=benchPU;
+  window.ontouchend=e=>{const t=(e.changedTouches&&e.changedTouches[0])||{clientX:0};benchPU({clientX:t.clientX});};
+  $('bench').onclick=e=>{
+    if(G.tool==='move'&&G._moving&&e.target===$('bench')){
+      const r=$('bench').getBoundingClientRect();
+      const v=G.vessels.find(x=>x.id===G._moving);
+      if(v){v.x=Math.max(4,e.clientX-r.left-45);v.y=Math.max(4,e.clientY-r.top-24);G._moving=null;afterChange();toast('已放置 '+v.label);}
+    }
+  };
+  let maxY=400;
+  for(const v of G.vessels)maxY=Math.max(maxY,(v.y||0)+330);
+  $('bench').style.minHeight=maxY+'px';
+}
+
+function onVesselClick(vid){
+  const v=vid==='waste'?G.waste:G.vessels.find(x=>x.id===vid);
+  if(!v)return;
+  if(G.titrate&&G.titrate.src===v.id&&G.tool!=='stow')return toast('滴定管已固定在滴定装置上，先点 ✕ 结束',true);
+  if(vid==='waste'){
+    if(G.tool==='pour'&&G.sel&&G.sel.kind==='vessel'&&G.sel.id!=='waste'){
+      const src=G.vessels.find(x=>x.id===G.sel.id);
+      openKeypad('倾倒至废液缸','输入倒出体积 (mL)，将倒入废液缸',amt=>pourVessel(src,G.waste,amt));
+    } else if(G.tool==='dump'){/* nothing */} 
+    else toast('废液缸：用「倒出」工具把液体倒进来');
+    return;
+  }
+  G.activeV=v;
+  const tool=G.tool;
+  if(tool==='take'){
+    if(!G.sel||G.sel.kind!=='stock')return toast('请先在左侧货架选择药品',true);
+    const s=G.stocks.find(x=>x.id===G.sel.id);
+    if(s.vol===null)openKeypad('取固体：'+s.label,'输入质量 (g)',amt=>pourStock(s,v,amt));
+    else openKeypad('取液：'+s.label,'输入体积 (mL)，余量 '+fmtVol(s.vol*1000)+' mL',amt=>pourStock(s,v,amt));
+  }else if(tool==='pour'){
+    if(!G.sel||G.sel.kind!=='vessel'){G.sel={kind:'vessel',id:v.id};afterChange();toast('已选源器皿，点击目标器皿或废液缸');}
+    else if(G.sel.id===v.id){toast('源与目标相同',true);}
+    else{const src=G.vessels.find(x=>x.id===G.sel.id);
+      openKeypad('倒出','从 '+src.label+' 倒出体积 (mL)，余量 '+fmtVol(src.solution.vol*1000)+' mL',amt=>pourVessel(src,v,amt));}
+  }else if(tool==='merge'){
+    if(!G.sel||G.sel.kind!=='vessel'){G.sel={kind:'vessel',id:v.id};afterChange();toast('已选源器皿，点击目标器皿合并');}
+    else if(G.sel.id===v.id){toast('源与目标相同',true);}
+    else{const src=G.vessels.find(x=>x.id===G.sel.id);mergeVessel(src,v);G.sel=null;}
+  }else if(tool==='titrate'){
+    if(!G._titSel){
+      if(v.type!=='burette')return toast('第一步：点击「滴定管」作为滴加仪器',true);
+      G._titSel=v.id;G.sel={kind:'vessel',id:v.id};afterChange();
+      toast('已选滴定管，第二步：点击接收器皿（被滴加）');return;
+    }
+    if(v.id===G._titSel)return toast('滴定管不能滴定自身',true);
+    G.titrate={src:G._titSel,dst:v.id,running:false,rate:1.5,delivered:0};
+    G._titSel=null;G.sel=null;G.tool='take';renderTools();
+    toast('滴定装置已组装：点击上方滴定管开始/停止，旋塞调节速率');
+  }else if(tool==='heat'){
+    if(v.type==='burette')return toast('滴定管不能加热',true);
+    openKeypad('加热：'+v.label,'输入目标温度 ℃（≤500 酒精灯 / ≤1000 酒精喷灯 / >1000 强电流；低于当前温度为自然冷却）',t=>{
+      if(!(t>=0&&t<=3000))return toast('温度范围 0-3000 ℃',true);
+      if(t<v.solution.temp){G.heat={vid:v.id,target:t,dev:'cool',rate:HEAT_DEV.cool.rate};toast('自然冷却至 '+t+' ℃');}
+      else{const dev=t<=500?'lamp':(t<=1000?'torch':'arc');G.heat={vid:v.id,target:t,dev,rate:HEAT_DEV[dev].rate};toast(HEAT_DEV[dev].cn+'加热中：目标 '+t+' ℃');}
+    });
+  }else if(tool==='filter'){filterVessel(v);}
+  else if(tool==='evap'){
+    if(v.type==='burette')toast('滴定管不能加热',true);else evaporate(v);
+  }
+  else if(tool==='fill'){fillToMark(v);}
+  else if(tool==='dump'){dumpVessel(v);}
+  else if(tool==='stow'){
+    if(G.titrate&&(G.titrate.src===v.id||G.titrate.dst===v.id))return toast('滴定装置使用中，先点 ✕ 结束滴定',true);
+    if(G.heat&&G.heat.vid===v.id)G.heat=null;
+    G.vessels=G.vessels.filter(x=>x.id!==v.id);
+    if(G.activeV===v)G.activeV=null;
+    afterChange();toast('已收拾：'+v.label);
+  }
+  else if(tool==='move'){
+    if(!G._moving){G._moving=v.id;afterChange();toast('已拿起 '+v.label+'，点击台面空白处放下');}
+    else if(G._moving===v.id){G._moving=null;afterChange();toast('已原地放下');}
+    else{G._moving=v.id;afterChange();toast('改拿 '+v.label);}
+  }
+  afterChange();
+}
+
+/* ---------- 试管反应模拟（任务5） ---------- */
+const SIM_K={mg:0.15,zn:0.06,al:0.02}, SIM_VAL={mg:2,zn:2,al:3};
+function simTick(){
+  for(const v of G.vessels){
+    v.simBtn=false;
+    if(v.type==='burette'||v.type==='flask')continue;
+    const s=v.solution;
+    let metal=null; for(const m of ['mg','zn','al'])if((s.moles[m]||0)>1e-9)metal=m;
+    if(!metal||(s.moles.hplus||0)<=1e-6){
+      if(v.sim)v.sim.running=false;
+      continue;
+    }
+    if(!v.sim){ startSim(v.id); continue; } // 接触即反应
+    if(!v.sim.running)continue;
+    v.sim.t+=0.2;
+    const g=v.sim.max*(1-Math.exp(-SIM_K[metal]*v.sim.t));
+    const dG=g-v.sim.gas;
+    v.sim.gas=g;
+    s.moles.hplus=Math.max(0,(s.moles.hplus||0)-dG/22400*SIM_VAL[metal]);
+    s.moles[metal]=Math.max(0,s.moles[metal]-dG/22400);
+    if(dG>1e-9){s.gasFx=Date.now();s.gasFxT=2500+Math.min(3500,dG/22400*8e5);s._gRate=dG/22400;}
+    if(v.sim.t>=120||g>=v.sim.max-0.01||s.moles[metal]<=1e-9||(s.moles.hplus||0)<=1e-9)v.sim.running=false;
+  }
+}
+/* 按住台面/仪器面板时暂停自动重渲染（防点击被吞） */
+document.addEventListener('pointerdown',e=>{ if(e.target.closest&&e.target.closest('#bench,#instr'))G._uiHold=true; },{passive:true});
+window.addEventListener('pointerup',()=>{ G._uiHold=false; },{passive:true});
+/* 长按拖动重排器皿 */
+let _drag=null,_clickLock=false;
+function benchPD(e){
+  const vEl=e.target.closest('.vessel');
+  if(!vEl||vEl.dataset.v==='waste'||_drag)return;
+  _drag={vid:vEl.dataset.v,hold:false,ghost:null,
+    timer:setTimeout(()=>{ if(_drag)_drag.hold=true; },450)};
+}
+function benchPM(e){
+  if(!_drag||!_drag.hold)return;
+  if(!_drag.ghost){
+    const src=$('bench').querySelector(`.vessel[data-v="${_drag.vid}"]`);
+    if(!src){_drag=null;return;}
+    _drag.ghost=document.createElement('div');
+    _drag.ghost.style.cssText='position:fixed;z-index:300;pointer-events:none;opacity:.75;transform:translate(-50%,-85%)';
+    _drag.ghost.innerHTML=src.closest('.slot').innerHTML;
+    document.body.appendChild(_drag.ghost);
+    _clickLock=true;
+  }
+  _drag.ghost.style.left=e.clientX+'px';
+  _drag.ghost.style.top=e.clientY+'px';
+}
+function moveVesselTo(vid,xClient){
+  const from=G.vessels.findIndex(v=>v.id===vid);
+  if(from<0)return;
+  let idx=G.vessels.length,i=0;
+  for(const sl of $('bench').querySelectorAll('.slot')){
+    const dv=sl.querySelector('.vessel');
+    if(!dv||dv.dataset.v==='waste'||dv.dataset.v===vid)continue;
+    const r=sl.getBoundingClientRect();
+    if(xClient<r.left+r.width/2){idx=Math.min(idx,i);break;}
+    i++;
+  }
+  const [vv]=G.vessels.splice(from,1);
+  G.vessels.splice(Math.min(idx,G.vessels.length),0,vv);
+  afterChange();
+  toast('已移动 '+vv.label);
+}
+function benchPU(e){
+  if(!_drag)return;
+  clearTimeout(_drag.timer);
+  if(_drag.ghost){
+    _drag.ghost.remove();
+    moveVesselTo(_drag.vid,e.clientX);
+    setTimeout(()=>{_clickLock=false;},80);
+  }
+  _drag=null;
+}
+/* 轻量更新：只改读数与液面，不重建 DOM（保护气泡/颗粒动画不被重置） */
+function updateBenchLite(){
+  for(const v of G.vessels){
+    const el=$('bench').querySelector(`.vessel[data-v="${v.id}"]`);
+    if(!el)continue;
+    const cap=v.cap||VESSEL_TYPES[v.type].cap, sol=v.solution;
+    const pct=Math.min(v.type==='flask'?78:92,sol.vol*1000/cap*100*(v.type==='flask'?0.78:1));
+    const liq=el.querySelector('.liquid');
+    if(liq)liq.style.height=pct+'%';
+    // 气泡生命周期：产气时生成、窗口结束移除（本函数不重建 DOM，动画连续播放）
+    const kk=Math.pow(cap/VESSEL_TYPES[v.type].cap,0.4);
+    const vh2=(VWH[v.type]||[88,112])[1]*kk;
+    const want=bubHTML(sol,pct,vh2,v.id);
+    const hasB=el.querySelectorAll('.bub').length;
+    if(want&&hasB===0)el.insertAdjacentHTML('beforeend',want);
+    else if(!want&&hasB>0)el.querySelectorAll('.bub').forEach(b=>b.remove());
+    const meta=el.parentElement.querySelector('.vmeta');
+    if(meta)meta.innerHTML=`${esc(mainContent(sol))}${sol.vol>0?(' · '+fmtVol(sol.vol*1000)+'mL'):''}<br><b>${fmtPrecise(sol.temp,1)}℃</b>${v.sim?(' · H₂ '+fmtPrecise(v.sim.gas,1)+'mL'):''}${want?' 🫧':''}`;
+  }
+  if(G.titrate){
+    const info=$('bench').querySelector('.rigInfo');
+    if(info){
+      const t=G.titrate;
+      info.innerHTML=`<b class="arcRate">${t.rate.toFixed(1)} mL/s</b><br>已滴加 ${fmtPrecise(t.delivered,2)} mL<button class="btn" style="font-size:10px;padding:2px 8px;margin-left:6px" data-tact="end">✕</button>`;
+      const b=info.querySelector('[data-tact]');
+      if(b)b.onclick=()=>{G.titrate=null;afterChange();toast('滴定结束');};
+    }
+  }
+}
+/* 纯JS气泡动画：每60ms推进所有气泡的位置与透明度 */
+function bubFrame(b,now){
+  const t0=+b.dataset.t0||now, rise=+b.dataset.rise||20, dur=Math.max(200,+b.dataset.dur||1600), del=+b.dataset.del||0, b0=+b.dataset.b0||2;
+  const raw=now-t0-del;
+  if(raw<0){b.style.opacity='0';return;}
+  const p=(raw%dur)/dur;
+  b.style.bottom=(b0+rise*p).toFixed(1)+'px';
+  b.style.opacity=(p<0.15?(p/0.15):p>0.85?((1-p)/0.15):1).toFixed(2);
+}
+setInterval(()=>{ if(document.hidden||$('screenLab').hidden)return; document.querySelectorAll('#bench .bub').forEach(b=>bubFrame(b,Date.now())); },60);
+setInterval(()=>{
+  if(G.task&&G.task.timed)simTick();
+  titrateTick();heaterTick();
+  const needRender=(G.task&&G.task.timed)||G.titrate||G.heat;
+  if(needRender&&!G._arcEl&&!G._uiHold&&!document.hidden&&!$('screenLab').hidden){updateBenchLite();renderInstr();}
+},200);
+
+function startSim(vid){
+  const v=G.vessels.find(x=>x.id===vid);
+  const s=v.solution;
+  let metal=null; for(const m of ['mg','zn','al'])if((s.moles[m]||0)>1e-9)metal=m;
+  const mol=Math.min(s.moles[metal],(s.moles.hplus||0)/SIM_VAL[metal]);
+  v.sim={t:0,gas:0,running:true,max:mol*22400};
+  v.simBtn=false;
+  toast(v.label+' 反应开始计时');
+}
+
+/* ---------- 仪器面板 ---------- */
+function renderInstr(){
+  $('avName').textContent=G.activeV?('· 当前：'+G.activeV.label):'（点击器皿读数）';
+  const tabs=[['props','性质'],['ph','pH 计'],['thermo','温度计'],['species','物种']];
+  $('instTabs').innerHTML=tabs.map(([k,n])=>`<span class="tab ${instTab===k?'on':''}" data-k="${k}">${n}</span>`).join('');
+  $('instTabs').querySelectorAll('.tab').forEach(t=>t.onclick=()=>{instTab=t.dataset.k;renderInstr();});
+  const v=G.activeV, body=$('instBody');
+  if(!v){body.innerHTML='<div style="color:var(--dim);font-size:13px;padding:20px 0;text-align:center">点击台面任意器皿<br>在此读取数据</div>';return;}
+  const s=v.solution;
+  if(instTab==='props'){
+    const rows=[
+      ['溶液体积',s.vol>0?fmtVol(s.vol*1000)+' mL':'—'],
+      ['温度',fmtPrecise(s.temp,1)+' ℃'],
+      ['溶液质量',s.vol>0?fmtPrecise(s.vol*1000*s.density,1)+' g':'—'],
+      ['密度',s.vol>0?fmtPrecise(s.density,3)+' g/mL':'—'],
+      ['固体质量',solidMass(s)>0.001?fmtPrecise(solidMass(s),2)+' g':'—'],
+      ['主成分',mainContent(s)]
+    ];
+    body.innerHTML=rows.map(r=>`<div class="kv"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('')+
+      '<div style="font-size:11px;color:var(--dim);margin-top:8px">移液精度模式影响所有体积读数</div>';
+  }else if(instTab==='ph'){
+    const ph=pHOf(s);
+    body.innerHTML=`<div class="bigRead">${ph===null?'--':fmtPrecise(ph,2)}<small> pH</small></div>
+      <div style="text-align:center;font-size:12px;color:var(--dim)">${ph===null?'器皿为空，无法测量':'电极已浸入 '+esc(mainContent(s))}</div>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:center">
+        <button class="btn" id="phCal">校准电极</button></div>`;
+    $('phCal').onclick=()=>toast('电极已校准（pH 7.00 标准缓冲）');
+  }else if(instTab==='thermo'){
+    body.innerHTML=`<div class="bigRead">${fmtPrecise(s.temp,1)}<small> ℃</small></div>
+      <div style="display:flex;gap:8px;margin-top:10px;justify-content:center">
+        <button class="btn" id="heatDn">-10 ℃</button><button class="btn" id="heatUp">+10 ℃</button></div>
+      <div style="font-size:11.5px;color:var(--dim);margin-top:10px;text-align:center">加热/冷却会触发溶解平衡移动（KNO₃ 会结晶或溶解）</div>`;
+    $('heatUp').onclick=()=>heatVessel(v,10);
+    $('heatDn').onclick=()=>heatVessel(v,-10);
+  }else{
+    const rows=[];
+    for(const id in s.moles){
+      if(s.moles[id]<1e-9)continue;
+      const st=SP[id].s;
+      if(spFilter!=='all'&&st!==spFilter)continue;
+      const conc=(st==='aq'&&s.vol>1e-6)?fmtSig(s.moles[id]/s.vol)+' mol/L':'';
+      rows.push(`<tr><td>${SP[id].n}</td><td>${fmtSig(s.moles[id],4)}</td><td>${conc}</td><td><span class="st ${st}">${ST_NAME[st]}</span></td></tr>`);
+    }
+    body.innerHTML=`<div style="display:flex;gap:6px;margin-bottom:8px">${[['all','全部'],['aq','aq'],['s','固'],['g','气']].map(([k,n])=>`<span class="tab ${spFilter===k?'on':''}" data-f="${k}" style="font-size:11px">${n}</span>`).join('')}</div>
+      ${rows.length?`<table class="sp"><tr><th>物种</th><th>物质的量</th><th>浓度</th><th>态</th></tr>${rows.join('')}</table>`:'<div style="color:var(--dim);font-size:12.5px;text-align:center;padding:14px 0">无匹配物种</div>'}`;
+    body.querySelectorAll('[data-f]').forEach(t=>t.onclick=()=>{spFilter=t.dataset.f;renderInstr();});
+  }
+}
+
+function afterChange(){renderShelf();renderBench();renderInstr();}
+
+/* ---------- 滴定装置 ---------- */
+function rigHTML(){
+  const t=G.titrate,src=G.vessels.find(x=>x.id===t.src);
+  const pct=src?Math.min(92,src.solution.vol*1000/((src&&src.cap)||VESSEL_TYPES.burette.cap)*100):0;
+  const frac=Math.max(0,Math.min(1,(t.rate-0.1)/4.9));
+  const phi=Math.PI*frac;
+  const kx=(30+21*Math.cos(Math.PI-phi)).toFixed(1), ky=(32-21*Math.sin(phi)).toFixed(1);
+  return `<div class="rig">
+    <div class="rigB ${t.running?'run':''}" data-tact="toggle" title="点击开始/停止滴加">
+      <div class="rigLiq" style="height:${pct}%"></div>
+      <span>${t.running?'⏸':'⏵'}</span>
+      ${t.running?'<i class="drop"></i>':''}
+    </div>
+    <div class="rigCtl">
+      <svg class="arc" width="60" height="36" viewBox="0 0 60 36">
+        <path d="M9 32 A 21 21 0 0 1 51 32" fill="none" stroke="#22303f" stroke-width="5" stroke-linecap="round"/>
+        <path d="M9 32 A 21 21 0 0 1 51 32" fill="none" stroke="var(--acc)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${(66*frac).toFixed(1)} 999" class="arcFill"/>
+        <circle class="arcKnob" cx="${kx}" cy="${ky}" r="5.5" fill="var(--acc)" stroke="#04222c" stroke-width="1.5"/>
+      </svg>
+      <div class="rigInfo"><b class="arcRate">${t.rate.toFixed(1)} mL/s</b><br>已滴加 ${fmtPrecise(t.delivered,2)} mL<button class="btn" style="font-size:10px;padding:2px 8px;margin-left:6px" data-tact="end">✕</button></div>
+    </div>
+  </div>`;
+}
+function arcMove(e){
+  if(!G._arcEl||!G.titrate)return;
+  const live=document.querySelector('.arc');
+  if(!live){G._arcEl=null;return;}
+  const r=live.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.bottom-4;
+  let ang=Math.atan2(cy-e.clientY,e.clientX-cx);
+  if(!(ang>0))ang=0; if(ang>Math.PI)ang=Math.PI;
+  G.titrate.rate=+(5.0-ang/Math.PI*4.9).toFixed(2);
+  // 直接改 DOM 跟手，不触发整页重渲染
+  const frac=(G.titrate.rate-0.1)/4.9, phi=Math.PI*frac;
+  const knob=live.querySelector('.arcKnob'), fill=live.querySelector('.arcFill');
+  if(knob){knob.setAttribute('cx',(30+21*Math.cos(Math.PI-phi)).toFixed(1));knob.setAttribute('cy',(32-21*Math.sin(phi)).toFixed(1));}
+  if(fill)fill.setAttribute('stroke-dasharray',(66*frac).toFixed(1)+' 999');
+  const rt=live.parentElement&&live.parentElement.querySelector('.arcRate');
+  if(rt)rt.textContent=G.titrate.rate.toFixed(1)+' mL/s';
+}
+function titrateTick(){
+  const t=G.titrate;if(!t||!t.running)return;
+  const src=G.vessels.find(x=>x.id===t.src), dst=G.vessels.find(x=>x.id===t.dst);
+  if(!src||!dst){G.titrate=null;afterChange();return;}
+  const room=Math.max(0,(dst.cap||VESSEL_TYPES[dst.type].cap)/1000-dst.solution.vol)*1000;
+  const amt=Math.min(t.rate*0.2,src.solution.vol*1000,room);
+  if(amt<=0.0001){t.running=false;toast(room<=0?'接收器皿已满，滴定停止':'滴定管已排空',true);afterChange();return;}
+  const s=src.solution,d=dst.solution;
+  const v=amt/1000,f=v/s.vol;
+  const mol={};for(const id in s.moles)mol[id]=s.moles[id]*f;
+  for(const id in s.moles)s.moles[id]-=mol[id];
+  s.vol-=v;
+  mixInto(d,mol,v,s.temp,s.color,s.density);
+  equilibrate(d);
+  t.delivered+=amt;
+}
+/* ---------- 加热 ---------- */
+const HEAT_DEV={lamp:{cn:'酒精灯',rate:15},torch:{cn:'酒精喷灯',rate:40},arc:{cn:'强电流',rate:150},cool:{cn:'自然冷却',rate:10}};
+function heaterHTML(){
+  const h=G.heat;
+  return `<div class="heater ${h.dev}"><i></i><span>${HEAT_DEV[h.dev].cn} · 目标 ${h.target}℃</span></div>`;
+}
+function heaterTick(){
+  const h=G.heat;if(!h)return;
+  const v=G.vessels.find(x=>x.id===h.vid);
+  if(!v){G.heat=null;return;}
+  const s=v.solution;
+  if(Math.abs(s.temp-h.target)<=h.rate*0.2+0.05){
+    if(s.temp!==h.target){s.temp=h.target;equilibrate(s);}
+    G.heat=null;snd('done');toast('已达目标温度 '+h.target+' ℃');afterChange();return;
+  }
+  s.temp+=Math.sign(h.target-s.temp)*h.rate*0.2;
+  equilibrate(s);
+}
+/* ---------- 气泡生成（renderBench 与 updateBenchLite 共用） ---------- */
+function bubHTML(sol,pct,vh,vid){
+  if(!(G.bubbles&&sol.gasFx&&(Date.now()-sol.gasFx)<(sol.gasFxT||3000)&&pct>5))return '';
+  const liqPx=pct/100*vh;
+  const n=5+Math.min(13,Math.floor((sol._gRate||0.002)*2000)); // 数量随产气量增多
+  let hsh=0;for(const c of vid)hsh=(hsh*31+c.charCodeAt(0))>>>0;
+  let s='';
+  for(let i=0;i<n;i++){
+    const r1=((hsh^(i*2654435761))>>>0)/4294967296, r2=((hsh^((i+3)*40503))>>>0)/4294967296;
+    const risePx=Math.max(8,liqPx*(0.7+r2*0.28)); // 底部升起，到液面下沿
+    const dur=((1.1+r1*1.2)*1000).toFixed(0), del=(r2*1800).toFixed(0);
+    const sz=(4+r1*6).toFixed(0);
+    s+=`<i class="bub" data-t0="${Date.now()}" data-rise="${risePx.toFixed(0)}" data-dur="${dur}" data-del="${del}" data-b0="${(2+r2*4).toFixed(0)}" style="left:${(10+r1*72).toFixed(0)}%;bottom:2px;width:${sz}px;height:${sz}px;opacity:0;pointer-events:none"></i>`;
+  }
+  return s;
+}
+/* ---------- 持久固体颗粒（未溶固体以颗粒形式可见） ---------- */
+function granuleDots(sol,vid){
+  const sm=solidColor(sol);
+  if(sm.g<=0.02)return '';
+  const n=Math.min(26,3+Math.floor(sm.g/2));
+  let h=0;for(const c of vid)h=(h*31+c.charCodeAt(0))>>>0;
+  let s='';
+  for(let i=0;i<n;i++){
+    const r1=((h^(i*2654435761))>>>0)/4294967296;
+    const r2=((h^((i+7)*40503))>>>0)/4294967296;
+    const r3=((h^((i+13)*2246822519))>>>0)/4294967296;
+    const left=(8+r1*78).toFixed(0), bot=(2+r2*13).toFixed(0), sz=(4+r3*5).toFixed(1);
+    s+=`<i class="dotS" style="left:${left}%;bottom:${bot}%;width:${sz}px;height:${sz}px;background:${sm.c}"></i>`;
+  }
+  return s;
+}
+function cycleSpec(vid){
+  const v=G.vessels.find(x=>x.id===vid);
+  if(!v)return;
+  const base=VESSEL_TYPES[v.type];
+  const specs=base.specs||[base.cap];
+  const cur=v.cap||base.cap;
+  v.cap=specs[(specs.indexOf(cur)+1)%specs.length];
+  afterChange();
+  toast(v.label+' 换成 '+v.cap+' mL 规格');
+}
+/* ---------- 指示剂显色（酚酞/石蕊） ---------- */
+function liqDisplayColor(sol){
+  let base=sol.color;
+  // 金属离子本色：沉淀/消耗即褪色（Cu²⁺蓝、Fe³⁺黄）
+  if(sol.vol>1e-6){
+    const cuD=sol.moles.cu2||0, cuP=sol.moles.cuoh2_s||0, cuT=cuD+cuP;
+    if(cuT>1e-7){
+      const inten=Math.min(4,cuD/Math.max(sol.vol,1e-9)/0.008)*(cuD/cuT);
+      base=mixHex('#d6ecff','#3f8fd2',1,inten+0.02);
+    }
+    const feD=sol.moles.fe3||0, feP=sol.moles.feoh3_s||0, feT=feD+feP;
+    if(feT>1e-7){
+      const inten=Math.min(3,feD/Math.max(sol.vol,1e-9)/0.008)*(feD/feT);
+      base=mixHex(base,'#d8b84a',1,inten+0.02);
+    }
+  }
+  const ph=pHOf(sol);
+  if(ph===null)return base;
+  if((sol.moles.phph||0)>1e-8){
+    if(ph>=8.6)return '#ff8fc0';
+    if(ph>=7.8)return mixHex(base,'#ff8fc0',(8.6-ph)/0.8,1);
+  }
+  if((sol.moles.litmus||0)>1e-8){
+    if(ph<5)return '#e0566c';
+    if(ph<6.5)return mixHex('#e0566c','#8a5fc0',(6.5-ph)/1.5,1);
+    if(ph<7.5)return '#8a5fc0';
+    if(ph<9)return mixHex('#8a5fc0','#4f83e0',(9-ph)/1.5,1);
+    return '#4f83e0';
+  }
+  return base;
+}
+
+/* ---------- 拼字键盘（无输入框传统） ---------- */
+let kpCb=null, kpVal='0', kpNeg=false;
+function openKeypad(title,hint,cb){
+  kpCb=cb;kpVal='0';kpNeg=false;
+  $('kpTitle').textContent=title;$('kpHint').textContent=hint;
+  $('keypadMask').hidden=false;kpDraw();
+}
+function kpDraw(){$('kpDisplay').textContent=(kpNeg?'-':'')+kpVal;}
+(function buildKeypad(){
+  const keys=['7','8','9','4','5','6','1','2','3','0','.','⌫','C','±','✓'];
+  $('kpGrid').innerHTML=keys.map(k=>`<button data-k="${k}" class="${k==='✓'?'ok':(k==='C'?'cc':'')}">${k}</button>`).join('');
+  $('kpGrid').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k;
+    if(k==='✓'){
+      const x=parseFloat((kpNeg?'-':'')+kpVal);
+      if(!isFinite(x))return toast('无效数值',true);
+      $('keypadMask').hidden=true;kpCb&&kpCb(x);
+    }else if(k==='C'){kpVal='0';kpNeg=false;}
+    else if(k==='⌫'){kpVal=kpVal.length>1?kpVal.slice(0,-1):'0';}
+    else if(k==='±'){kpNeg=!kpNeg;}
+    else if(k==='.'){if(!kpVal.includes('.'))kpVal+='.';}
+    else{kpVal=kpVal==='0'?k:kpVal+k;}
+    kpDraw();
+  });
+  $('keypadMask').onclick=e=>{if(e.target.id==='keypadMask')$('keypadMask').hidden=true;};
+})();
+
+/* ---------- 提交报告 ---------- */
+$('reportBtn').onclick=()=>{
+  const t=G.task;if(!t)return;
+  const r=t.report;
+  if(r.type==='choice'){
+    $('chTitle').textContent=r.title;$('chHint').textContent=r.q;
+    $('chList').innerHTML=r.options.map(o=>`<button class="btn" data-v="${o.v}">${esc(o.t)}</button>`).join('');
+    $('choiceMask').hidden=false;
+    $('chList').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+      $('choiceMask').hidden=true;const res=t.check(b.dataset.v);reportResult(res);
+    });
+  }else if(r.type==='multi3'){
+    const ans={};
+    const ask=(i)=>{
+      openKeypad(r.title+'（'+['①','②','③'][i]+'）',r.q,val=>{
+        ans[i+1]=val;
+        if(i<2)ask(i+1);else{const res=t.check(ans);reportResult(res);}
+      });
+    };
+    ask(0);
+  }else{
+    openKeypad(r.title,r.q,val=>{const res=t.check(val);reportResult(res);});
+  }
+};
+function reportResult(res){
+  toast(res.msg,!res.ok);
+  if(res.ok){snd('win');award(G.task,res.err);}
+}
+$('choiceMask').onclick=e=>{if(e.target.id==='choiceMask')$('choiceMask').hidden=true;};
+
+/* ---------- 顶栏 ---------- */
+$('homeBtn').onclick=()=>{tutEnd();G.task=null;$('screenLab').hidden=true;$('screenTasks').hidden=false;$('homeBtn').hidden=true;$('resetBtn').hidden=true;renderTaskGrid();};
+$('resetBtn').onclick=()=>{if(G.task)startTask(G.task);};
+
+/* ---------- 主题 ---------- */
+function applyTheme(){
+  const th=THEMES[themeIdx];
+  document.documentElement.style.setProperty('--acc',th.a);
+  document.documentElement.style.setProperty('--acc2',th.b);
+  localStorage.setItem('zclab_theme',themeIdx);
+  $('themes').innerHTML=THEMES.map((t,i)=>`<span class="tdot ${i===themeIdx?'on':''}" data-i="${i}" style="background:linear-gradient(135deg,${t.a},${t.b})" title="主题·${t.n}"></span>`).join('');
+  $('themes').querySelectorAll('.tdot').forEach(d=>d.onclick=()=>{themeIdx=+d.dataset.i;applyTheme();});
+  window.__setBgColor&&window.__setBgColor(th.a);
+}
+
+/* ---------- 新手导航 ---------- */
+const TUT_STEPS=[
+ {t:'欢迎',html:'欢迎来到 <b>造·化学虚拟实验室</b>！接下来 1 分钟，带你认识每个区域。'},
+ {sel:'#goalBar',t:'第 1 步 · 读题',html:'顶部是<b>本实验的目标</b>和提示，做题前先读清楚要求。'},
+ {sel:'#shelfPanel',t:'第 2 步 · 货架取药',html:'所有药品在左侧货架。<b>点击药品</b>即选中（青色描边），再点一次取消。'},
+ {sel:'#vesselBar',t:'第 3 步 · 添加器皿',html:'点这里把<b>烧杯/容量瓶/量筒/试管/滴定管</b>加到台面。'},
+ {sel:'#bench',t:'第 4 步 · 取液（核心）',html:'三步走：<b>① 点货架药品 → ② 点台面器皿 → ③ 拼字键盘输入量</b>。液体按 mL、固体按 g；液面真实上升、固体沉底。'},
+ {sel:'#toolBar',t:'第 5 步 · 工具与精度',html:'工具：<b>取液/倒出/合并/滴定/加热/过滤/蒸发/定容/倾倒</b>。<br>「滴定」= 先点滴定管、再点接收器皿，点上方管子开始滴加；「加热」= 点器皿输目标温度。「移液精度」切换读数方式。'},
+ {sel:'#toolBar',t:'第 6 步 · 收拾仪器',html:'实验做完：点工具栏「<b>收拾</b>」，再点击台面器皿，即可收走（内容物一并清理）。'},
+ {sel:'#instTabs',t:'第 7 步 · 仪器读数',html:'先<b>点击台面器皿</b>选中，再在这里读：性质 / pH 计 / 温度计（可加热制冷）/ 物种浓度。'},
+ {sel:'#reportBtn',t:'第 8 步 · 提交报告',html:'完成题目要求后点这里，用拼字键盘输入答案。答对得积分，记入本地排行榜。'},
+ {t:'完成 ✔',html:'导航结束！点右上角 <b>？</b> 可随时重看。现在开始你的第一个实验吧。'}
+];
+let tutIdx=-1;
+function tutStart(){tutIdx=0;tutShow();}
+function tutEnd(){$('tutMask').hidden=true;$('tutCard').hidden=true;tutIdx=-1;}
+function tutShow(){
+  const step=TUT_STEPS[tutIdx],mask=$('tutMask'),card=$('tutCard');
+  mask.hidden=false;card.hidden=false;
+  const el=step.sel?document.querySelector(step.sel):null;
+  if(el){
+    el.scrollIntoView({block:'nearest',behavior:'smooth'});
+    const r=el.getBoundingClientRect();
+    mask.style.left=(r.left-8)+'px';mask.style.top=(r.top-8)+'px';
+    mask.style.width=(r.width+16)+'px';mask.style.height=(r.height+16)+'px';
+  }else{mask.style.left='0px';mask.style.top='-9999px';}
+  let top=90,left=Math.max(16,(window.innerWidth-320)/2);
+  if(el){const r=el.getBoundingClientRect();top=r.bottom+16;if(top+190>window.innerHeight)top=Math.max(16,r.top-200);left=Math.min(Math.max(16,r.left),window.innerWidth-320);}
+  card.style.left=left+'px';card.style.top=top+'px';
+  card.innerHTML='<h3>'+step.t+'</h3><p>'+step.html+'</p><div class="trow"><span class="prog">'+(tutIdx+1)+' / '+TUT_STEPS.length+'</span>'
+    +(tutIdx>0?'<button class="btn" id="tutPrev">上一步</button>':'')
+    +'<button class="btn" id="tutSkip">跳过</button>'
+    +'<button class="btn on" id="tutNext">'+(tutIdx===TUT_STEPS.length-1?'完成 ✔':'下一步')+'</button></div>';
+  $('tutNext').onclick=()=>{tutIdx++;if(tutIdx>=TUT_STEPS.length){localStorage.setItem('zclab_tut','1');tutEnd();}else tutShow();};
+  const pv=$('tutPrev');if(pv)pv.onclick=()=>{tutIdx--;tutShow();};
+  $('tutSkip').onclick=()=>{localStorage.setItem('zclab_tut','1');tutEnd();};
+}
+$('tutBtn').onclick=()=>{
+  if($('screenLab').hidden){toast('请先进入一个实验任务，再查看导航');return;}
+  if(tutIdx>=0)tutEnd();else tutStart();
+};
+
+applyTheme();refreshPts();renderTaskGrid();
+</script>
+<script>
+/* ============================================================
+   背景：three.js r128 粒子场 + 线框分子（自定义 shader）
+   兼容性说明：
+   - THREE.BufferGeometry + setAttribute：r109+ 可用 ✓
+   - ShaderMaterial / Points / AdditiveBlending：r128 全支持 ✓
+   - 未使用 r152+ 的 outputColorSpace / r15x 新 API ✓
+   ============================================================ */
+(function(){
+  if(typeof THREE==='undefined')return; // CDN 失败时静默降级
+  let renderer;
+  try{
+    renderer=new THREE.WebGLRenderer({canvas:document.getElementById('bg'),antialias:true,alpha:true});
+  }catch(e){return;}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,100);
+  cam.position.z=9;
+
+  const N=700;
+  const pos=new Float32Array(N*3),sc=new Float32Array(N),sd=new Float32Array(N);
+  for(let i=0;i<N;i++){
+    pos[i*3]=(Math.random()-0.5)*18;
+    pos[i*3+1]=(Math.random()-0.5)*11;
+    pos[i*3+2]=(Math.random()-0.5)*7;
+    sc[i]=0.3+Math.random()*0.9;
+    sd[i]=Math.random();
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('aScale',new THREE.BufferAttribute(sc,1));
+  geo.setAttribute('aSeed',new THREE.BufferAttribute(sd,1));
+
+  const uni={
+    uTime:{value:0},
+    uMouse:{value:new THREE.Vector2(0,0)},
+    uColor:{value:new THREE.Color('#3ddcff')},
+    uPx:{value:renderer.getPixelRatio()}
+  };
+  const mat=new THREE.ShaderMaterial({
+    uniforms:uni, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:[
+      'attribute float aScale;',
+      'attribute float aSeed;',
+      'uniform float uTime;',
+      'uniform vec2 uMouse;',
+      'uniform float uPx;',
+      'varying float vA;',
+      'void main(){',
+      '  vec3 p=position;',
+      '  p.y+=sin(uTime*0.35+aSeed*6.2831)*0.65;',
+      '  p.x+=cos(uTime*0.22+aSeed*6.2831)*0.45;',
+      '  p.xy+=uMouse*vec2(0.7,0.45)*(0.4+aSeed);',
+      '  vec4 mv=modelViewMatrix*vec4(p,1.0);',
+      '  gl_Position=projectionMatrix*mv;',
+      '  gl_PointSize=min(aScale*uPx*30.0/max(0.1,-mv.z),6.0*uPx);',
+      '  vA=0.28+0.42*aSeed;',
+      '}'
+    ].join('\n'),
+    fragmentShader:[
+      'uniform vec3 uColor;',
+      'varying float vA;',
+      'void main(){',
+      '  vec2 c=gl_PointCoord-vec2(0.5);',
+      '  float d=length(c);',
+      '  float a=(1.0-smoothstep(0.22,0.5,d))*vA;',
+      '  gl_FragColor=vec4(uColor,a);',
+      '}'
+    ].join('\n')
+  });
+  const pts=new THREE.Points(geo,mat);
+  scene.add(pts);
+
+  const ico=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(2.4,1),
+    new THREE.MeshBasicMaterial({color:0x3ddcff,wireframe:true,transparent:true,opacity:0.09})
+  );
+  ico.position.set(6.2,-2.6,-2.5);
+  scene.add(ico);
+
+  let tx=0,ty=0;
+  window.addEventListener('mousemove',e=>{
+    tx=(e.clientX/window.innerWidth-0.5)*2;
+    ty=-(e.clientY/window.innerHeight-0.5)*2;
+  },{passive:true});
+  window.addEventListener('resize',()=>{
+    cam.aspect=window.innerWidth/window.innerHeight;
+    cam.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+  });
+
+  window.__setBgColor=function(hex){
+    uni.uColor.value.set(hex);
+    ico.material.color.set(hex);
+  };
+
+  const clock=new THREE.Clock();
+  let running=true;
+  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)loop();});
+  function loop(){
+    if(!running)return;
+    requestAnimationFrame(loop);
+    const t=clock.getElapsedTime();
+    uni.uTime.value=t;
+    uni.uMouse.value.x+=(tx-uni.uMouse.value.x)*0.05;
+    uni.uMouse.value.y+=(ty-uni.uMouse.value.y)*0.05;
+    ico.rotation.x=t*0.12;
+    ico.rotation.y=t*0.18;
+    pts.rotation.y=t*0.02;
+    renderer.render(scene,cam);
+  }
+  loop();
+})();
+</script>
+<div style="position:fixed;left:8px;bottom:4px;font-size:10px;color:#94a3b8;opacity:.55;z-index:9998">© 2026 早晨 ｜ <a href="https://beian.miit.gov.cn" target="_blank" rel="noreferrer" style="color:#64748b">湘ICP备2026039674号-1</a></div></body>
+</html>
